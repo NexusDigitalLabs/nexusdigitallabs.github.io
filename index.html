@@ -1,832 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Prompt Architect & Token Counter — Free AI Prompt Optimizer Tool</title>
-  <meta name="description" content="Free browser-based AI prompt optimizer and GPT token counter. Remove whitespace, flatten prompts, estimate token costs for GPT-4o, Claude, and Gemini — 100% client-side. Zero data sent to any server." />
-  <meta name="keywords" content="prompt architect, token counter, ChatGPT token counter, GPT-4 token optimizer, AI prompt engineering, reduce token usage, prompt optimization tool, LLM prompt builder, tiktoken alternative, free token counter" />
-  <meta name="robots" content="index, follow" />
-  <meta name="author" content="NexusDigitalLabs" />
-  <link rel="canonical" href="https://nexusdigitallabs.dev/" />
-
-  <!-- Open Graph -->
-  <meta property="og:title" content="Prompt Architect & Token Counter — Free AI Prompt Optimizer" />
-  <meta property="og:description" content="Optimize AI prompts, count tokens, and estimate API costs instantly. 100% client-side — no data leaves your browser." />
-  <meta property="og:type" content="website" />
-  <meta property="og:locale" content="en_US" />
-
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Prompt Architect & Token Counter" />
-  <meta name="twitter:description" content="Free browser-based AI prompt optimizer. Token counting, whitespace removal, and cost estimation — zero server calls." />
-
-  <!-- Theme colour for mobile browser chrome -->
-  <meta name="theme-color" content="#09090b" />
-
-  <!-- DNS prefetch + preconnect for Tailwind CDN (broadest browser coverage) -->
-  <link rel="dns-prefetch" href="https://cdn.tailwindcss.com" />
-  <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin />
-
-  <!-- DNS prefetch + preconnect for Umami Analytics CDN -->
-  <link rel="dns-prefetch" href="https://cloud.umami.is" />
-  <link rel="preconnect" href="https://cloud.umami.is" crossorigin />
-
-  <!-- Tailwind CSS via CDN — loaded synchronously to prevent FOUC -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- JSON-LD Structured Data — WebApplication schema for rich SEO snippets -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "Prompt Architect & Token Counter",
-    "description": "Free browser-based AI prompt optimizer and GPT token counter. Remove whitespace, flatten prompts, and estimate API costs for GPT-4o, Claude, and Gemini — 100% client-side.",
-    "applicationCategory": "DeveloperApplication",
-    "operatingSystem": "Any",
-    "browserRequirements": "Requires JavaScript",
-    "url": "https://nexusdigitallabs.dev/",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD"
-    },
-    "featureList": [
-      "Live token counting",
-      "Whitespace removal",
-      "Single-line flattening",
-      "API cost estimation for GPT-4o, Claude, and Gemini",
-      "100% client-side — no data transmission"
-    ]
-  }
-  </script>
-
-  <!-- Umami Analytics — cookie-free, GDPR/CCPA compliant, no personal data collected -->
-  <!-- defer ensures this never blocks DOM parsing or first paint -->
-  <script defer src="https://cloud.umami.is/script.js" data-website-id="89ea0001-e2c2-4802-bcb2-bf2ae4809451"></script>
-
-  <style>
-    /* Custom scrollbar */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: rgb(9 9 11); }
-    ::-webkit-scrollbar-thumb { background: rgb(63 63 70); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: rgb(82 82 91); }
-
-    /* Accessible focus ring */
-    .focus-ring:focus-visible {
-      outline: 2px solid rgb(139 92 246);
-      outline-offset: 2px;
-    }
-
-    /* Copy flash feedback */
-    @keyframes copyFlash {
-      0%   { background-color: rgb(16 185 129 / 0.12); }
-      100% { background-color: transparent; }
-    }
-    .copy-flash { animation: copyFlash 1.2s ease-out; }
-
-    /* Token count pop — triggered via JS on each stat update */
-    @keyframes statPop {
-      0%   { opacity: 0.5; transform: scale(0.93); }
-      60%  { opacity: 1;   transform: scale(1.08); }
-      100% { opacity: 1;   transform: scale(1); }
-    }
-    .stat-pop { animation: statPop 0.22s ease-out; }
-
-    /* Prevent layout shift from Tailwind CDN load */
-    html { visibility: visible; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexusDigitalLabs — Software Studio</title>
+    <!-- Tailwind CSS for clean, lightweight styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
 </head>
-<body class="bg-zinc-950 text-zinc-100 min-h-screen antialiased">
+<body class="bg-[#0b0f19] text-slate-200 min-h-screen selection:bg-blue-500 selection:text-white antialiased">
 
-  <!-- ═══════════════════════════════════════════
-       STICKY HEADER
-  ═══════════════════════════════════════════ -->
-  <header class="sticky top-0 z-50 border-b border-zinc-800/80 bg-zinc-950/90 backdrop-blur-md">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-4">
-      <!-- Brand -->
-      <div class="flex items-center gap-3 shrink-0">
-        <div class="w-8 h-8 rounded-lg bg-violet-600 flex items-center justify-center shadow-lg shadow-violet-900/40">
-          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
-          </svg>
-        </div>
-        <span class="font-semibold text-zinc-100 tracking-tight leading-none">Prompt Architect</span>
-        <span class="hidden sm:inline text-zinc-600 text-sm">— Token Counter & Optimizer</span>
-      </div>
-      <!-- Trust badges -->
-      <div class="flex items-center gap-2">
-        <span class="hidden xs:inline text-xs text-zinc-500 bg-zinc-900 border border-zinc-800 rounded-full px-3 py-1 leading-none">100% Client-Side</span>
-        <span class="text-xs text-emerald-400 bg-emerald-950/60 border border-emerald-900/60 rounded-full px-3 py-1 leading-none">Privacy Safe</span>
-      </div>
+    <!-- Main Container -->
+    <div class="max-w-3xl mx-auto px-6 py-20 sm:py-32">
+        
+        <!-- Header / Logo -->
+        <header class="mb-16 animate-fade-in">
+            <div class="flex items-center space-x-3">
+                <!-- Clean Minimalist Geometric Logo -->
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-semibold text-white tracking-tighter text-sm">N</div>
+                <span class="text-lg font-medium tracking-tight text-white">NexusDigitalLabs</span>
+            </div>
+        </header>
+
+        <!-- Studio Introduction -->
+        <main class="space-y-20">
+            <section class="space-y-4">
+                <h1 class="text-3xl sm:text-4xl font-light tracking-tight text-white leading-tight">
+                    Engineering minimalist web utilities, developer tools, and high-performance software.
+                </h1>
+                <p class="text-slate-400 font-light max-w-xl leading-relaxed text-sm sm:text-base">
+                    We build zero-bloat, highly focused digital products engineered for speed, privacy, and utility.
+                </p>
+            </section>
+
+            <hr class="border-slate-800/60" />
+
+            <!-- Section: Our Suite (Where Your Tools Live) -->
+            <section class="space-y-6">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xs font-semibold tracking-widest text-slate-400 uppercase">Production Utilities</h2>
+                    <span class="h-[1px] flex-1 bg-slate-800/60 mx-4"></span>
+                </div>
+                
+                <div class="grid gap-4">
+                    <!-- Tool Item 1: Prompt Architect -->
+                    <a href="/prompt-architect/" class="group block p-5 rounded-xl bg-slate-900/40 border border-slate-800/50 hover:border-slate-700/80 transition-all duration-300">
+                        <div class="flex items-start justify-between">
+                            <div class="space-y-1">
+                                <h3 class="text-sm font-medium text-white group-hover:text-blue-400 transition-colors">Prompt Architect</h3>
+                                <p class="text-xs text-slate-400 font-light">Advanced system prompt flattener optimized for Cursor, Gemini, and LLM workspaces.</p>
+                            </div>
+                            <span class="text-slate-500 group-hover:translate-x-1 transition-transform text-sm">→</span>
+                        </div>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Section: Insights & Content (The AdSense Engine) -->
+            <section class="space-y-6">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xs font-semibold tracking-widest text-slate-400 uppercase">Engineering Logs & Articles</h2>
+                    <span class="h-[1px] flex-1 bg-slate-800/60 mx-4"></span>
+                </div>
+                
+                <div class="space-y-6">
+                    <!-- Article Loop Placeholder 1 -->
+                    <article class="group space-y-2">
+                        <span class="text-[11px] font-medium text-slate-500 tracking-wider uppercase">July 2026</span>
+                        <h3 class="text-base font-medium text-slate-200 group-hover:text-white transition-colors">
+                            <a href="/articles/optimizing-ai-prompt-tokens-for-llms/" class="hover:underline">
+                                Maximizing LLM Context: Why Text Flattening Prevents Broken Code Markdown
+                            </a>
+                        </h3>
+                        <p class="text-xs text-slate-400 font-light max-w-2xl leading-relaxed">
+                            An in-depth technical analysis on how trailing whitespaces, nested brackets, and unstructured blocks pollute abstract syntax trees and drive up API token costs in modern IDE pipelines.
+                        </p>
+                    </article>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-32 pt-8 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] font-light text-slate-500 tracking-wide">
+            <div>&copy; 2026 NexusDigitalLabs. All rights reserved.</div>
+            <div class="flex space-x-6">
+                <a href="mailto:hello@nexusdigitallabs.dev" class="hover:text-slate-300 transition-colors">Contact</a>
+                <a href="https://github.com/NexusDigitalLabs" class="hover:text-slate-300 transition-colors">GitHub</a>
+            </div>
+        </footer>
+
     </div>
-  </header>
 
-  <!-- ═══════════════════════════════════════════
-       MAIN WORKSPACE
-  ═══════════════════════════════════════════ -->
-  <main>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-
-      <!-- Hero heading -->
-      <div class="text-center mb-10">
-        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-zinc-50 tracking-tight leading-tight mb-3">
-          Advanced Prompt Architect
-          <br class="hidden sm:block" />
-          <span class="text-violet-400">&amp; Token Counter</span>
-        </h1>
-        <p class="text-zinc-400 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-          Engineer, optimize, and measure AI prompts with live token counting and API cost estimation.
-          Everything runs inside your browser — zero data leaves your device.
-        </p>
-      </div>
-
-      <!-- ─── Workspace: Input / Output columns ─── -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
-
-        <!-- INPUT PANEL -->
-        <div class="flex flex-col gap-3">
-          <div class="flex items-center justify-between">
-            <label for="promptInput" class="text-sm font-medium text-zinc-300">
-              Input Prompt
-            </label>
-            <button
-              id="clearBtn"
-              type="button"
-              tabindex="0"
-              aria-label="Clear input"
-              class="focus-ring text-xs text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/70 rounded-md px-2.5 py-1 transition-colors">
-              Clear
-            </button>
-          </div>
-
-          <textarea
-            id="promptInput"
-            tabindex="0"
-            placeholder="Paste or type your AI prompt here…"
-            spellcheck="false"
-            autocomplete="off"
-            autocorrect="off"
-            autocapitalize="off"
-            aria-label="Input prompt textarea"
-            class="focus-ring w-full h-64 sm:h-72 bg-zinc-900 border border-zinc-700 hover:border-zinc-600 rounded-xl p-4 text-zinc-100 text-sm font-mono resize-none transition-colors placeholder-zinc-600 leading-relaxed"
-          ></textarea>
-
-          <!-- Input stats bar -->
-          <div class="grid grid-cols-4 gap-2" role="status" aria-label="Input statistics" aria-live="polite">
-            <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-center">
-              <div id="charCount" class="text-base font-bold text-zinc-100 tabular-nums">0</div>
-              <div class="text-xs text-zinc-500 mt-0.5">Chars</div>
-            </div>
-            <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-center">
-              <div id="wordCount" class="text-base font-bold text-zinc-100 tabular-nums">0</div>
-              <div class="text-xs text-zinc-500 mt-0.5">Words</div>
-            </div>
-            <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-center">
-              <div id="lineCount" class="text-base font-bold text-zinc-100 tabular-nums">0</div>
-              <div class="text-xs text-zinc-500 mt-0.5">Lines</div>
-            </div>
-            <div class="bg-violet-950/70 border border-violet-800/70 rounded-lg p-3 text-center">
-              <div id="tokenCount" class="text-base font-bold text-violet-300 tabular-nums">0</div>
-              <div class="text-xs text-violet-500 mt-0.5">~Tokens</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- OUTPUT PANEL -->
-        <div class="flex flex-col gap-3">
-          <div class="flex items-center justify-between">
-            <label class="text-sm font-medium text-zinc-300">
-              Optimized Output
-            </label>
-            <div class="flex items-center gap-2">
-              <span
-                id="savingsLabel"
-                role="status"
-                class="hidden text-xs text-emerald-400 bg-emerald-950/60 border border-emerald-900/60 rounded-full px-2.5 py-0.5 leading-none font-medium">
-              </span>
-              <button
-                id="copyBtn"
-                type="button"
-                tabindex="0"
-                aria-label="Copy output to clipboard"
-                class="focus-ring inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-100 border border-zinc-700 hover:border-zinc-500 rounded-lg px-3 py-1.5 transition-all">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                </svg>
-                Copy
-              </button>
-            </div>
-          </div>
-
-          <div
-            id="outputPanel"
-            role="region"
-            aria-label="Optimized prompt output"
-            aria-live="polite"
-            class="w-full h-64 sm:h-72 bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-sm font-mono overflow-y-auto whitespace-pre-wrap break-words leading-relaxed transition-colors">
-            <span class="text-zinc-600 italic select-none">Optimized prompt will appear here after applying an action…</span>
-          </div>
-
-          <!-- Output stats bar -->
-          <div class="grid grid-cols-4 gap-2" role="status" aria-label="Output statistics">
-            <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-center">
-              <div id="outCharCount" class="text-base font-bold text-zinc-500 tabular-nums">—</div>
-              <div class="text-xs text-zinc-600 mt-0.5">Chars</div>
-            </div>
-            <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-center">
-              <div id="outWordCount" class="text-base font-bold text-zinc-500 tabular-nums">—</div>
-              <div class="text-xs text-zinc-600 mt-0.5">Words</div>
-            </div>
-            <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-center">
-              <div id="outLineCount" class="text-base font-bold text-zinc-500 tabular-nums">—</div>
-              <div class="text-xs text-zinc-600 mt-0.5">Lines</div>
-            </div>
-            <div class="bg-violet-950/40 border border-violet-900/40 rounded-lg p-3 text-center">
-              <div id="outTokenCount" class="text-base font-bold text-violet-600 tabular-nums">—</div>
-              <div class="text-xs text-violet-700 mt-0.5">~Tokens</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ─── Action Buttons ─── -->
-      <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 mb-5">
-        <p class="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-3.5">Optimization Actions</p>
-        <div class="flex flex-wrap gap-3">
-
-          <button
-            id="removeWhitespaceBtn"
-            type="button"
-            tabindex="0"
-            aria-label="Remove extra whitespace from prompt"
-            class="focus-ring flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-zinc-800 hover:bg-zinc-700/80 active:bg-zinc-700 border border-zinc-700 hover:border-zinc-500 text-zinc-200 rounded-lg px-4 py-2.5 text-sm font-medium transition-all">
-            <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-            </svg>
-            Remove Extra Whitespace
-          </button>
-
-          <button
-            id="flattenBtn"
-            type="button"
-            tabindex="0"
-            aria-label="Flatten prompt to a single line"
-            class="focus-ring flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-zinc-800 hover:bg-zinc-700/80 active:bg-zinc-700 border border-zinc-700 hover:border-zinc-500 text-zinc-200 rounded-lg px-4 py-2.5 text-sm font-medium transition-all">
-            <svg class="w-4 h-4 text-violet-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>
-            </svg>
-            Flatten to Single Line
-          </button>
-
-          <button
-            id="trimBtn"
-            type="button"
-            tabindex="0"
-            aria-label="Trim leading spaces and normalize indentation"
-            class="focus-ring flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-zinc-800 hover:bg-zinc-700/80 active:bg-zinc-700 border border-zinc-700 hover:border-zinc-500 text-zinc-200 rounded-lg px-4 py-2.5 text-sm font-medium transition-all">
-            <svg class="w-4 h-4 text-sky-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 12h10M4 17h6"/>
-            </svg>
-            Trim &amp; Normalize
-          </button>
-
-          <button
-            id="useOutputBtn"
-            type="button"
-            tabindex="0"
-            aria-label="Use the optimized output as new input"
-            class="focus-ring flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-violet-700 hover:bg-violet-600 active:bg-violet-800 border border-violet-600 hover:border-violet-400 text-white rounded-lg px-4 py-2.5 text-sm font-medium transition-all shadow-md shadow-violet-900/30">
-            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
-            </svg>
-            Use Output as Input
-          </button>
-        </div>
-      </div>
-
-      <!-- ─── API Cost Estimator ─── -->
-      <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5 mb-16">
-        <h2 class="text-sm font-semibold text-zinc-300 mb-4 flex items-center gap-2">
-          <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-          Estimated API Cost — Input Tokens
-          <span class="text-zinc-600 font-normal text-xs">(live, based on current input)</span>
-        </h2>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div class="bg-zinc-950 border border-zinc-800 rounded-lg p-3.5">
-            <div class="text-xs text-zinc-500 mb-1.5 font-medium">GPT-4o</div>
-            <div id="cost4o" class="text-sm font-mono font-semibold text-zinc-200 tabular-nums">$0.000000</div>
-            <div class="text-xs text-zinc-600 mt-1">$2.50 / 1M tokens</div>
-          </div>
-          <div class="bg-zinc-950 border border-zinc-800 rounded-lg p-3.5">
-            <div class="text-xs text-zinc-500 mb-1.5 font-medium">GPT-4o mini</div>
-            <div id="cost4omini" class="text-sm font-mono font-semibold text-zinc-200 tabular-nums">$0.000000</div>
-            <div class="text-xs text-zinc-600 mt-1">$0.15 / 1M tokens</div>
-          </div>
-          <div class="bg-zinc-950 border border-zinc-800 rounded-lg p-3.5">
-            <div class="text-xs text-zinc-500 mb-1.5 font-medium">Claude 3.5 Sonnet</div>
-            <div id="costClaude" class="text-sm font-mono font-semibold text-zinc-200 tabular-nums">$0.000000</div>
-            <div class="text-xs text-zinc-600 mt-1">$3.00 / 1M tokens</div>
-          </div>
-          <div class="bg-zinc-950 border border-zinc-800 rounded-lg p-3.5">
-            <div class="text-xs text-zinc-500 mb-1.5 font-medium">Gemini 1.5 Pro</div>
-            <div id="costGemini" class="text-sm font-mono font-semibold text-zinc-200 tabular-nums">$0.000000</div>
-            <div class="text-xs text-zinc-600 mt-1">$1.25 / 1M tokens</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ═══════════════════════════════════════════
-           SEO CONTENT — Below the fold
-           Keyword-rich semantic prose for crawler indexing
-      ═══════════════════════════════════════════ -->
-      <section class="border-t border-zinc-800 pt-14 pb-10" aria-label="About this tool">
-        <div class="max-w-3xl mx-auto space-y-12">
-
-          <!-- What is this tool -->
-          <div>
-            <h2 class="text-2xl font-bold text-zinc-100 mb-4 tracking-tight">
-              What is the Prompt Architect &amp; Token Counter?
-            </h2>
-            <p class="text-zinc-400 leading-relaxed mb-4">
-              The <strong class="text-zinc-300">Prompt Architect &amp; Token Counter</strong> is a free, browser-native utility built for AI engineers, developers, and content creators who work daily with large language models (LLMs) such as OpenAI's GPT-4o, Anthropic's Claude 3.5, and Google's Gemini 1.5 Pro. It delivers instant, privacy-safe token counting and prompt optimization without transmitting a single character of your data to any external server or analytics endpoint.
-            </p>
-            <p class="text-zinc-400 leading-relaxed">
-              Token counting is the backbone of responsible LLM usage — it controls API costs, governs context window utilization, and enables precise prompt budgeting at scale. This tool uses a <strong class="text-zinc-300">multi-factor token estimation algorithm</strong> modelled on GPT's Byte Pair Encoding (BPE) tokenizer boundaries, achieving approximately 95–98% accuracy for standard English text compared to the official OpenAI tiktoken library — all without loading any heavyweight WASM binary.
-            </p>
-          </div>
-
-          <!-- Why optimize -->
-          <div>
-            <h2 class="text-2xl font-bold text-zinc-100 mb-4 tracking-tight">
-              Why Should You Optimize AI Prompts?
-            </h2>
-            <p class="text-zinc-400 leading-relaxed mb-5">
-              Every token submitted to an LLM API has a direct dollar cost. Redundant whitespace, stray carriage returns, duplicated blank lines, and verbose phrasing silently inflate your token count on every call. For high-volume applications — automated pipelines, Retrieval-Augmented Generation (RAG) systems, customer-facing chatbots, or document summarization workflows — even a <strong class="text-zinc-300">10–20% reduction in prompt tokens</strong> can translate into hundreds of dollars in monthly savings and measurably faster inference latency.
-            </p>
-            <ul class="space-y-3 text-zinc-400">
-              <li class="flex items-start gap-3">
-                <span class="text-violet-400 mt-0.5 shrink-0" aria-hidden="true">▸</span>
-                <span><strong class="text-zinc-300">Reduce API costs</strong> — stripping invisible characters, duplicate spaces, and excess newlines before sending to OpenAI, Anthropic, or Google APIs directly cuts your per-request spend.</span>
-              </li>
-              <li class="flex items-start gap-3">
-                <span class="text-violet-400 mt-0.5 shrink-0" aria-hidden="true">▸</span>
-                <span><strong class="text-zinc-300">Maximize context window utilization</strong> — fitting more meaningful content into GPT-4o's 128K context window or Claude 3.5's 200K limit instead of padding it with whitespace tokens.</span>
-              </li>
-              <li class="flex items-start gap-3">
-                <span class="text-violet-400 mt-0.5 shrink-0" aria-hidden="true">▸</span>
-                <span><strong class="text-zinc-300">Improve response quality</strong> — removing ambiguous whitespace and redundant tokens tightens model attention patterns, producing more focused and relevant completions.</span>
-              </li>
-              <li class="flex items-start gap-3">
-                <span class="text-violet-400 mt-0.5 shrink-0" aria-hidden="true">▸</span>
-                <span><strong class="text-zinc-300">Accelerate inference speed</strong> — shorter input length directly reduces time-to-first-token (TTFT) in streaming API calls, improving perceived responsiveness in production applications.</span>
-              </li>
-              <li class="flex items-start gap-3">
-                <span class="text-violet-400 mt-0.5 shrink-0" aria-hidden="true">▸</span>
-                <span><strong class="text-zinc-300">Prepare prompts for JSON payloads</strong> — multi-line prompts embedded in API request bodies, environment variables, or CI/CD configs need to be single-line strings to avoid JSON parse errors.</span>
-              </li>
-            </ul>
-          </div>
-
-          <!-- How to use -->
-          <div>
-            <h2 class="text-2xl font-bold text-zinc-100 mb-4 tracking-tight">
-              How to Use the Prompt Architect
-            </h2>
-            <ol class="space-y-4 text-zinc-400">
-              <li class="flex items-start gap-4">
-                <span class="text-violet-400 font-bold text-lg leading-snug shrink-0 w-5">1.</span>
-                <span><strong class="text-zinc-300">Paste your prompt</strong> into the input textarea on the left. The live token counter, word count, character count, and line count all update within 80ms of each keystroke — no lag, no spinner.</span>
-              </li>
-              <li class="flex items-start gap-4">
-                <span class="text-violet-400 font-bold text-lg leading-snug shrink-0 w-5">2.</span>
-                <span>Click <strong class="text-zinc-300">Remove Extra Whitespace</strong> to collapse multiple consecutive spaces to one, trim each line, and reduce excessive blank lines to a maximum of two — preserving intentional paragraph structure.</span>
-              </li>
-              <li class="flex items-start gap-4">
-                <span class="text-violet-400 font-bold text-lg leading-snug shrink-0 w-5">3.</span>
-                <span>Click <strong class="text-zinc-300">Flatten to Single Line</strong> to convert multi-line prompts into a compact, single-line string — ideal for embedding in JSON API request bodies, CLI commands, or system prompt configurations.</span>
-              </li>
-              <li class="flex items-start gap-4">
-                <span class="text-violet-400 font-bold text-lg leading-snug shrink-0 w-5">4.</span>
-                <span>Review the <strong class="text-zinc-300">green token savings badge</strong> on the output panel to see exactly how many tokens were eliminated, then click <strong class="text-zinc-300">Copy</strong> to transfer the optimized prompt to your clipboard.</span>
-              </li>
-              <li class="flex items-start gap-4">
-                <span class="text-violet-400 font-bold text-lg leading-snug shrink-0 w-5">5.</span>
-                <span>Use the <strong class="text-zinc-300">Use Output as Input</strong> button to chain multiple optimizations — for example, first remove whitespace, then flatten to single line for maximum compression.</span>
-              </li>
-              <li class="flex items-start gap-4">
-                <span class="text-violet-400 font-bold text-lg leading-snug shrink-0 w-5">6.</span>
-                <span>Check the <strong class="text-zinc-300">API Cost Estimator</strong> panel to see real-time cost projections for your token count across GPT-4o, GPT-4o mini, Claude 3.5 Sonnet, and Gemini 1.5 Pro.</span>
-              </li>
-            </ol>
-          </div>
-
-          <!-- FAQ -->
-          <div>
-            <h2 class="text-2xl font-bold text-zinc-100 mb-6 tracking-tight">
-              Frequently Asked Questions
-            </h2>
-            <div class="space-y-4">
-
-              <details class="group border border-zinc-800 rounded-xl overflow-hidden">
-                <summary class="flex items-center justify-between gap-4 px-5 py-4 cursor-pointer list-none hover:bg-zinc-900/60 transition-colors">
-                  <h3 class="font-semibold text-zinc-200 text-sm sm:text-base">Is my prompt data sent to any server?</h3>
-                  <svg class="w-4 h-4 text-zinc-500 shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                  </svg>
-                </summary>
-                <div class="px-5 pb-5 text-zinc-400 text-sm leading-relaxed border-t border-zinc-800/60">
-                  <p class="pt-4">Absolutely. Every tool operation — character counting, token estimation, whitespace removal, line flattening — executes entirely in client-side JavaScript running in your local browser process. No <code class="text-violet-300 bg-zinc-900 px-1.5 py-0.5 rounded text-xs">fetch</code> calls, no <code class="text-violet-300 bg-zinc-900 px-1.5 py-0.5 rounded text-xs">XMLHttpRequest</code>, no <code class="text-violet-300 bg-zinc-900 px-1.5 py-0.5 rounded text-xs">sendBeacon</code>, no cookies, and no <code class="text-violet-300 bg-zinc-900 px-1.5 py-0.5 rounded text-xs">localStorage</code> writes are made. This site uses <strong class="text-zinc-300">Umami Analytics</strong> — a fully open-source, cookie-free analytics provider that collects only anonymised page view counts (page URL, referrer, browser type, device type). Umami stores no personal data, sets no cookies, and requires no GDPR or CCPA consent banner. Your prompt text never leaves your device under any circumstances.</p>
-                </div>
-              </details>
-
-              <details class="group border border-zinc-800 rounded-xl overflow-hidden">
-                <summary class="flex items-center justify-between gap-4 px-5 py-4 cursor-pointer list-none hover:bg-zinc-900/60 transition-colors">
-                  <h3 class="font-semibold text-zinc-200 text-sm sm:text-base">How accurate is the token count estimate?</h3>
-                  <svg class="w-4 h-4 text-zinc-500 shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                  </svg>
-                </summary>
-                <div class="px-5 pb-5 text-zinc-400 text-sm leading-relaxed border-t border-zinc-800/60">
-                  <p class="pt-4">The estimator uses a multi-factor algorithm that splits on whitespace and punctuation boundaries (approximating BPE tokenization), then applies a subword length adjustment: tokens of 1–4 characters count as 1 token, 5–8 characters as 1.3 tokens, and longer tokens are divided by 4. For standard English prose, this achieves approximately <strong class="text-zinc-300">95–98% accuracy</strong> against OpenAI's tiktoken library. For dense code, special characters, or non-Latin scripts, variance can reach 5–15%. For billing-critical pipelines, use the official tiktoken library or OpenAI's tokenizer API for exact counts.</p>
-                </div>
-              </details>
-
-              <details class="group border border-zinc-800 rounded-xl overflow-hidden">
-                <summary class="flex items-center justify-between gap-4 px-5 py-4 cursor-pointer list-none hover:bg-zinc-900/60 transition-colors">
-                  <h3 class="font-semibold text-zinc-200 text-sm sm:text-base">What does "Flatten to Single Line" do exactly?</h3>
-                  <svg class="w-4 h-4 text-zinc-500 shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                  </svg>
-                </summary>
-                <div class="px-5 pb-5 text-zinc-400 text-sm leading-relaxed border-t border-zinc-800/60">
-                  <p class="pt-4">This function replaces every newline character (<code class="text-violet-300 bg-zinc-900 px-1.5 py-0.5 rounded text-xs">\n</code>), Windows carriage return (<code class="text-violet-300 bg-zinc-900 px-1.5 py-0.5 rounded text-xs">\r\n</code>), and legacy Mac line ending (<code class="text-violet-300 bg-zinc-900 px-1.5 py-0.5 rounded text-xs">\r</code>) with a single space, then collapses any resulting consecutive spaces into one, and trims the outer edges. The result is a compact, single-line string safe for embedding in JSON payloads, shell environment variables, CI/CD pipeline configurations, or anywhere multi-line strings would break parsing.</p>
-                </div>
-              </details>
-
-              <details class="group border border-zinc-800 rounded-xl overflow-hidden">
-                <summary class="flex items-center justify-between gap-4 px-5 py-4 cursor-pointer list-none hover:bg-zinc-900/60 transition-colors">
-                  <h3 class="font-semibold text-zinc-200 text-sm sm:text-base">What does "Remove Extra Whitespace" preserve vs. remove?</h3>
-                  <svg class="w-4 h-4 text-zinc-500 shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                  </svg>
-                </summary>
-                <div class="px-5 pb-5 text-zinc-400 text-sm leading-relaxed border-t border-zinc-800/60">
-                  <p class="pt-4"><strong class="text-zinc-300">Removes:</strong> leading and trailing whitespace per line, sequences of two or more consecutive spaces within a line, and sequences of three or more blank lines (reduced to two). <strong class="text-zinc-300">Preserves:</strong> single blank lines that create intentional paragraph breaks, single newlines between list items, and all meaningful text characters. This makes it safe to use on structured prompts with numbered lists, bullet points, and code-style formatting.</p>
-                </div>
-              </details>
-
-              <details class="group border border-zinc-800 rounded-xl overflow-hidden">
-                <summary class="flex items-center justify-between gap-4 px-5 py-4 cursor-pointer list-none hover:bg-zinc-900/60 transition-colors">
-                  <h3 class="font-semibold text-zinc-200 text-sm sm:text-base">Does this work for Claude, Gemini, and other LLMs?</h3>
-                  <svg class="w-4 h-4 text-zinc-500 shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                  </svg>
-                </summary>
-                <div class="px-5 pb-5 text-zinc-400 text-sm leading-relaxed border-t border-zinc-800/60">
-                  <p class="pt-4">Yes. While every model family uses a different underlying tokenizer — OpenAI uses BPE via tiktoken, Claude uses Anthropic's own BPE variant, Gemini uses Google's SentencePiece — the estimates provided here are a reliable planning proxy for all major models when working with standard English text. The whitespace and formatting optimizations are universally beneficial: all transformer-based language models process tokens, and reducing token count reduces cost and improves throughput regardless of provider.</p>
-                </div>
-              </details>
-
-              <details class="group border border-zinc-800 rounded-xl overflow-hidden">
-                <summary class="flex items-center justify-between gap-4 px-5 py-4 cursor-pointer list-none hover:bg-zinc-900/60 transition-colors">
-                  <h3 class="font-semibold text-zinc-200 text-sm sm:text-base">What is prompt engineering and why does it matter?</h3>
-                  <svg class="w-4 h-4 text-zinc-500 shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                  </svg>
-                </summary>
-                <div class="px-5 pb-5 text-zinc-400 text-sm leading-relaxed border-t border-zinc-800/60">
-                  <p class="pt-4"><strong class="text-zinc-300">Prompt engineering</strong> is the systematic practice of structuring input text to guide large language models toward specific, accurate, and cost-efficient outputs. Effective prompts use deliberate techniques — role assignment, chain-of-thought reasoning, few-shot examples, constraint specification, and output format directives — combined with minimal redundancy to achieve better results with fewer tokens. This tool helps you architect, measure, compress, and iterate on prompts before they reach your API endpoint, making it an essential part of any LLM development workflow.</p>
-                </div>
-              </details>
-
-            </div>
-          </div>
-
-        </div>
-      </section>
-    </div>
-  </main>
-
-  <!-- ═══════════════════════════════════════════
-       FOOTER
-  ═══════════════════════════════════════════ -->
-  <footer class="border-t border-zinc-800/60 py-7 mt-2">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <p class="text-zinc-600 text-sm">
-        Prompt Architect — Free, open-source, 100% client-side.
-        No tracking. No cookies. No data collection. No consent banner required.
-      </p>
-    </div>
-  </footer>
-
-  <!-- ═══════════════════════════════════════════
-       CORE ENGINE — 100% Client-Side JavaScript
-       Zero external requests. Zero cookies.
-       Zero localStorage. Zero sendBeacon.
-  ═══════════════════════════════════════════ -->
-  <script>
-    (function () {
-      'use strict';
-
-      // ─────────────────────────────────────────
-      // TOKEN ESTIMATION ENGINE
-      // Approximates GPT BPE tokenization without loading
-      // any external WASM binary or network request.
-      // Algorithm: punctuation-boundary splitting + subword
-      // length adjustment for long tokens.
-      // Accuracy: ~95–98% for standard English vs tiktoken.
-      // ─────────────────────────────────────────
-      function estimateTokens(text) {
-        if (!text || text.trim().length === 0) return 0;
-
-        // Insert spaces around punctuation and digit sequences
-        // to approximate BPE boundary splits
-        const normalized = text
-          .replace(/([^\w\s])/g, ' $1 ')
-          .replace(/(\d+)/g, ' $1 ');
-
-        const parts = normalized.trim().split(/\s+/).filter(Boolean);
-
-        let count = 0;
-        for (let i = 0; i < parts.length; i++) {
-          const len = parts[i].length;
-          if (len === 0) continue;
-          if (len <= 4) {
-            count += 1;
-          } else if (len <= 8) {
-            count += 1.3;
-          } else {
-            count += Math.ceil(len / 4);
-          }
-        }
-
-        return Math.max(1, Math.round(count));
-      }
-
-      // ─────────────────────────────────────────
-      // STATS COMPUTATION
-      // ─────────────────────────────────────────
-      function computeStats(text) {
-        const chars = text.length;
-        const words = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
-        const lines = text === '' ? 0 : text.split('\n').length;
-        const tokens = estimateTokens(text);
-        return { chars, words, lines, tokens };
-      }
-
-      // ─────────────────────────────────────────
-      // TEXT TRANSFORMATION FUNCTIONS
-      // ─────────────────────────────────────────
-
-      /**
-       * Collapses 2+ consecutive spaces to one, trims each line,
-       * and reduces 3+ consecutive blank lines to a max of two.
-       * Preserves intentional single blank lines (paragraph breaks).
-       */
-      function removeExtraWhitespace(text) {
-        return text
-          .split('\n')
-          .map(function (line) {
-            return line.replace(/ {2,}/g, ' ').trim();
-          })
-          .join('\n')
-          .replace(/\n{3,}/g, '\n\n')
-          .trim();
-      }
-
-      /**
-       * Replaces all newline variants (\r\n, \r, \n) with a single space,
-       * then collapses any resulting multiple spaces to one.
-       * Produces a compact, single-line string safe for JSON embedding.
-       */
-      function flattenToSingleLine(text) {
-        return text
-          .replace(/\r\n|\r|\n/g, ' ')
-          .replace(/ {2,}/g, ' ')
-          .trim();
-      }
-
-      /**
-       * Strips leading whitespace from each line, converts tabs to
-       * two spaces, and reduces 4+ consecutive blank lines to three.
-       * Useful for normalizing pasted content while keeping structure.
-       */
-      function trimAndNormalize(text) {
-        return text
-          .split('\n')
-          .map(function (line) {
-            return line.trimStart().replace(/\t/g, '  ');
-          })
-          .join('\n')
-          .replace(/\n{4,}/g, '\n\n\n')
-          .trim();
-      }
-
-      // ─────────────────────────────────────────
-      // API COST CALCULATION
-      // Rates in USD per 1 million tokens (input pricing).
-      // ─────────────────────────────────────────
-      var COST_RATES = {
-        gpt4o:     2.50,
-        gpt4omini: 0.15,
-        claude:    3.00,
-        gemini:    1.25
-      };
-
-      function formatCost(tokens, ratePerMillion) {
-        var cost = (tokens / 1000000) * ratePerMillion;
-        return '$' + cost.toFixed(6);
-      }
-
-      function updateCosts(tokens) {
-        cost4oEl.textContent     = formatCost(tokens, COST_RATES.gpt4o);
-        cost4ominiEl.textContent = formatCost(tokens, COST_RATES.gpt4omini);
-        costClaudeEl.textContent = formatCost(tokens, COST_RATES.claude);
-        costGeminiEl.textContent = formatCost(tokens, COST_RATES.gemini);
-      }
-
-      // ─────────────────────────────────────────
-      // DOM REFERENCES
-      // ─────────────────────────────────────────
-      var promptInput     = document.getElementById('promptInput');
-      var outputPanel     = document.getElementById('outputPanel');
-      var charCountEl     = document.getElementById('charCount');
-      var wordCountEl     = document.getElementById('wordCount');
-      var lineCountEl     = document.getElementById('lineCount');
-      var tokenCountEl    = document.getElementById('tokenCount');
-      var outCharCountEl  = document.getElementById('outCharCount');
-      var outWordCountEl  = document.getElementById('outWordCount');
-      var outLineCountEl  = document.getElementById('outLineCount');
-      var outTokenCountEl = document.getElementById('outTokenCount');
-      var savingsLabel    = document.getElementById('savingsLabel');
-      var cost4oEl        = document.getElementById('cost4o');
-      var cost4ominiEl    = document.getElementById('cost4omini');
-      var costClaudeEl    = document.getElementById('costClaude');
-      var costGeminiEl    = document.getElementById('costGemini');
-
-      // ─────────────────────────────────────────
-      // STATE
-      // ─────────────────────────────────────────
-      var currentOutput = '';
-      var debounceTimer = null;
-
-      // ─────────────────────────────────────────
-      // INPUT STATS — debounced at 80ms to prevent
-      // layout thrashing on rapid keypresses
-      // ─────────────────────────────────────────
-      function updateInputStats() {
-        var stats = computeStats(promptInput.value);
-        charCountEl.textContent  = stats.chars.toLocaleString();
-        wordCountEl.textContent  = stats.words.toLocaleString();
-        lineCountEl.textContent  = stats.lines.toLocaleString();
-        tokenCountEl.textContent = stats.tokens.toLocaleString();
-        updateCosts(stats.tokens);
-
-        // Animate token count on change — force reflow to restart animation
-        tokenCountEl.classList.remove('stat-pop');
-        void tokenCountEl.offsetWidth;
-        tokenCountEl.classList.add('stat-pop');
-      }
-
-      promptInput.addEventListener('input', function () {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(updateInputStats, 80);
-      });
-
-      // ─────────────────────────────────────────
-      // OUTPUT PANEL RENDERER
-      // ─────────────────────────────────────────
-      function setOutput(text) {
-        currentOutput = text;
-        outputPanel.textContent = text;
-        outputPanel.classList.remove('copy-flash');
-
-        var inStats  = computeStats(promptInput.value);
-        var outStats = computeStats(text);
-
-        outCharCountEl.textContent  = outStats.chars.toLocaleString();
-        outWordCountEl.textContent  = outStats.words.toLocaleString();
-        outLineCountEl.textContent  = outStats.lines.toLocaleString();
-        outTokenCountEl.textContent = outStats.tokens.toLocaleString();
-
-        var saved = inStats.tokens - outStats.tokens;
-        if (saved > 0) {
-          savingsLabel.textContent = '\u2212' + saved + ' tokens saved';
-          savingsLabel.classList.remove('hidden');
-        } else if (saved === 0) {
-          savingsLabel.textContent = 'No tokens saved';
-          savingsLabel.classList.remove('hidden');
-        } else {
-          savingsLabel.classList.add('hidden');
-        }
-      }
-
-      function resetOutput() {
-        currentOutput = '';
-        outputPanel.innerHTML = '<span class="text-zinc-600 italic select-none">Optimized prompt will appear here after applying an action\u2026</span>';
-        outCharCountEl.textContent  = '\u2014';
-        outWordCountEl.textContent  = '\u2014';
-        outLineCountEl.textContent  = '\u2014';
-        outTokenCountEl.textContent = '\u2014';
-        savingsLabel.classList.add('hidden');
-      }
-
-      // ─────────────────────────────────────────
-      // BUTTON: Remove Extra Whitespace
-      // ─────────────────────────────────────────
-      document.getElementById('removeWhitespaceBtn').addEventListener('click', function () {
-        if (!promptInput.value.trim()) return;
-        setOutput(removeExtraWhitespace(promptInput.value));
-      });
-
-      // ─────────────────────────────────────────
-      // BUTTON: Flatten to Single Line
-      // ─────────────────────────────────────────
-      document.getElementById('flattenBtn').addEventListener('click', function () {
-        if (!promptInput.value.trim()) return;
-        setOutput(flattenToSingleLine(promptInput.value));
-      });
-
-      // ─────────────────────────────────────────
-      // BUTTON: Trim & Normalize
-      // ─────────────────────────────────────────
-      document.getElementById('trimBtn').addEventListener('click', function () {
-        if (!promptInput.value.trim()) return;
-        setOutput(trimAndNormalize(promptInput.value));
-      });
-
-      // ─────────────────────────────────────────
-      // BUTTON: Use Output as Input
-      // ─────────────────────────────────────────
-      document.getElementById('useOutputBtn').addEventListener('click', function () {
-        if (!currentOutput) return;
-        promptInput.value = currentOutput;
-        updateInputStats();
-        resetOutput();
-        promptInput.focus();
-      });
-
-      // ─────────────────────────────────────────
-      // BUTTON: Copy to Clipboard
-      // Uses Clipboard API with execCommand fallback
-      // for browsers without Clipboard API support.
-      // ─────────────────────────────────────────
-      document.getElementById('copyBtn').addEventListener('click', function () {
-        var textToCopy = currentOutput || promptInput.value;
-        if (!textToCopy) return;
-
-        var btn = this;
-        var originalHTML = btn.innerHTML;
-
-        function onCopySuccess() {
-          btn.innerHTML =
-            '<svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>'
-            + ' Copied!';
-          btn.classList.add('border-emerald-700', 'text-emerald-400');
-          outputPanel.classList.add('copy-flash');
-          setTimeout(function () {
-            btn.innerHTML = originalHTML;
-            btn.classList.remove('border-emerald-700', 'text-emerald-400');
-          }, 2000);
-        }
-
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(textToCopy).then(onCopySuccess).catch(function () {
-            legacyCopy(textToCopy, onCopySuccess);
-          });
-        } else {
-          legacyCopy(textToCopy, onCopySuccess);
-        }
-      });
-
-      function legacyCopy(text, onSuccess) {
-        var ta = document.createElement('textarea');
-        ta.value = text;
-        ta.setAttribute('readonly', '');
-        ta.style.cssText = 'position:fixed;opacity:0;pointer-events:none;';
-        document.body.appendChild(ta);
-        ta.select();
-        try {
-          document.execCommand('copy');
-          onSuccess();
-        } catch (e) { /* silent fallback failure */ }
-        document.body.removeChild(ta);
-      }
-
-      // ─────────────────────────────────────────
-      // BUTTON: Clear
-      // ─────────────────────────────────────────
-      document.getElementById('clearBtn').addEventListener('click', function () {
-        promptInput.value = '';
-        updateInputStats();
-        resetOutput();
-        promptInput.focus();
-      });
-
-    }());
-  </script>
 </body>
 </html>
