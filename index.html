@@ -27,6 +27,10 @@
   <link rel="dns-prefetch" href="https://cdn.tailwindcss.com" />
   <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin />
 
+  <!-- DNS prefetch + preconnect for Umami Analytics CDN -->
+  <link rel="dns-prefetch" href="https://cloud.umami.is" />
+  <link rel="preconnect" href="https://cloud.umami.is" crossorigin />
+
   <!-- Tailwind CSS via CDN — loaded synchronously to prevent FOUC -->
   <script src="https://cdn.tailwindcss.com"></script>
 
@@ -55,6 +59,10 @@
     ]
   }
   </script>
+
+  <!-- Umami Analytics — cookie-free, GDPR/CCPA compliant, no personal data collected -->
+  <!-- defer ensures this never blocks DOM parsing or first paint -->
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="89ea0001-e2c2-4802-bcb2-bf2ae4809451"></script>
 
   <style>
     /* Custom scrollbar */
@@ -429,7 +437,7 @@
                   </svg>
                 </summary>
                 <div class="px-5 pb-5 text-zinc-400 text-sm leading-relaxed border-t border-zinc-800/60">
-                  <p class="pt-4">Absolutely not. Zero data leaves your browser. Every operation — character counting, token estimation, whitespace removal, line flattening — executes entirely in client-side JavaScript running in your local browser process. No <code class="text-violet-300 bg-zinc-900 px-1.5 py-0.5 rounded text-xs">fetch</code> calls, no <code class="text-violet-300 bg-zinc-900 px-1.5 py-0.5 rounded text-xs">XMLHttpRequest</code>, no <code class="text-violet-300 bg-zinc-900 px-1.5 py-0.5 rounded text-xs">sendBeacon</code>, no cookies, no <code class="text-violet-300 bg-zinc-900 px-1.5 py-0.5 rounded text-xs">localStorage</code>, and no analytics trackers are present in this page. This tool is fully GDPR and CCPA compliant by architecture — no consent banner is required.</p>
+                  <p class="pt-4">Absolutely. Every tool operation — character counting, token estimation, whitespace removal, line flattening — executes entirely in client-side JavaScript running in your local browser process. No <code class="text-violet-300 bg-zinc-900 px-1.5 py-0.5 rounded text-xs">fetch</code> calls, no <code class="text-violet-300 bg-zinc-900 px-1.5 py-0.5 rounded text-xs">XMLHttpRequest</code>, no <code class="text-violet-300 bg-zinc-900 px-1.5 py-0.5 rounded text-xs">sendBeacon</code>, no cookies, and no <code class="text-violet-300 bg-zinc-900 px-1.5 py-0.5 rounded text-xs">localStorage</code> writes are made. This site uses <strong class="text-zinc-300">Umami Analytics</strong> — a fully open-source, cookie-free analytics provider that collects only anonymised page view counts (page URL, referrer, browser type, device type). Umami stores no personal data, sets no cookies, and requires no GDPR or CCPA consent banner. Your prompt text never leaves your device under any circumstances.</p>
                 </div>
               </details>
 
