@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NexusDigitalLabs — Software Studio</title>
+    <!-- Inline dynamic SVG Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='25' fill='%232563eb'/><text x='50' y='65' font-family='sans-serif' font-size='50' font-weight='bold' fill='white' text-anchor='middle'>N</text></svg>">
     <!-- Tailwind CSS for clean, lightweight styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -13,11 +15,11 @@
 </head>
 <body class="bg-[#0b0f19] text-slate-200 min-h-screen selection:bg-blue-500 selection:text-white antialiased">
 
-    <!-- Main Container -->
-    <div class="max-w-3xl mx-auto px-6 py-20 sm:py-32">
+    <!-- Main Container - Expanded width from max-w-3xl to max-w-5xl for multi-column layout -->
+    <div class="max-w-5xl mx-auto px-6 py-16 sm:py-24">
         
         <!-- Header / Logo -->
-        <header class="mb-16 animate-fade-in">
+        <header class="mb-16 sm:mb-24 animate-fade-in">
             <div class="flex items-center space-x-3">
                 <!-- Clean Minimalist Geometric Logo -->
                 <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-semibold text-white tracking-tighter text-sm">N</div>
@@ -26,9 +28,9 @@
         </header>
 
         <!-- Studio Introduction -->
-        <main class="space-y-20">
+        <main class="space-y-16 sm:space-y-24">
             <section class="space-y-4">
-                <h1 class="text-3xl sm:text-4xl font-light tracking-tight text-white leading-tight">
+                <h1 class="text-3xl sm:text-4xl font-light tracking-tight text-white leading-tight max-w-3xl">
                     Engineering minimalist web utilities, developer tools, and high-performance software.
                 </h1>
                 <p class="text-slate-400 font-light max-w-xl leading-relaxed text-sm sm:text-base">
@@ -36,55 +38,58 @@
                 </p>
             </section>
 
-            <hr class="border-slate-800/60" />
-
-            <!-- Section: Our Suite (Where Your Tools Live) -->
-            <section class="space-y-6">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-xs font-semibold tracking-widest text-slate-400 uppercase">Production Utilities</h2>
-                    <span class="h-[1px] flex-1 bg-slate-800/60 mx-4"></span>
-                </div>
+            <!-- Grid Layout Matrix: Side-by-side columns on large viewports, stacked on mobile -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 border-t border-slate-800/60 pt-12">
                 
-                <div class="grid gap-4">
-                    <!-- Tool Item 1: Prompt Architect -->
-                    <a href="/prompt-architect/" class="group block p-5 rounded-xl bg-slate-900/40 border border-slate-800/50 hover:border-slate-700/80 transition-all duration-300">
-                        <div class="flex items-start justify-between">
-                            <div class="space-y-1">
-                                <h3 class="text-sm font-medium text-white group-hover:text-blue-400 transition-colors">Prompt Architect</h3>
-                                <p class="text-xs text-slate-400 font-light">Advanced system prompt flattener optimized for Cursor, Gemini, and LLM workspaces.</p>
+                <!-- Left Column: Our Suite (Where Your Tools Live) -->
+                <section class="lg:col-span-5 space-y-6">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-xs font-semibold tracking-widest text-slate-400 uppercase">Production Utilities</h2>
+                        <span class="h-[1px] flex-1 bg-slate-800/60 ml-4 lg:hidden"></span>
+                    </div>
+                    
+                    <div class="grid gap-4">
+                        <!-- Tool Item 1: Prompt Architect -->
+                        <a href="/prompt-architect/" class="group block p-5 rounded-xl bg-slate-900/40 border border-slate-800/50 hover:border-slate-700/80 transition-all duration-300">
+                            <div class="flex items-start justify-between">
+                                <div class="space-y-1">
+                                    <h3 class="text-sm font-medium text-white group-hover:text-blue-400 transition-colors">Prompt Architect</h3>
+                                    <p class="text-xs text-slate-400 font-light leading-relaxed">Advanced system prompt flattener optimized for Cursor, Gemini, and LLM workspaces.</p>
+                                </div>
+                                <span class="text-slate-500 group-hover:translate-x-1 transition-transform text-sm ml-2">→</span>
                             </div>
-                            <span class="text-slate-500 group-hover:translate-x-1 transition-transform text-sm">→</span>
-                        </div>
-                    </a>
-                </div>
-            </section>
+                        </a>
+                    </div>
+                </section>
 
-            <!-- Section: Insights & Content (The AdSense Engine) -->
-            <section class="space-y-6">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-xs font-semibold tracking-widest text-slate-400 uppercase">Engineering Logs & Articles</h2>
-                    <span class="h-[1px] flex-1 bg-slate-800/60 mx-4"></span>
-                </div>
+                <!-- Right Column: Insights & Content (The AdSense Engine) -->
+                <section class="lg:col-span-7 space-y-6">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-xs font-semibold tracking-widest text-slate-400 uppercase">Engineering Logs & Articles</h2>
+                        <span class="h-[1px] flex-1 bg-slate-800/60 ml-4 lg:hidden"></span>
+                    </div>
+                    
+                    <div class="space-y-6 lg:border-l lg:border-slate-800/40 lg:pl-8">
+                        <!-- Article Loop Placeholder 1 -->
+                        <article class="group space-y-2">
+                            <span class="text-[11px] font-medium text-slate-500 tracking-wider uppercase">July 2026</span>
+                            <h3 class="text-base font-medium text-slate-200 group-hover:text-white transition-colors">
+                                <a href="/articles/optimizing-ai-prompt-tokens-for-llms/" class="hover:underline">
+                                    Maximizing LLM Context: Why Text Flattening Prevents Broken Code Markdown
+                                </a>
+                            </h3>
+                            <p class="text-xs text-slate-400 font-light max-w-2xl leading-relaxed">
+                                An in-depth technical analysis on how trailing whitespaces, nested brackets, and unstructured blocks pollute abstract syntax trees and drive up API token costs in modern IDE pipelines.
+                            </p>
+                        </article>
+                    </div>
+                </section>
                 
-                <div class="space-y-6">
-                    <!-- Article Loop Placeholder 1 -->
-                    <article class="group space-y-2">
-                        <span class="text-[11px] font-medium text-slate-500 tracking-wider uppercase">July 2026</span>
-                        <h3 class="text-base font-medium text-slate-200 group-hover:text-white transition-colors">
-                            <a href="/articles/optimizing-ai-prompt-tokens-for-llms/" class="hover:underline">
-                                Maximizing LLM Context: Why Text Flattening Prevents Broken Code Markdown
-                            </a>
-                        </h3>
-                        <p class="text-xs text-slate-400 font-light max-w-2xl leading-relaxed">
-                            An in-depth technical analysis on how trailing whitespaces, nested brackets, and unstructured blocks pollute abstract syntax trees and drive up API token costs in modern IDE pipelines.
-                        </p>
-                    </article>
-                </div>
-            </section>
+            </div>
         </main>
 
         <!-- Footer -->
-        <footer class="mt-32 pt-8 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] font-light text-slate-500 tracking-wide">
+        <footer class="mt-24 sm:mt-32 pt-8 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] font-light text-slate-500 tracking-wide">
             <div>&copy; 2026 NexusDigitalLabs. All rights reserved.</div>
             <div class="flex space-x-6">
                 <a href="mailto:hello@nexusdigitallabs.dev" class="hover:text-slate-300 transition-colors">Contact</a>
