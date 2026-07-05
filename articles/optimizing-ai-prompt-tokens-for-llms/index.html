@@ -3,16 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Primary Meta Tags -->
     <title>Optimizing AI Prompt Tokens for LLMs — NexusDigitalLabs</title>
     <meta name="description" content="A technical deep-dive into reducing LLM token costs by eliminating whitespace bloat, flattening nested structures, and building leaner prompts for Cursor, Gemini, and GPT-4 pipelines.">
+    <meta name="keywords" content="LLM token optimization, prompt engineering, reduce token costs, GPT-4 tokens, tiktoken, prompt flattening, AI API cost, whitespace cleanup, Cursor IDE, token counter, prompt normalization, LLM pipeline">
+    <meta name="robots" content="index, follow">
     <meta name="author" content="NexusDigitalLabs">
-    <meta property="og:title" content="Optimizing AI Prompt Tokens for LLMs">
-    <meta property="og:description" content="How trailing whitespace, nested brackets, and unstructured blocks silently inflate your LLM API costs.">
+
+    <!-- Canonical -->
+    <link rel="canonical" href="https://nexusdigitallabs.dev/articles/optimizing-ai-prompt-tokens-for-llms/">
+
+    <!-- Open Graph / Facebook / WhatsApp / Discord / Teams / Slack -->
     <meta property="og:type" content="article">
+    <meta property="og:url" content="https://nexusdigitallabs.dev/articles/optimizing-ai-prompt-tokens-for-llms/">
+    <meta property="og:title" content="Optimizing AI Prompt Tokens for LLMs — NexusDigitalLabs">
+    <meta property="og:description" content="How trailing whitespace, nested brackets, and unstructured blocks silently inflate your LLM API costs and corrupt output quality in modern IDE pipelines.">
+    <meta property="og:image" content="https://nexusdigitallabs.dev/og-image.png">
+
+    <!-- Twitter / X -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://nexusdigitallabs.dev/articles/optimizing-ai-prompt-tokens-for-llms/">
+    <meta property="twitter:title" content="Optimizing AI Prompt Tokens for LLMs — NexusDigitalLabs">
+    <meta property="twitter:description" content="How trailing whitespace, nested brackets, and unstructured blocks silently inflate your LLM API costs and corrupt output quality in modern IDE pipelines.">
+    <meta property="twitter:image" content="https://nexusdigitallabs.dev/og-image.png">
+
+    <!-- Favicon -->
     <link rel="icon" type="image/png" href="/favicon.png">
     <link rel="apple-touch-icon" href="/favicon.png">
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Optimizing AI Prompt Tokens for LLMs",
+      "description": "A technical deep-dive into reducing LLM token costs by eliminating whitespace bloat, flattening nested structures, and building leaner prompts for Cursor, Gemini, and GPT-4 pipelines.",
+      "url": "https://nexusdigitallabs.dev/articles/optimizing-ai-prompt-tokens-for-llms/",
+      "image": "https://nexusdigitallabs.dev/og-image.png",
+      "datePublished": "2026-07-01",
+      "dateModified": "2026-07-06",
+      "author": {
+        "@type": "Organization",
+        "name": "NexusDigitalLabs",
+        "url": "https://nexusdigitallabs.dev/"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "NexusDigitalLabs",
+        "url": "https://nexusdigitallabs.dev/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://nexusdigitallabs.dev/favicon.png"
+        }
+      }
+    }
+    </script>
+
     <!-- Umami Analytics (cookie-free) -->
     <script defer src="https://cloud.umami.is/script.js" data-website-id="89ea0001-e2c2-4802-bcb2-bf2ae4809451"></script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
