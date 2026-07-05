@@ -2,7 +2,7 @@
 
 **A lightweight, live-metric prompt cleaning utility for modern LLM and AI-agent workspaces.**
 
-### **[→ Open Live Tool](https://nexusdigitallabs.github.io/prompt-architect/)**
+### **[→ Open Live Tool](https://nexusdigitallabs.dev/)**
 
 ![GitHub Pages](https://img.shields.io/badge/Deployed-GitHub%20Pages-brightgreen?style=flat-square&logo=github)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)
