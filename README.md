@@ -1,8 +1,8 @@
-# Prompt Architect & Token Counter
+# NexusDigitalLabs
 
-**A lightweight, live-metric prompt cleaning utility for modern LLM and AI-agent workspaces.**
+**Engineering minimalist web utilities, developer tools, and high-performance software.**
 
-### **[→ Open Live Tool](https://nexusdigitallabs.dev/)**
+### [→ Visit nexusdigitallabs.dev](https://nexusdigitallabs.dev/)
 
 ![GitHub Pages](https://img.shields.io/badge/Deployed-GitHub%20Pages-brightgreen?style=flat-square&logo=github)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)
@@ -12,33 +12,73 @@
 
 ---
 
-## Overview
+## About
 
-**Prompt Architect** is a free, fully client-side web utility for AI engineers, developers, and automation builders who work daily with large language models (LLMs). It delivers instant GPT token counts, live API cost estimates, and one-click prompt optimizations — entirely in the browser. No backend, no data transmission, no consent banner required.
+NexusDigitalLabs is a software studio that builds zero-bloat, highly focused digital products engineered for speed, privacy, and utility. This repository is the monorepo powering the entire `nexusdigitallabs.dev` domain — the homepage, all production utility tools, and all engineering articles — served as a fully static site via GitHub Pages.
 
-Built for use with **OpenAI GPT-4o**, **Anthropic Claude 3.5**, **Google Gemini 1.5 Pro**, and any other transformer-based LLM API.
-
----
-
-## Features
-
-- **Live Token Counter** — estimates GPT-style BPE tokens in real time as you type, ~95–98% accuracy vs. tiktoken for standard English
-- **Remove Extra Whitespace** — collapses consecutive spaces, trims each line, reduces excessive blank lines while preserving paragraph structure
-- **Flatten to Single Line** — converts multi-line prompts into a compact single-line string safe for JSON payloads, environment variables, and API request bodies
-- **Trim & Normalize** — strips leading whitespace per line and converts tabs to spaces without altering newline structure
-- **API Cost Estimator** — live input cost projections across GPT-4o, GPT-4o mini, Claude 3.5 Sonnet, and Gemini 1.5 Pro
-- **Token Savings Badge** — shows the exact token delta between your original and optimized prompt
-- **Chain Optimizations** — use "Use Output as Input" to stack multiple transformations in sequence
-- **Copy to Clipboard** — one-click copy with visual confirmation and legacy browser fallback
-- **Fully Accessible** — keyboard navigable with visible focus rings and ARIA labels throughout
+Every page is a self-contained HTML file. No framework, no build pipeline, no server.
 
 ---
 
-## Why Prompt Architect?
+## Repository Structure
 
-Every token sent to an LLM API costs money. Redundant whitespace, stray newlines, and verbose phrasing silently inflate token counts on every API call. For high-volume pipelines — RAG systems, chatbots, document summarization workflows — a **10–20% token reduction** compounds into hundreds of dollars in monthly savings.
+```
+nexusdigitallabs.github.io/
+│
+├── index.html                          # Homepage — studio landing page
+│
+├── tools/                              # Production utility tools
+│   └── prompt-architect/
+│       └── index.html                  # /tools/prompt-architect/
+│
+├── articles/                           # Engineering logs & long-form articles
+│   └── optimizing-ai-prompt-tokens-for-llms/
+│       └── index.html                  # /articles/optimizing-ai-prompt-tokens-for-llms/
+│
+├── about/
+│   └── index.html                      # /about/
+├── contact/
+│   └── index.html                      # /contact/
+├── privacy-policy/
+│   └── index.html                      # /privacy-policy/
+│
+├── docs/                               # Internal documentation
+│   └── tools/
+│       └── prompt-architect.md         # Tool spec & feature reference
+│
+├── CNAME                               # Custom domain: nexusdigitallabs.dev
+├── sitemap.xml                         # XML sitemap for search engines
+├── robots.txt                          # Crawler directives
+├── favicon.png                         # Site favicon
+├── og-image.png                        # Default Open Graph share image
+├── .nojekyll                           # Disables Jekyll processing on GitHub Pages
+└── googlef445b64816b591eb.html         # Google Search Console verification
+```
 
-Prompt Architect gives you the measurement and transformation tools to engineer leaner, faster, and cheaper prompts before they ever reach your API endpoint.
+---
+
+## Live Routes
+
+| Route | Description |
+|---|---|
+| `/` | Homepage — studio introduction and content index |
+| `/tools/prompt-architect/` | Prompt Architect — LLM prompt flattener & token optimizer |
+| `/articles/optimizing-ai-prompt-tokens-for-llms/` | Engineering article — token optimization deep-dive |
+| `/about/` | About NexusDigitalLabs |
+| `/contact/` | Contact page |
+| `/privacy-policy/` | Privacy policy |
+
+---
+
+## Tools
+
+### Prompt Architect
+> Advanced system prompt flattener optimized for Cursor, Gemini, and LLM workspaces.
+
+- **Route:** `/tools/prompt-architect/`
+- **Source:** `tools/prompt-architect/index.html`
+- **Docs:** [`docs/tools/prompt-architect.md`](docs/tools/prompt-architect.md)
+- **Status:** Coming Soon
 
 ---
 
@@ -56,7 +96,7 @@ Prompt Architect gives you the measurement and transformation tools to engineer 
 
 ## Privacy
 
-This tool is **privacy-safe by architecture**:
+This entire site is **privacy-safe by architecture**:
 
 - Zero `fetch()` calls transmitting user data
 - Zero cookies or `localStorage` writes
@@ -66,26 +106,23 @@ This tool is **privacy-safe by architecture**:
 
 ---
 
-## Deployment
-
-Single `index.html` — deploy anywhere that serves static files:
+## Local Development
 
 ```bash
-# GitHub Pages — push to main, enable Pages in repo Settings
-git push origin main
-```
-
-```bash
-# Local development
+# Serve from repo root — all pretty URLs resolve via directory index.html files
 python3 -m http.server 3000
 # Open http://localhost:3000
 ```
 
 ---
 
-## Keywords
+## Deployment
 
-`prompt engineering` · `token counter` · `ChatGPT token counter` · `GPT-4 token optimizer` · `LLM prompt builder` · `AI prompt optimizer` · `tiktoken alternative` · `reduce token usage` · `prompt whitespace cleaner` · `API cost estimator` · `OpenAI cost calculator` · `Claude token counter` · `Gemini token estimator` · `prompt flattening tool` · `free token counter`
+This repository is deployed automatically via GitHub Pages on every push to `main`. The `CNAME` file configures the custom domain `nexusdigitallabs.dev`. The `.nojekyll` file disables Jekyll processing so all file paths are served as-is.
+
+```bash
+git push origin main
+```
 
 ---
 
