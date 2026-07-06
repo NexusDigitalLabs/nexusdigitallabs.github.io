@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Primary Meta Tags -->
+  <title>Freelancer Invoice Generator — NexusDigitalLabs</title>
+  <meta name="description" content="Free browser-based freelancer invoice generator. Create professional PDF invoices with line items, tax calculation, and bank wire details — 100% client-side, zero data transmitted." />
+  <meta name="keywords" content="invoice generator, freelancer invoice, PDF invoice maker, free invoice tool, client billing, bank wire invoice, tax invoice, NexusDigitalLabs" />
+  <meta name="robots" content="index, follow" />
+  <meta name="author" content="NexusDigitalLabs" />
+  <link rel="canonical" href="https://nexusdigitallabs.dev/tools/invoice-generator/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://nexusdigitallabs.dev/tools/invoice-generator/" />
+  <meta property="og:title" content="Freelancer Invoice Generator — NexusDigitalLabs" />
+  <meta property="og:description" content="Create professional A4 PDF invoices in seconds. Client details, line items, tax, bank wire info — free and fully client-side." />
+  <meta property="og:image" content="https://nexusdigitallabs.dev/og-image.png" />
+
+  <!-- Twitter / X -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content="https://nexusdigitallabs.dev/tools/invoice-generator/" />
+  <meta property="twitter:title" content="Freelancer Invoice Generator — NexusDigitalLabs" />
+  <meta property="twitter:description" content="Create professional A4 PDF invoices in seconds. Free and fully client-side." />
+  <meta property="twitter:image" content="https://nexusdigitallabs.dev/og-image.png" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/favicon.png" />
+
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Freelancer Invoice Generator",
+    "url": "https://nexusdigitallabs.dev/tools/invoice-generator/",
+    "description": "Free browser-based freelancer invoice generator. Create professional PDF invoices — 100% client-side.",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "publisher": {
+      "@type": "Organization",
+      "name": "NexusDigitalLabs",
+      "url": "https://nexusdigitallabs.dev/",
+      "logo": { "@type": "ImageObject", "url": "https://nexusdigitallabs.dev/favicon.png" }
+    }
+  }
+  </script>
+
+  <!-- Umami Analytics (cookie-free) -->
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="89ea0001-e2c2-4802-bcb2-bf2ae4809451"></script>
+
+  <!-- html2pdf.js — client-side PDF engine -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+
+    /* ── Scrollbars ──────────────────────────────────── */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+
+    /* ── Focus ring ──────────────────────────────────── */
+    .focus-ring:focus-visible { outline: 2px solid rgba(99,102,241,0.7); outline-offset: 2px; }
+
+    /* ── Form controls ───────────────────────────────── */
+    .fi { /* form input */
+      display: block; width: 100%;
+      background: rgba(15,23,42,0.8);
+      border: 1px solid #1e293b;
+      border-radius: 7px;
+      padding: 7px 11px;
+      font-size: 12.5px;
+      color: #e2e8f0;
+      outline: none;
+      transition: border-color 0.15s;
+      font-family: 'Inter', sans-serif;
+    }
+    .fi:focus { border-color: rgba(99,102,241,0.55); }
+    .fi::placeholder { color: #3f526b; }
+    .fi-label {
+      display: block;
+      font-size: 10.5px;
+      font-weight: 500;
+      color: #4b6278;
+      letter-spacing: 0.03em;
+      margin-bottom: 4px;
+    }
+    select.fi option { background: #0f172a; }
+    textarea.fi { resize: none; }
+
+    /* ── Invoice sheet — the printable paper ─────────── */
+    #invoice-sheet {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #ffffff;
+      color: #111827;
+      box-sizing: border-box;
+      width: 794px; /* 210mm at 96dpi */
+      padding: 52px 48px 56px;
+      position: relative;
+    }
+
+    /* ── Invoice sheet typography helpers ────────────── */
+    .inv-section-label {
+      font-size: 8.5px;
+      font-weight: 600;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: #9ca3af;
+      margin-bottom: 8px;
+    }
+    .inv-value { font-size: 12px; color: #374151; line-height: 1.65; }
+    .inv-value-strong { font-size: 12.5px; font-weight: 600; color: #111827; }
+
+    .inv-table { width: 100%; border-collapse: collapse; }
+    .inv-table th {
+      font-size: 8.5px; font-weight: 600; letter-spacing: 0.09em;
+      text-transform: uppercase; color: #6b7280;
+      padding: 9px 10px; text-align: left;
+      border-bottom: 1.5px solid #e5e7eb;
+    }
+    .inv-table th.r, .inv-table td.r { text-align: right; }
+    .inv-table td {
+      font-size: 12px; color: #374151;
+      padding: 10px 10px;
+      border-bottom: 1px solid #f3f4f6;
+      page-break-inside: avoid;
+    }
+    .inv-table tr:last-child td { border-bottom: none; }
+    .inv-total-row td {
+      font-size: 13.5px; font-weight: 700; color: #111827;
+      padding: 11px 10px;
+      border-top: 2px solid #111827;
+    }
+    .line-item-row { page-break-inside: avoid; }
+
+    /* ── Scaling wrapper ─────────────────────────────── */
+    #invoice-outer {
+      transform-origin: top left;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body class="bg-[#0b0f19] text-slate-200 antialiased" style="height:100vh;overflow:hidden;">
+
+  <!-- ══ HEADER ══════════════════════════════════════════════════════════ -->
+  <header class="h-14 shrink-0 border-b border-slate-800/80 bg-[#0b0f19]/95 backdrop-blur-sm flex items-center justify-between px-5" style="position:sticky;top:0;z-index:50;">
+    <div class="flex items-center gap-3">
+      <a href="/" class="flex items-center gap-2 group">
+        <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-bold text-white text-xs">N</div>
+        <span class="text-sm font-medium text-white group-hover:text-slate-300 transition-colors hidden sm:block">NexusDigitalLabs</span>
+      </a>
+      <span class="text-slate-700 hidden sm:block">/</span>
+      <span class="text-sm font-medium text-slate-300">Invoice Generator</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="hidden sm:inline text-xs text-zinc-500 bg-zinc-900 border border-zinc-800 rounded-full px-3 py-1 leading-none">100% Client-Side</span>
+      <span class="text-xs text-emerald-400 bg-emerald-950/60 border border-emerald-900/60 rounded-full px-3 py-1 leading-none">Privacy Safe</span>
+      <a href="/" class="text-xs text-slate-500 hover:text-slate-300 transition-colors ml-1">← Back</a>
+    </div>
+  </header>
+
+  <!-- ══ SPLIT PANE ═══════════════════════════════════════════════════════ -->
+  <div class="flex" style="height:calc(100vh - 3.5rem);overflow:hidden;">
+
+    <!-- ── LEFT PANE: CONFIG FORM ─────────────────────────────────────── -->
+    <div class="shrink-0 border-r border-slate-800/60 overflow-y-auto bg-[#07090f]" style="width:420px;">
+      <div style="padding:20px;display:flex;flex-direction:column;gap:18px;">
+
+        <!-- Invoice Details -->
+        <section>
+          <p class="text-[10px] font-semibold tracking-widest text-slate-500 uppercase" style="margin-bottom:10px;">Invoice Details</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div>
+              <label class="fi-label">Invoice Number</label>
+              <input id="f-num" class="fi focus-ring" type="text" placeholder="INV-001" />
+            </div>
+            <div>
+              <label class="fi-label">Currency</label>
+              <select id="f-currency" class="fi focus-ring">
+                <option value="USD">USD — $</option>
+                <option value="EUR">EUR — €</option>
+                <option value="GBP">GBP — £</option>
+                <option value="AUD">AUD — A$</option>
+                <option value="CAD">CAD — C$</option>
+                <option value="LKR">LKR — Rs.</option>
+                <option value="SGD">SGD — S$</option>
+                <option value="AED">AED — د.إ</option>
+              </select>
+            </div>
+            <div>
+              <label class="fi-label">Invoice Date</label>
+              <input id="f-date" class="fi focus-ring" type="date" />
+            </div>
+            <div>
+              <label class="fi-label">Due Date</label>
+              <input id="f-due" class="fi focus-ring" type="date" />
+            </div>
+          </div>
+        </section>
+
+        <hr class="border-slate-800/50" />
+
+        <!-- From — Issuer -->
+        <section>
+          <p class="text-[10px] font-semibold tracking-widest text-slate-500 uppercase" style="margin-bottom:10px;">From — Issuer</p>
+          <div style="display:flex;flex-direction:column;gap:9px;">
+            <div>
+              <label class="fi-label">Business / Name</label>
+              <input id="f-iss-name" class="fi focus-ring" type="text" placeholder="NexusDigitalLabs — Software Studio" />
+            </div>
+            <div>
+              <label class="fi-label">Email</label>
+              <input id="f-iss-email" class="fi focus-ring" type="email" placeholder="hello@nexusdigitallabs.dev" />
+            </div>
+            <div>
+              <label class="fi-label">Address</label>
+              <textarea id="f-iss-addr" class="fi focus-ring" rows="2" placeholder="123 Street, City, Country"></textarea>
+            </div>
+            <div>
+              <label class="fi-label">Website</label>
+              <input id="f-iss-web" class="fi focus-ring" type="text" placeholder="nexusdigitallabs.dev" />
+            </div>
+          </div>
+        </section>
+
+        <hr class="border-slate-800/50" />
+
+        <!-- To — Client -->
+        <section>
+          <p class="text-[10px] font-semibold tracking-widest text-slate-500 uppercase" style="margin-bottom:10px;">To — Client</p>
+          <div style="display:flex;flex-direction:column;gap:9px;">
+            <div>
+              <label class="fi-label">Company / Client Name</label>
+              <input id="f-cli-name" class="fi focus-ring" type="text" placeholder="Acme Corp" />
+            </div>
+            <div>
+              <label class="fi-label">Contact Name</label>
+              <input id="f-cli-contact" class="fi focus-ring" type="text" placeholder="John Smith" />
+            </div>
+            <div>
+              <label class="fi-label">Email</label>
+              <input id="f-cli-email" class="fi focus-ring" type="email" placeholder="accounts@acmecorp.com" />
+            </div>
+            <div>
+              <label class="fi-label">Address</label>
+              <textarea id="f-cli-addr" class="fi focus-ring" rows="2" placeholder="456 Avenue, City, Country"></textarea>
+            </div>
+          </div>
+        </section>
+
+        <hr class="border-slate-800/50" />
+
+        <!-- Line Items -->
+        <section>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <p class="text-[10px] font-semibold tracking-widest text-slate-500 uppercase">Line Items</p>
+            <button id="btn-add-item" type="button" class="focus-ring" style="font-size:11.5px;font-weight:500;color:#60a5fa;display:flex;align-items:center;gap:4px;transition:color 0.15s;background:none;border:none;cursor:pointer;padding:0;">
+              <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+              Add Row
+            </button>
+          </div>
+          <div id="items-form" style="display:flex;flex-direction:column;gap:8px;"></div>
+        </section>
+
+        <hr class="border-slate-800/50" />
+
+        <!-- Tax & Discount -->
+        <section>
+          <p class="text-[10px] font-semibold tracking-widest text-slate-500 uppercase" style="margin-bottom:10px;">Tax & Discount</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div>
+              <label class="fi-label">Tax Label</label>
+              <input id="f-tax-label" class="fi focus-ring" type="text" placeholder="GST / VAT" />
+            </div>
+            <div>
+              <label class="fi-label">Tax Rate (%)</label>
+              <input id="f-tax-rate" class="fi focus-ring" type="number" min="0" max="100" step="0.1" placeholder="0" />
+            </div>
+            <div style="grid-column:span 2;">
+              <label class="fi-label">Discount (%)</label>
+              <input id="f-discount" class="fi focus-ring" type="number" min="0" max="100" step="0.1" placeholder="0" />
+            </div>
+          </div>
+        </section>
+
+        <hr class="border-slate-800/50" />
+
+        <!-- Bank Details -->
+        <section>
+          <p class="text-[10px] font-semibold tracking-widest text-slate-500 uppercase" style="margin-bottom:10px;">Bank Details</p>
+          <div style="display:flex;flex-direction:column;gap:9px;">
+            <div>
+              <label class="fi-label">Bank Name</label>
+              <input id="f-bank-name" class="fi focus-ring" type="text" placeholder="First National Bank" />
+            </div>
+            <div>
+              <label class="fi-label">Account Name</label>
+              <input id="f-bank-acct-name" class="fi focus-ring" type="text" placeholder="NexusDigitalLabs" />
+            </div>
+            <div>
+              <label class="fi-label">Account Number</label>
+              <input id="f-bank-acct-num" class="fi focus-ring" type="text" placeholder="1234 5678 90" />
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <div>
+                <label class="fi-label">SWIFT / BIC</label>
+                <input id="f-bank-swift" class="fi focus-ring" type="text" placeholder="FNBKUS33" />
+              </div>
+              <div>
+                <label class="fi-label">IBAN (optional)</label>
+                <input id="f-bank-iban" class="fi focus-ring" type="text" placeholder="GB29 NWBK …" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <hr class="border-slate-800/50" />
+
+        <!-- Notes -->
+        <section style="padding-bottom:24px;">
+          <p class="text-[10px] font-semibold tracking-widest text-slate-500 uppercase" style="margin-bottom:10px;">Payment Notes</p>
+          <textarea id="f-notes" class="fi focus-ring" rows="3" placeholder="e.g. Payment due within 30 days. Thank you for your business."></textarea>
+        </section>
+
+      </div>
+    </div>
+
+    <!-- ── RIGHT PANE: LIVE PREVIEW ────────────────────────────────────── -->
+    <div id="preview-pane" class="flex-1 overflow-y-auto" style="background:#0d1117;display:flex;flex-direction:column;align-items:center;padding:24px 24px 40px;">
+
+      <!-- Action bar -->
+      <div style="width:100%;max-width:794px;display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-shrink:0;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button id="btn-download" type="button" class="focus-ring" style="display:inline-flex;align-items:center;gap:7px;background:#2563eb;color:#fff;font-size:13px;font-weight:600;padding:9px 18px;border-radius:10px;border:none;cursor:pointer;box-shadow:0 4px 20px rgba(37,99,235,0.35);transition:background 0.15s;">
+            <svg style="width:15px;height:15px;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            Download PDF
+          </button>
+          <span style="font-size:11px;color:#334155;">A4 · Portrait · Vector-quality</span>
+        </div>
+        <span style="font-size:11px;color:#1e3a5f;font-style:italic;">Live preview</span>
+      </div>
+
+      <!-- Invoice paper wrapper — scaled to fit pane -->
+      <div id="invoice-outer" style="box-shadow:0 20px 60px rgba(0,0,0,0.6);border-radius:2px;flex-shrink:0;">
+        <div id="invoice-sheet"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ SCRIPT ════════════════════════════════════════════════════════════ -->
+  <script>
+  (function () {
+    'use strict';
+
+    // ── CURRENCY MAP ──────────────────────────────────────────────────────
+    var SYM = { USD:'$', EUR:'€', GBP:'£', AUD:'A$', CAD:'C$', LKR:'Rs.\u00a0', SGD:'S$', AED:'\u062f.\u0625\u00a0' };
+
+    // ── DATE HELPERS ──────────────────────────────────────────────────────
+    function today() {
+      return new Date().toISOString().slice(0, 10);
+    }
+    function addDays(iso, n) {
+      var d = new Date(iso); d.setDate(d.getDate() + n);
+      return d.toISOString().slice(0, 10);
+    }
+    function fmtDate(iso) {
+      if (!iso) return '—';
+      var p = iso.split('-');
+      var mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      return mo[+p[1] - 1] + ' ' + +p[2] + ', ' + p[0];
+    }
+    function autoInvoiceNum() {
+      var d = new Date();
+      return 'INV-' + d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + '-001';
+    }
+
+    // ── NUMBER FORMAT ─────────────────────────────────────────────────────
+    function fmtMoney(n, sym) {
+      return sym + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+
+    // ── HTML ESCAPE ───────────────────────────────────────────────────────
+    function esc(s) {
+      return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ── LINE ITEMS STATE ──────────────────────────────────────────────────
+    var uid = 0;
+    var items = [
+      { id: ++uid, desc: 'Web Development Services', qty: 10, rate: 150 },
+      { id: ++uid, desc: 'UI/UX Design', qty: 5, rate: 120 }
+    ];
+
+    // ── DOM SHORTCUTS ─────────────────────────────────────────────────────
+    function g(id) { return document.getElementById(id); }
+
+    var fNum         = g('f-num');
+    var fCurrency    = g('f-currency');
+    var fDate        = g('f-date');
+    var fDue         = g('f-due');
+    var fIssName     = g('f-iss-name');
+    var fIssEmail    = g('f-iss-email');
+    var fIssAddr     = g('f-iss-addr');
+    var fIssWeb      = g('f-iss-web');
+    var fCliName     = g('f-cli-name');
+    var fCliContact  = g('f-cli-contact');
+    var fCliEmail    = g('f-cli-email');
+    var fCliAddr     = g('f-cli-addr');
+    var fTaxLabel    = g('f-tax-label');
+    var fTaxRate     = g('f-tax-rate');
+    var fDiscount    = g('f-discount');
+    var fBankName    = g('f-bank-name');
+    var fBankAcctNm  = g('f-bank-acct-name');
+    var fBankAcctNum = g('f-bank-acct-num');
+    var fBankSwift   = g('f-bank-swift');
+    var fBankIban    = g('f-bank-iban');
+    var fNotes       = g('f-notes');
+    var itemsForm    = g('items-form');
+    var sheet        = g('invoice-sheet');
+    var outer        = g('invoice-outer');
+    var previewPane  = g('preview-pane');
+
+    // ── INIT FIELD VALUES ─────────────────────────────────────────────────
+    var t = today();
+    fNum.value      = autoInvoiceNum();
+    fDate.value     = t;
+    fDue.value      = addDays(t, 30);
+    fIssName.value  = 'NexusDigitalLabs \u2014 Software Studio';
+    fIssEmail.value = 'hello@nexusdigitallabs.dev';
+    fIssWeb.value   = 'nexusdigitallabs.dev';
+    fTaxLabel.value = 'Tax';
+    fNotes.value    = 'Payment due within 30 days. Thank you for your business.';
+
+    // ── TOTALS ────────────────────────────────────────────────────────────
+    function calcTotals() {
+      var sub = items.reduce(function(s,i){ return s + (+i.qty||0) * (+i.rate||0); }, 0);
+      var discPct = +fDiscount.value || 0;
+      var taxPct  = +fTaxRate.value  || 0;
+      var discAmt = sub * (discPct / 100);
+      var taxAmt  = (sub - discAmt) * (taxPct / 100);
+      return { sub: sub, discAmt: discAmt, taxAmt: taxAmt, total: sub - discAmt + taxAmt };
+    }
+
+    // ── LINE ITEMS FORM ───────────────────────────────────────────────────
+    function renderItemsForm() {
+      itemsForm.innerHTML = '';
+      items.forEach(function(item) {
+        var wrap = document.createElement('div');
+        wrap.style.cssText = 'background:rgba(15,23,42,0.6);border:1px solid #1a2744;border-radius:9px;padding:11px;';
+        wrap.setAttribute('data-id', item.id);
+        wrap.innerHTML =
+          '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">' +
+            '<span style="font-size:10px;font-weight:500;color:#3b5268;text-transform:uppercase;letter-spacing:0.06em;">Item</span>' +
+            '<button type="button" class="remove-btn focus-ring" data-id="'+item.id+'" style="color:#2d4a60;background:none;border:none;cursor:pointer;padding:0;transition:color 0.15s;" onmouseover="this.style.color=\'#f87171\'" onmouseout="this.style.color=\'#2d4a60\'">' +
+              '<svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>' +
+            '</button>' +
+          '</div>' +
+          '<input type="text" class="fi focus-ring item-desc" data-id="'+item.id+'" placeholder="Service or product description" value="'+esc(item.desc)+'" style="margin-bottom:8px;" />' +
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">' +
+            '<div><label class="fi-label">Qty / Hrs</label><input type="number" min="0" step="0.5" class="fi focus-ring item-qty" data-id="'+item.id+'" value="'+item.qty+'" /></div>' +
+            '<div><label class="fi-label">Rate</label><input type="number" min="0" step="0.01" class="fi focus-ring item-rate" data-id="'+item.id+'" value="'+item.rate+'" /></div>' +
+          '</div>';
+        itemsForm.appendChild(wrap);
+      });
+    }
+
+    // ── INVOICE SHEET RENDER ──────────────────────────────────────────────
+    function renderSheet() {
+      var sym     = SYM[fCurrency.value] || '$';
+      var totals  = calcTotals();
+      var taxPct  = +fTaxRate.value  || 0;
+      var discPct = +fDiscount.value || 0;
+      var taxLbl  = fTaxLabel.value.trim() || 'Tax';
+
+      var issName  = fIssName.value.trim();
+      var issEmail = fIssEmail.value.trim();
+      var issAddr  = fIssAddr.value.trim();
+      var issWeb   = fIssWeb.value.trim();
+      var cliName  = fCliName.value.trim()    || 'Client';
+      var cliCont  = fCliContact.value.trim();
+      var cliEmail = fCliEmail.value.trim();
+      var cliAddr  = fCliAddr.value.trim();
+      var bkName   = fBankName.value.trim();
+      var bkAccNm  = fBankAcctNm.value.trim();
+      var bkAccNum = fBankAcctNum.value.trim();
+      var bkSwift  = fBankSwift.value.trim();
+      var bkIban   = fBankIban.value.trim();
+      var notes    = fNotes.value.trim();
+
+      // Line item rows
+      var rows = items.map(function(item) {
+        var q = +item.qty||0, r = +item.rate||0;
+        return '<tr class="line-item-row">' +
+          '<td style="font-size:12px;color:#1f2937;padding:10px 10px;border-bottom:1px solid #f3f4f6;">'+esc(item.desc||'—')+'</td>' +
+          '<td class="r" style="font-size:12px;color:#374151;padding:10px 10px;border-bottom:1px solid #f3f4f6;">'+q+'</td>' +
+          '<td class="r" style="font-size:12px;color:#374151;padding:10px 10px;border-bottom:1px solid #f3f4f6;">'+fmtMoney(r,sym)+'</td>' +
+          '<td class="r" style="font-size:12px;font-weight:500;color:#111827;padding:10px 10px;border-bottom:1px solid #f3f4f6;">'+fmtMoney(q*r,sym)+'</td>' +
+        '</tr>';
+      }).join('');
+
+      // Totals block
+      var totalsHtml =
+        '<tr><td colspan="3" style="font-size:11.5px;color:#6b7280;padding:7px 10px;text-align:right;">Subtotal</td>' +
+        '<td style="font-size:11.5px;color:#374151;padding:7px 10px;text-align:right;min-width:110px;">'+fmtMoney(totals.sub,sym)+'</td></tr>';
+      if (discPct > 0) {
+        totalsHtml += '<tr><td colspan="3" style="font-size:11px;color:#9ca3af;padding:5px 10px;text-align:right;">Discount ('+discPct+'%)</td>' +
+          '<td style="font-size:11px;color:#ef4444;padding:5px 10px;text-align:right;">\u2212'+fmtMoney(totals.discAmt,sym)+'</td></tr>';
+      }
+      if (taxPct > 0) {
+        totalsHtml += '<tr><td colspan="3" style="font-size:11px;color:#9ca3af;padding:5px 10px;text-align:right;">'+esc(taxLbl)+' ('+taxPct+'%)</td>' +
+          '<td style="font-size:11px;color:#374151;padding:5px 10px;text-align:right;">'+fmtMoney(totals.taxAmt,sym)+'</td></tr>';
+      }
+      totalsHtml += '<tr class="inv-total-row">' +
+        '<td colspan="3" style="font-size:13.5px;font-weight:700;color:#111827;padding:11px 10px;text-align:right;border-top:2px solid #111827;">Total Due</td>' +
+        '<td style="font-size:13.5px;font-weight:700;color:#111827;padding:11px 10px;text-align:right;border-top:2px solid #111827;">'+fmtMoney(totals.total,sym)+'</td></tr>';
+
+      // Bank section
+      var bankHtml = '';
+      if (bkName || bkAccNum || bkSwift) {
+        var bkCells = '';
+        if (bkName)   bkCells += cell('Bank', bkName, false);
+        if (bkAccNm)  bkCells += cell('Account Name', bkAccNm, false);
+        if (bkAccNum) bkCells += cell('Account Number', bkAccNum, true);
+        if (bkSwift)  bkCells += cell('SWIFT / BIC', bkSwift, true);
+        if (bkIban)   bkCells += '<div style="grid-column:span 2;">'+cellInner('IBAN', bkIban, true)+'</div>';
+        bankHtml =
+          '<div style="margin-top:24px;padding:14px 16px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:7px;page-break-inside:avoid;">' +
+            '<p class="inv-section-label">Bank Transfer Details</p>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 24px;">'+bkCells+'</div>' +
+          '</div>';
+      }
+
+      var notesHtml = '';
+      if (notes) {
+        notesHtml =
+          '<div style="margin-top:20px;page-break-inside:avoid;">' +
+            '<p class="inv-section-label">Notes</p>' +
+            '<p style="font-size:11px;color:#6b7280;line-height:1.7;white-space:pre-line;">'+esc(notes)+'</p>' +
+          '</div>';
+      }
+
+      sheet.innerHTML =
+        // ── Header
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;">' +
+          '<div>' +
+            '<div style="width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#2563eb,#6366f1);display:flex;align-items:center;justify-content:center;margin-bottom:12px;">' +
+              '<span style="font-size:15px;font-weight:700;color:#fff;font-family:Inter,sans-serif;">N</span>' +
+            '</div>' +
+            '<p style="font-size:15px;font-weight:600;color:#111827;margin:0 0 3px;">'+esc(issName||'Issuer')+'</p>' +
+            (issEmail ? '<p style="font-size:11px;color:#6b7280;margin:0 0 2px;">'+esc(issEmail)+'</p>' : '') +
+            (issAddr  ? '<p style="font-size:11px;color:#6b7280;margin:0 0 2px;white-space:pre-line;">'+esc(issAddr)+'</p>' : '') +
+            (issWeb   ? '<p style="font-size:11px;color:#2563eb;margin:0;">'+esc(issWeb)+'</p>' : '') +
+          '</div>' +
+          '<div style="text-align:right;">' +
+            '<p style="font-size:30px;font-weight:200;color:#111827;letter-spacing:-0.03em;margin:0 0 10px;font-family:Inter,sans-serif;">INVOICE</p>' +
+            '<p style="font-size:13px;font-weight:700;color:#111827;margin:0 0 5px;">'+esc(fNum.value||'INV-001')+'</p>' +
+            '<p style="font-size:11px;color:#6b7280;margin:0 0 2px;">Date&ensp;'+fmtDate(fDate.value)+'</p>' +
+            '<p style="font-size:11px;color:#6b7280;margin:0 0 6px;">Due&ensp;&ensp;'+fmtDate(fDue.value)+'</p>' +
+            '<span style="font-size:10px;font-weight:600;color:#374151;background:#f3f4f6;padding:3px 8px;border-radius:4px;">'+fCurrency.value+'</span>' +
+          '</div>' +
+        '</div>' +
+
+        // ── Divider
+        '<div style="height:1px;background:#e5e7eb;margin-bottom:26px;"></div>' +
+
+        // ── Bill To
+        '<div style="margin-bottom:28px;">' +
+          '<p class="inv-section-label">Bill To</p>' +
+          '<p style="font-size:14px;font-weight:600;color:#111827;margin:0 0 3px;">'+esc(cliName)+'</p>' +
+          (cliCont  ? '<p style="font-size:11px;color:#374151;margin:0 0 2px;">'+esc(cliCont)+'</p>' : '') +
+          (cliEmail ? '<p style="font-size:11px;color:#6b7280;margin:0 0 2px;">'+esc(cliEmail)+'</p>' : '') +
+          (cliAddr  ? '<p style="font-size:11px;color:#6b7280;margin:0;white-space:pre-line;">'+esc(cliAddr)+'</p>' : '') +
+        '</div>' +
+
+        // ── Line items table
+        '<table class="inv-table">' +
+          '<thead><tr>' +
+            '<th style="width:55%;">Description</th>' +
+            '<th class="r" style="width:12%;">Qty</th>' +
+            '<th class="r" style="width:16%;">Rate</th>' +
+            '<th class="r" style="width:17%;">Amount</th>' +
+          '</tr></thead>' +
+          '<tbody>'+rows+'</tbody>' +
+        '</table>' +
+
+        // ── Totals
+        '<div style="border-top:1px solid #e5e7eb;padding-top:4px;">' +
+          '<table style="width:100%;border-collapse:collapse;">'+totalsHtml+'</table>' +
+        '</div>' +
+
+        // ── Bank + Notes
+        bankHtml +
+        notesHtml +
+
+        // ── Footer
+        '<div style="margin-top:44px;padding-top:14px;border-top:1px solid #f3f4f6;display:flex;justify-content:space-between;align-items:center;">' +
+          '<p style="font-size:9.5px;color:#d1d5db;margin:0;">'+esc(issName)+'</p>' +
+          '<p style="font-size:9.5px;color:#d1d5db;margin:0;">'+esc(fNum.value||'INV')+'</p>' +
+        '</div>';
+
+      scaleSheet();
+    }
+
+    function cell(label, val, mono) {
+      return '<div>'+cellInner(label, val, mono)+'</div>';
+    }
+    function cellInner(label, val, mono) {
+      return '<p style="font-size:8.5px;color:#9ca3af;margin:0 0 3px;text-transform:uppercase;letter-spacing:0.07em;font-weight:600;">'+esc(label)+'</p>' +
+             '<p style="font-size:12px;color:#111827;margin:0;'+(mono?'font-family:monospace;':'')+'">'+esc(val)+'</p>';
+    }
+
+    // ── SCALE SHEET TO FIT PREVIEW PANE ──────────────────────────────────
+    function scaleSheet() {
+      // Reset to measure natural dimensions
+      sheet.style.transform = '';
+      outer.style.width  = '';
+      outer.style.height = '';
+
+      var paneW = previewPane.clientWidth - 48; // 24px padding each side
+      var natW  = 794;
+      var natH  = sheet.offsetHeight;
+      var scale = Math.min(1, paneW / natW);
+
+      sheet.style.transform       = 'scale(' + scale + ')';
+      sheet.style.transformOrigin = 'top left';
+      outer.style.width  = Math.round(natW * scale) + 'px';
+      outer.style.height = Math.round(natH * scale) + 'px';
+    }
+
+    // ── RESIZE OBSERVER ───────────────────────────────────────────────────
+    var ro = new ResizeObserver(function() { scaleSheet(); });
+    ro.observe(previewPane);
+
+    // ── GLOBAL FORM INPUT LISTENERS ───────────────────────────────────────
+    var globalInputs = [
+      fNum, fCurrency, fDate, fDue,
+      fIssName, fIssEmail, fIssAddr, fIssWeb,
+      fCliName, fCliContact, fCliEmail, fCliAddr,
+      fTaxLabel, fTaxRate, fDiscount,
+      fBankName, fBankAcctNm, fBankAcctNum, fBankSwift, fBankIban,
+      fNotes
+    ];
+    globalInputs.forEach(function(el) {
+      el.addEventListener('input',  renderSheet);
+      el.addEventListener('change', renderSheet);
+    });
+
+    // ── LINE ITEMS — event delegation ────────────────────────────────────
+    itemsForm.addEventListener('input', function(e) {
+      var id = +e.target.getAttribute('data-id');
+      if (!id) return;
+      var item = items.find(function(i){ return i.id === id; });
+      if (!item) return;
+      if (e.target.classList.contains('item-desc')) item.desc = e.target.value;
+      if (e.target.classList.contains('item-qty'))  item.qty  = +e.target.value || 0;
+      if (e.target.classList.contains('item-rate')) item.rate = +e.target.value || 0;
+      renderSheet();
+    });
+
+    itemsForm.addEventListener('click', function(e) {
+      var btn = e.target.closest('.remove-btn');
+      if (!btn) return;
+      var id = +btn.getAttribute('data-id');
+      items = items.filter(function(i){ return i.id !== id; });
+      renderItemsForm();
+      renderSheet();
+    });
+
+    g('btn-add-item').addEventListener('click', function() {
+      items.push({ id: ++uid, desc: '', qty: 1, rate: 0 });
+      renderItemsForm();
+      renderSheet();
+      // Scroll to bottom of items form
+      itemsForm.lastElementChild && itemsForm.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+
+    // ── DOWNLOAD PDF ──────────────────────────────────────────────────────
+    g('btn-download').addEventListener('click', function() {
+      var btn = this;
+      var origHTML = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML =
+        '<svg style="width:15px;height:15px;animation:spin 0.9s linear infinite;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>' +
+        '\u00a0Generating\u2026';
+
+      // Temporarily reset scale for clean PDF capture
+      var savedTransform = sheet.style.transform;
+      sheet.style.transform = '';
+      outer.style.width  = '794px';
+      outer.style.height = sheet.offsetHeight + 'px';
+
+      var filename = 'invoice-' + (fNum.value||'NDL').replace(/[^a-zA-Z0-9\-]/g, '-').toLowerCase() + '.pdf';
+
+      var element = document.getElementById('invoice-sheet');
+      var options = {
+        margin:      [15, 12, 15, 12],
+        filename:    filename,
+        image:       { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().set(options).from(element).save().then(function() {
+        // Restore scale
+        sheet.style.transform = savedTransform;
+        scaleSheet();
+        btn.disabled = false;
+        btn.innerHTML = origHTML;
+      });
+    });
+
+    // Spin keyframe for button loading state
+    var styleEl = document.createElement('style');
+    styleEl.textContent = '@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}';
+    document.head.appendChild(styleEl);
+
+    // ── INITIAL RENDER ────────────────────────────────────────────────────
+    renderItemsForm();
+    renderSheet();
+
+  }());
+  </script>
+
+</body>
+</html>
