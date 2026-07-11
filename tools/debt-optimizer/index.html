@@ -209,7 +209,7 @@
           <div class="relative">
             <span id="sym-income" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs select-none">Rs</span>
             <input id="in-income" type="text" inputmode="numeric" class="si si-pre" value="150,000"
-              onfocus="onAmtFocus(this)" onblur="onAmtBlur(this)" />
+              onfocus="onAmtFocus(this)" onblur="onAmtBlur(this)" oninput="onAmtInput(this)" />
           </div>
         </div>
 
@@ -318,17 +318,28 @@
   function parseAmt(str) {
     return parseFloat(String(str).replace(/,/g, '')) || 0;
   }
-  /** Format a number with comma thousands separators */
-  function fmtAmt(n) {
-    var v = parseFloat(String(n).replace(/,/g, '')) || 0;
-    return v > 0 ? Math.round(v).toLocaleString('en-US') : '';
+
+  /**
+   * Live comma formatter — called on every keystroke.
+   * Keeps cursor stable by measuring distance from the RIGHT end,
+   * which is unaffected by commas inserted on the left.
+   */
+  function onAmtInput(el) {
+    var fromEnd = el.value.length - el.selectionStart;
+    var raw = el.value.replace(/[^\d]/g, '');
+    if (!raw) { el.value = ''; return; }
+    var formatted = parseInt(raw, 10).toLocaleString('en-US');
+    el.value = formatted;
+    var newPos = Math.max(0, formatted.length - fromEnd);
+    el.setSelectionRange(newPos, newPos);
   }
-  /** On focus: strip commas so the user can type freely */
+
+  /** On focus: select all so the user can replace the value instantly */
   function onAmtFocus(el) {
-    var raw = parseAmt(el.value);
-    el.value = raw > 0 ? String(raw) : '';
+    setTimeout(function() { el.select(); }, 0);
   }
-  /** On blur: reapply comma formatting */
+
+  /** On blur: clean up edge case of empty / zero field */
   function onAmtBlur(el) {
     var raw = parseAmt(el.value);
     el.value = raw > 0 ? Math.round(raw).toLocaleString('en-US') : '';
@@ -528,7 +539,7 @@
           +   '<span class="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs select-none">' + esc(s) + '</span>'
           +   '<input type="text" inputmode="numeric" value="' + (e.amount > 0 ? Math.round(e.amount).toLocaleString('en-US') : '') + '" placeholder="0"'
           +     ' class="si si-pre" style="padding:0.375rem 0.5rem 0.375rem 1.75rem; width:110px;"'
-          +     ' onfocus="onAmtFocus(this)" onblur="onAmtBlur(this)"'
+          +     ' onfocus="onAmtFocus(this)" onblur="onAmtBlur(this)" oninput="onAmtInput(this)"'
           +     ' onchange="updateExpense(\'' + e.id + '\',\'amount\',parseAmt(this.value))" />'
           + '</div>'
           + '<button class="btn-rm" onclick="removeExpense(\'' + e.id + '\')" title="Remove">'
@@ -579,7 +590,7 @@
         +       '<span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 select-none">' + esc(s) + '</span>'
         +       '<input type="text" inputmode="numeric" value="' + (d.totalAmt > 0 ? Math.round(d.totalAmt).toLocaleString('en-US') : '') + '" placeholder="0"'
         +         ' class="si si-pre" style="font-size:0.75rem;"'
-        +         ' onfocus="onAmtFocus(this)" onblur="onAmtBlur(this)"'
+        +         ' onfocus="onAmtFocus(this)" onblur="onAmtBlur(this)" oninput="onAmtInput(this)"'
         +         ' onchange="updateDebt(\'' + d.id + '\',\'totalAmt\',parseAmt(this.value))" />'
         +     '</div></div>'
         /* Outstanding */
@@ -588,7 +599,7 @@
         +       '<span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 select-none">' + esc(s) + '</span>'
         +       '<input type="text" inputmode="numeric" value="' + (d.outstanding > 0 ? Math.round(d.outstanding).toLocaleString('en-US') : '') + '" placeholder="0"'
         +         ' class="si si-pre" style="font-size:0.75rem;"'
-        +         ' onfocus="onAmtFocus(this)" onblur="onAmtBlur(this)"'
+        +         ' onfocus="onAmtFocus(this)" onblur="onAmtBlur(this)" oninput="onAmtInput(this)"'
         +         ' onchange="updateDebt(\'' + d.id + '\',\'outstanding\',parseAmt(this.value))" />'
         +     '</div></div>'
         /* Monthly payment */
@@ -597,7 +608,7 @@
         +       '<span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 select-none">' + esc(s) + '</span>'
         +       '<input type="text" inputmode="numeric" value="' + (d.monthlyPay > 0 ? Math.round(d.monthlyPay).toLocaleString('en-US') : '') + '" placeholder="0"'
         +         ' class="si si-pre" style="font-size:0.75rem;"'
-        +         ' onfocus="onAmtFocus(this)" onblur="onAmtBlur(this)"'
+        +         ' onfocus="onAmtFocus(this)" onblur="onAmtBlur(this)" oninput="onAmtInput(this)"'
         +         ' onchange="updateDebt(\'' + d.id + '\',\'monthlyPay\',parseAmt(this.value))" />'
         +     '</div></div>'
         + '</div>'
