@@ -56,137 +56,254 @@
     <!-- Tailwind CSS for clean, lightweight styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
+
+        /* ── Scrollbar ──────────────────────────────────── */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: #0b0f19; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+
+        /* ── Hero orbs ──────────────────────────────────── */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            filter: blur(80px);
+        }
+        .orb-1 {
+            width: 700px; height: 700px;
+            top: -200px; left: 50%; transform: translateX(-50%);
+            background: radial-gradient(circle, rgba(37,99,235,0.18) 0%, transparent 65%);
+            animation: orbPulse 8s ease-in-out infinite;
+        }
+        .orb-2 {
+            width: 400px; height: 400px;
+            top: 5%; right: 5%;
+            background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 65%);
+            animation: orbPulse 6s ease-in-out infinite reverse;
+        }
+        .orb-3 {
+            width: 300px; height: 300px;
+            bottom: 0; left: 8%;
+            background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 65%);
+            animation: orbPulse 10s ease-in-out infinite 2s;
+        }
+        @keyframes orbPulse {
+            0%, 100% { opacity: 0.6; transform: translateX(-50%) scale(1); }
+            50%       { opacity: 1;   transform: translateX(-50%) scale(1.08); }
+        }
+        .orb-2, .orb-3 { transform: none; }
+        .orb-2:is(.orb-2) { animation-name: orbPulseSimple; }
+        .orb-3:is(.orb-3) { animation-name: orbPulseSimple; }
+        @keyframes orbPulseSimple {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50%       { opacity: 0.9; transform: scale(1.06); }
+        }
+
+        /* ── Dot grid ───────────────────────────────────── */
+        .dot-grid {
+            background-image: radial-gradient(circle, rgba(148,163,184,0.06) 1px, transparent 1px);
+            background-size: 28px 28px;
+        }
+
+        /* ── Gradient shimmer headline ───────────────────── */
+        .gradient-text {
+            background: linear-gradient(120deg, #ffffff 0%, #93c5fd 40%, #a5b4fc 60%, #ffffff 100%);
+            background-size: 250% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 5s linear infinite;
+        }
+        @keyframes shimmer {
+            0%   { background-position: 200% center; }
+            100% { background-position: -200% center; }
+        }
+
+        /* ── Hero staggered fade-up ──────────────────────── */
+        .anim-1 { opacity: 0; animation: fadeUp 0.7s 0.05s ease forwards; }
+        .anim-2 { opacity: 0; animation: fadeUp 0.7s 0.2s  ease forwards; }
+        .anim-3 { opacity: 0; animation: fadeUp 0.7s 0.35s ease forwards; }
+        .anim-4 { opacity: 0; animation: fadeUp 0.7s 0.5s  ease forwards; }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(22px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Scroll reveal ───────────────────────────────── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(18px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+        .reveal-d1 { transition-delay: 0.1s; }
+        .reveal-d2 { transition-delay: 0.2s; }
+        .reveal-d3 { transition-delay: 0.3s; }
+
+        /* ── Card hover glow ─────────────────────────────── */
+        .tool-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(59,130,246,0.35) !important;
+            box-shadow: 0 0 0 1px rgba(59,130,246,0.15), 0 12px 40px rgba(37,99,235,0.12);
+        }
+        .article-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(100,116,139,0.6) !important;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        /* ── Nav link underline slide ────────────────────── */
+        .nav-link {
+            position: relative;
+            color: #94a3b8;
+            transition: color 0.2s;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px; left: 0;
+            width: 0; height: 1px;
+            background: #3b82f6;
+            transition: width 0.25s ease;
+        }
+        .nav-link:hover { color: #fff; }
+        .nav-link:hover::after { width: 100%; }
     </style>
 </head>
 <body class="bg-[#0b0f19] text-slate-200 min-h-screen selection:bg-blue-500 selection:text-white antialiased">
 
-    <!-- ══ STICKY NAV ══════════════════════════════════════════════════════ -->
-    <nav class="sticky top-0 z-50 border-b border-slate-800/80 bg-[#0b0f19]/90 backdrop-blur-md">
-        <div class="max-w-7xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between gap-4">
-            <!-- Logo -->
+    <!-- ══ STICKY NAV — true 3-part spread ═════════════════════════════════ -->
+    <nav class="sticky top-0 z-50 border-b border-slate-800/80 bg-[#0b0f19]/92 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-6 sm:px-10 h-16 flex items-center gap-6">
+            <!-- Logo — left anchor -->
             <a href="/" class="flex items-center gap-2.5 shrink-0">
-                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-bold text-white text-sm">N</div>
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-bold text-white text-sm shadow-lg shadow-blue-900/30">N</div>
                 <span class="text-sm font-semibold tracking-tight text-white">NexusDigitalLabs</span>
             </a>
-            <!-- Desktop nav links -->
-            <div class="hidden md:flex items-center gap-7 text-sm text-slate-400">
-                <a href="#tools" class="hover:text-white transition-colors">Tools</a>
-                <a href="#articles" class="hover:text-white transition-colors">Articles</a>
-                <a href="/about/" class="hover:text-white transition-colors">About</a>
-                <a href="/contact/" class="hover:text-white transition-colors">Contact</a>
+            <!-- Nav links — centered via flex-1 -->
+            <div class="hidden md:flex flex-1 items-center justify-center gap-9 text-sm">
+                <a href="#tools"    class="nav-link">Tools</a>
+                <a href="#articles" class="nav-link">Articles</a>
+                <a href="/about/"   class="nav-link">About</a>
+                <a href="/contact/" class="nav-link">Contact</a>
             </div>
-            <!-- Right actions -->
-            <div class="flex items-center gap-3">
-                <a href="https://github.com/NexusDigitalLabs" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium text-slate-300 hover:text-white border border-slate-700 hover:border-slate-500 rounded-lg px-3 py-1.5 transition-all">
+            <!-- GitHub — right anchor -->
+            <div class="ml-auto md:ml-0 flex items-center gap-3 shrink-0">
+                <a href="https://github.com/NexusDigitalLabs" target="_blank" rel="noopener noreferrer"
+                   class="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium text-slate-300 hover:text-white border border-slate-700/80 hover:border-slate-500 bg-slate-900/40 hover:bg-slate-800/60 rounded-lg px-3.5 py-1.5 transition-all duration-200">
                     <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577v-2.165c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
                     GitHub
                 </a>
                 <!-- Mobile hamburger -->
                 <button id="nav-toggle" type="button" class="md:hidden p-2 text-slate-400 hover:text-white transition-colors" aria-label="Toggle menu">
-                    <svg id="icon-menu" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    <svg id="icon-menu"  class="w-5 h-5"        fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                     <svg id="icon-close" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
         </div>
         <!-- Mobile dropdown -->
-        <div id="mobile-menu" class="hidden md:hidden border-t border-slate-800/60 bg-[#0b0f19]">
-            <div class="max-w-7xl mx-auto px-5 py-4 flex flex-col gap-4 text-sm text-slate-300">
-                <a href="#tools" class="hover:text-white transition-colors" onclick="closeMobileMenu()">Tools</a>
+        <div id="mobile-menu" class="hidden md:hidden border-t border-slate-800/60 bg-[#08091280]">
+            <div class="max-w-7xl mx-auto px-6 py-5 flex flex-col gap-4 text-sm text-slate-300">
+                <a href="#tools"    class="hover:text-white transition-colors" onclick="closeMobileMenu()">Tools</a>
                 <a href="#articles" class="hover:text-white transition-colors" onclick="closeMobileMenu()">Articles</a>
-                <a href="/about/" class="hover:text-white transition-colors">About</a>
+                <a href="/about/"   class="hover:text-white transition-colors">About</a>
                 <a href="/contact/" class="hover:text-white transition-colors">Contact</a>
                 <a href="https://github.com/NexusDigitalLabs" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">GitHub ↗</a>
             </div>
         </div>
     </nav>
 
-    <!-- ══ HERO ════════════════════════════════════════════════════════════ -->
-    <section class="relative overflow-hidden">
-        <!-- Ambient gradient glow -->
+    <!-- ══ HERO — animated orbs + dot grid + shimmer headline ══════════════ -->
+    <section class="relative overflow-hidden dot-grid">
+        <!-- Layered animated orbs -->
         <div class="pointer-events-none absolute inset-0" aria-hidden="true">
-            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-gradient-radial from-blue-600/10 via-indigo-600/5 to-transparent" style="background: radial-gradient(ellipse at center top, rgba(37,99,235,0.12) 0%, rgba(99,102,241,0.06) 40%, transparent 70%);"></div>
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+            <div class="orb orb-3"></div>
         </div>
-        <div class="relative max-w-7xl mx-auto px-5 sm:px-8 pt-20 pb-24 sm:pt-28 sm:pb-32 text-center">
+        <div class="relative max-w-7xl mx-auto px-6 sm:px-10 pt-24 pb-28 sm:pt-32 sm:pb-36 text-center">
             <!-- Status badge -->
-            <div class="inline-flex items-center gap-2 text-xs font-medium text-blue-400 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-1.5 mb-8">
+            <div class="anim-1 inline-flex items-center gap-2 text-xs font-medium text-blue-400 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-1.5 mb-8">
                 <span class="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"></span>
                 Software Studio &mdash; Open to new projects
             </div>
-            <!-- Headline -->
-            <h1 class="text-4xl sm:text-5xl lg:text-[3.75rem] font-light tracking-tight text-white leading-[1.15] max-w-4xl mx-auto mb-6">
+            <!-- Shimmer gradient headline -->
+            <h1 class="anim-2 gradient-text text-4xl sm:text-5xl lg:text-[3.6rem] font-light tracking-tight leading-[1.18] max-w-4xl mx-auto mb-6">
                 Engineering minimalist web utilities, developer tools, and high&#8209;performance software.
             </h1>
             <!-- Subline -->
-            <p class="text-slate-400 font-light max-w-lg mx-auto leading-relaxed text-base sm:text-lg mb-10">
+            <p class="anim-3 text-slate-400 font-light max-w-lg mx-auto leading-relaxed text-base sm:text-lg mb-10">
                 Zero-bloat digital products engineered for speed, privacy, and utility.
             </p>
-            <!-- CTAs -->
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
-                <a href="#tools" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white text-sm font-semibold px-7 py-3 rounded-xl transition-all shadow-lg shadow-blue-900/40">
+            <!-- CTA pair -->
+            <div class="anim-4 flex flex-col sm:flex-row items-center justify-center gap-3">
+                <a href="#tools" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold px-7 py-3 rounded-xl transition-all duration-200 shadow-lg shadow-blue-900/40 hover:shadow-blue-900/60 hover:-translate-y-0.5">
                     Explore Tools
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                 </a>
-                <a href="#articles" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-slate-300 hover:text-white border border-slate-700 hover:border-slate-500 text-sm font-medium px-7 py-3 rounded-xl transition-all">
+                <a href="#articles" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-slate-300 hover:text-white border border-slate-700 hover:border-slate-500 text-sm font-medium px-7 py-3 rounded-xl transition-all duration-200 hover:-translate-y-0.5">
                     Read Articles
                 </a>
             </div>
         </div>
     </section>
 
-    <!-- ══ VALUE PROPS STRIP ═══════════════════════════════════════════════ -->
-    <div class="border-y border-slate-800/50 bg-slate-900/20">
-        <div class="max-w-7xl mx-auto px-5 sm:px-8 py-5">
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-5 text-center">
-                <div class="space-y-1">
+    <!-- ══ VALUE PROPS STRIP ════════════════════════════════════════════════ -->
+    <div class="border-y border-slate-800/50 bg-slate-900/30 backdrop-blur-sm">
+        <div class="max-w-7xl mx-auto px-6 sm:px-10 py-5">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
+                <div class="reveal space-y-1">
                     <p class="text-[10px] font-semibold tracking-widest text-slate-500 uppercase">Architecture</p>
-                    <p class="text-sm font-medium text-slate-200">100% Client-Side</p>
+                    <p class="text-sm font-semibold text-slate-200">100% Client-Side</p>
                 </div>
-                <div class="space-y-1">
+                <div class="reveal reveal-d1 space-y-1">
                     <p class="text-[10px] font-semibold tracking-widest text-slate-500 uppercase">Privacy</p>
-                    <p class="text-sm font-medium text-slate-200">Zero Cookies</p>
+                    <p class="text-sm font-semibold text-slate-200">Zero Cookies</p>
                 </div>
-                <div class="space-y-1">
+                <div class="reveal reveal-d2 space-y-1">
                     <p class="text-[10px] font-semibold tracking-widest text-slate-500 uppercase">Stack</p>
-                    <p class="text-sm font-medium text-slate-200">Vanilla JS &middot; Tailwind</p>
+                    <p class="text-sm font-semibold text-slate-200">Vanilla JS &middot; Tailwind</p>
                 </div>
-                <div class="space-y-1">
+                <div class="reveal reveal-d3 space-y-1">
                     <p class="text-[10px] font-semibold tracking-widest text-slate-500 uppercase">Hosting</p>
-                    <p class="text-sm font-medium text-slate-200">GitHub Pages</p>
+                    <p class="text-sm font-semibold text-slate-200">GitHub Pages</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ══ TOOLS SECTION ═══════════════════════════════════════════════════ -->
+    <!-- ══ TOOLS SECTION ════════════════════════════════════════════════════ -->
     <section id="tools" class="py-20 sm:py-28">
-        <div class="max-w-7xl mx-auto px-5 sm:px-8">
-            <div class="mb-12">
+        <div class="max-w-7xl mx-auto px-6 sm:px-10">
+            <div class="mb-14 reveal">
                 <p class="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-3">Production Utilities</p>
                 <h2 class="text-2xl sm:text-3xl font-light text-white tracking-tight">Tools built for engineers.</h2>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 <!-- Prompt Architect -->
-                <a href="/tools/prompt-architect/" target="_blank" rel="noopener noreferrer" class="group flex flex-col p-6 rounded-2xl bg-slate-900/50 border border-slate-800/60 hover:border-blue-500/30 hover:bg-slate-900/80 transition-all duration-300">
-                    <div class="w-10 h-10 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center mb-5">
+                <a href="/tools/prompt-architect/" target="_blank" rel="noopener noreferrer"
+                   class="tool-card reveal group flex flex-col p-6 rounded-2xl bg-slate-900/50 border border-slate-800/60 transition-all duration-300">
+                    <div class="w-11 h-11 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center mb-5 group-hover:scale-110 group-hover:bg-violet-500/15 transition-all duration-300">
                         <svg class="w-5 h-5 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
                     </div>
-                    <h3 class="text-base font-semibold text-white group-hover:text-blue-400 transition-colors mb-2">Prompt Architect</h3>
+                    <h3 class="text-base font-semibold text-white group-hover:text-blue-400 transition-colors duration-200 mb-2">Prompt Architect</h3>
                     <p class="text-sm text-slate-400 font-light leading-relaxed flex-1 mb-5">Advanced system prompt flattener with live token counting and API cost estimation for LLM workspaces.</p>
-                    <span class="inline-flex items-center gap-1.5 text-xs font-medium text-blue-400 group-hover:gap-2.5 transition-all">
+                    <span class="inline-flex items-center gap-1.5 text-xs font-medium text-blue-400 group-hover:gap-3 transition-all duration-200">
                         Open tool
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                     </span>
                 </a>
                 <!-- Invoice Generator -->
-                <a href="/tools/invoice-generator/" target="_blank" rel="noopener noreferrer" class="group flex flex-col p-6 rounded-2xl bg-slate-900/50 border border-slate-800/60 hover:border-blue-500/30 hover:bg-slate-900/80 transition-all duration-300">
-                    <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-5">
+                <a href="/tools/invoice-generator/" target="_blank" rel="noopener noreferrer"
+                   class="tool-card reveal reveal-d1 group flex flex-col p-6 rounded-2xl bg-slate-900/50 border border-slate-800/60 transition-all duration-300">
+                    <div class="w-11 h-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-5 group-hover:scale-110 group-hover:bg-emerald-500/15 transition-all duration-300">
                         <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                     </div>
-                    <h3 class="text-base font-semibold text-white group-hover:text-blue-400 transition-colors mb-2">Invoice Generator</h3>
+                    <h3 class="text-base font-semibold text-white group-hover:text-blue-400 transition-colors duration-200 mb-2">Invoice Generator</h3>
                     <p class="text-sm text-slate-400 font-light leading-relaxed flex-1 mb-5">Freelancer invoice builder with live PDF preview, line items, tax configuration, and bank wire details.</p>
-                    <span class="inline-flex items-center gap-1.5 text-xs font-medium text-blue-400 group-hover:gap-2.5 transition-all">
+                    <span class="inline-flex items-center gap-1.5 text-xs font-medium text-blue-400 group-hover:gap-3 transition-all duration-200">
                         Open tool
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                     </span>
@@ -195,15 +312,16 @@
         </div>
     </section>
 
-    <!-- ══ ARTICLES SECTION ════════════════════════════════════════════════ -->
+    <!-- ══ ARTICLES SECTION ══════════════════════════════════════════════════ -->
     <section id="articles" class="py-20 sm:py-28 border-t border-slate-800/50">
-        <div class="max-w-7xl mx-auto px-5 sm:px-8">
-            <div class="mb-12">
+        <div class="max-w-7xl mx-auto px-6 sm:px-10">
+            <div class="mb-14 reveal">
                 <p class="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-3">Engineering Logs</p>
                 <h2 class="text-2xl sm:text-3xl font-light text-white tracking-tight">Technical articles &amp; deep-dives.</h2>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                <a href="/articles/optimizing-ai-prompt-tokens-for-llms/" class="group flex flex-col p-6 rounded-2xl bg-slate-900/40 border border-slate-800/50 hover:border-slate-700/80 transition-all duration-300">
+                <a href="/articles/optimizing-ai-prompt-tokens-for-llms/"
+                   class="article-card reveal group flex flex-col p-6 rounded-2xl bg-slate-900/40 border border-slate-800/50 transition-all duration-300">
                     <div class="flex items-center gap-2 mb-4">
                         <span class="text-[10px] font-semibold tracking-widest text-slate-500 uppercase">July 2026</span>
                         <span class="text-slate-700">·</span>
@@ -215,7 +333,7 @@
                     <p class="text-sm text-slate-400 font-light leading-relaxed mb-5">
                         How trailing whitespace, nested brackets, and unstructured prompt blocks silently inflate API token costs in modern IDE pipelines.
                     </p>
-                    <span class="inline-flex items-center gap-1.5 text-xs font-medium text-blue-400 group-hover:gap-2.5 transition-all">
+                    <span class="inline-flex items-center gap-1.5 text-xs font-medium text-blue-400 group-hover:gap-3 transition-all duration-200">
                         Read article
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                     </span>
@@ -224,34 +342,29 @@
         </div>
     </section>
 
-    <!-- ══ FOOTER ══════════════════════════════════════════════════════════ -->
+    <!-- ══ FOOTER ════════════════════════════════════════════════════════════ -->
     <footer class="border-t border-slate-800/50 bg-slate-900/20">
-        <div class="max-w-7xl mx-auto px-5 sm:px-8 py-14">
+        <div class="max-w-7xl mx-auto px-6 sm:px-10 py-14">
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-10 mb-12">
-                <!-- Brand -->
                 <div class="space-y-4">
                     <div class="flex items-center gap-2.5">
                         <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-bold text-white text-xs">N</div>
                         <span class="text-sm font-semibold text-white">NexusDigitalLabs</span>
                     </div>
-                    <p class="text-xs text-slate-500 font-light leading-relaxed max-w-[200px]">
-                        Minimalist web utilities and developer tools built for speed, privacy, and utility.
-                    </p>
+                    <p class="text-xs text-slate-500 font-light leading-relaxed max-w-[200px]">Minimalist web utilities and developer tools built for speed, privacy, and utility.</p>
                 </div>
-                <!-- Navigation -->
                 <div>
                     <p class="text-[10px] font-semibold tracking-widest text-slate-500 uppercase mb-4">Company</p>
                     <div class="space-y-3 text-sm text-slate-400">
-                        <a href="/about/" class="block hover:text-white transition-colors">About</a>
-                        <a href="/contact/" class="block hover:text-white transition-colors">Contact</a>
-                        <a href="/privacy-policy/" class="block hover:text-white transition-colors">Privacy Policy</a>
+                        <a href="/about/"          class="block hover:text-white transition-colors">About</a>
+                        <a href="/contact/"         class="block hover:text-white transition-colors">Contact</a>
+                        <a href="/privacy-policy/"  class="block hover:text-white transition-colors">Privacy Policy</a>
                     </div>
                 </div>
-                <!-- Tools -->
                 <div>
                     <p class="text-[10px] font-semibold tracking-widest text-slate-500 uppercase mb-4">Tools</p>
                     <div class="space-y-3 text-sm text-slate-400">
-                        <a href="/tools/prompt-architect/" class="block hover:text-white transition-colors">Prompt Architect</a>
+                        <a href="/tools/prompt-architect/"  class="block hover:text-white transition-colors">Prompt Architect</a>
                         <a href="/tools/invoice-generator/" class="block hover:text-white transition-colors">Invoice Generator</a>
                         <a href="https://github.com/NexusDigitalLabs" target="_blank" rel="noopener noreferrer" class="block hover:text-white transition-colors">GitHub ↗</a>
                     </div>
@@ -265,6 +378,7 @@
     </footer>
 
     <script>
+        // ── Mobile nav toggle ──────────────────────────────────────────────
         var toggle = document.getElementById('nav-toggle');
         var menu   = document.getElementById('mobile-menu');
         var iMenu  = document.getElementById('icon-menu');
@@ -280,6 +394,29 @@
             iMenu.classList.remove('hidden');
             iClose.classList.add('hidden');
         }
+
+        // ── Smooth scroll for anchor links ─────────────────────────────────
+        document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+            a.addEventListener('click', function (e) {
+                var target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    e.preventDefault();
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    closeMobileMenu();
+                }
+            });
+        });
+
+        // ── Scroll-triggered reveal (IntersectionObserver) ─────────────────
+        var observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.12 });
+        document.querySelectorAll('.reveal').forEach(function (el) { observer.observe(el); });
     </script>
 
 </body>
