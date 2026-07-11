@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Games — NexusDigitalLabs</title>
+  <meta name="description" content="Browser-based mini-games built with zero-bloat Vanilla JS. Play 2048, Snake, and Blackjack — scores persist locally, no login required." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://nexusdigitallabs.dev/games/" />
+  <meta property="og:title" content="Games — NexusDigitalLabs" />
+  <meta property="og:description" content="2048, Snake, and Blackjack — built with Vanilla JS, no framework, no tracking." />
+  <meta property="og:url" content="https://nexusdigitallabs.dev/games/" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/favicon.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    * { box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #F9FAFB; color: #0f172a; }
+
+    .game-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+      text-decoration: none;
+      display: flex; flex-direction: column;
+    }
+    .game-card:hover {
+      transform: translateY(-3px);
+      border-color: #cbd5e1;
+      box-shadow: 0 8px 24px rgba(15,23,42,0.07);
+    }
+    .slbl { font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #94a3b8; }
+    .score-badge {
+      display: inline-flex; align-items: center; gap: 0.375rem;
+      font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 0.25rem 0.5rem;
+      background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3);
+      color: #16a34a;
+    }
+    .score-badge.zero { background: #f8fafc; border-color: #e2e8f0; color: #94a3b8; }
+
+    .play-btn {
+      display: inline-flex; align-items: center; gap: 0.375rem;
+      font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+      color: #0f172a; transition: gap 0.2s;
+    }
+    .game-card:hover .play-btn { gap: 0.625rem; }
+
+    .game-icon {
+      width: 2.75rem; height: 2.75rem;
+      border: 1px solid #e2e8f0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    /* Username chip */
+    #user-chip {
+      display: inline-flex; align-items: center; gap: 0.375rem;
+      font-size: 0.75rem; font-weight: 500; color: #475569;
+      border: 1px solid #e2e8f0; background: #fff; padding: 0.3rem 0.75rem;
+      cursor: pointer; transition: border-color 0.15s;
+    }
+    #user-chip:hover { border-color: #94a3b8; }
+  </style>
+</head>
+<body>
+
+  <!-- Shared nav -->
+  <div id="site-nav"></div>
+  <script src="/components/nav.js"></script>
+  <script src="/components/game-state.js"></script>
+
+  <!-- ══ PAGE HEADER ══════════════════════════════════════════════════ -->
+  <div style="border-bottom:1px solid #e2e8f0; background:#fff;">
+    <div class="max-w-5xl mx-auto px-6 sm:px-10 py-7">
+      <div class="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <p class="slbl" style="margin-bottom:0.375rem;">NexusDigitalLabs</p>
+          <h1 class="text-2xl sm:text-[1.625rem] font-semibold text-slate-900 tracking-tight mt-1">Games</h1>
+          <p class="text-sm text-slate-400 font-light mt-1.5">
+            Browser-based mini-games · Scores saved locally · No login needed
+          </p>
+        </div>
+        <div style="align-self:flex-start; margin-top:6px;">
+          <button id="user-chip" onclick="changeUsername()" title="Change name">
+            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+            <span id="user-chip-name">—</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ GAME CARDS ═══════════════════════════════════════════════════ -->
+  <div class="max-w-5xl mx-auto px-6 sm:px-10 py-10">
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="game-grid">
+
+      <!-- 2048 -->
+      <a href="/games/2048/" class="game-card p-7">
+        <div class="game-icon">
+          <span>⊞</span>
+        </div>
+        <p class="slbl mb-2">Strategy</p>
+        <h2 class="text-lg font-bold text-slate-900 mb-2">2048</h2>
+        <p class="text-sm text-slate-400 font-light leading-relaxed flex-1 mb-5">
+          Slide tiles on a 4×4 grid to merge matching numbers. Reach the 2048 tile to win.
+        </p>
+        <div class="flex items-center justify-between">
+          <div class="score-badge zero" id="score-2048">Best: 0</div>
+          <span class="play-btn">
+            Play
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+            </svg>
+          </span>
+        </div>
+      </a>
+
+      <!-- Snake -->
+      <a href="/games/snake/" class="game-card p-7">
+        <div class="game-icon">
+          <span>◈</span>
+        </div>
+        <p class="slbl mb-2">Arcade</p>
+        <h2 class="text-lg font-bold text-slate-900 mb-2">Snake</h2>
+        <p class="text-sm text-slate-400 font-light leading-relaxed flex-1 mb-5">
+          Navigate the snake to eat food and grow. Avoid walls and your own tail. Speed increases.
+        </p>
+        <div class="flex items-center justify-between">
+          <div class="score-badge zero" id="score-snake">Best: 0</div>
+          <span class="play-btn">
+            Play
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+            </svg>
+          </span>
+        </div>
+      </a>
+
+      <!-- Blackjack -->
+      <a href="/games/blackjack/" class="game-card p-7">
+        <div class="game-icon">
+          <span>♠</span>
+        </div>
+        <p class="slbl mb-2">Card Game</p>
+        <h2 class="text-lg font-bold text-slate-900 mb-2">Blackjack</h2>
+        <p class="text-sm text-slate-400 font-light leading-relaxed flex-1 mb-5">
+          Beat the dealer to 21 without going bust. Dealer draws to 17. Classic casino rules.
+        </p>
+        <div class="flex items-center justify-between">
+          <div class="score-badge zero" id="score-bj">Best: 0</div>
+          <span class="play-btn">
+            Play
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+            </svg>
+          </span>
+        </div>
+      </a>
+
+    </div>
+
+    <!-- Leaderboard strip -->
+    <div class="mt-10" style="border:1px solid #e2e8f0; background:#fff;">
+      <div style="padding:1rem 1.25rem; border-bottom:1px solid #e2e8f0;">
+        <p class="slbl">Your high scores</p>
+      </div>
+      <div class="grid grid-cols-3 divide-x divide-slate-100">
+        <div class="p-5 text-center">
+          <p class="slbl mb-1">2048</p>
+          <p class="text-2xl font-bold text-slate-900" id="lb-2048">0</p>
+        </div>
+        <div class="p-5 text-center">
+          <p class="slbl mb-1">Snake</p>
+          <p class="text-2xl font-bold text-slate-900" id="lb-snake">0</p>
+        </div>
+        <div class="p-5 text-center">
+          <p class="slbl mb-1">Blackjack</p>
+          <p class="text-2xl font-bold text-slate-900" id="lb-bj">0</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer note -->
+    <p class="text-xs text-slate-400 font-light mt-6 text-center">
+      All scores are stored in your browser's local storage — never sent anywhere.
+    </p>
+
+  </div>
+
+  <script>
+  function loadScores(username) {
+    document.getElementById('user-chip-name').textContent = username;
+
+    var games = [
+      { id: '2048',      badgeEl: 'score-2048', lbEl: 'lb-2048'  },
+      { id: 'snake',     badgeEl: 'score-snake', lbEl: 'lb-snake' },
+      { id: 'blackjack', badgeEl: 'score-bj',    lbEl: 'lb-bj'   },
+    ];
+
+    games.forEach(function(g) {
+      var hs = NDLGameState.getHighScore(g.id);
+      var badge = document.getElementById(g.badgeEl);
+      var lb    = document.getElementById(g.lbEl);
+      badge.textContent = 'Best: ' + (hs > 0 ? hs.toLocaleString('en-US') : '0');
+      badge.className   = 'score-badge' + (hs > 0 ? '' : ' zero');
+      lb.textContent    = hs > 0 ? hs.toLocaleString('en-US') : '0';
+      if (hs > 0) lb.style.color = '#16a34a';
+    });
+  }
+
+  function changeUsername() {
+    NDLGameState.clearUsername();
+    NDLGameState.requireUsername(loadScores);
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    NDLGameState.requireUsername(loadScores);
+  });
+  </script>
+</body>
+</html>
