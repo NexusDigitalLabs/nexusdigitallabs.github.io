@@ -26,6 +26,7 @@
   var BADGES = {
     '/tools/prompt-architect/':  { label: 'Prompt Architect',  color: 'violet'  },
     '/tools/invoice-generator/': { label: 'Invoice Generator', color: 'emerald' },
+    '/tools/debt-optimizer/':    { label: 'Debt Optimizer',    color: 'sky'     },
     '/articles/':                { label: 'Article',           color: 'blue'    },
     '/about/':                   { label: 'About',             color: 'slate'   },
     '/contact/':                 { label: 'Contact',           color: 'slate'   },
@@ -33,6 +34,7 @@
   var BADGE_COLORS = {
     violet:  { fg: '#a78bfa', bg: 'rgba(139,92,246,0.12)',  bd: 'rgba(139,92,246,0.25)'  },
     emerald: { fg: '#34d399', bg: 'rgba(6,78,59,0.28)',     bd: 'rgba(52,211,153,0.25)'  },
+    sky:     { fg: '#38bdf8', bg: 'rgba(14,165,233,0.12)',  bd: 'rgba(56,189,248,0.25)'  },
     blue:    { fg: '#60a5fa', bg: 'rgba(37,99,235,0.12)',   bd: 'rgba(59,130,246,0.25)'  },
     slate:   { fg: '#94a3b8', bg: 'rgba(15,23,42,0.4)',     bd: 'rgba(71,85,105,0.4)'    },
   };
