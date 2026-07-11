@@ -4,235 +4,153 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Primary Meta Tags -->
-  <title>Debt Settlement & Savings Optimizer — NexusDigitalLabs</title>
-  <meta name="description" content="Free browser-based debt payoff calculator. Compare avalanche vs snowball strategies, see your month-by-month runway, and watch savings compound after debt-free day. 100% client-side." />
-  <meta name="keywords" content="debt payoff calculator, avalanche method, snowball method, debt free calculator, savings optimizer, HYSA calculator, debt settlement, financial planner" />
+  <title>Debt Settlement & Savings Planner — NexusDigitalLabs</title>
+  <meta name="description" content="Simple, free debt payoff planner. Add your income, monthly expenses, and debts to see your debt-free date and a month-by-month repayment runway. Download as PDF. 100% client-side." />
+  <meta name="keywords" content="debt payoff calculator, debt free planner, loan payoff, credit card payoff, debt settlement, monthly budget, financial planner" />
   <meta name="robots" content="index, follow" />
   <meta name="author" content="NexusDigitalLabs" />
   <link rel="canonical" href="https://nexusdigitallabs.dev/tools/debt-optimizer/" />
 
-  <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://nexusdigitallabs.dev/tools/debt-optimizer/" />
-  <meta property="og:title" content="Debt Settlement & Savings Optimizer — NexusDigitalLabs" />
-  <meta property="og:description" content="Calculate your debt-free date using avalanche or snowball strategies. See every month's balance, then watch your HYSA savings compound after the pivot." />
+  <meta property="og:title" content="Debt Settlement & Savings Planner — NexusDigitalLabs" />
+  <meta property="og:description" content="See your debt-free date with a month-by-month repayment plan. Add expenses, loans, and credit cards. Download as PDF." />
   <meta property="og:image" content="https://nexusdigitallabs.dev/og-image.png" />
-
-  <!-- Twitter / X -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Debt Settlement & Savings Optimizer" />
-  <meta name="twitter:description" content="Free, 100% client-side debt payoff calculator with avalanche/snowball strategies and savings compounding." />
 
-  <!-- Favicon -->
   <link rel="icon" type="image/png" href="/favicon.png" />
   <link rel="apple-touch-icon" href="/favicon.png" />
 
-  <!-- JSON-LD -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "name": "Debt Settlement & Savings Optimizer",
+    "name": "Debt Settlement & Savings Planner",
     "url": "https://nexusdigitallabs.dev/tools/debt-optimizer/",
-    "description": "Browser-based debt payoff calculator with avalanche/snowball strategies and HYSA savings compounding.",
+    "description": "Simple browser-based debt payoff planner with PDF export.",
     "applicationCategory": "FinanceApplication",
     "operatingSystem": "Any",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
   }
   </script>
 
-  <!-- Umami Analytics (cookie-free) -->
   <script defer src="https://cloud.umami.is/script.js" data-website-id="89ea0001-e2c2-4802-bcb2-bf2ae4809451"></script>
-
-  <!-- Tailwind CSS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-    /* ── Base ─────────────────────────────────────────────────────── */
     * { box-sizing: border-box; }
     body { font-family: 'Inter', sans-serif; background: #F9FAFB; color: #0f172a; }
     ::-webkit-scrollbar { width: 4px; height: 4px; }
     ::-webkit-scrollbar-track { background: #f1f5f9; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
 
-    /* ── Sharp form inputs (zero border-radius) ───────────────────── */
+    /* ── Sharp inputs ──────────────────────────────────────────── */
     .si {
-      display: block;
-      width: 100%;
-      background: #fff;
-      border: 1px solid #e2e8f0;
-      border-radius: 0;
+      display: block; width: 100%;
+      background: #fff; border: 1px solid #e2e8f0; border-radius: 0;
       padding: 0.5rem 0.625rem;
-      font-size: 0.8125rem;
-      font-family: 'Inter', sans-serif;
-      color: #0f172a;
-      outline: none;
-      transition: border-color 0.15s;
+      font-size: 0.8125rem; font-family: 'Inter', sans-serif; color: #0f172a;
+      outline: none; transition: border-color 0.15s;
       -moz-appearance: textfield;
     }
-    .si::-webkit-outer-spin-button,
-    .si::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .si::-webkit-outer-spin-button, .si::-webkit-inner-spin-button { -webkit-appearance: none; }
     .si:focus { border-color: #000; }
     .si::placeholder { color: #94a3b8; }
-    .si-prefix { padding-left: 1.5rem; }
-    .si-suffix { padding-right: 1.5rem; }
+    .si-pre { padding-left: 1.5rem; }
+    select.si { cursor: pointer; }
 
-    /* ── Strategy toggle ────────────────────────────────────────────── */
-    .strat-btn {
-      flex: 1;
-      padding: 0.5rem 0;
-      font-size: 0.6875rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      border: 1px solid #e2e8f0;
-      background: #fff;
-      color: #64748b;
-      cursor: pointer;
-      transition: all 0.15s;
-      font-family: 'Inter', sans-serif;
-    }
-    .strat-btn + .strat-btn { border-left: none; }
-    .strat-btn.active { background: #0f172a; color: #fff; border-color: #0f172a; }
-    .strat-btn:hover:not(.active) { background: #f8fafc; }
+    /* ── Labels ────────────────────────────────────────────────── */
+    .lbl   { display: block; font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: #64748b; margin-bottom: 0.3rem; }
+    .slbl  { font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #94a3b8; }
 
-    /* ── Debt card ──────────────────────────────────────────────────── */
-    .debt-card {
-      border: 1px solid #e2e8f0;
-      background: #fff;
-      padding: 0.875rem;
-    }
+    /* ── Cards ─────────────────────────────────────────────────── */
+    .card  { border: 1px solid #e2e8f0; background: #fff; }
+    .warn  { border: 1px solid #fca5a5; background: #fef2f2; }
 
-    /* ── Primary button ─────────────────────────────────────────────── */
-    .btn-primary {
-      width: 100%;
-      padding: 0.75rem;
-      background: #0f172a;
-      color: #fff;
-      border: none;
-      border-radius: 0;
-      font-size: 0.8125rem;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      cursor: pointer;
-      font-family: 'Inter', sans-serif;
-      transition: background 0.15s;
+    /* ── Buttons ───────────────────────────────────────────────── */
+    .btn-main {
+      width: 100%; padding: 0.75rem; background: #0f172a; color: #fff;
+      border: none; border-radius: 0; font-size: 0.8125rem; font-weight: 600;
+      letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer;
+      font-family: 'Inter', sans-serif; transition: background 0.15s;
     }
-    .btn-primary:hover { background: #1e293b; }
-    .btn-primary:disabled { background: #94a3b8; cursor: not-allowed; }
+    .btn-main:hover:not(:disabled) { background: #1e293b; }
+    .btn-main:disabled { background: #94a3b8; cursor: not-allowed; }
+    .btn-pdf {
+      width: 100%; padding: 0.75rem; background: #fff; color: #0f172a;
+      border: 1px solid #0f172a; border-radius: 0; font-size: 0.8125rem; font-weight: 600;
+      letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer;
+      font-family: 'Inter', sans-serif; transition: all 0.15s; margin-top: 0.5rem;
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    }
+    .btn-pdf:hover { background: #f8fafc; }
+    .btn-pdf:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-add {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+      color: #0f172a; background: none; border: none; cursor: pointer;
+      font-family: 'Inter', sans-serif; padding: 0; transition: color 0.15s;
+    }
+    .btn-add:hover { color: #475569; }
+    .btn-rm {
+      background: none; border: none; padding: 0; cursor: pointer;
+      color: #cbd5e1; line-height: 0; transition: color 0.15s; flex-shrink: 0;
+    }
+    .btn-rm:hover { color: #ef4444; }
 
-    /* ── Remove button ────────────────────────────────────────────────── */
-    .btn-remove {
-      background: none;
-      border: none;
-      padding: 0;
-      cursor: pointer;
-      color: #94a3b8;
-      line-height: 0;
-      transition: color 0.15s;
+    /* ── Runway table ──────────────────────────────────────────── */
+    .run-th {
+      padding: 0.625rem 1rem; font-size: 0.5625rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase; color: #64748b;
+      background: #fff; border-bottom: 2px solid #0f172a;
+      white-space: nowrap; position: sticky; top: 0; z-index: 2;
     }
-    .btn-remove:hover { color: #ef4444; }
-
-    /* ── Metric card ────────────────────────────────────────────────── */
-    .metric-card {
-      border: 1px solid #e2e8f0;
-      background: #fff;
-      padding: 1rem 1.25rem;
-    }
-
-    /* ── Warning banner ─────────────────────────────────────────────── */
-    .warn-banner {
-      border: 1px solid #fca5a5;
-      background: #fef2f2;
-      padding: 1.125rem 1.25rem;
-    }
-
-    /* ── Runway table ──────────────────────────────────────────────── */
-    .runway-wrap {
-      border: 1px solid #e2e8f0;
-      background: #fff;
-    }
-    .runway-head th {
-      padding: 0.75rem 1rem;
-      font-size: 0.625rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: #64748b;
-      background: #fff;
-      border-bottom: 2px solid #0f172a;
-      white-space: nowrap;
-      position: sticky;
-      top: 0;
-      z-index: 2;
-    }
-    .runway-head th:first-child { padding-left: 1.25rem; }
-    .r-row td {
-      padding: 0.5rem 1rem;
-      font-size: 0.75rem;
-      border-bottom: 1px solid #f1f5f9;
-      white-space: nowrap;
-    }
-    .r-row td:first-child { padding-left: 1.25rem; }
-    .r-row:hover td { background: #f8fafc; }
+    .run-td { padding: 0.5rem 1rem; font-size: 0.75rem; border-bottom: 1px solid #f1f5f9; }
+    .r-norm:hover td { background: #f8fafc; }
     .r-pivot td { background: #f0fdf4; border-left: 3px solid #4ade80; }
-    .r-pivot td:first-child { padding-left: calc(1.25rem - 3px); }
-    .r-savings td { background: #f0fdf4; }
-    .r-pivot:hover td, .r-savings:hover td { background: #dcfce7; }
+    .r-pivot td:first-child { padding-left: calc(1rem - 3px); }
+    .r-pivot:hover td { background: #dcfce7; }
 
-    /* ── Progress micro-bar ────────────────────────────────────────── */
-    .prog-track { height: 3px; background: #f1f5f9; width: 72px; }
-    .prog-fill { height: 3px; transition: width 0.3s; }
-    .prog-debt    { background: #fca5a5; }
-    .prog-savings { background: #4ade80; }
+    /* ── Progress bar ──────────────────────────────────────────── */
+    .prog { height: 3px; background: #f1f5f9; border-radius: 0; overflow: hidden; margin-top: 0.3rem; }
+    .prog-fill { height: 3px; background: #94a3b8; transition: width 0.4s; }
+    .prog-fill-g { background: #4ade80; }
 
-    /* ── Left panel sticky ─────────────────────────────────────────── */
-    .left-panel {
-      position: sticky;
-      top: 4rem;
-      width: 380px;
-      flex-shrink: 0;
-      max-height: calc(100vh - 4rem);
-      overflow-y: auto;
-    }
+    /* ── Left panel sticky ─────────────────────────────────────── */
+    .left-panel { position: sticky; top: 4rem; width: 380px; flex-shrink: 0; max-height: calc(100vh - 4rem); overflow-y: auto; }
 
-    /* ── Field group label ─────────────────────────────────────────── */
-    .field-label {
-      display: block;
-      font-size: 0.6875rem;
-      font-weight: 600;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      color: #64748b;
-      margin-bottom: 0.3rem;
-    }
-    .section-label {
-      font-size: 0.6875rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: #94a3b8;
-      margin-bottom: 1rem;
-    }
-
-    /* ── Savings highlight ─────────────────────────────────────────── */
-    .em-green { color: #16a34a; }
-
-    /* ── Responsive: stack on narrow ──────────────────────────────── */
     @media (max-width: 1024px) {
       .left-panel { position: static; width: 100%; max-height: none; }
-      .layout-wrap { flex-direction: column; }
+      .main-wrap  { flex-direction: column; }
     }
+
+    /* ── PDF content (hidden until export) ────────────────────── */
+    #pdf-wrap { display: none; }
+    .pdf-page {
+      width: 794px; padding: 48px 56px;
+      font-family: 'Inter', sans-serif; font-size: 11px;
+      color: #0f172a; background: #fff; line-height: 1.5;
+    }
+    .pdf-page h1 { font-size: 18px; font-weight: 700; margin: 0 0 4px; }
+    .pdf-page h2 { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #64748b; margin: 20px 0 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; }
+    .pdf-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+    .pdf-metric { border: 1px solid #e2e8f0; padding: 10px 12px; }
+    .pdf-metric-lbl { font-size: 8px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #94a3b8; margin-bottom: 4px; }
+    .pdf-metric-val { font-size: 16px; font-weight: 700; color: #0f172a; }
+    .pdf-metric-val.green { color: #16a34a; }
+    .pdf-tbl { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+    .pdf-tbl th { padding: 5px 8px; font-size: 8px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; background: #f8fafc; border-bottom: 1px solid #0f172a; text-align: left; }
+    .pdf-tbl td { padding: 5px 8px; border-bottom: 1px solid #f1f5f9; font-size: 10px; }
+    .pdf-tbl tr.pivot td { background: #f0fdf4; font-weight: 600; }
+    .pdf-footer { margin-top: 32px; padding-top: 12px; border-top: 1px solid #e2e8f0; font-size: 9px; color: #94a3b8; }
   </style>
 </head>
-
 <body>
 
-  <!-- ══ SHARED NAV ═══════════════════════════════════════════════════ -->
+  <!-- Shared nav -->
   <div id="site-nav"></div>
   <script src="/components/nav.js"></script>
 
@@ -241,16 +159,16 @@
     <div class="max-w-7xl mx-auto px-6 sm:px-10 py-7">
       <div class="flex items-start justify-between gap-6 flex-wrap">
         <div>
-          <p class="section-label" style="margin-bottom:0.375rem;">Financial Tool</p>
-          <h1 class="text-2xl sm:text-[1.625rem] font-semibold text-slate-900 tracking-tight leading-snug">
-            Debt Settlement &amp; Savings Optimizer
+          <p class="slbl" style="margin-bottom:0.375rem;">Financial Tool</p>
+          <h1 class="text-2xl sm:text-[1.625rem] font-semibold text-slate-900 tracking-tight leading-snug mt-1">
+            Debt Settlement &amp; Savings Planner
           </h1>
-          <p class="text-sm text-slate-400 font-light mt-1.5 max-w-xl leading-relaxed">
-            Compare avalanche vs snowball payoff strategies. Track every month's balance, interest, and savings pivot point.
+          <p class="text-sm text-slate-400 font-light mt-1.5 leading-relaxed">
+            Add your income, expenses, and debts — get a month-by-month payoff runway and download a PDF plan.
           </p>
         </div>
-        <div class="hidden sm:flex items-center gap-2 text-[11px] text-slate-400 shrink-0 self-start mt-1"
-             style="border:1px solid #e2e8f0; padding:0.5rem 0.75rem;">
+        <div class="hidden sm:flex items-center gap-2 text-[11px] text-slate-400 shrink-0"
+             style="border:1px solid #e2e8f0; padding:0.5rem 0.75rem; align-self:flex-start; margin-top:4px;">
           <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
@@ -261,91 +179,98 @@
     </div>
   </div>
 
-  <!-- ══ MAIN LAYOUT ══════════════════════════════════════════════════ -->
+  <!-- ══ MAIN ═══════════════════════════════════════════════════════ -->
   <div class="max-w-7xl mx-auto px-6 sm:px-10 py-8">
-    <div class="flex gap-8 items-start layout-wrap">
+    <div class="flex gap-8 items-start main-wrap">
 
-      <!-- ══════════════════════════════════════════════════════════════
-           LEFT PANEL — Inputs
-      ════════════════════════════════════════════════════════════════ -->
+      <!-- ══ LEFT: Inputs ══════════════════════════════════════════ -->
       <div class="left-panel">
 
-        <!-- Income & Expenses -->
-        <div class="mb-7">
-          <p class="section-label">Income &amp; Expenses</p>
-          <div class="space-y-3">
-            <div>
-              <label class="field-label" for="in-income">Monthly Net Income</label>
-              <div class="relative">
-                <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs select-none">$</span>
-                <input id="in-income" type="number" class="si si-prefix" value="6000" min="0" step="100" placeholder="6000" />
-              </div>
-            </div>
-            <div>
-              <label class="field-label" for="in-expenses">Monthly Living Expenses</label>
-              <div class="relative">
-                <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs select-none">$</span>
-                <input id="in-expenses" type="number" class="si si-prefix" value="3200" min="0" step="100" placeholder="3200" />
-              </div>
-            </div>
-            <div>
-              <label class="field-label" for="in-hysa">HYSA Annual Interest Rate</label>
-              <div class="relative">
-                <input id="in-hysa" type="number" class="si si-suffix" value="4.50" min="0" max="30" step="0.05" placeholder="4.50" />
-                <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs select-none">%</span>
-              </div>
-            </div>
+        <!-- Currency -->
+        <div class="mb-6">
+          <label class="lbl" for="sel-currency">Currency</label>
+          <select id="sel-currency" class="si" onchange="setCurrency(this.value)">
+            <option value="USD">USD — US Dollar ($)</option>
+            <option value="EUR">EUR — Euro (€)</option>
+            <option value="GBP">GBP — British Pound (£)</option>
+            <option value="LKR" selected>LKR — Sri Lankan Rupee (Rs)</option>
+            <option value="INR">INR — Indian Rupee (₹)</option>
+            <option value="AUD">AUD — Australian Dollar (A$)</option>
+            <option value="CAD">CAD — Canadian Dollar (C$)</option>
+            <option value="SGD">SGD — Singapore Dollar (S$)</option>
+            <option value="AED">AED — UAE Dirham (د.إ)</option>
+            <option value="MYR">MYR — Malaysian Ringgit (RM)</option>
+          </select>
+        </div>
+
+        <!-- Income -->
+        <div class="mb-6">
+          <label class="lbl" for="in-income">Monthly Net Income</label>
+          <div class="relative">
+            <span id="sym-income" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs select-none">Rs</span>
+            <input id="in-income" type="number" class="si si-pre" value="150000" min="0" step="1000" />
           </div>
         </div>
 
-        <!-- Strategy -->
-        <div class="mb-7">
-          <p class="section-label">Payoff Strategy</p>
-          <div class="flex">
-            <button id="btn-avalanche" class="strat-btn active" onclick="setStrategy('avalanche')">Avalanche</button>
-            <button id="btn-snowball"  class="strat-btn"        onclick="setStrategy('snowball')">Snowball</button>
+        <!-- Expenses -->
+        <div class="mb-6">
+          <div class="flex items-center justify-between mb-3">
+            <p class="slbl">Monthly Expenses</p>
+            <button class="btn-add" onclick="addExpense()">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+              </svg>
+              Add
+            </button>
           </div>
-          <p id="strategy-desc" class="text-[11px] text-slate-400 mt-2 leading-relaxed font-light">
-            Targets highest APR first — mathematically minimizes total interest paid.
-          </p>
+          <div id="expense-list" class="space-y-2"></div>
+          <!-- Total -->
+          <div class="flex justify-between items-center mt-2.5 pt-2.5" style="border-top:1px solid #e2e8f0;">
+            <span class="text-xs text-slate-400 font-medium">Total Expenses</span>
+            <span id="total-expenses" class="text-xs font-semibold text-slate-700">Rs 0</span>
+          </div>
+        </div>
+
+        <!-- FCF preview -->
+        <div id="fcf-preview" class="mb-6 px-3 py-2.5" style="border:1px solid #e2e8f0; background:#f8fafc;">
+          <div class="flex justify-between items-center">
+            <span class="text-[11px] text-slate-400 font-medium">Free Cash Flow</span>
+            <span id="fcf-val" class="text-sm font-semibold text-slate-900">—</span>
+          </div>
         </div>
 
         <!-- Debts -->
         <div class="mb-6">
-          <div class="flex items-center justify-between mb-4">
-            <p class="section-label" style="margin-bottom:0;">Debts</p>
-            <button onclick="addDebt()"
-              class="flex items-center gap-1 text-xs font-semibold text-slate-900 hover:text-slate-500 transition-colors">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="flex items-center justify-between mb-3">
+            <p class="slbl">Loans &amp; Credit Cards</p>
+            <button class="btn-add" onclick="addDebt()">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
               </svg>
-              Add Debt
+              Add
             </button>
           </div>
-          <div id="debt-list" class="space-y-2.5"></div>
+          <div id="debt-list" class="space-y-3"></div>
         </div>
 
-        <!-- Calculate -->
-        <button id="btn-calc" class="btn-primary" onclick="calculate()">Calculate Runway</button>
+        <!-- Actions -->
+        <button id="btn-calc" class="btn-main" onclick="calculate()">Calculate Plan</button>
+        <button id="btn-pdf" class="btn-pdf" onclick="downloadPDF()" disabled>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+          </svg>
+          Download PDF
+        </button>
 
-        <!-- SEO explainer (below fold, crawler-visible) -->
-        <div class="mt-8 pt-6 border-t border-slate-100">
-          <p class="text-[11px] text-slate-400 leading-relaxed font-light">
-            <strong class="text-slate-500 font-medium">Avalanche method:</strong> directs overage payments to the highest-APR
-            debt first, minimising the total interest you pay over the lifetime of your debts.
-            <strong class="text-slate-500 font-medium">Snowball method:</strong> targets the smallest balance first,
-            generating quick psychological wins. After your last debt reaches zero, 100% of your free cash flow
-            compounds inside a HYSA at your specified annual rate.
-          </p>
-        </div>
+        <p class="text-[10px] text-slate-400 mt-4 leading-relaxed font-light">
+          Debts are paid lowest-balance-first. This plan does not account for interest accrual — actual payoff time may vary.
+        </p>
       </div>
 
-      <!-- ══════════════════════════════════════════════════════════════
-           RIGHT PANEL — Results
-      ════════════════════════════════════════════════════════════════ -->
+      <!-- ══ RIGHT: Results ═════════════════════════════════════════ -->
       <div class="flex-1 min-w-0" id="results-panel">
-        <!-- Populated by renderResults() -->
-        <div id="empty-state" class="flex flex-col items-center justify-center py-28 text-center">
+        <div class="flex flex-col items-center justify-center py-28 text-center">
           <div class="w-12 h-12 flex items-center justify-center mb-4" style="border:1px solid #e2e8f0;">
             <svg class="w-6 h-6" style="color:#cbd5e1;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -353,12 +278,18 @@
             </svg>
           </div>
           <p class="text-sm text-slate-400 font-light leading-relaxed">
-            Enter your income, expenses, and debts,<br>then click <strong class="font-medium text-slate-500">Calculate Runway</strong>.
+            Fill in your details and click<br>
+            <strong class="font-medium text-slate-500">Calculate Plan</strong>.
           </p>
         </div>
       </div>
 
     </div>
+  </div>
+
+  <!-- ══ HIDDEN PDF CONTENT ══════════════════════════════════════════ -->
+  <div id="pdf-wrap">
+    <div id="pdf-content" class="pdf-page"></div>
   </div>
 
   <!-- ══ FOOTER ══════════════════════════════════════════════════════ -->
@@ -378,585 +309,622 @@
 
 
   <script>
-  /* ═══════════════════════════════════════════════════════════════════════
-   * TYPE DEFINITIONS (JSDoc — full IDE intellisense, zero runtime cost)
-   * ═══════════════════════════════════════════════════════════════════════
-   *
-   * @typedef {Object} DebtItem
-   * @property {string} id         - unique identifier
-   * @property {string} name       - display label
-   * @property {number} balance    - current outstanding balance ($)
-   * @property {number} apr        - annual percentage rate (%)
-   * @property {number} minPay     - minimum monthly payment ($)
-   *
-   * @typedef {Object} MonthSnapshot
-   * @property {number}   month        - 1-indexed month number
-   * @property {'debt'|'savings'} phase
-   * @property {number}   totalDebt    - sum of all remaining balances
-   * @property {number}   debtCount    - number of debts still active
-   * @property {number}   payment      - total dollars applied this month
-   * @property {number}   interestPaid - total interest accrued this month
-   * @property {number}   savings      - accumulated HYSA balance
-   * @property {boolean}  pivotMonth   - true on the month debts hit zero
-   * @property {Array<{id:string,name:string,balance:number,apr:number}>} debtDetail
-   *
-   * @typedef {Object} EngineInput
-   * @property {number}   income
-   * @property {number}   livingExpenses
-   * @property {number}   hysa            - HYSA annual rate (%)
-   * @property {'avalanche'|'snowball'} strategy
-   * @property {DebtItem[]} debts
-   *
-   * @typedef {Object} EngineResult
-   * @property {MonthSnapshot[]} runway
-   * @property {number}   freeCashFlow
-   * @property {number}   monthlyOverage
-   * @property {number}   totalInterestPaid
-   * @property {number|null} debtFreeMonth
-   * @property {number}   finalSavings
-   * @property {boolean}  isViable
-   * @property {string|null} error
-   */
+  /* ═══════════════════════════════════════════════════════════════════
+   * CURRENCIES
+   * ═══════════════════════════════════════════════════════════════════ */
+  var CURRENCIES = {
+    USD: { symbol: '$',     name: 'US Dollar'          },
+    EUR: { symbol: '€',     name: 'Euro'               },
+    GBP: { symbol: '£',     name: 'British Pound'      },
+    LKR: { symbol: 'Rs',    name: 'Sri Lankan Rupee'   },
+    INR: { symbol: '₹',     name: 'Indian Rupee'       },
+    AUD: { symbol: 'A$',    name: 'Australian Dollar'  },
+    CAD: { symbol: 'C$',    name: 'Canadian Dollar'    },
+    SGD: { symbol: 'S$',    name: 'Singapore Dollar'   },
+    AED: { symbol: 'د.إ',   name: 'UAE Dirham'         },
+    MYR: { symbol: 'RM',    name: 'Malaysian Ringgit'  },
+  };
 
-  /* ═══════════════════════════════════════════════════════════════════════
+  /* ═══════════════════════════════════════════════════════════════════
    * STATE
-   * ═══════════════════════════════════════════════════════════════════════ */
+   * ═══════════════════════════════════════════════════════════════════ */
+  var _euid = 4;  // expense uid counter
+  var _duid = 3;  // debt uid counter
 
-  var _uid = 4;
-
-  /** @type {{ strategy: 'avalanche'|'snowball', debts: DebtItem[], lastResult: EngineResult|null }} */
   var state = {
-    strategy: 'avalanche',
-    debts: [
-      { id: 'debt-1', name: 'Credit Card',   balance: 8500,  apr: 22.99, minPay: 200 },
-      { id: 'debt-2', name: 'Car Loan',       balance: 11200, apr: 7.50,  minPay: 320 },
-      { id: 'debt-3', name: 'Personal Loan',  balance: 4500,  apr: 15.00, minPay: 135 },
+    currency: 'LKR',
+
+    /** @type {Array<{id:string, name:string, amount:number}>} */
+    expenses: [
+      { id: 'exp-1', name: 'Rent / Mortgage',  amount: 30000 },
+      { id: 'exp-2', name: 'Groceries',         amount: 15000 },
+      { id: 'exp-3', name: 'Utilities',          amount:  8000 },
     ],
+
+    /**
+     * @type {Array<{id:string, name:string, totalAmt:number, outstanding:number, monthlyPay:number}>}
+     * totalAmt  = original loan amount OR credit card limit
+     * outstanding = current balance owed
+     * monthlyPay  = minimum monthly payment
+     */
+    debts: [
+      { id: 'debt-1', name: 'Credit Card',  totalAmt: 200000, outstanding:  85000, monthlyPay:  5000 },
+      { id: 'debt-2', name: 'Car Loan',     totalAmt: 800000, outstanding: 420000, monthlyPay: 18000 },
+    ],
+
+    /** @type {Object|null} */
     lastResult: null,
   };
 
-  /* ═══════════════════════════════════════════════════════════════════════
-   * ENGINE — Pure Functions, Immutable Inputs
-   * ═══════════════════════════════════════════════════════════════════════ */
+  /* ═══════════════════════════════════════════════════════════════════
+   * UTILITIES
+   * ═══════════════════════════════════════════════════════════════════ */
 
-  /**
-   * Monthly interest accrual: (Balance × APR%) ÷ 12
-   * @param {number} balance
-   * @param {number} apr
-   * @returns {number}
-   */
-  function accrueInterest(balance, apr) {
-    return (balance * (apr / 100)) / 12;
+  function sym() { return CURRENCIES[state.currency].symbol; }
+
+  function fmt(n) {
+    if (n == null || isNaN(n)) return '—';
+    return Math.round(n).toLocaleString('en-US');
+  }
+  function fmtC(n) { return sym() + ' ' + fmt(n); }
+
+  function fmtMo(months) {
+    if (!months) return '—';
+    var yr = Math.floor(months / 12);
+    var mo = months % 12;
+    if (yr === 0) return mo + ' mo';
+    if (mo === 0) return yr + ' yr';
+    return yr + ' yr ' + mo + ' mo';
   }
 
-  /**
-   * Returns a sorted copy of debts — does NOT mutate input array.
-   * @param {DebtItem[]} debts
-   * @param {'avalanche'|'snowball'} strategy
-   * @returns {DebtItem[]}
-   */
-  function sortDebtsByStrategy(debts, strategy) {
-    return debts.slice().sort(function (a, b) {
-      return strategy === 'avalanche'
-        ? b.apr - a.apr          // highest APR first
-        : a.balance - b.balance; // lowest balance first
-    });
+  function esc(v) {
+    return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
+  function todayStr() {
+    var d = new Date();
+    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════
+   * ENGINE — Pure, immutable inputs
+   * ═══════════════════════════════════════════════════════════════════ */
+
   /**
-   * Core debt liquidation + savings pivot engine.
-   * All inputs are deep-cloned before simulation — original state is never mutated.
-   * @param {EngineInput} input
-   * @returns {EngineResult}
+   * @param {{ income:number, expenses:Array, debts:Array }} input
    */
-  function runDebtEngine(input) {
-    var income         = input.income;
-    var livingExpenses = input.livingExpenses;
-    var hysa           = input.hysa;
-    var strategy       = input.strategy;
+  function runEngine(input) {
+    var income       = input.income;
+    var totalExp     = input.expenses.reduce(function(s,e){ return s + e.amount; }, 0);
+    var freeCashFlow = income - totalExp;
+    var totalMinPay  = input.debts.reduce(function(s,d){ return s + d.monthlyPay; }, 0);
+    var overage      = freeCashFlow - totalMinPay;
 
-    var freeCashFlow  = income - livingExpenses;
-    var totalMinPay   = input.debts.reduce(function (s, d) { return s + d.minPay; }, 0);
-    var monthlyOverage = freeCashFlow - totalMinPay;
-
-    /* ── Edge case defences ─────────────────────────────────────────── */
+    /* ── Edge cases ─────────────────────────────────────────────── */
     if (freeCashFlow <= 0) {
-      return mkError(freeCashFlow, monthlyOverage,
-        'Income does not exceed living expenses. No cash flow is available for debt repayment.');
+      return fail(freeCashFlow, overage, 'Income does not cover living expenses. Review your expense list.');
     }
     if (input.debts.length === 0) {
-      return mkError(freeCashFlow, monthlyOverage,
-        'Add at least one debt to generate a runway.');
+      return fail(freeCashFlow, overage, 'Add at least one debt to generate a plan.');
     }
-    if (monthlyOverage < 0) {
-      return mkError(freeCashFlow, monthlyOverage,
-        'Total minimum payments ($' + fmt$(totalMinPay) + '/mo) exceed your free cash flow '
-        + '($' + fmt$(freeCashFlow) + '/mo). Reduce expenses or increase income to proceed.');
+    if (overage < 0) {
+      return fail(freeCashFlow, overage,
+        'Monthly payments (' + fmtC(totalMinPay) + ') exceed your free cash flow (' + fmtC(freeCashFlow) + '). '
+        + 'Reduce expenses or increase income.');
     }
 
-    /* ── Deep-clone debts for simulation (immutable inputs) ─────────── */
-    /** @type {Array<DebtItem & {balance: number}>} */
-    var sim = input.debts.map(function (d) {
-      return { id: d.id, name: d.name, balance: d.balance, apr: d.apr, minPay: d.minPay };
-    });
+    /* ── Deep clone & sort: lowest outstanding first (snowball) ─── */
+    var sim = input.debts
+      .map(function(d){ return { id:d.id, name:d.name, totalAmt:d.totalAmt, outstanding:d.outstanding, monthlyPay:d.monthlyPay }; })
+      .sort(function(a,b){ return a.outstanding - b.outstanding; });
 
-    /** @type {MonthSnapshot[]} */
-    var runway          = [];
-    var savings         = 0;
-    var totalInterest   = 0;
-    var debtFreeMonth   = null;
-    var savingsCount    = 0;
-    var MAX_MONTHS      = 600;  // 50-year safety ceiling
-    var SAVINGS_DISPLAY = 36;   // show 36 months post-pivot
+    var runway         = [];
+    var debtFreeMonth  = null;
+    var totalInitialDebt = sim.reduce(function(s,d){ return s + d.outstanding; }, 0);
 
-    for (var month = 1; month <= MAX_MONTHS; month++) {
+    for (var month = 1; month <= 600; month++) {
+      if (sim.length === 0) break;
 
-      /* ── SAVINGS PHASE: debts cleared ─────────────────────────── */
-      if (sim.length === 0) {
-        var mRate = (hysa / 100) / 12;
-        savings   = (savings + freeCashFlow) * (1 + mRate);
-        runway.push({
-          month: month, phase: 'savings',
-          totalDebt: 0, debtCount: 0,
-          payment: freeCashFlow, interestPaid: 0,
-          savings: savings, pivotMonth: false, debtDetail: [],
-        });
-        if (++savingsCount >= SAVINGS_DISPLAY) break;
-        continue;
-      }
-
-      /* ── DEBT PHASE ─────────────────────────────────────────────── */
-
-      // 1. Accrue monthly interest on every active debt (BEFORE payments)
-      var interestThisMonth = 0;
-      for (var i = 0; i < sim.length; i++) {
-        var interest = accrueInterest(sim[i].balance, sim[i].apr);
-        sim[i].balance    += interest;
-        interestThisMonth += interest;
-      }
-      totalInterest += interestThisMonth;
-
-      // 2. Determine priority order for this month
-      var ordered = sortDebtsByStrategy(sim, strategy);
-
-      // 3. Build id → live reference map (sorted is a shallow copy)
-      var liveMap = {};
-      for (var j = 0; j < sim.length; j++) { liveMap[sim[j].id] = sim[j]; }
-
-      // 4. Pay minimums on ALL debts first
       var budget = freeCashFlow;
-      for (var k = 0; k < ordered.length; k++) {
-        var d    = liveMap[ordered[k].id];
-        var mPay = Math.min(d.minPay, d.balance, budget);
-        d.balance -= mPay;
-        budget    -= mPay;
+
+      /* 1. Pay minimums on all debts */
+      for (var i = 0; i < sim.length; i++) {
+        var minPay = Math.min(sim[i].monthlyPay, sim[i].outstanding, budget);
+        sim[i].outstanding -= minPay;
+        budget -= minPay;
       }
 
-      // 5. Roll remaining overage down priority list (avalanche/snowball roll-down)
-      for (var l = 0; l < ordered.length; l++) {
-        if (budget < 0.005) break;
-        var pd = liveMap[ordered[l].id];
-        if (pd.balance > 0.005) {
-          var extra  = Math.min(pd.balance, budget);
-          pd.balance -= extra;
-          budget     -= extra;
+      /* 2. Apply remaining budget to priority debt (lowest outstanding first) */
+      for (var j = 0; j < sim.length; j++) {
+        if (budget < 0.5) break;
+        if (sim[j].outstanding > 0) {
+          var extra = Math.min(sim[j].outstanding, budget);
+          sim[j].outstanding -= extra;
+          budget -= extra;
         }
       }
 
-      // 6. Flush floating-point sub-cent residuals
-      for (var m = 0; m < sim.length; m++) {
-        if (sim[m].balance < 0.01) sim[m].balance = 0;
+      /* 3. Flush sub-unit residuals */
+      for (var k = 0; k < sim.length; k++) {
+        if (sim[k].outstanding < 1) sim[k].outstanding = 0;
       }
 
-      var totalDebt  = sim.reduce(function (s, d) { return s + d.balance; }, 0);
-      var prevCount  = sim.length;
-      var paymentAmt = freeCashFlow - Math.max(0, budget);
-
-      // 7. Remove cleared debts
-      sim = sim.filter(function (d) { return d.balance > 0; });
+      var totalOut = sim.reduce(function(s,d){ return s + d.outstanding; }, 0);
+      var prevCount = sim.length;
+      sim = sim.filter(function(d){ return d.outstanding > 0; });
 
       var isPivot = (sim.length === 0 && prevCount > 0);
       if (isPivot) debtFreeMonth = month;
 
       runway.push({
-        month: month, phase: 'debt',
-        totalDebt:   totalDebt,
-        debtCount:   sim.length,
-        payment:     paymentAmt,
-        interestPaid: interestThisMonth,
-        savings:     0,
-        pivotMonth:  isPivot,
-        debtDetail:  sim.map(function (d) {
-          return { id: d.id, name: d.name, balance: d.balance, apr: d.apr };
-        }),
+        month:        month,
+        totalOut:     totalOut,
+        debtCount:    sim.length,
+        payment:      freeCashFlow - Math.max(0, budget),
+        pivotMonth:   isPivot,
+        debtDetail:   sim.map(function(d){ return { id:d.id, name:d.name, outstanding:d.outstanding }; }),
       });
     }
 
     return {
-      runway:           runway,
-      freeCashFlow:     freeCashFlow,
-      monthlyOverage:   monthlyOverage,
-      totalInterestPaid: totalInterest,
-      debtFreeMonth:    debtFreeMonth,
-      finalSavings:     savings,
-      isViable:         true,
-      error:            null,
+      runway:          runway,
+      freeCashFlow:    freeCashFlow,
+      totalExpenses:   totalExp,
+      overage:         overage,
+      totalInitialDebt:totalInitialDebt,
+      debtFreeMonth:   debtFreeMonth,
+      isViable:        true,
+      error:           null,
     };
   }
 
-  /** @param {number} fcf @param {number} overage @param {string} msg @returns {EngineResult} */
-  function mkError(fcf, overage, msg) {
-    return { runway: [], freeCashFlow: fcf, monthlyOverage: overage,
-      totalInterestPaid: 0, debtFreeMonth: null, finalSavings: 0,
-      isViable: false, error: msg };
+  function fail(fcf, ovg, msg) {
+    return { runway:[], freeCashFlow:fcf, totalExpenses:0, overage:ovg,
+      totalInitialDebt:0, debtFreeMonth:null, isViable:false, error:msg };
   }
 
-  /* ═══════════════════════════════════════════════════════════════════════
-   * FORMATTING UTILITIES
-   * ═══════════════════════════════════════════════════════════════════════ */
+  /* ═══════════════════════════════════════════════════════════════════
+   * RENDER — Left panel lists
+   * ═══════════════════════════════════════════════════════════════════ */
 
-  /** Whole-dollar format with thousands separator */
-  function fmt$(n) {
-    if (n == null || isNaN(n)) return '—';
-    return Math.round(n).toLocaleString('en-US');
-  }
-  /** Two-decimal dollar */
-  function fmt2$(n) {
-    return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  }
-  /** Months → "X yr Y mo" */
-  function fmtMo(months) {
-    if (!months) return '—';
-    var yr  = Math.floor(months / 12);
-    var mo  = months % 12;
-    if (yr === 0) return mo + ' mo';
-    if (mo === 0) return yr + ' yr';
-    return yr + ' yr ' + mo + ' mo';
-  }
-  /** HTML-escape */
-  function esc(v) {
-    return String(v)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
+  function renderExpenseList() {
+    var el = document.getElementById('expense-list');
+    var s  = sym();
 
-  /* ═══════════════════════════════════════════════════════════════════════
-   * RENDER — Debt Input List
-   * ═══════════════════════════════════════════════════════════════════════ */
+    if (state.expenses.length === 0) {
+      el.innerHTML = '<p class="text-xs text-slate-400 font-light py-3 text-center">No expenses yet.</p>';
+    } else {
+      el.innerHTML = state.expenses.map(function(e) {
+        return '<div class="flex items-center gap-2">'
+          + '<input type="text" value="' + esc(e.name) + '" placeholder="Expense name"'
+          +   ' class="si flex-1" style="padding:0.375rem 0.5rem;"'
+          +   ' onchange="updateExpense(\'' + e.id + '\',\'name\',this.value)" />'
+          + '<div class="relative" style="width:110px; flex-shrink:0;">'
+          +   '<span class="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs select-none">' + esc(s) + '</span>'
+          +   '<input type="number" value="' + e.amount + '" min="0" step="100" placeholder="0"'
+          +     ' class="si si-pre" style="padding:0.375rem 0.5rem 0.375rem 1.75rem; width:110px;"'
+          +     ' onchange="updateExpense(\'' + e.id + '\',\'amount\',+this.value||0)" />'
+          + '</div>'
+          + '<button class="btn-rm" onclick="removeExpense(\'' + e.id + '\')" title="Remove">'
+          +   '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>'
+          + '</button>'
+          + '</div>';
+      }).join('');
+    }
+
+    /* Update total + FCF preview */
+    var totalExp = state.expenses.reduce(function(s,e){ return s + e.amount; }, 0);
+    var income   = parseFloat(document.getElementById('in-income').value) || 0;
+    var fcf      = income - totalExp;
+
+    document.getElementById('total-expenses').textContent = fmtC(totalExp);
+    var fcfEl = document.getElementById('fcf-val');
+    fcfEl.textContent = fmtC(fcf);
+    fcfEl.style.color = fcf >= 0 ? '#0f172a' : '#ef4444';
+    document.getElementById('sym-income').textContent = s;
+  }
 
   function renderDebtList() {
     var el = document.getElementById('debt-list');
-    if (!el) return;
+    var s  = sym();
 
     if (state.debts.length === 0) {
-      el.innerHTML = '<p class="text-xs text-slate-400 text-center py-5 font-light">No debts yet. Click <strong class="font-medium">Add Debt</strong>.</p>';
+      el.innerHTML = '<p class="text-xs text-slate-400 font-light py-3 text-center">No debts yet.</p>';
       return;
     }
 
-    el.innerHTML = state.debts.map(function (d) {
-      return '<div class="debt-card" data-id="' + esc(d.id) + '">'
+    el.innerHTML = state.debts.map(function(d) {
+      var pct = d.totalAmt > 0 ? Math.min(100, (d.outstanding / d.totalAmt) * 100) : 0;
+      return '<div class="card p-3">'
         /* Name row */
         + '<div class="flex items-center gap-2 mb-2.5">'
-        +   '<input type="text" value="' + esc(d.name) + '" placeholder="Debt name"'
-        +     ' onchange="updateDebt(\'' + esc(d.id) + '\',\'name\',this.value)"'
-        +     ' class="si flex-1" style="padding:0.3rem 0.5rem; font-size:0.8125rem; font-weight:500;" />'
-        +   '<button class="btn-remove" onclick="removeDebt(\'' + esc(d.id) + '\')" title="Remove">'
-        +     '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">'
-        +       '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>'
-        +     '</svg>'
+        +   '<input type="text" value="' + esc(d.name) + '" placeholder="Loan / Card name"'
+        +     ' class="si flex-1" style="padding:0.3rem 0.5rem; font-size:0.8125rem; font-weight:500;"'
+        +     ' onchange="updateDebt(\'' + d.id + '\',\'name\',this.value)" />'
+        +   '<button class="btn-rm" onclick="removeDebt(\'' + d.id + '\')" title="Remove">'
+        +     '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>'
         +   '</button>'
         + '</div>'
-        /* Balance / APR / MinPay row */
+        /* Three fields */
         + '<div class="grid grid-cols-3 gap-2">'
-        /* Balance */
-        +   '<div><label class="field-label">Balance</label>'
+        /* Total amount */
+        +   '<div><label class="lbl">Total Amount</label>'
         +     '<div class="relative">'
-        +       '<span class="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs select-none">$</span>'
-        +       '<input type="number" value="' + d.balance + '" min="0" step="100" placeholder="0"'
-        +         ' onchange="updateDebt(\'' + esc(d.id) + '\',\'balance\',+this.value||0)"'
-        +         ' class="si si-prefix" style="font-size:0.75rem;" />'
+        +       '<span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 select-none">' + esc(s) + '</span>'
+        +       '<input type="number" value="' + d.totalAmt + '" min="0" step="1000" placeholder="0"'
+        +         ' class="si si-pre" style="font-size:0.75rem;"'
+        +         ' onchange="updateDebt(\'' + d.id + '\',\'totalAmt\',+this.value||0)" />'
         +     '</div></div>'
-        /* APR */
-        +   '<div><label class="field-label">APR</label>'
+        /* Outstanding */
+        +   '<div><label class="lbl">Outstanding</label>'
         +     '<div class="relative">'
-        +       '<input type="number" value="' + d.apr + '" min="0" max="100" step="0.01" placeholder="0.00"'
-        +         ' onchange="updateDebt(\'' + esc(d.id) + '\',\'apr\',+this.value||0)"'
-        +         ' class="si si-suffix" style="font-size:0.75rem;" />'
-        +       '<span class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs select-none">%</span>'
+        +       '<span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 select-none">' + esc(s) + '</span>'
+        +       '<input type="number" value="' + d.outstanding + '" min="0" step="1000" placeholder="0"'
+        +         ' class="si si-pre" style="font-size:0.75rem;"'
+        +         ' onchange="updateDebt(\'' + d.id + '\',\'outstanding\',+this.value||0)" />'
         +     '</div></div>'
-        /* Min Pay */
-        +   '<div><label class="field-label">Min Pay</label>'
+        /* Monthly payment */
+        +   '<div><label class="lbl">Monthly Pay</label>'
         +     '<div class="relative">'
-        +       '<span class="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs select-none">$</span>'
-        +       '<input type="number" value="' + d.minPay + '" min="0" step="5" placeholder="0"'
-        +         ' onchange="updateDebt(\'' + esc(d.id) + '\',\'minPay\',+this.value||0)"'
-        +         ' class="si si-prefix" style="font-size:0.75rem;" />'
+        +       '<span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 select-none">' + esc(s) + '</span>'
+        +       '<input type="number" value="' + d.monthlyPay + '" min="0" step="500" placeholder="0"'
+        +         ' class="si si-pre" style="font-size:0.75rem;"'
+        +         ' onchange="updateDebt(\'' + d.id + '\',\'monthlyPay\',+this.value||0)" />'
         +     '</div></div>'
         + '</div>'
+        /* Progress bar: outstanding / total */
+        + '<div class="prog mt-2.5"><div class="prog-fill" style="width:' + pct.toFixed(1) + '%;"></div></div>'
+        + '<p class="text-[10px] text-slate-400 mt-1">' + Math.round(pct) + '% outstanding</p>'
         + '</div>';
     }).join('');
   }
 
-  /* ═══════════════════════════════════════════════════════════════════════
-   * RENDER — Results Panel
-   * ═══════════════════════════════════════════════════════════════════════ */
+  /* ═══════════════════════════════════════════════════════════════════
+   * RENDER — Results panel
+   * ═══════════════════════════════════════════════════════════════════ */
 
-  function renderResults(result) {
+  function renderResults(r) {
     var panel = document.getElementById('results-panel');
 
-    /* ── Error state ───────────────────────────────────────────────── */
-    if (!result.isViable) {
+    if (!r.isViable) {
       panel.innerHTML =
-        '<div class="warn-banner flex items-start gap-3">'
+        '<div class="warn p-5 flex items-start gap-3">'
         + '<svg class="w-5 h-5 shrink-0 mt-0.5" style="color:#ef4444;" fill="none" stroke="currentColor" viewBox="0 0 24 24">'
-        +   '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"'
-        +     ' d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.962-.833-2.732 0L3.072 16.5c-.77.833.192 2.5 1.732 2.5z"/>'
+        +   '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.962-.833-2.732 0L3.072 16.5c-.77.833.192 2.5 1.732 2.5z"/>'
         + '</svg>'
         + '<div>'
-        +   '<p class="text-sm font-semibold text-red-900 mb-0.5">Cannot Generate Runway</p>'
-        +   '<p class="text-sm text-red-700 font-light leading-relaxed">' + esc(result.error) + '</p>'
+        +   '<p class="text-sm font-semibold text-red-900 mb-0.5">Cannot Build Plan</p>'
+        +   '<p class="text-sm text-red-700 font-light leading-relaxed">' + esc(r.error) + '</p>'
         + '</div>'
         + '</div>';
+      document.getElementById('btn-pdf').disabled = true;
       return;
     }
 
-    /* ── Summary metric cards ──────────────────────────────────────── */
-    var totalInitialDebt = state.debts.reduce(function (s, d) { return s + d.balance; }, 0);
+    /* ── Payoff schedule per debt ─────────────────────────────── */
+    var debtRows = state.debts
+      .slice()
+      .sort(function(a,b){ return a.outstanding - b.outstanding; })
+      .map(function(d) {
+        /* find month this debt's outstanding hits 0 in the runway */
+        var payoffMo = null;
+        for (var i = 0; i < r.runway.length; i++) {
+          var stillActive = r.runway[i].debtDetail.some(function(dd){ return dd.id === d.id; });
+          if (!stillActive) { payoffMo = r.runway[i].month; break; }
+        }
+        var pct = d.totalAmt > 0 ? Math.min(100, (d.outstanding / d.totalAmt) * 100) : 0;
+        return '<div class="flex items-center justify-between gap-4 py-2.5" style="border-bottom:1px solid #f1f5f9;">'
+          + '<div class="min-w-0 flex-1">'
+          +   '<p class="text-sm font-medium text-slate-700 truncate">' + esc(d.name) + '</p>'
+          +   '<div class="prog mt-1" style="width:100%;"><div class="prog-fill" style="width:' + pct.toFixed(1) + '%;"></div></div>'
+          +   '<p class="text-[10px] text-slate-400 mt-0.5">' + fmtC(d.outstanding) + ' of ' + fmtC(d.totalAmt) + '</p>'
+          + '</div>'
+          + '<div class="text-right shrink-0">'
+          +   '<p class="text-xs font-mono text-slate-600">' + fmtC(d.monthlyPay) + '/mo</p>'
+          +   (payoffMo ? '<p class="text-[11px] font-semibold" style="color:#16a34a;">Paid off mo. ' + payoffMo + '</p>' : '<p class="text-[11px] text-slate-400">—</p>')
+          + '</div>'
+          + '</div>';
+      }).join('');
 
-    panel.innerHTML =
-      /* Metric cards row */
-      '<div class="grid grid-cols-2 xl:grid-cols-4 gap-3 mb-6">'
-      + mkMetric('Free Cash Flow',   '$' + fmt$(result.freeCashFlow)    + '<span class="text-base font-normal text-slate-400">/mo</span>', 'Income minus living expenses',    false)
-      + mkMetric('Monthly Overage',  '$' + fmt$(result.monthlyOverage)  + '<span class="text-base font-normal text-slate-400">/mo</span>', 'After all minimum payments',      false)
-      + mkMetric('Debt-Free In',     fmtMo(result.debtFreeMonth),                                                                          result.debtFreeMonth ? 'Month ' + result.debtFreeMonth + ' of your runway' : '—', true)
-      + mkMetric('Total Interest',   '$' + fmt$(result.totalInterestPaid),                                                                  'Paid across all debts', false)
-      + '</div>'
-      /* Debt breakdown strip */
-      + mkDebtStrip(result)
-      /* Runway grid */
-      + mkRunwayGrid(result.runway, totalInitialDebt, result.finalSavings);
-  }
-
-  /** @param {string} label @param {string} value @param {string} sub @param {boolean} highlight */
-  function mkMetric(label, value, sub, highlight) {
-    return '<div class="metric-card">'
-      + '<p class="section-label" style="margin-bottom:0.5rem;">' + esc(label) + '</p>'
-      + '<p class="text-2xl font-semibold leading-none mb-1.5 ' + (highlight ? 'em-green' : 'text-slate-900') + '">' + value + '</p>'
-      + '<p class="text-[11px] text-slate-400 font-light leading-tight">' + esc(sub) + '</p>'
-      + '</div>';
-  }
-
-  /** Debt breakdown strip showing each debt with payoff month */
-  function mkDebtStrip(result) {
-    if (!result.runway || result.runway.length === 0) return '';
-    var rows = state.debts.map(function (d) {
-      /* Find first month this debt's balance drops to zero in debtDetail */
-      var payoffMonth = null;
-      for (var i = 0; i < result.runway.length; i++) {
-        var snap = result.runway[i];
-        var stillActive = snap.debtDetail.some(function (dd) { return dd.id === d.id; });
-        if (!stillActive && snap.phase === 'debt') { payoffMonth = snap.month; break; }
-      }
-      return '<div class="flex items-center justify-between py-2" style="border-bottom:1px solid #f1f5f9;">'
-        + '<div class="flex items-center gap-3">'
-        +   '<span class="text-xs font-medium text-slate-700">' + esc(d.name) + '</span>'
-        +   '<span class="text-[10px] text-slate-400">' + d.apr + '% APR</span>'
-        + '</div>'
-        + '<div class="text-right">'
-        +   '<span class="text-xs text-slate-600 font-mono">$' + fmt$(d.balance) + '</span>'
-        +   (payoffMonth ? '<span class="text-[10px] text-emerald-600 font-medium ml-3">paid mo.' + payoffMonth + '</span>' : '')
-        + '</div>'
-        + '</div>';
-    }).join('');
-
-    return '<div class="metric-card mb-6" style="padding:1rem 1.25rem;">'
-      + '<p class="section-label" style="margin-bottom:0.75rem;">Debt Payoff Schedule (' + esc(state.strategy) + ')</p>'
-      + rows
-      + '</div>';
-  }
-
-  /* ═══════════════════════════════════════════════════════════════════════
-   * RENDER — Month-by-Month Runway Grid
-   * ═══════════════════════════════════════════════════════════════════════ */
-
-  /**
-   * @param {MonthSnapshot[]} runway
-   * @param {number} initialDebt
-   * @param {number} finalSavings
-   */
-  function mkRunwayGrid(runway, initialDebt, finalSavings) {
-    if (!runway || runway.length === 0) return '';
-
-    var rows = runway.map(function (r) {
-      var isPivot   = r.pivotMonth;
-      var isSavings = r.phase === 'savings';
-      var rowCls    = isPivot ? 'r-row r-pivot' : (isSavings ? 'r-row r-savings' : 'r-row');
-
-      /* Progress bar: debt rows show reduction ratio, savings rows show accumulation ratio */
-      var pct = 0;
-      if (!isSavings && initialDebt > 0) {
-        pct = Math.max(0, 100 - (r.totalDebt / initialDebt) * 100);
-      } else if (isSavings && finalSavings > 0) {
-        pct = (r.savings / finalSavings) * 100;
-      }
-      var progCls = isSavings ? 'prog-fill prog-savings' : 'prog-fill prog-debt';
-
-      /* Phase label */
-      var phaseCell;
-      if (isPivot) {
-        phaseCell = '<span style="display:inline-block;padding:0.125rem 0.375rem;background:#4ade80;color:#052e16;font-size:0.5625rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;">PIVOT</span>';
-      } else if (isSavings) {
-        phaseCell = '<span class="text-[10px] font-medium em-green">Savings</span>';
-      } else {
-        phaseCell = '<span class="text-[10px] text-slate-400">Debt</span>';
-      }
-
-      /* Debt balance cell */
-      var debtCell = r.totalDebt > 0.005
-        ? '<span class="font-mono text-slate-700">$' + fmt$(r.totalDebt) + '</span>'
-        : '<span class="font-mono em-green font-semibold">$0</span>';
-
-      /* Savings cell */
-      var savCell = r.savings > 0
-        ? '<span class="font-mono em-green font-medium">$' + fmt$(r.savings) + '</span>'
-        : '<span class="text-slate-300">—</span>';
-
+    /* ── Runway rows ──────────────────────────────────────────── */
+    var runRows = r.runway.map(function(row) {
+      var pct = r.totalInitialDebt > 0
+        ? Math.max(0, 100 - (row.totalOut / r.totalInitialDebt) * 100)
+        : 100;
+      var isPivot = row.pivotMonth;
+      var rowCls = isPivot ? 'r-pivot' : 'r-norm';
+      var debtCell = row.totalOut > 0.5
+        ? '<span class="font-mono text-slate-700">' + fmtC(row.totalOut) + '</span>'
+        : '<span class="font-mono font-semibold" style="color:#16a34a;">' + fmtC(0) + '</span>';
+      var phaseCell = isPivot
+        ? '<span style="display:inline-block;padding:1px 6px;background:#4ade80;color:#052e16;font-size:8px;font-weight:800;letter-spacing:0.07em;text-transform:uppercase;">PAID OFF</span>'
+        : (row.debtCount === 0
+            ? '<span style="color:#16a34a;" class="text-xs font-medium">Done</span>'
+            : '<span class="text-xs text-slate-400">' + row.debtCount + ' active</span>');
       return '<tr class="' + rowCls + '">'
-        + '<td class="font-mono text-slate-400">' + r.month + '</td>'
-        + '<td>' + phaseCell + '</td>'
-        + '<td>' + debtCell + '</td>'
-        + '<td>'
-        +   '<div class="prog-track"><div class="' + progCls + '" style="width:' + pct.toFixed(1) + '%;"></div></div>'
+        + '<td class="run-td font-mono text-slate-400" style="width:52px;">' + row.month + '</td>'
+        + '<td class="run-td">' + phaseCell + '</td>'
+        + '<td class="run-td">' + debtCell + '</td>'
+        + '<td class="run-td" style="width:110px;">'
+        +   '<div class="prog" style="width:90px;"><div class="prog-fill prog-fill-g" style="width:' + pct.toFixed(1) + '%;"></div></div>'
         + '</td>'
-        + '<td class="text-slate-500">' + (r.debtCount > 0 ? r.debtCount : '<span class="text-slate-300">—</span>') + '</td>'
-        + '<td class="font-mono text-slate-600">$' + fmt$(r.payment) + '</td>'
-        + '<td class="font-mono text-slate-400">$' + fmt2$(r.interestPaid) + '</td>'
-        + '<td>' + savCell + '</td>'
+        + '<td class="run-td font-mono text-slate-600">' + fmtC(row.payment) + '</td>'
         + '</tr>';
     }).join('');
 
-    var debtMonths    = runway.filter(function (r) { return r.phase === 'debt'; }).length;
-    var savingsMonths = runway.filter(function (r) { return r.phase === 'savings'; }).length;
+    /* ── Build HTML ───────────────────────────────────────────── */
+    panel.innerHTML =
+      /* Summary cards */
+      '<div class="grid grid-cols-2 xl:grid-cols-4 gap-3 mb-6">'
+      + mkCard('Free Cash Flow',    fmtC(r.freeCashFlow),  'Income minus total expenses',   false)
+      + mkCard('Monthly Overage',   fmtC(r.overage),       'After all minimum payments',    false)
+      + mkCard('Debt-Free In',      fmtMo(r.debtFreeMonth), r.debtFreeMonth ? 'Month ' + r.debtFreeMonth : '—', true)
+      + mkCard('Total to Repay',    fmtC(r.totalInitialDebt), 'Sum of all outstanding balances', false)
+      + '</div>'
+      /* Debt payoff schedule */
+      + '<div class="card mb-6" style="padding:1rem 1.25rem;">'
+      +   '<p class="slbl mb-3">Payoff Order <span class="font-normal normal-case text-slate-400" style="letter-spacing:0;">— lowest balance first</span></p>'
+      +   debtRows
+      + '</div>'
+      /* Runway grid */
+      + '<div class="card">'
+      +   '<div style="padding:1rem 1.25rem; border-bottom:1px solid #e2e8f0;">'
+      +     '<p class="slbl" style="margin-bottom:2px;">Month-by-Month Runway</p>'
+      +     '<p class="text-[11px] text-slate-400 font-light">' + r.runway.length + ' months total</p>'
+      +   '</div>'
+      +   '<div style="overflow:auto; max-height:480px;">'
+      +     '<table style="width:100%; border-collapse:collapse; min-width:480px;">'
+      +     '<thead><tr>'
+      +       '<th class="run-th" style="padding-left:1rem;">Mo.</th>'
+      +       '<th class="run-th">Status</th>'
+      +       '<th class="run-th">Outstanding</th>'
+      +       '<th class="run-th">Paid Down</th>'
+      +       '<th class="run-th">Payment</th>'
+      +     '</tr></thead>'
+      +     '<tbody>' + runRows + '</tbody>'
+      +     '</table>'
+      +   '</div>'
+      + '</div>';
 
-    return '<div class="runway-wrap">'
-      /* Grid header */
-      + '<div style="padding:1rem 1.25rem; border-bottom:1px solid #e2e8f0;">'
-      +   '<p class="section-label" style="margin-bottom:0.25rem;">Month-by-Month Runway</p>'
-      +   '<p class="text-[11px] text-slate-400 font-light">'
-      +     runway.length + ' months &nbsp;·&nbsp; '
-      +     '<span class="text-slate-500">' + debtMonths + ' debt</span> &rarr; '
-      +     '<span class="em-green">' + savingsMonths + ' savings</span>'
-      +   '</p>'
-      + '</div>'
-      /* Scrollable table */
-      + '<div style="overflow:auto; max-height:520px;">'
-      + '<table style="width:100%; border-collapse:collapse; min-width:640px;">'
-      + '<thead class="runway-head"><tr>'
-      +   '<th style="width:52px;">Mo.</th>'
-      +   '<th>Phase</th>'
-      +   '<th>Debt Balance</th>'
-      +   '<th style="width:100px;">Progress</th>'
-      +   '<th>Debts</th>'
-      +   '<th>Payment</th>'
-      +   '<th>Interest</th>'
-      +   '<th>Savings</th>'
-      + '</tr></thead>'
-      + '<tbody>' + rows + '</tbody>'
-      + '</table>'
-      + '</div>'
-      /* Footer summary */
-      + '<div style="padding:0.875rem 1.25rem; border-top:1px solid #e2e8f0; background:#fafafa; display:flex; gap:2rem; flex-wrap:wrap;">'
-      +   mkFooterStat('Total Interest Paid', '$' + fmt$(state.lastResult ? state.lastResult.totalInterestPaid : 0), false)
-      +   mkFooterStat('HYSA Balance (' + savingsMonths + ' mo)', '$' + fmt$(finalSavings), true)
-      +   mkFooterStat('Total Months', runway.length + ' mo', false)
-      + '</div>'
+    document.getElementById('btn-pdf').disabled = false;
+  }
+
+  function mkCard(label, value, sub, green) {
+    return '<div class="card" style="padding:1rem 1.25rem;">'
+      + '<p class="slbl" style="margin-bottom:0.5rem;">' + esc(label) + '</p>'
+      + '<p class="text-2xl font-semibold leading-none mb-1.5 ' + (green ? '' : 'text-slate-900') + '" style="' + (green ? 'color:#16a34a;' : '') + '">' + esc(value) + '</p>'
+      + '<p class="text-[11px] text-slate-400 font-light">' + esc(sub) + '</p>'
       + '</div>';
   }
 
-  function mkFooterStat(label, value, green) {
-    return '<div>'
-      + '<p class="section-label" style="margin-bottom:0.125rem;">' + esc(label) + '</p>'
-      + '<p class="text-sm font-semibold ' + (green ? 'em-green' : 'text-slate-700') + '">' + esc(value) + '</p>'
+  /* ═══════════════════════════════════════════════════════════════════
+   * PDF GENERATION
+   * ═══════════════════════════════════════════════════════════════════ */
+
+  function buildPdfContent() {
+    var r = state.lastResult;
+    if (!r || !r.isViable) return;
+
+    var s = sym();
+    var income     = parseFloat(document.getElementById('in-income').value) || 0;
+    var totalExp   = state.expenses.reduce(function(t,e){ return t + e.amount; }, 0);
+    var totalDebt  = state.debts.reduce(function(t,d){ return t + d.outstanding; }, 0);
+
+    /* Expense rows */
+    var expRows = state.expenses.map(function(e){
+      return '<tr><td>' + esc(e.name) + '</td><td style="text-align:right;">' + s + ' ' + fmt(e.amount) + '</td></tr>';
+    }).join('');
+
+    /* Debt rows */
+    var sortedDebts = state.debts.slice().sort(function(a,b){ return a.outstanding - b.outstanding; });
+    var debtTblRows = sortedDebts.map(function(d) {
+      var payoffMo = null;
+      for (var i = 0; i < r.runway.length; i++) {
+        var active = r.runway[i].debtDetail.some(function(dd){ return dd.id === d.id; });
+        if (!active) { payoffMo = r.runway[i].month; break; }
+      }
+      return '<tr>'
+        + '<td>' + esc(d.name) + '</td>'
+        + '<td style="text-align:right;">' + s + ' ' + fmt(d.totalAmt) + '</td>'
+        + '<td style="text-align:right;">' + s + ' ' + fmt(d.outstanding) + '</td>'
+        + '<td style="text-align:right;">' + s + ' ' + fmt(d.monthlyPay) + '/mo</td>'
+        + '<td style="text-align:right;">' + (payoffMo ? 'Month ' + payoffMo : '—') + '</td>'
+        + '</tr>';
+    }).join('');
+
+    /* First 48 runway months */
+    var runRows = r.runway.slice(0, 48).map(function(row) {
+      var cls = row.pivotMonth ? ' class="pivot"' : '';
+      return '<tr' + cls + '>'
+        + '<td>' + row.month + '</td>'
+        + '<td>' + (row.pivotMonth ? 'PAID OFF' : row.debtCount + ' debts') + '</td>'
+        + '<td style="text-align:right;">' + s + ' ' + fmt(row.totalOut) + '</td>'
+        + '<td style="text-align:right;">' + s + ' ' + fmt(row.payment) + '</td>'
+        + '</tr>';
+    }).join('');
+
+    var moreNote = r.runway.length > 48
+      ? '<p style="font-size:9px;color:#94a3b8;margin-top:8px;">… and ' + (r.runway.length - 48) + ' more months not shown.</p>'
+      : '';
+
+    document.getElementById('pdf-content').innerHTML =
+      /* Header */
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;">'
+      +   '<div>'
+      +     '<h1>Debt Settlement &amp; Savings Plan</h1>'
+      +     '<p style="color:#64748b;font-size:10px;margin:2px 0 0;">Generated by NexusDigitalLabs · nexusdigitallabs.dev</p>'
+      +   '</div>'
+      +   '<div style="text-align:right;font-size:10px;color:#64748b;">'
+      +     '<div>' + todayStr() + '</div>'
+      +     '<div>Currency: ' + esc(state.currency) + ' (' + esc(s) + ')</div>'
+      +   '</div>'
+      + '</div>'
+
+      /* Summary metrics */
+      + '<h2>Summary</h2>'
+      + '<div class="pdf-grid">'
+      +   '<div class="pdf-metric"><div class="pdf-metric-lbl">Monthly Income</div><div class="pdf-metric-val">' + s + ' ' + fmt(income) + '</div></div>'
+      +   '<div class="pdf-metric"><div class="pdf-metric-lbl">Total Expenses</div><div class="pdf-metric-val">' + s + ' ' + fmt(totalExp) + '</div></div>'
+      +   '<div class="pdf-metric"><div class="pdf-metric-lbl">Free Cash Flow</div><div class="pdf-metric-val">' + s + ' ' + fmt(r.freeCashFlow) + '</div></div>'
+      +   '<div class="pdf-metric"><div class="pdf-metric-lbl">Debt-Free In</div><div class="pdf-metric-val green">' + fmtMo(r.debtFreeMonth) + '</div></div>'
+      + '</div>'
+
+      /* Expenses */
+      + '<h2>Monthly Expenses</h2>'
+      + '<table class="pdf-tbl"><thead><tr><th>Expense</th><th style="text-align:right;">Amount</th></tr></thead>'
+      +   '<tbody>' + expRows
+      +   '<tr style="font-weight:700;border-top:2px solid #0f172a;">'
+      +     '<td>Total</td><td style="text-align:right;">' + s + ' ' + fmt(totalExp) + '</td>'
+      +   '</tr>'
+      +   '</tbody></table>'
+
+      /* Debts */
+      + '<h2>Loans &amp; Credit Cards</h2>'
+      + '<table class="pdf-tbl"><thead><tr>'
+      +   '<th>Name</th><th style="text-align:right;">Total Amount</th><th style="text-align:right;">Outstanding</th>'
+      +   '<th style="text-align:right;">Monthly Pay</th><th style="text-align:right;">Paid Off</th>'
+      + '</tr></thead><tbody>' + debtTblRows
+      +   '<tr style="font-weight:700;border-top:2px solid #0f172a;">'
+      +     '<td>Total</td><td></td><td style="text-align:right;">' + s + ' ' + fmt(totalDebt) + '</td><td></td><td></td>'
+      +   '</tr>'
+      +   '</tbody></table>'
+
+      /* Runway */
+      + '<h2>Month-by-Month Runway' + (r.runway.length > 48 ? ' (first 48 of ' + r.runway.length + ')' : '') + '</h2>'
+      + '<table class="pdf-tbl"><thead><tr>'
+      +   '<th>Month</th><th>Status</th><th style="text-align:right;">Outstanding</th><th style="text-align:right;">Payment</th>'
+      + '</tr></thead><tbody>' + runRows + '</tbody></table>'
+      + moreNote
+
+      /* Footer */
+      + '<div class="pdf-footer">'
+      +   'This plan is generated for informational purposes only and does not account for interest accrual. '
+      +   'Actual payoff timelines may vary. All data is processed locally in your browser — no information is transmitted or stored.'
       + '</div>';
   }
 
-  /* ═══════════════════════════════════════════════════════════════════════
+  function downloadPDF() {
+    if (!state.lastResult || !state.lastResult.isViable) return;
+    buildPdfContent();
+
+    var btn = document.getElementById('btn-pdf');
+    btn.disabled = true;
+    btn.innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg> Generating…';
+
+    var el = document.getElementById('pdf-content');
+    el.style.display = 'block';
+
+    html2pdf()
+      .set({
+        margin:       [10, 10, 10, 10],
+        filename:     'debt-payoff-plan.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true, logging: false },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak:    { mode: ['avoid-all', 'css'] },
+      })
+      .from(el)
+      .save()
+      .then(function() {
+        el.style.display = 'none';
+        btn.disabled = false;
+        btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg> Download PDF';
+      });
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════
    * EVENT HANDLERS
-   * ═══════════════════════════════════════════════════════════════════════ */
+   * ═══════════════════════════════════════════════════════════════════ */
 
-  /** @param {'avalanche'|'snowball'} s */
-  function setStrategy(s) {
-    state.strategy = s;
-    document.getElementById('btn-avalanche').classList.toggle('active', s === 'avalanche');
-    document.getElementById('btn-snowball').classList.toggle('active',  s === 'snowball');
-    document.getElementById('strategy-desc').textContent = s === 'avalanche'
-      ? 'Targets highest APR first — mathematically minimizes total interest paid.'
-      : 'Targets lowest balance first — builds momentum through quick early wins.';
+  function setCurrency(code) {
+    state.currency = code;
+    renderExpenseList();
+    renderDebtList();
+    /* re-run if we already have results */
+    if (state.lastResult && state.lastResult.isViable) calculate();
   }
 
+  /* ── Expenses ───────────────────────────────────────────────── */
+  function addExpense() {
+    state.expenses.push({ id: 'exp-' + (_euid++), name: '', amount: 0 });
+    renderExpenseList();
+  }
+  function removeExpense(id) {
+    state.expenses = state.expenses.filter(function(e){ return e.id !== id; });
+    renderExpenseList();
+  }
+  function updateExpense(id, field, value) {
+    var item = state.expenses.find(function(e){ return e.id === id; });
+    if (item) {
+      item[field] = value;
+      /* live-update totals without full re-render */
+      var totalExp = state.expenses.reduce(function(s,e){ return s + e.amount; }, 0);
+      var income   = parseFloat(document.getElementById('in-income').value) || 0;
+      var fcf      = income - totalExp;
+      document.getElementById('total-expenses').textContent = fmtC(totalExp);
+      var fcfEl = document.getElementById('fcf-val');
+      fcfEl.textContent = fmtC(fcf);
+      fcfEl.style.color = fcf >= 0 ? '#0f172a' : '#ef4444';
+    }
+  }
+
+  /* ── Debts ──────────────────────────────────────────────────── */
   function addDebt() {
-    state.debts.push({ id: 'debt-' + (_uid++), name: 'New Debt', balance: 1000, apr: 10.00, minPay: 50 });
+    state.debts.push({ id: 'debt-' + (_duid++), name: '', totalAmt: 0, outstanding: 0, monthlyPay: 0 });
     renderDebtList();
   }
-
-  /** @param {string} id */
   function removeDebt(id) {
-    state.debts = state.debts.filter(function (d) { return d.id !== id; });
+    state.debts = state.debts.filter(function(d){ return d.id !== id; });
     renderDebtList();
   }
-
-  /**
-   * @param {string} id
-   * @param {'name'|'balance'|'apr'|'minPay'} field
-   * @param {string|number} value
-   */
   function updateDebt(id, field, value) {
-    var debt = state.debts.find(function (d) { return d.id === id; });
+    var debt = state.debts.find(function(d){ return d.id === id; });
     if (debt) debt[field] = value;
   }
 
-  function getFormInputs() {
-    return {
-      income:         parseFloat(document.getElementById('in-income').value)   || 0,
-      livingExpenses: parseFloat(document.getElementById('in-expenses').value) || 0,
-      hysa:           parseFloat(document.getElementById('in-hysa').value)     || 0,
-      strategy:       state.strategy,
-      /* immutable snapshot of debts for the engine */
-      debts: state.debts.map(function (d) {
-        return { id: d.id, name: d.name, balance: d.balance, apr: d.apr, minPay: d.minPay };
-      }),
-    };
-  }
-
+  /* ── Calculate ──────────────────────────────────────────────── */
   function calculate() {
     var btn = document.getElementById('btn-calc');
     btn.textContent = 'Calculating…';
-    btn.disabled    = true;
+    btn.disabled = true;
 
-    /* Yield to paint cycle so button state updates render before heavy compute */
-    setTimeout(function () {
-      var inputs       = getFormInputs();
-      var result       = runDebtEngine(inputs);
+    setTimeout(function() {
+      var income = parseFloat(document.getElementById('in-income').value) || 0;
+      var result = runEngine({
+        income:   income,
+        expenses: state.expenses.map(function(e){ return { id:e.id, amount:e.amount }; }),
+        debts:    state.debts.map(function(d){ return { id:d.id, name:d.name, totalAmt:d.totalAmt, outstanding:d.outstanding, monthlyPay:d.monthlyPay }; }),
+      });
+
       state.lastResult = result;
       renderResults(result);
 
-      btn.textContent = 'Calculate Runway';
-      btn.disabled    = false;
+      btn.textContent = 'Calculate Plan';
+      btn.disabled = false;
 
-      /* On mobile, scroll results into view */
       if (window.innerWidth < 1024) {
         document.getElementById('results-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }, 20);
   }
 
-  /* ═══════════════════════════════════════════════════════════════════════
-   * INIT
-   * ═══════════════════════════════════════════════════════════════════════ */
+  /* ── Income live FCF update ─────────────────────────────────── */
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('in-income').addEventListener('input', function() {
+      var income   = parseFloat(this.value) || 0;
+      var totalExp = state.expenses.reduce(function(s,e){ return s + e.amount; }, 0);
+      var fcf      = income - totalExp;
+      var fcfEl    = document.getElementById('fcf-val');
+      fcfEl.textContent = fmtC(fcf);
+      fcfEl.style.color = fcf >= 0 ? '#0f172a' : '#ef4444';
+    });
 
-  document.addEventListener('DOMContentLoaded', function () {
+    /* Set currency dropdown to match state default */
+    document.getElementById('sel-currency').value = state.currency;
+
+    renderExpenseList();
     renderDebtList();
-    calculate(); /* auto-run with defaults so the tool is immediately useful */
+    calculate();
   });
 
   </script>
