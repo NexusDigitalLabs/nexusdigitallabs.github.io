@@ -148,41 +148,9 @@
 </head>
 <body class="bg-[#0b0f19] text-slate-200 min-h-screen selection:bg-blue-500 selection:text-white antialiased">
 
-    <!-- ══ STICKY NAV — logo | centered links | github ══════════════════════ -->
-    <nav class="sticky top-0 z-50 border-b border-slate-800/80 bg-[#0b0f19]/92 backdrop-blur-md">
-        <div class="max-w-7xl mx-auto px-6 sm:px-10 h-16 flex items-center gap-6">
-            <a href="/" class="flex items-center gap-2.5 shrink-0">
-                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-bold text-white text-sm shadow-lg shadow-blue-900/30">N</div>
-                <span class="text-sm font-semibold tracking-tight text-white">NexusDigitalLabs</span>
-            </a>
-            <div class="hidden md:flex flex-1 items-center justify-center gap-9 text-sm">
-                <a href="#tools"    class="nav-link">Tools</a>
-                <a href="#articles" class="nav-link">Articles</a>
-                <a href="/about/"   class="nav-link">About</a>
-                <a href="/contact/" class="nav-link">Contact</a>
-            </div>
-            <div class="ml-auto md:ml-0 flex items-center gap-3 shrink-0">
-                <a href="https://github.com/NexusDigitalLabs" target="_blank" rel="noopener noreferrer"
-                   class="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium text-slate-300 hover:text-white border border-slate-700/80 hover:border-slate-500 bg-slate-900/40 hover:bg-slate-800/60 rounded-lg px-3.5 py-1.5 transition-all duration-200">
-                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577v-2.165c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
-                    GitHub
-                </a>
-                <button id="nav-toggle" type="button" class="md:hidden p-2 text-slate-400 hover:text-white transition-colors" aria-label="Toggle menu">
-                    <svg id="icon-menu"  class="w-5 h-5"        fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-                    <svg id="icon-close" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-        </div>
-        <div id="mobile-menu" class="hidden md:hidden border-t border-slate-800/60 bg-[#08091280]">
-            <div class="max-w-7xl mx-auto px-6 py-5 flex flex-col gap-4 text-sm text-slate-300">
-                <a href="#tools"    class="hover:text-white transition-colors" onclick="closeMobileMenu()">Tools</a>
-                <a href="#articles" class="hover:text-white transition-colors" onclick="closeMobileMenu()">Articles</a>
-                <a href="/about/"   class="hover:text-white transition-colors">About</a>
-                <a href="/contact/" class="hover:text-white transition-colors">Contact</a>
-                <a href="https://github.com/NexusDigitalLabs" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">GitHub ↗</a>
-            </div>
-        </div>
-    </nav>
+    <!-- ══ SHARED NAV (injected by /components/nav.js) ═════════════════════ -->
+    <div id="site-nav"></div>
+    <script src="/components/nav.js"></script>
 
     <!-- ══ HERO — two-column viewport fill ══════════════════════════════════ -->
     <section class="relative overflow-hidden dot-grid min-h-[calc(100vh-4rem)] flex items-center">
@@ -383,7 +351,7 @@
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 <!-- Prompt Architect -->
-                <a href="/tools/prompt-architect/" target="_blank" rel="noopener noreferrer"
+                <a href="/tools/prompt-architect/"
                    class="tool-card reveal group flex flex-col p-6 rounded-2xl bg-slate-900/50 border border-slate-800/60">
                     <div class="w-11 h-11 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center mb-5 group-hover:scale-110 group-hover:bg-violet-500/15 transition-all duration-300">
                         <svg class="w-5 h-5 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
@@ -396,7 +364,7 @@
                     </span>
                 </a>
                 <!-- Invoice Generator -->
-                <a href="/tools/invoice-generator/" target="_blank" rel="noopener noreferrer"
+                <a href="/tools/invoice-generator/"
                    class="tool-card reveal reveal-d1 group flex flex-col p-6 rounded-2xl bg-slate-900/50 border border-slate-800/60">
                     <div class="w-11 h-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-5 group-hover:scale-110 group-hover:bg-emerald-500/15 transition-all duration-300">
                         <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
@@ -478,45 +446,30 @@
     </footer>
 
     <script>
-        // ── Mobile nav toggle ──────────────────────────────────────────────
-        var toggle = document.getElementById('nav-toggle');
-        var menu   = document.getElementById('mobile-menu');
-        var iMenu  = document.getElementById('icon-menu');
-        var iClose = document.getElementById('icon-close');
-        toggle.addEventListener('click', function () {
-            var open = !menu.classList.contains('hidden');
-            menu.classList.toggle('hidden', open);
-            iMenu.classList.toggle('hidden', !open);
-            iClose.classList.toggle('hidden', open);
-        });
-        function closeMobileMenu() {
-            menu.classList.add('hidden');
-            iMenu.classList.remove('hidden');
-            iClose.classList.add('hidden');
-        }
-
-        // ── Smooth scroll for anchor links ─────────────────────────────────
-        document.querySelectorAll('a[href^="#"]').forEach(function (a) {
-            a.addEventListener('click', function (e) {
-                var target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    e.preventDefault();
-                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    closeMobileMenu();
-                }
+        // ── Smooth scroll for anchor links (mobile menu closed by nav.js) ──
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+                a.addEventListener('click', function (e) {
+                    var target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        e.preventDefault();
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        if (typeof window.closeMobileMenu === 'function') window.closeMobileMenu();
+                    }
+                });
             });
-        });
 
-        // ── Scroll-triggered reveal (IntersectionObserver) ─────────────────
-        var observer = new IntersectionObserver(function (entries) {
-            entries.forEach(function (entry) {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.12 });
-        document.querySelectorAll('.reveal').forEach(function (el) { observer.observe(el); });
+            // ── Scroll-triggered reveal (IntersectionObserver) ─────────────
+            var observer = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.12 });
+            document.querySelectorAll('.reveal').forEach(function (el) { observer.observe(el); });
+        });
     </script>
 
 </body>

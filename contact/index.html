@@ -3,102 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- Primary Meta Tags -->
     <title>Contact — NexusDigitalLabs</title>
-    <meta name="description" content="Get in touch with NexusDigitalLabs. Reach us for collaboration, tool feedback, or general enquiries about our developer utilities and software studio.">
+    <meta name="description" content="Get in touch with NexusDigitalLabs. We're open to partnerships, feature requests, bug reports, and open-source contributions.">
     <meta name="robots" content="index, follow">
     <meta name="author" content="NexusDigitalLabs">
-
-    <!-- Canonical -->
     <link rel="canonical" href="https://nexusdigitallabs.dev/contact/">
-
-    <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://nexusdigitallabs.dev/contact/">
     <meta property="og:title" content="Contact — NexusDigitalLabs">
-    <meta property="og:description" content="Get in touch with NexusDigitalLabs for collaboration, tool feedback, or general enquiries.">
+    <meta property="og:description" content="Get in touch with NexusDigitalLabs. Partnerships, feature ideas, and open-source contributions welcome.">
     <meta property="og:image" content="https://nexusdigitallabs.dev/og-image.png">
-
-    <!-- Favicon -->
     <link rel="icon" type="image/png" href="/favicon.png">
     <link rel="apple-touch-icon" href="/favicon.png">
-
-    <!-- Umami Analytics (cookie-free) -->
     <script defer src="https://cloud.umami.is/script.js" data-website-id="89ea0001-e2c2-4802-bcb2-bf2ae4809451"></script>
-
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: #0b0f19; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+        .dot-grid {
+            background-image: radial-gradient(circle, rgba(148,163,184,0.05) 1px, transparent 1px);
+            background-size: 28px 28px;
+        }
+        .gradient-text {
+            background: linear-gradient(120deg, #ffffff 0%, #93c5fd 40%, #a5b4fc 60%, #ffffff 100%);
+            background-size: 260% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 5s linear infinite;
+        }
+        @keyframes shimmer { 0% { background-position: 210% center; } 100% { background-position: -210% center; } }
+        .anim-1 { opacity: 0; animation: fadeUp 0.7s 0.05s ease forwards; }
+        .anim-2 { opacity: 0; animation: fadeUp 0.7s 0.2s  ease forwards; }
+        .anim-3 { opacity: 0; animation: fadeUp 0.7s 0.35s ease forwards; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.6s ease, transform 0.6s ease; }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+        .reveal-d1 { transition-delay: 0.12s; }
+        .reveal-d2 { transition-delay: 0.24s; }
+
+        /* Form fields */
+        .form-input {
+            width: 100%;
+            background: rgba(15,23,42,0.6);
+            border: 1px solid rgba(51,65,85,0.7);
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: #e2e8f0;
+            font-size: 0.875rem;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+        .form-input::placeholder { color: #475569; }
+        .form-input:focus {
+            border-color: rgba(59,130,246,0.5);
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+        }
+        .form-label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #94a3b8;
+            margin-bottom: 0.375rem;
+            letter-spacing: 0.025em;
+        }
+        .contact-card:hover { border-color: rgba(59,130,246,0.28) !important; transform: translateY(-2px); }
+        .contact-card { transition: all 0.25s ease; }
     </style>
 </head>
 <body class="bg-[#0b0f19] text-slate-200 min-h-screen selection:bg-blue-500 selection:text-white antialiased">
 
-    <div class="max-w-3xl mx-auto px-6 py-16 sm:py-24">
+    <!-- Shared nav -->
+    <div id="site-nav"></div>
+    <script src="/components/nav.js"></script>
 
-        <!-- Header -->
-        <header class="mb-14">
-            <a href="/" class="flex items-center space-x-3 group w-fit">
-                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-semibold text-white tracking-tighter text-sm">N</div>
-                <span class="text-lg font-medium tracking-tight text-white group-hover:text-slate-300 transition-colors">NexusDigitalLabs</span>
-            </a>
-        </header>
-
-        <!-- Page Title -->
-        <div class="mb-12 space-y-2 border-b border-slate-800/60 pb-8">
-            <p class="text-[11px] font-semibold tracking-widest text-slate-500 uppercase">Get in Touch</p>
-            <h1 class="text-2xl sm:text-3xl font-light tracking-tight text-white">Contact</h1>
+    <!-- ══ HERO ════════════════════════════════════════════════════════════ -->
+    <section class="relative overflow-hidden dot-grid py-20 sm:py-28">
+        <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+            <div class="absolute top-[-120px] right-[15%] w-[450px] h-[450px] rounded-full" style="background:radial-gradient(circle,rgba(37,99,235,0.11) 0%,transparent 65%); filter:blur(80px);"></div>
         </div>
-
-        <!-- Contact Content -->
-        <div class="space-y-10">
-
-            <p class="text-sm font-light text-slate-400 leading-relaxed max-w-xl">
-                We're a small, focused studio. The fastest way to reach us is directly by email — we read everything and respond within one business day.
+        <div class="relative max-w-4xl mx-auto px-6 sm:px-10">
+            <div class="anim-1 inline-flex items-center gap-2 text-xs font-medium text-blue-400 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-1.5 mb-7">
+                <span class="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"></span>
+                Open to new projects &amp; collaborations
+            </div>
+            <h1 class="anim-2 text-4xl sm:text-5xl lg:text-6xl font-light tracking-tight leading-[1.12] mb-6">
+                Let's build<br>
+                <span class="gradient-text">something useful.</span>
+            </h1>
+            <p class="anim-3 text-slate-400 font-light max-w-lg leading-relaxed text-base sm:text-lg">
+                Whether it's a feature idea, a bug report, a collaboration, or just a message — we read everything.
             </p>
-
-            <!-- Primary Contact Card -->
-            <a href="mailto:dilanfdo.dev@gmail.com?subject=[NexusDigitalLabs]%20Inquiry" class="group flex items-center justify-between p-6 rounded-xl bg-slate-900/40 border border-slate-800/50 hover:border-blue-500/40 transition-all duration-300">
-                <div class="space-y-1">
-                    <p class="text-[11px] font-semibold tracking-widest text-slate-500 uppercase">Email</p>
-                    <p class="text-base font-medium text-white group-hover:text-blue-400 transition-colors">hello@nexusdigitallabs.dev</p>
-                    <p class="text-xs text-slate-500 font-light">Collaboration · Tool feedback · General enquiries</p>
-                </div>
-                <span class="text-slate-500 group-hover:translate-x-1 transition-transform text-lg ml-4">→</span>
-            </a>
-
-            <!-- GitHub -->
-            <a href="https://github.com/NexusDigitalLabs" target="_blank" rel="noopener noreferrer" class="group flex items-center justify-between p-6 rounded-xl bg-slate-900/40 border border-slate-800/50 hover:border-slate-700/80 transition-all duration-300">
-                <div class="space-y-1">
-                    <p class="text-[11px] font-semibold tracking-widest text-slate-500 uppercase">GitHub</p>
-                    <p class="text-base font-medium text-white group-hover:text-blue-400 transition-colors">github.com/NexusDigitalLabs</p>
-                    <p class="text-xs text-slate-500 font-light">Open source work · Issue reports · Pull requests</p>
-                </div>
-                <span class="text-slate-500 group-hover:translate-x-1 transition-transform text-lg ml-4">→</span>
-            </a>
-
-            <div class="border-t border-slate-800/60 pt-8">
-                <p class="text-xs text-slate-500 font-light leading-relaxed">
-                    We do not operate social media accounts. Email remains the only guaranteed way to reach the team directly.
-                </p>
-            </div>
-
         </div>
+    </section>
 
-        <!-- Footer -->
-        <footer class="mt-20 pt-8 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] font-light text-slate-500 tracking-wide">
-            <div>&copy; 2026 NexusDigitalLabs. All rights reserved.</div>
-            <div class="flex space-x-6">
-                <a href="/about/" class="hover:text-slate-300 transition-colors">About</a>
-                <a href="/contact/" class="hover:text-slate-300 transition-colors">Contact</a>
-                <a href="/privacy-policy/" class="hover:text-slate-300 transition-colors">Privacy Policy</a>
-                <a href="https://github.com/NexusDigitalLabs" class="hover:text-slate-300 transition-colors">GitHub</a>
+    <!-- ══ CONTACT GRID ════════════════════════════════════════════════════ -->
+    <section class="py-4 pb-20">
+        <div class="max-w-4xl mx-auto px-6 sm:px-10">
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
+
+                <!-- ── LEFT: Form (3 cols) ── -->
+                <div class="lg:col-span-3 reveal">
+                    <p class="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-6">Send a message</p>
+                    <form id="contact-form" class="space-y-5" novalidate>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <div>
+                                <label class="form-label" for="cf-name">Name</label>
+                                <input id="cf-name" type="text" class="form-input" placeholder="Your name" autocomplete="name">
+                            </div>
+                            <div>
+                                <label class="form-label" for="cf-email">Email</label>
+                                <input id="cf-email" type="email" class="form-input" placeholder="you@example.com" autocomplete="email">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label" for="cf-subject">Subject</label>
+                            <input id="cf-subject" type="text" class="form-input" placeholder="Feature idea, bug report, partnership…">
+                        </div>
+                        <div>
+                            <label class="form-label" for="cf-message">Message</label>
+                            <textarea id="cf-message" class="form-input" rows="5" placeholder="Tell us what's on your mind…" style="resize:vertical;min-height:120px;"></textarea>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <button type="submit" id="cf-submit"
+                                class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold px-7 py-3 rounded-xl transition-all duration-200 hover:-translate-y-0.5 shadow-lg shadow-blue-900/40">
+                                Send message
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                            </button>
+                        </div>
+                        <!-- Status message -->
+                        <div id="cf-status" class="hidden text-sm rounded-xl px-4 py-3 border"></div>
+                    </form>
+                </div>
+
+                <!-- ── RIGHT: Contact options (2 cols) ── -->
+                <div class="lg:col-span-2 space-y-4 reveal reveal-d1">
+                    <p class="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-6">Other ways to reach us</p>
+
+                    <a href="https://github.com/NexusDigitalLabs" target="_blank" rel="noopener noreferrer"
+                       class="contact-card flex items-center gap-4 p-4 rounded-xl bg-slate-900/50 border border-slate-800/60">
+                        <div class="w-10 h-10 rounded-xl bg-slate-800/60 flex items-center justify-center shrink-0">
+                            <svg class="w-5 h-5 text-slate-300" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577v-2.165c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-sm font-medium text-white">GitHub</p>
+                            <p class="text-xs text-slate-500 truncate">github.com/NexusDigitalLabs</p>
+                        </div>
+                        <svg class="w-4 h-4 text-slate-600 ml-auto shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                    </a>
+
+                    <a href="mailto:hello@nexusdigitallabs.dev"
+                       class="contact-card flex items-center gap-4 p-4 rounded-xl bg-slate-900/50 border border-slate-800/60">
+                        <div class="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
+                            <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-sm font-medium text-white">Email</p>
+                            <p class="text-xs text-slate-500 truncate">hello@nexusdigitallabs.dev</p>
+                        </div>
+                        <svg class="w-4 h-4 text-slate-600 ml-auto shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                    </a>
+
+                    <!-- Response time note -->
+                    <div class="p-4 rounded-xl bg-slate-900/30 border border-slate-800/40 mt-2">
+                        <p class="text-xs text-slate-500 leading-relaxed">
+                            We typically respond within <span class="text-slate-300 font-medium">1–2 business days</span>. For bug reports, please include browser version and steps to reproduce.
+                        </p>
+                    </div>
+
+                    <!-- Privacy note -->
+                    <div class="flex items-start gap-2.5 p-4 rounded-xl bg-emerald-950/30 border border-emerald-900/30">
+                        <svg class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                        <p class="text-xs text-emerald-400/80 leading-relaxed">Form data is sent via <span class="font-medium">mailto:</span> — nothing is stored on our servers.</p>
+                    </div>
+                </div>
+
             </div>
-        </footer>
+        </div>
+    </section>
 
-    </div>
+    <!-- ══ FOOTER ════════════════════════════════════════════════════════ -->
+    <footer class="border-t border-slate-800/50 bg-slate-900/20">
+        <div class="max-w-4xl mx-auto px-6 sm:px-10 py-10">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-600">
+                <span>&copy; 2026 NexusDigitalLabs. All rights reserved.</span>
+                <div class="flex items-center gap-5">
+                    <a href="/" class="hover:text-slate-400 transition-colors">Home</a>
+                    <a href="/about/" class="hover:text-slate-400 transition-colors">About</a>
+                    <a href="/tools/prompt-architect/" class="hover:text-slate-400 transition-colors">Prompt Architect</a>
+                    <a href="/tools/invoice-generator/" class="hover:text-slate-400 transition-colors">Invoice Generator</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // ── Scroll reveal ──────────────────────────────────────────────
+            var observer = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            document.querySelectorAll('.reveal').forEach(function (el) { observer.observe(el); });
+
+            // ── Contact form (mailto fallback) ─────────────────────────────
+            var form   = document.getElementById('contact-form');
+            var status = document.getElementById('cf-status');
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                var name    = document.getElementById('cf-name').value.trim();
+                var email   = document.getElementById('cf-email').value.trim();
+                var subject = document.getElementById('cf-subject').value.trim();
+                var message = document.getElementById('cf-message').value.trim();
+
+                if (!name || !email || !message) {
+                    showStatus('error', 'Please fill in your name, email, and message.');
+                    return;
+                }
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    showStatus('error', 'Please enter a valid email address.');
+                    return;
+                }
+
+                var mailto = 'mailto:hello@nexusdigitallabs.dev'
+                    + '?subject=' + encodeURIComponent((subject || 'Contact from ' + name))
+                    + '&body=' + encodeURIComponent('Name: ' + name + '\nEmail: ' + email + '\n\n' + message);
+                window.location.href = mailto;
+                showStatus('success', 'Opening your email client… If it did not open, email us directly at hello@nexusdigitallabs.dev');
+            });
+
+            function showStatus(type, msg) {
+                status.textContent = msg;
+                status.className = 'text-sm rounded-xl px-4 py-3 border ';
+                if (type === 'success') {
+                    status.className += 'text-emerald-400 bg-emerald-950/40 border-emerald-900/50';
+                } else {
+                    status.className += 'text-red-400 bg-red-950/40 border-red-900/50';
+                }
+                status.classList.remove('hidden');
+            }
+        });
+    </script>
 
 </body>
 </html>
