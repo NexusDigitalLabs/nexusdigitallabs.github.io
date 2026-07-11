@@ -208,7 +208,8 @@
           <label class="lbl" for="in-income">Monthly Net Income</label>
           <div class="relative">
             <span id="sym-income" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs select-none">Rs</span>
-            <input id="in-income" type="number" class="si si-pre" value="150000" min="0" step="1000" />
+            <input id="in-income" type="text" inputmode="numeric" class="si si-pre" value="150,000"
+              onfocus="onAmtFocus(this)" onblur="onAmtBlur(this)" />
           </div>
         </div>
 
@@ -309,6 +310,30 @@
 
 
   <script>
+  /* ═══════════════════════════════════════════════════════════════════
+   * AMOUNT INPUT HELPERS — comma-formatted text inputs
+   * ═══════════════════════════════════════════════════════════════════ */
+
+  /** Strip commas and parse to a number */
+  function parseAmt(str) {
+    return parseFloat(String(str).replace(/,/g, '')) || 0;
+  }
+  /** Format a number with comma thousands separators */
+  function fmtAmt(n) {
+    var v = parseFloat(String(n).replace(/,/g, '')) || 0;
+    return v > 0 ? Math.round(v).toLocaleString('en-US') : '';
+  }
+  /** On focus: strip commas so the user can type freely */
+  function onAmtFocus(el) {
+    var raw = parseAmt(el.value);
+    el.value = raw > 0 ? String(raw) : '';
+  }
+  /** On blur: reapply comma formatting */
+  function onAmtBlur(el) {
+    var raw = parseAmt(el.value);
+    el.value = raw > 0 ? Math.round(raw).toLocaleString('en-US') : '';
+  }
+
   /* ═══════════════════════════════════════════════════════════════════
    * CURRENCIES
    * ═══════════════════════════════════════════════════════════════════ */
@@ -501,9 +526,10 @@
           +   ' onchange="updateExpense(\'' + e.id + '\',\'name\',this.value)" />'
           + '<div class="relative" style="width:110px; flex-shrink:0;">'
           +   '<span class="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs select-none">' + esc(s) + '</span>'
-          +   '<input type="number" value="' + e.amount + '" min="0" step="100" placeholder="0"'
+          +   '<input type="text" inputmode="numeric" value="' + (e.amount > 0 ? Math.round(e.amount).toLocaleString('en-US') : '') + '" placeholder="0"'
           +     ' class="si si-pre" style="padding:0.375rem 0.5rem 0.375rem 1.75rem; width:110px;"'
-          +     ' onchange="updateExpense(\'' + e.id + '\',\'amount\',+this.value||0)" />'
+          +     ' onfocus="onAmtFocus(this)" onblur="onAmtBlur(this)"'
+          +     ' onchange="updateExpense(\'' + e.id + '\',\'amount\',parseAmt(this.value))" />'
           + '</div>'
           + '<button class="btn-rm" onclick="removeExpense(\'' + e.id + '\')" title="Remove">'
           +   '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>'
@@ -514,7 +540,7 @@
 
     /* Update total + FCF preview */
     var totalExp = state.expenses.reduce(function(s,e){ return s + e.amount; }, 0);
-    var income   = parseFloat(document.getElementById('in-income').value) || 0;
+    var income   = parseAmt(document.getElementById('in-income').value);
     var fcf      = income - totalExp;
 
     document.getElementById('total-expenses').textContent = fmtC(totalExp);
@@ -551,25 +577,28 @@
         +   '<div><label class="lbl">Total Amount</label>'
         +     '<div class="relative">'
         +       '<span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 select-none">' + esc(s) + '</span>'
-        +       '<input type="number" value="' + d.totalAmt + '" min="0" step="1000" placeholder="0"'
+        +       '<input type="text" inputmode="numeric" value="' + (d.totalAmt > 0 ? Math.round(d.totalAmt).toLocaleString('en-US') : '') + '" placeholder="0"'
         +         ' class="si si-pre" style="font-size:0.75rem;"'
-        +         ' onchange="updateDebt(\'' + d.id + '\',\'totalAmt\',+this.value||0)" />'
+        +         ' onfocus="onAmtFocus(this)" onblur="onAmtBlur(this)"'
+        +         ' onchange="updateDebt(\'' + d.id + '\',\'totalAmt\',parseAmt(this.value))" />'
         +     '</div></div>'
         /* Outstanding */
         +   '<div><label class="lbl">Outstanding</label>'
         +     '<div class="relative">'
         +       '<span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 select-none">' + esc(s) + '</span>'
-        +       '<input type="number" value="' + d.outstanding + '" min="0" step="1000" placeholder="0"'
+        +       '<input type="text" inputmode="numeric" value="' + (d.outstanding > 0 ? Math.round(d.outstanding).toLocaleString('en-US') : '') + '" placeholder="0"'
         +         ' class="si si-pre" style="font-size:0.75rem;"'
-        +         ' onchange="updateDebt(\'' + d.id + '\',\'outstanding\',+this.value||0)" />'
+        +         ' onfocus="onAmtFocus(this)" onblur="onAmtBlur(this)"'
+        +         ' onchange="updateDebt(\'' + d.id + '\',\'outstanding\',parseAmt(this.value))" />'
         +     '</div></div>'
         /* Monthly payment */
         +   '<div><label class="lbl">Monthly Pay</label>'
         +     '<div class="relative">'
         +       '<span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 select-none">' + esc(s) + '</span>'
-        +       '<input type="number" value="' + d.monthlyPay + '" min="0" step="500" placeholder="0"'
+        +       '<input type="text" inputmode="numeric" value="' + (d.monthlyPay > 0 ? Math.round(d.monthlyPay).toLocaleString('en-US') : '') + '" placeholder="0"'
         +         ' class="si si-pre" style="font-size:0.75rem;"'
-        +         ' onchange="updateDebt(\'' + d.id + '\',\'monthlyPay\',+this.value||0)" />'
+        +         ' onfocus="onAmtFocus(this)" onblur="onAmtBlur(this)"'
+        +         ' onchange="updateDebt(\'' + d.id + '\',\'monthlyPay\',parseAmt(this.value))" />'
         +     '</div></div>'
         + '</div>'
         /* Progress bar: outstanding / total */
@@ -706,7 +735,7 @@
     if (!r || !r.isViable) return;
 
     var s = sym();
-    var income     = parseFloat(document.getElementById('in-income').value) || 0;
+    var income     = parseAmt(document.getElementById('in-income').value);
     var totalExp   = state.expenses.reduce(function(t,e){ return t + e.amount; }, 0);
     var totalDebt  = state.debts.reduce(function(t,d){ return t + d.outstanding; }, 0);
 
@@ -859,7 +888,7 @@
       item[field] = value;
       /* live-update totals without full re-render */
       var totalExp = state.expenses.reduce(function(s,e){ return s + e.amount; }, 0);
-      var income   = parseFloat(document.getElementById('in-income').value) || 0;
+      var income   = parseAmt(document.getElementById('in-income').value);
       var fcf      = income - totalExp;
       document.getElementById('total-expenses').textContent = fmtC(totalExp);
       var fcfEl = document.getElementById('fcf-val');
@@ -889,7 +918,7 @@
     btn.disabled = true;
 
     setTimeout(function() {
-      var income = parseFloat(document.getElementById('in-income').value) || 0;
+      var income = parseAmt(document.getElementById('in-income').value);
       var result = runEngine({
         income:   income,
         expenses: state.expenses.map(function(e){ return { id:e.id, amount:e.amount }; }),
@@ -911,7 +940,7 @@
   /* ── Income live FCF update ─────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('in-income').addEventListener('input', function() {
-      var income   = parseFloat(this.value) || 0;
+      var income   = parseAmt(this.value);
       var totalExp = state.expenses.reduce(function(s,e){ return s + e.amount; }, 0);
       var fcf      = income - totalExp;
       var fcfEl    = document.getElementById('fcf-val');
