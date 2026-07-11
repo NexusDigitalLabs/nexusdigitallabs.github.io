@@ -62,101 +62,225 @@
 </head>
 <body class="bg-[#0b0f19] text-slate-200 min-h-screen selection:bg-blue-500 selection:text-white antialiased">
 
-    <!-- Main Container - Expanded width from max-w-3xl to max-w-5xl for multi-column layout -->
-    <div class="max-w-5xl mx-auto px-6 py-16 sm:py-24">
-        
-        <!-- Header / Logo -->
-        <header class="mb-16 sm:mb-24 animate-fade-in">
-            <div class="flex items-center space-x-3">
-                <!-- Clean Minimalist Geometric Logo -->
-                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-semibold text-white tracking-tighter text-sm">N</div>
-                <span class="text-lg font-medium tracking-tight text-white">NexusDigitalLabs</span>
+    <!-- ══ STICKY NAV ══════════════════════════════════════════════════════ -->
+    <nav class="sticky top-0 z-50 border-b border-slate-800/80 bg-[#0b0f19]/90 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between gap-4">
+            <!-- Logo -->
+            <a href="/" class="flex items-center gap-2.5 shrink-0">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-bold text-white text-sm">N</div>
+                <span class="text-sm font-semibold tracking-tight text-white">NexusDigitalLabs</span>
+            </a>
+            <!-- Desktop nav links -->
+            <div class="hidden md:flex items-center gap-7 text-sm text-slate-400">
+                <a href="#tools" class="hover:text-white transition-colors">Tools</a>
+                <a href="#articles" class="hover:text-white transition-colors">Articles</a>
+                <a href="/about/" class="hover:text-white transition-colors">About</a>
+                <a href="/contact/" class="hover:text-white transition-colors">Contact</a>
             </div>
-        </header>
-
-        <!-- Studio Introduction -->
-        <main class="space-y-16 sm:space-y-24">
-            <section class="space-y-4">
-                <h1 class="text-3xl sm:text-4xl font-light tracking-tight text-white leading-tight max-w-3xl">
-                    Engineering minimalist web utilities, developer tools, and high-performance software.
-                </h1>
-                <p class="text-slate-400 font-light max-w-xl leading-relaxed text-sm sm:text-base">
-                    We build zero-bloat, highly focused digital products engineered for speed, privacy, and utility.
-                </p>
-            </section>
-
-            <!-- Grid Layout Matrix: Side-by-side columns on large viewports, stacked on mobile -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 border-t border-slate-800/60 pt-12">
-                
-                <!-- Left Column: Our Suite (Where Your Tools Live) -->
-                <section class="lg:col-span-5 space-y-6">
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-xs font-semibold tracking-widest text-slate-400 uppercase">Production Utilities</h2>
-                        <span class="h-[1px] flex-1 bg-slate-800/60 ml-4 lg:hidden"></span>
-                    </div>
-                    
-                    <div class="grid gap-4">
-                        <!-- Tool Item 1: Prompt Architect -->
-                        <a href="/tools/prompt-architect/" target="_blank" rel="noopener noreferrer" class="group block p-5 rounded-xl bg-slate-900/40 border border-slate-800/50 hover:border-slate-700/80 transition-all duration-300">
-                            <div class="flex items-start justify-between">
-                                <div class="space-y-1">
-                                    <h3 class="text-sm font-medium text-white group-hover:text-blue-400 transition-colors">Prompt Architect</h3>
-                                    <p class="text-xs text-slate-400 font-light leading-relaxed">Advanced system prompt flattener optimized for Cursor, Gemini, and LLM workspaces.</p>
-                                </div>
-                                <span class="text-slate-500 group-hover:translate-x-1 transition-transform text-sm ml-2">→</span>
-                            </div>
-                        </a>
-                        <!-- Tool Item 2: Invoice Generator -->
-                        <a href="/tools/invoice-generator/" target="_blank" rel="noopener noreferrer" class="group block p-5 rounded-xl bg-slate-900/40 border border-slate-800/50 hover:border-slate-700/80 transition-all duration-300">
-                            <div class="flex items-start justify-between">
-                                <div class="space-y-1">
-                                    <h3 class="text-sm font-medium text-white group-hover:text-blue-400 transition-colors">Invoice Generator</h3>
-                                    <p class="text-xs text-slate-400 font-light leading-relaxed">Freelancer invoice builder with live PDF preview, line items, tax configuration, and bank wire details.</p>
-                                </div>
-                                <span class="text-slate-500 group-hover:translate-x-1 transition-transform text-sm ml-2">→</span>
-                            </div>
-                        </a>
-                    </div>
-                </section>
-
-                <!-- Right Column: Insights & Content (The AdSense Engine) -->
-                <section class="lg:col-span-7 space-y-6">
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-xs font-semibold tracking-widest text-slate-400 uppercase">Engineering Logs & Articles</h2>
-                        <span class="h-[1px] flex-1 bg-slate-800/60 ml-4 lg:hidden"></span>
-                    </div>
-                    
-                    <div class="space-y-6 lg:border-l lg:border-slate-800/40 lg:pl-8">
-                        <!-- Article Loop Placeholder 1 -->
-                        <article class="group space-y-2">
-                            <span class="text-[11px] font-medium text-slate-500 tracking-wider uppercase">July 2026</span>
-                            <h3 class="text-base font-medium text-slate-200 group-hover:text-white transition-colors">
-                                <a href="/articles/optimizing-ai-prompt-tokens-for-llms/" class="hover:underline">
-                                    Maximizing LLM Context: Why Text Flattening Prevents Broken Code Markdown
-                                </a>
-                            </h3>
-                            <p class="text-xs text-slate-400 font-light max-w-2xl leading-relaxed">
-                                An in-depth technical analysis on how trailing whitespaces, nested brackets, and unstructured blocks pollute abstract syntax trees and drive up API token costs in modern IDE pipelines.
-                            </p>
-                        </article>
-                    </div>
-                </section>
-                
+            <!-- Right actions -->
+            <div class="flex items-center gap-3">
+                <a href="https://github.com/NexusDigitalLabs" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium text-slate-300 hover:text-white border border-slate-700 hover:border-slate-500 rounded-lg px-3 py-1.5 transition-all">
+                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577v-2.165c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                    GitHub
+                </a>
+                <!-- Mobile hamburger -->
+                <button id="nav-toggle" type="button" class="md:hidden p-2 text-slate-400 hover:text-white transition-colors" aria-label="Toggle menu">
+                    <svg id="icon-menu" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    <svg id="icon-close" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
             </div>
-        </main>
-
-        <!-- Footer -->
-        <footer class="mt-24 sm:mt-32 pt-8 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] font-light text-slate-500 tracking-wide">
-            <div>&copy; 2026 NexusDigitalLabs. All rights reserved.</div>
-            <div class="flex space-x-6">
-                <a href="/about/" class="hover:text-slate-300 transition-colors">About</a>
-                <a href="/contact/" class="hover:text-slate-300 transition-colors">Contact</a>
-                <a href="/privacy-policy/" class="hover:text-slate-300 transition-colors">Privacy Policy</a>
-                <a href="https://github.com/NexusDigitalLabs" class="hover:text-slate-300 transition-colors">GitHub</a>
+        </div>
+        <!-- Mobile dropdown -->
+        <div id="mobile-menu" class="hidden md:hidden border-t border-slate-800/60 bg-[#0b0f19]">
+            <div class="max-w-7xl mx-auto px-5 py-4 flex flex-col gap-4 text-sm text-slate-300">
+                <a href="#tools" class="hover:text-white transition-colors" onclick="closeMobileMenu()">Tools</a>
+                <a href="#articles" class="hover:text-white transition-colors" onclick="closeMobileMenu()">Articles</a>
+                <a href="/about/" class="hover:text-white transition-colors">About</a>
+                <a href="/contact/" class="hover:text-white transition-colors">Contact</a>
+                <a href="https://github.com/NexusDigitalLabs" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">GitHub ↗</a>
             </div>
-        </footer>
+        </div>
+    </nav>
 
+    <!-- ══ HERO ════════════════════════════════════════════════════════════ -->
+    <section class="relative overflow-hidden">
+        <!-- Ambient gradient glow -->
+        <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-gradient-radial from-blue-600/10 via-indigo-600/5 to-transparent" style="background: radial-gradient(ellipse at center top, rgba(37,99,235,0.12) 0%, rgba(99,102,241,0.06) 40%, transparent 70%);"></div>
+        </div>
+        <div class="relative max-w-7xl mx-auto px-5 sm:px-8 pt-20 pb-24 sm:pt-28 sm:pb-32 text-center">
+            <!-- Status badge -->
+            <div class="inline-flex items-center gap-2 text-xs font-medium text-blue-400 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-1.5 mb-8">
+                <span class="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"></span>
+                Software Studio &mdash; Open to new projects
+            </div>
+            <!-- Headline -->
+            <h1 class="text-4xl sm:text-5xl lg:text-[3.75rem] font-light tracking-tight text-white leading-[1.15] max-w-4xl mx-auto mb-6">
+                Engineering minimalist web utilities, developer tools, and high&#8209;performance software.
+            </h1>
+            <!-- Subline -->
+            <p class="text-slate-400 font-light max-w-lg mx-auto leading-relaxed text-base sm:text-lg mb-10">
+                Zero-bloat digital products engineered for speed, privacy, and utility.
+            </p>
+            <!-- CTAs -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <a href="#tools" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white text-sm font-semibold px-7 py-3 rounded-xl transition-all shadow-lg shadow-blue-900/40">
+                    Explore Tools
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                </a>
+                <a href="#articles" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-slate-300 hover:text-white border border-slate-700 hover:border-slate-500 text-sm font-medium px-7 py-3 rounded-xl transition-all">
+                    Read Articles
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ VALUE PROPS STRIP ═══════════════════════════════════════════════ -->
+    <div class="border-y border-slate-800/50 bg-slate-900/20">
+        <div class="max-w-7xl mx-auto px-5 sm:px-8 py-5">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-5 text-center">
+                <div class="space-y-1">
+                    <p class="text-[10px] font-semibold tracking-widest text-slate-500 uppercase">Architecture</p>
+                    <p class="text-sm font-medium text-slate-200">100% Client-Side</p>
+                </div>
+                <div class="space-y-1">
+                    <p class="text-[10px] font-semibold tracking-widest text-slate-500 uppercase">Privacy</p>
+                    <p class="text-sm font-medium text-slate-200">Zero Cookies</p>
+                </div>
+                <div class="space-y-1">
+                    <p class="text-[10px] font-semibold tracking-widest text-slate-500 uppercase">Stack</p>
+                    <p class="text-sm font-medium text-slate-200">Vanilla JS &middot; Tailwind</p>
+                </div>
+                <div class="space-y-1">
+                    <p class="text-[10px] font-semibold tracking-widest text-slate-500 uppercase">Hosting</p>
+                    <p class="text-sm font-medium text-slate-200">GitHub Pages</p>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <!-- ══ TOOLS SECTION ═══════════════════════════════════════════════════ -->
+    <section id="tools" class="py-20 sm:py-28">
+        <div class="max-w-7xl mx-auto px-5 sm:px-8">
+            <div class="mb-12">
+                <p class="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-3">Production Utilities</p>
+                <h2 class="text-2xl sm:text-3xl font-light text-white tracking-tight">Tools built for engineers.</h2>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- Prompt Architect -->
+                <a href="/tools/prompt-architect/" target="_blank" rel="noopener noreferrer" class="group flex flex-col p-6 rounded-2xl bg-slate-900/50 border border-slate-800/60 hover:border-blue-500/30 hover:bg-slate-900/80 transition-all duration-300">
+                    <div class="w-10 h-10 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center mb-5">
+                        <svg class="w-5 h-5 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                    </div>
+                    <h3 class="text-base font-semibold text-white group-hover:text-blue-400 transition-colors mb-2">Prompt Architect</h3>
+                    <p class="text-sm text-slate-400 font-light leading-relaxed flex-1 mb-5">Advanced system prompt flattener with live token counting and API cost estimation for LLM workspaces.</p>
+                    <span class="inline-flex items-center gap-1.5 text-xs font-medium text-blue-400 group-hover:gap-2.5 transition-all">
+                        Open tool
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                    </span>
+                </a>
+                <!-- Invoice Generator -->
+                <a href="/tools/invoice-generator/" target="_blank" rel="noopener noreferrer" class="group flex flex-col p-6 rounded-2xl bg-slate-900/50 border border-slate-800/60 hover:border-blue-500/30 hover:bg-slate-900/80 transition-all duration-300">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-5">
+                        <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    </div>
+                    <h3 class="text-base font-semibold text-white group-hover:text-blue-400 transition-colors mb-2">Invoice Generator</h3>
+                    <p class="text-sm text-slate-400 font-light leading-relaxed flex-1 mb-5">Freelancer invoice builder with live PDF preview, line items, tax configuration, and bank wire details.</p>
+                    <span class="inline-flex items-center gap-1.5 text-xs font-medium text-blue-400 group-hover:gap-2.5 transition-all">
+                        Open tool
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                    </span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ ARTICLES SECTION ════════════════════════════════════════════════ -->
+    <section id="articles" class="py-20 sm:py-28 border-t border-slate-800/50">
+        <div class="max-w-7xl mx-auto px-5 sm:px-8">
+            <div class="mb-12">
+                <p class="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-3">Engineering Logs</p>
+                <h2 class="text-2xl sm:text-3xl font-light text-white tracking-tight">Technical articles &amp; deep-dives.</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <a href="/articles/optimizing-ai-prompt-tokens-for-llms/" class="group flex flex-col p-6 rounded-2xl bg-slate-900/40 border border-slate-800/50 hover:border-slate-700/80 transition-all duration-300">
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="text-[10px] font-semibold tracking-widest text-slate-500 uppercase">July 2026</span>
+                        <span class="text-slate-700">·</span>
+                        <span class="text-[10px] font-semibold tracking-widest text-slate-500 uppercase">8 min read</span>
+                    </div>
+                    <h3 class="text-base font-semibold text-slate-100 group-hover:text-white transition-colors leading-snug mb-3 flex-1">
+                        Maximizing LLM Context: Why Text Flattening Prevents Broken Code Markdown
+                    </h3>
+                    <p class="text-sm text-slate-400 font-light leading-relaxed mb-5">
+                        How trailing whitespace, nested brackets, and unstructured prompt blocks silently inflate API token costs in modern IDE pipelines.
+                    </p>
+                    <span class="inline-flex items-center gap-1.5 text-xs font-medium text-blue-400 group-hover:gap-2.5 transition-all">
+                        Read article
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                    </span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ FOOTER ══════════════════════════════════════════════════════════ -->
+    <footer class="border-t border-slate-800/50 bg-slate-900/20">
+        <div class="max-w-7xl mx-auto px-5 sm:px-8 py-14">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-10 mb-12">
+                <!-- Brand -->
+                <div class="space-y-4">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-bold text-white text-xs">N</div>
+                        <span class="text-sm font-semibold text-white">NexusDigitalLabs</span>
+                    </div>
+                    <p class="text-xs text-slate-500 font-light leading-relaxed max-w-[200px]">
+                        Minimalist web utilities and developer tools built for speed, privacy, and utility.
+                    </p>
+                </div>
+                <!-- Navigation -->
+                <div>
+                    <p class="text-[10px] font-semibold tracking-widest text-slate-500 uppercase mb-4">Company</p>
+                    <div class="space-y-3 text-sm text-slate-400">
+                        <a href="/about/" class="block hover:text-white transition-colors">About</a>
+                        <a href="/contact/" class="block hover:text-white transition-colors">Contact</a>
+                        <a href="/privacy-policy/" class="block hover:text-white transition-colors">Privacy Policy</a>
+                    </div>
+                </div>
+                <!-- Tools -->
+                <div>
+                    <p class="text-[10px] font-semibold tracking-widest text-slate-500 uppercase mb-4">Tools</p>
+                    <div class="space-y-3 text-sm text-slate-400">
+                        <a href="/tools/prompt-architect/" class="block hover:text-white transition-colors">Prompt Architect</a>
+                        <a href="/tools/invoice-generator/" class="block hover:text-white transition-colors">Invoice Generator</a>
+                        <a href="https://github.com/NexusDigitalLabs" target="_blank" rel="noopener noreferrer" class="block hover:text-white transition-colors">GitHub ↗</a>
+                    </div>
+                </div>
+            </div>
+            <div class="pt-8 border-t border-slate-800/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-600">
+                <span>&copy; 2026 NexusDigitalLabs. All rights reserved.</span>
+                <span>Vanilla JS &middot; Zero cookies &middot; No tracking</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        var toggle = document.getElementById('nav-toggle');
+        var menu   = document.getElementById('mobile-menu');
+        var iMenu  = document.getElementById('icon-menu');
+        var iClose = document.getElementById('icon-close');
+        toggle.addEventListener('click', function () {
+            var open = !menu.classList.contains('hidden');
+            menu.classList.toggle('hidden', open);
+            iMenu.classList.toggle('hidden', !open);
+            iClose.classList.toggle('hidden', open);
+        });
+        function closeMobileMenu() {
+            menu.classList.add('hidden');
+            iMenu.classList.remove('hidden');
+            iClose.classList.add('hidden');
+        }
+    </script>
 
 </body>
 </html>
