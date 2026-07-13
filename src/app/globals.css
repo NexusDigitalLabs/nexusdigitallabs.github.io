@@ -1,0 +1,136 @@
+@import "tailwindcss";
+
+/* ── Design tokens ────────────────────────────────────────────────────────── */
+:root {
+  --ndl-bg:        #0b0f19;
+  --ndl-surface:   #0f1420;
+  --ndl-border:    rgba(30, 41, 59, 0.8);
+  --ndl-text:      #f8fafc;
+  --ndl-muted:     #94a3b8;
+  --ndl-accent:    #3b82f6;
+  --ndl-accent-2:  #6366f1;
+}
+
+/* ── Base reset ───────────────────────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--ndl-bg);
+  color: var(--ndl-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Custom scrollbar ─────────────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 5px; }
+::-webkit-scrollbar-track { background: #0b0f19; }
+::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+
+/* ── Hero ambient orbs ────────────────────────────────────────────────────── */
+.ndl-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(90px);
+  animation: ndlOrbPulse 9s ease-in-out infinite;
+}
+.ndl-orb-1 {
+  width: 700px; height: 700px;
+  top: -180px; right: -100px;
+  background: radial-gradient(circle, rgba(37,99,235,0.17) 0%, transparent 65%);
+}
+.ndl-orb-2 {
+  width: 420px; height: 420px;
+  top: 30%; right: 10%;
+  background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 65%);
+  animation-duration: 6s;
+  animation-delay: 1s;
+  animation-direction: reverse;
+}
+.ndl-orb-3 {
+  width: 320px; height: 320px;
+  bottom: 5%; left: 0%;
+  background: radial-gradient(circle, rgba(59,130,246,0.07) 0%, transparent 65%);
+  animation-duration: 11s;
+  animation-delay: 2.5s;
+}
+@keyframes ndlOrbPulse {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50%       { opacity: 0.90; transform: scale(1.07); }
+}
+
+/* ── Dot grid background ──────────────────────────────────────────────────── */
+.ndl-dot-grid {
+  background-image: radial-gradient(circle, rgba(148,163,184,0.055) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* ── Shimmer gradient text ────────────────────────────────────────────────── */
+.ndl-gradient-text {
+  background: linear-gradient(120deg, #ffffff 0%, #93c5fd 38%, #a5b4fc 62%, #ffffff 100%);
+  background-size: 260% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: ndlShimmer 5s linear infinite;
+}
+@keyframes ndlShimmer {
+  0%   { background-position:  210% center; }
+  100% { background-position: -210% center; }
+}
+
+/* ── Hero stagger animations ──────────────────────────────────────────────── */
+.ndl-anim-1 { opacity: 0; animation: ndlFadeUp 0.70s 0.05s ease forwards; }
+.ndl-anim-2 { opacity: 0; animation: ndlFadeUp 0.75s 0.20s ease forwards; }
+.ndl-anim-3 { opacity: 0; animation: ndlFadeUp 0.70s 0.37s ease forwards; }
+.ndl-anim-4 { opacity: 0; animation: ndlFadeUp 0.70s 0.52s ease forwards; }
+.ndl-anim-5 { opacity: 0; animation: ndlFadeUp 0.70s 0.67s ease forwards; }
+.ndl-anim-visual { opacity: 0; animation: ndlFadeIn 1.0s 0.50s ease forwards; }
+
+@keyframes ndlFadeUp {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+@keyframes ndlFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Floating card animations ─────────────────────────────────────────────── */
+@keyframes ndlFloatA {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-14px); }
+}
+@keyframes ndlFloatB {
+  0%, 100% { transform: translateY(0px) rotate(-0.6deg); }
+  50%       { transform: translateY(-10px) rotate(0.6deg); }
+}
+@keyframes ndlFloatC {
+  0%, 100% { transform: translateY(0px) rotate(0.6deg); }
+  50%       { transform: translateY(-8px) rotate(-0.6deg); }
+}
+
+.ndl-float-a { animation: ndlFloatA 6s ease-in-out infinite; }
+.ndl-float-b { animation: ndlFloatB 5s ease-in-out infinite 0.8s; }
+.ndl-float-c { animation: ndlFloatC 7s ease-in-out infinite 1.6s; }
+
+/* ── Scroll-reveal (used by <ScrollReveal>) ───────────────────────────────── */
+.ndl-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+.ndl-reveal.ndl-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Tool / article card hover ────────────────────────────────────────────── */
+.ndl-card {
+  transition: border-color 0.25s ease, background-color 0.25s ease, transform 0.2s ease;
+}
+.ndl-card:hover {
+  transform: translateY(-2px);
+}
