@@ -305,37 +305,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── GAMES SECTION ────────────────────────────────────────────────── */}
-      <section id="games" className="py-20 sm:py-28 border-t border-slate-800/50">
-        <div className="max-w-7xl mx-auto px-6 sm:px-10">
-          <ScrollReveal className="mb-14">
-            <p className="text-xs font-semibold tracking-widest text-amber-400 uppercase mb-3">Mini Games</p>
-            <h2 className="text-2xl sm:text-3xl font-light text-white tracking-tight">Browser games, zero installs.</h2>
-          </ScrollReveal>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {GAMES.map((game, i) => (
-              <ScrollReveal key={game.href} delay={i * 120}>
-                <Link
-                  href={game.href}
-                  className="group flex flex-col p-6 rounded-2xl bg-slate-900/50 border border-slate-800/60 no-underline ndl-card transition-all duration-200 hover:border-amber-500/30"
-                >
-                  <div className="w-11 h-11 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mb-5 transition-all duration-300 group-hover:scale-110 group-hover:bg-amber-500/15">
-                    <svg className="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={game.iconPath} />
-                    </svg>
-                  </div>
-                  <h3 className="text-base font-semibold text-white group-hover:text-amber-400 transition-colors duration-200 mb-2">{game.title}</h3>
-                  <p className="text-sm text-slate-400 font-light leading-relaxed flex-1 mb-5">{game.desc}</p>
-                  <span className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-400 group-hover:gap-3 transition-all duration-200">
-                    {game.cta} <ArrowRight />
-                  </span>
-                </Link>
-              </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ── ARTICLES SECTION ─────────────────────────────────────────────── */}
       <section id="articles" className="py-20 sm:py-28 border-t border-slate-800/50">
         <div className="max-w-7xl mx-auto px-6 sm:px-10">
@@ -393,6 +362,37 @@ export default function HomePage() {
               Browse all 17 articles <ArrowRight />
             </Link>
           </ScrollReveal>
+        </div>
+      </section>
+
+      {/* ── GAMES SECTION ────────────────────────────────────────────────── */}
+      <section id="games" className="py-20 sm:py-28 border-t border-slate-800/50">
+        <div className="max-w-7xl mx-auto px-6 sm:px-10">
+          <ScrollReveal className="mb-14">
+            <p className="text-xs font-semibold tracking-widest text-amber-400 uppercase mb-3">Mini Games</p>
+            <h2 className="text-2xl sm:text-3xl font-light text-white tracking-tight">Browser games, zero installs.</h2>
+          </ScrollReveal>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {GAMES.map((game, i) => (
+              <ScrollReveal key={game.href} delay={i * 120}>
+                <Link
+                  href={game.href}
+                  className="group flex flex-col p-6 rounded-2xl bg-slate-900/50 border border-slate-800/60 no-underline ndl-card transition-all duration-200 hover:border-amber-500/30"
+                >
+                  <div className="w-11 h-11 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mb-5 transition-all duration-300 group-hover:scale-110 group-hover:bg-amber-500/15">
+                    <svg className="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={game.iconPath} />
+                    </svg>
+                  </div>
+                  <h3 className="text-base font-semibold text-white group-hover:text-amber-400 transition-colors duration-200 mb-2">{game.title}</h3>
+                  <p className="text-sm text-slate-400 font-light leading-relaxed flex-1 mb-5">{game.desc}</p>
+                  <span className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-400 group-hover:gap-3 transition-all duration-200">
+                    {game.cta} <ArrowRight />
+                  </span>
+                </Link>
+              </ScrollReveal>
+            ))}
+          </div>
         </div>
       </section>
     </>
