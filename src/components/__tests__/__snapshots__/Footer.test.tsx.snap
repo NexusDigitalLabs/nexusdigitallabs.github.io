@@ -65,6 +65,12 @@ exports[`Footer — snapshot > matches snapshot 1`] = `
           >
             Privacy Policy
           </a>
+          <a
+            class="ndl-footer-link block text-sm transition-colors no-underline"
+            href="/terms"
+          >
+            Terms of Use
+          </a>
         </div>
       </div>
       <div>

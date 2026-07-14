@@ -197,6 +197,53 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    if (resource === 'unlink') {
+      if (!code || typeof code !== 'string') {
+        return NextResponse.json({ error: 'Missing code' }, { status: 400 });
+      }
+
+      const userId = await getSignedInUserId();
+      if (!userId) {
+        return NextResponse.json({ error: 'Sign in required to unlink a garage' }, { status: 401 });
+      }
+
+      const supabase = createServerSupabaseClient();
+      const { data, error } = await supabase.rpc('unlink_fuel_garage', {
+        p_user_code: code.trim(),
+        p_user_id: userId,
+      });
+
+      if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+
+      const result = data as {
+        ok?: boolean;
+        error?: string;
+        vehicles_updated?: number;
+        already_unlinked?: boolean;
+      } | null;
+
+      if (!result?.ok) {
+        if (result?.error === 'not_owner') {
+          return NextResponse.json(
+            { error: 'Only the linked account can unlink this garage' },
+            { status: 403 }
+          );
+        }
+        return NextResponse.json(
+          { error: result?.error ?? 'Unlink failed' },
+          { status: 400 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        vehicles_updated: result.vehicles_updated ?? 0,
+        already_unlinked: Boolean(result.already_unlinked),
+      });
+    }
+
     if (!code) return NextResponse.json({ error: 'Missing code' }, { status: 400 });
 
     const supabase = createServerSupabaseClient();

@@ -297,7 +297,7 @@ export default function GamesLobbyClient() {
         </div>
 
         <p style={{ fontSize: '0.75rem', color: 'var(--ndl-faint)', textAlign: 'center', marginTop: '1.5rem' }}>
-          All scores are stored in your browser&apos;s local storage — never sent anywhere.
+          Scores save in your browser. Sign in to sync high scores to your account across devices.
         </p>
       </div>
     </div>

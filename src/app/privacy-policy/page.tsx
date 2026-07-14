@@ -84,7 +84,16 @@ export default function PrivacyPolicyPage() {
           <P>
             <strong className="text-slate-300 font-medium">Optional Fuel Tracker account link.</strong>{' '}
             If you sign in and choose &ldquo;Link to my account,&rdquo; we associate your sync code&apos;s vehicles with your account user ID so the garage can restore when you sign in on another device.
-            Linking is optional; the sync code continues to work on its own.
+            You can unlink anytime; the sync code continues to work on its own.
+          </P>
+          <P>
+            <strong className="text-slate-300 font-medium">Optional games scores.</strong>{' '}
+            High scores default to your browser. If you are signed in, we may store your best scores under your account so they can sync across devices.
+          </P>
+          <P>
+            <strong className="text-slate-300 font-medium">Optional tool drafts (Invoice / Debt).</strong>{' '}
+            Invoice Generator and Debt Optimizer stay local unless you explicitly enable &ldquo;cloud draft&rdquo; while signed in.
+            Enabling that feature stores a copy of the form JSON in our database solely for resume-on-another-device. You can turn it off and delete the cloud copy at any time.
           </P>
           <P>
             <strong className="text-slate-300 font-medium">Contact form.</strong>{' '}
@@ -172,9 +181,14 @@ export default function PrivacyPolicyPage() {
       <footer className="mt-20 pt-8 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] font-light text-slate-500 tracking-wide">
         <div>&copy; {new Date().getFullYear()} NexusDigitalLabs. All rights reserved.</div>
         <div className="flex gap-6">
-          {['/about/', '/contact/', '/privacy-policy/'].map((href) => (
-            <Link key={href} href={href} className="hover:text-slate-300 transition-colors no-underline capitalize">
-              {href.replace(/\//g, '')}
+          {[
+            { href: '/about/', label: 'About' },
+            { href: '/contact/', label: 'Contact' },
+            { href: '/privacy-policy/', label: 'Privacy' },
+            { href: '/terms/', label: 'Terms' },
+          ].map(({ href, label }) => (
+            <Link key={href} href={href} className="hover:text-slate-300 transition-colors no-underline">
+              {label}
             </Link>
           ))}
         </div>

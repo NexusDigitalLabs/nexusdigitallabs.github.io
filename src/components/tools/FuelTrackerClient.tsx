@@ -208,6 +208,7 @@ function SyncCodeCard({
   claimBusy,
   signedIn,
   onClaim,
+  onUnlink,
 }: {
   userCode: string | null;
   claimState: ClaimUiState;
@@ -215,6 +216,7 @@ function SyncCodeCard({
   claimBusy: boolean;
   signedIn: boolean;
   onClaim: () => void;
+  onUnlink: () => void;
 }) {
   const [copied, setCopied] = useState(false);
   // Start collapsed on mobile (< 680px), expanded on desktop
@@ -330,9 +332,33 @@ function SyncCodeCard({
               background: 'var(--ndl-surface-2)',
             }}>
               {claimState === 'owned' && (
-                <p style={{ margin: 0, fontSize: '0.75rem', color: '#4ade80', lineHeight: 1.5 }}>
-                  Linked to your account — this garage restores automatically when you sign in on a new device.
-                </p>
+                <>
+                  <p style={{ margin: '0 0 0.75rem', fontSize: '0.75rem', color: '#4ade80', lineHeight: 1.5 }}>
+                    Linked to your account — this garage restores automatically when you sign in on a new device.
+                  </p>
+                  {signedIn && (
+                    <button
+                      type="button"
+                      onClick={onUnlink}
+                      disabled={claimBusy}
+                      style={{
+                        width: '100%',
+                        padding: '0.5rem 0.75rem',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        letterSpacing: '0.06em',
+                        textTransform: 'uppercase',
+                        color: '#fca5a5',
+                        background: 'transparent',
+                        border: '1px solid rgba(248,113,113,0.35)',
+                        cursor: claimBusy ? 'wait' : 'pointer',
+                        opacity: claimBusy ? 0.6 : 1,
+                      }}
+                    >
+                      {claimBusy ? 'Unlinking…' : 'Unlink from account'}
+                    </button>
+                  )}
+                </>
               )}
               {claimState === 'claimed_other' && (
                 <p style={{ margin: 0, fontSize: '0.75rem', color: '#f87171', lineHeight: 1.5 }}>
@@ -693,9 +719,41 @@ export default function FuelTrackerClient() {
       }
       setClaimState('owned');
       setClaimMessage('Garage linked to your account.');
+      markGarageAuthLock(userCode);
     } catch {
       setClaimState('error');
       setClaimMessage('Could not link garage');
+    } finally {
+      setClaimBusy(false);
+    }
+  }
+
+  async function handleUnlinkGarage() {
+    if (!userCode || claimBusy) return;
+    const ok = window.confirm(
+      'Unlink this garage from your account? Your sync code and data stay intact — you’ll need the code (or to link again) on new devices.'
+    );
+    if (!ok) return;
+    setClaimBusy(true);
+    setClaimMessage(null);
+    try {
+      const res = await fetch('/api/fuel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ resource: 'unlink', code: userCode }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        setClaimState('error');
+        setClaimMessage(json.error ?? 'Could not unlink garage');
+        return;
+      }
+      clearGarageAuthLock();
+      setClaimState('unclaimed');
+      setClaimMessage('Garage unlinked. Sync code still works.');
+    } catch {
+      setClaimState('error');
+      setClaimMessage('Could not unlink garage');
     } finally {
       setClaimBusy(false);
     }
@@ -1135,6 +1193,7 @@ export default function FuelTrackerClient() {
               claimBusy={claimBusy}
               signedIn={Boolean(user)}
               onClaim={handleClaimGarage}
+              onUnlink={handleUnlinkGarage}
             />
           </div>
         </div>
@@ -1206,9 +1265,30 @@ export default function FuelTrackerClient() {
                 Enter this code on any device to load your full history.
               </p>
               {claimState === 'owned' && (
-                <p style={{ fontSize: '0.75rem', color: '#4ade80', marginTop: '0.75rem' }}>
-                  Linked to your account.
-                </p>
+                <>
+                  <p style={{ fontSize: '0.75rem', color: '#4ade80', marginTop: '0.75rem' }}>
+                    Linked to your account.
+                  </p>
+                  {user && (
+                    <button
+                      type="button"
+                      onClick={handleUnlinkGarage}
+                      disabled={claimBusy}
+                      style={{
+                        ...S.btn('rgba(248,113,113,0.55)'),
+                        marginTop: '0.5rem',
+                        padding: '0.4rem 0.85rem',
+                        fontSize: '0.6875rem',
+                        color: '#fca5a5',
+                        background: 'transparent',
+                        border: '1px solid rgba(248,113,113,0.35)',
+                        opacity: claimBusy ? 0.6 : 1,
+                      }}
+                    >
+                      {claimBusy ? 'Unlinking…' : 'Unlink from account'}
+                    </button>
+                  )}
+                </>
               )}
               {claimState === 'claimed_other' && (
                 <p style={{ fontSize: '0.75rem', color: '#f87171', marginTop: '0.75rem' }}>

@@ -17,11 +17,12 @@ describe('Footer — structure', () => {
     expect(screen.getByText('NexusDigitalLabs')).toBeInTheDocument();
   });
 
-  it('renders the "Company" column with About, Contact, Privacy Policy', () => {
+  it('renders the "Company" column with About, Contact, Privacy Policy, Terms of Use', () => {
     render(<Footer />);
     expect(screen.getByRole('link', { name: /about/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /contact/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /privacy policy/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /terms of use/i })).toBeInTheDocument();
   });
 
   it('renders the "Tools" column with all 4 tools', () => {

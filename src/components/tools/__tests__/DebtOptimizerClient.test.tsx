@@ -5,6 +5,26 @@ import DebtOptimizerClient from '../DebtOptimizerClient';
 
 vi.mock('next/script', () => ({ default: () => null }));
 
+vi.mock('@/components/AuthProvider', () => ({
+  useAuth: () => ({
+    user: null,
+    profile: null,
+    loading: false,
+    signOut: vi.fn(),
+    setProfile: vi.fn(),
+  }),
+}));
+
+vi.mock('@/lib/supabase/client', () => ({
+  createBrowserSupabaseClient: () => ({
+    from: () => ({
+      select: () => ({ eq: () => ({ eq: () => ({ maybeSingle: async () => ({ data: null, error: null }) }) }) }),
+      upsert: async () => ({ error: null }),
+      delete: () => ({ eq: () => ({ eq: async () => ({ error: null }) }) }),
+    }),
+  }),
+}));
+
 // ── Rendering ──────────────────────────────────────────────────────────────────
 describe('DebtOptimizerClient — rendering', () => {
   it('renders the Calculate Plan button', () => {
