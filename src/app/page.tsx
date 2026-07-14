@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import ScrollReveal from '@/components/ScrollReveal';
 import SiteStatsClient from '@/components/SiteStatsClient';
+import { FEATURED_ARTICLES } from '@/data/articles';
 
 export const metadata: Metadata = {
   title: 'NexusDigitalLabs — Software Studio',
@@ -338,33 +339,60 @@ export default function HomePage() {
       {/* ── ARTICLES SECTION ─────────────────────────────────────────────── */}
       <section id="articles" className="py-20 sm:py-28 border-t border-slate-800/50">
         <div className="max-w-7xl mx-auto px-6 sm:px-10">
-          <ScrollReveal className="mb-14">
-            <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-3">Engineering Logs</p>
-            <h2 className="text-2xl sm:text-3xl font-light text-white tracking-tight">Technical articles &amp; deep-dives.</h2>
+          <ScrollReveal className="mb-14 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-3">Articles &amp; Guides</p>
+              <h2 className="text-2xl sm:text-3xl font-light text-white tracking-tight">Practical reads for everyday tasks.</h2>
+            </div>
+            <Link
+              href="/articles/"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-400 hover:text-white transition-colors no-underline shrink-0"
+            >
+              View all 17 articles
+              <ArrowRight />
+            </Link>
           </ScrollReveal>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            <ScrollReveal>
-              <Link
-                href="/articles/optimizing-ai-prompt-tokens-for-llms/"
-                className="group flex flex-col p-6 rounded-2xl bg-slate-900/40 border border-slate-800/50 no-underline ndl-card hover:border-slate-600/55 hover:shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
-              >
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-[10px] font-semibold tracking-widest text-slate-500 uppercase">July 2026</span>
-                  <span className="text-slate-700">·</span>
-                  <span className="text-[10px] font-semibold tracking-widest text-slate-500 uppercase">8 min read</span>
-                </div>
-                <h3 className="text-base font-semibold text-slate-100 group-hover:text-white transition-colors leading-snug mb-3 flex-1">
-                  Maximizing LLM Context: Why Text Flattening Prevents Broken Code Markdown
-                </h3>
-                <p className="text-sm text-slate-400 font-light leading-relaxed mb-5">
-                  How trailing whitespace, nested brackets, and unstructured prompt blocks silently inflate API token costs in modern IDE pipelines.
-                </p>
-                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-400 group-hover:gap-3 transition-all duration-200">
-                  Read article <ArrowRight />
-                </span>
-              </Link>
-            </ScrollReveal>
+            {FEATURED_ARTICLES.map((a) => (
+              <ScrollReveal key={a.slug}>
+                <Link
+                  href={`/articles/${a.slug}/`}
+                  className="group flex flex-col h-full p-6 rounded-2xl bg-slate-900/40 border border-slate-800/50 no-underline ndl-card hover:border-slate-600/55 hover:shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
+                >
+                  <div className="flex items-center gap-2 mb-4">
+                    <span
+                      className="text-[0.6rem] font-bold tracking-widest uppercase px-2 py-0.5"
+                      style={{ color: a.tagColor, background: a.tagBg, border: `1px solid ${a.tagBorder}` }}
+                    >
+                      {a.tag}
+                    </span>
+                    <span className="text-[10px] text-slate-500">{a.date}</span>
+                    <span className="text-slate-700">·</span>
+                    <span className="text-[10px] text-slate-500">{a.readTime}</span>
+                  </div>
+                  <h3 className="text-base font-semibold text-slate-100 group-hover:text-white transition-colors leading-snug mb-3 flex-1">
+                    {a.title}
+                  </h3>
+                  <p className="text-sm text-slate-400 font-light leading-relaxed mb-5">
+                    {a.desc}
+                  </p>
+                  <span className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-400 group-hover:gap-3 transition-all duration-200">
+                    Read article <ArrowRight />
+                  </span>
+                </Link>
+              </ScrollReveal>
+            ))}
           </div>
+
+          <ScrollReveal className="mt-10 text-center">
+            <Link
+              href="/articles/"
+              className="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-white border border-slate-700/50 hover:border-slate-500 px-5 py-2.5 rounded-lg transition-colors no-underline"
+            >
+              Browse all 17 articles <ArrowRight />
+            </Link>
+          </ScrollReveal>
         </div>
       </section>
     </>
