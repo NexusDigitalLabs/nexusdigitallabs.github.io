@@ -4,19 +4,19 @@
 
 ### [→ Visit nexusdigitallabs.dev](https://nexusdigitallabs.dev/)
 
-![GitHub Pages](https://img.shields.io/badge/Deployed-GitHub%20Pages-brightgreen?style=flat-square&logo=github)
+![Deployed on Vercel](https://img.shields.io/badge/Deployed-Vercel-000000?style=flat-square&logo=vercel)
+![Next.js](https://img.shields.io/badge/Built%20With-Next.js%2016-000000?style=flat-square&logo=next.js)
+![TypeScript](https://img.shields.io/badge/Language-TypeScript-3178c6?style=flat-square&logo=typescript)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)
-![Built With](https://img.shields.io/badge/Built%20With-Vanilla%20JS-f7df1e?style=flat-square&logo=javascript)
-![Privacy](https://img.shields.io/badge/Privacy-No%20Cookies%20%7C%20No%20Tracking-blueviolet?style=flat-square)
-![Analytics](https://img.shields.io/badge/Analytics-Umami%20(Cookie--Free)-orange?style=flat-square)
+![Analytics](https://img.shields.io/badge/Analytics-Umami%20%26%20Supabase-orange?style=flat-square)
 
 ---
 
 ## About
 
-NexusDigitalLabs is a software studio that builds zero-bloat, highly focused digital products engineered for speed, privacy, and utility. This repository is the monorepo powering the entire `nexusdigitallabs.dev` domain — the homepage, all production utility tools, and all engineering articles — served as a fully static site via GitHub Pages.
+NexusDigitalLabs is a software studio that builds zero-bloat, highly focused digital products engineered for speed, privacy, and utility. This repository is the monorepo powering the entire `nexusdigitallabs.dev` domain — the homepage, all production utility tools, browser games, and engineering articles.
 
-Every page is a self-contained HTML file. No framework, no build pipeline, no server.
+The site runs on **Next.js 16 (App Router)** with React Server Components deployed to **Vercel**. All tool logic is 100% client-side — no user data is ever transmitted to a server.
 
 ---
 
@@ -25,34 +25,66 @@ Every page is a self-contained HTML file. No framework, no build pipeline, no se
 ```
 nexusdigitallabs.github.io/
 │
-├── index.html                          # Homepage — studio landing page
+├── src/
+│   ├── app/                            # Next.js App Router pages
+│   │   ├── page.tsx                    # / — Homepage
+│   │   ├── about/page.tsx              # /about/
+│   │   ├── contact/page.tsx            # /contact/
+│   │   ├── privacy-policy/page.tsx     # /privacy-policy/
+│   │   ├── articles/
+│   │   │   └── optimizing-ai-prompt-tokens-for-llms/page.tsx
+│   │   ├── tools/
+│   │   │   ├── prompt-architect/page.tsx
+│   │   │   ├── invoice-generator/page.tsx
+│   │   │   └── debt-optimizer/page.tsx
+│   │   ├── games/
+│   │   │   ├── page.tsx                # /games/ — lobby
+│   │   │   ├── 2048/page.tsx
+│   │   │   ├── snake/page.tsx
+│   │   │   └── blackjack/page.tsx
+│   │   └── api/
+│   │       └── counters/route.ts       # Page-view counter (Supabase)
+│   │
+│   ├── components/
+│   │   ├── Header.tsx                  # Global navigation header
+│   │   ├── Footer.tsx                  # Global footer with MetricCounter
+│   │   ├── MetricCounter.tsx           # Client-side page-view display
+│   │   ├── ScrollReveal.tsx            # IntersectionObserver scroll animations
+│   │   ├── ContactForm.tsx             # Client-side contact form (mailto)
+│   │   ├── tools/
+│   │   │   ├── PromptArchitectClient.tsx
+│   │   │   ├── InvoiceGeneratorClient.tsx
+│   │   │   └── DebtOptimizerClient.tsx
+│   │   └── games/
+│   │       ├── UsernameGate.tsx        # Shared username modal
+│   │       ├── GamesLobbyClient.tsx
+│   │       ├── Game2048.tsx
+│   │       ├── GameSnake.tsx
+│   │       └── GameBlackjack.tsx
+│   │
+│   ├── hooks/
+│   │   └── useGameState.ts             # localStorage username + high scores
+│   │
+│   └── lib/
+│       └── supabase-server.ts          # Server-side Supabase client
 │
-├── tools/                              # Production utility tools
-│   └── prompt-architect/
-│       └── index.html                  # /tools/prompt-architect/
-│
-├── articles/                           # Engineering logs & long-form articles
-│   └── optimizing-ai-prompt-tokens-for-llms/
-│       └── index.html                  # /articles/optimizing-ai-prompt-tokens-for-llms/
-│
-├── about/
-│   └── index.html                      # /about/
-├── contact/
-│   └── index.html                      # /contact/
-├── privacy-policy/
-│   └── index.html                      # /privacy-policy/
+├── public/                             # Static assets (served at /)
+│   ├── favicon.png
+│   ├── og-image.png
+│   ├── robots.txt
+│   └── sitemap.xml
 │
 ├── docs/                               # Internal documentation
 │   └── tools/
-│       └── prompt-architect.md         # Tool spec & feature reference
+│       ├── prompt-architect.md
+│       ├── invoice-generator.md
+│       └── debt-optimizer.md
 │
-├── CNAME                               # Custom domain: nexusdigitallabs.dev
-├── sitemap.xml                         # XML sitemap for search engines
-├── robots.txt                          # Crawler directives
-├── favicon.png                         # Site favicon
-├── og-image.png                        # Default Open Graph share image
-├── .nojekyll                           # Disables Jekyll processing on GitHub Pages
-└── googlef445b64816b591eb.html         # Google Search Console verification
+├── .env.local                          # Local secrets (not committed)
+├── .env.local.example                  # Template for env vars
+├── next.config.ts
+├── tsconfig.json
+└── package.json
 ```
 
 ---
@@ -62,11 +94,18 @@ nexusdigitallabs.github.io/
 | Route | Description |
 |---|---|
 | `/` | Homepage — studio introduction and content index |
-| `/tools/prompt-architect/` | Prompt Architect — LLM prompt flattener & token optimizer |
-| `/articles/optimizing-ai-prompt-tokens-for-llms/` | Engineering article — token optimization deep-dive |
 | `/about/` | About NexusDigitalLabs |
 | `/contact/` | Contact page |
 | `/privacy-policy/` | Privacy policy |
+| `/articles/optimizing-ai-prompt-tokens-for-llms/` | Engineering article — token optimization |
+| `/tools/prompt-architect/` | LLM prompt flattener & token optimizer |
+| `/tools/invoice-generator/` | Freelancer PDF invoice generator |
+| `/tools/debt-optimizer/` | Debt settlement & savings planner |
+| `/games/` | Games lobby — username gate + leaderboard |
+| `/games/2048/` | 2048 tile merge game |
+| `/games/snake/` | Snake arcade game (HTML5 Canvas) |
+| `/games/blackjack/` | Blackjack card game |
+| `/api/counters` | Internal — page-view counter API (Supabase) |
 
 ---
 
@@ -76,9 +115,37 @@ nexusdigitallabs.github.io/
 > Advanced system prompt flattener optimized for Cursor, Gemini, and LLM workspaces.
 
 - **Route:** `/tools/prompt-architect/`
-- **Source:** `tools/prompt-architect/index.html`
+- **Source:** `src/components/tools/PromptArchitectClient.tsx`
 - **Docs:** [`docs/tools/prompt-architect.md`](docs/tools/prompt-architect.md)
-- **Status:** Coming Soon
+- **Status:** Live ✅
+
+### Freelancer Invoice Generator
+> Professional A4 PDF invoice generator — dark split-pane, live preview, client-side PDF export.
+
+- **Route:** `/tools/invoice-generator/`
+- **Source:** `src/components/tools/InvoiceGeneratorClient.tsx`
+- **Docs:** [`docs/tools/invoice-generator.md`](docs/tools/invoice-generator.md)
+- **Status:** Live ✅
+
+### Debt Settlement & Savings Planner
+> Month-by-month snowball debt payoff engine with PDF export.
+
+- **Route:** `/tools/debt-optimizer/`
+- **Source:** `src/components/tools/DebtOptimizerClient.tsx`
+- **Docs:** [`docs/tools/debt-optimizer.md`](docs/tools/debt-optimizer.md)
+- **Status:** Live ✅
+
+---
+
+## Games
+
+All games use a shared `useGameState` hook for username persistence and high scores via `localStorage`. A username gate modal appears on first visit to any game.
+
+| Game | Route | Mechanic |
+|---|---|---|
+| 2048 | `/games/2048/` | Reactive 4×4 matrix, keyboard + swipe |
+| Snake | `/games/snake/` | HTML5 Canvas + `requestAnimationFrame` loop |
+| Blackjack | `/games/blackjack/` | Card engine, dealer AI, chip betting |
 
 ---
 
@@ -86,31 +153,42 @@ nexusdigitallabs.github.io/
 
 | Layer | Choice | Reason |
 |---|---|---|
-| Framework | Vanilla JS (ES6+) | Zero bundle overhead, instant load |
-| Styling | Tailwind CSS via CDN | No build step required |
-| Analytics | Umami (cookie-free) | GDPR/CCPA compliant, no consent banner |
-| Hosting | GitHub Pages | Zero-cost static deployment |
-| Data storage | None | 100% client-side, no localStorage, no cookies |
+| Framework | Next.js 16 (App Router) | RSC by default, file-based routing, Vercel-native |
+| Language | TypeScript | Type safety across all components |
+| Styling | Tailwind CSS | Utility-first, zero runtime CSS overhead |
+| Hosting | Vercel | Zero-config Next.js deployment, global CDN |
+| Analytics (public) | Supabase (`page_views` table) | Visible `// Views: X,XXX` counter in footer |
+| Analytics (internal) | Umami (cookie-free) | GDPR/CCPA compliant, no consent banner |
+| PDF export | `html2pdf.js` (CDN) | Client-side A4 PDF generation |
+| Game state | `localStorage` | Username + high scores, never transmitted |
 
 ---
 
-## Privacy
+## Environment Variables
 
-This entire site is **privacy-safe by architecture**:
+Copy `.env.local.example` to `.env.local` and fill in your Supabase credentials:
 
-- Zero `fetch()` calls transmitting user data
-- Zero cookies or `localStorage` writes
-- Zero third-party ad or tracking pixels
-- Anonymised page-view metrics via [Umami](https://umami.is) — cookie-free, no personal data collected
-- No GDPR or CCPA consent banner required
+```bash
+NEXT_PUBLIC_SUPABASE_URL=https://xxxxxxxxxxxx.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
+```
+
+The `page_views` Supabase table schema:
+
+```sql
+create table page_views (
+  page_path text primary key,
+  count     int8 default 1
+);
+```
 
 ---
 
 ## Local Development
 
 ```bash
-# Serve from repo root — all pretty URLs resolve via directory index.html files
-python3 -m http.server 3000
+npm install
+npm run dev
 # Open http://localhost:3000
 ```
 
@@ -118,7 +196,7 @@ python3 -m http.server 3000
 
 ## Deployment
 
-This repository is deployed automatically via GitHub Pages on every push to `main`. The `CNAME` file configures the custom domain `nexusdigitallabs.dev`. The `.nojekyll` file disables Jekyll processing so all file paths are served as-is.
+Push to `main` — Vercel auto-deploys on every commit. Add production environment variables in the Vercel Dashboard under **Settings → Environment Variables**.
 
 ```bash
 git push origin main
