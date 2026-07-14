@@ -45,7 +45,7 @@ export default function UsernameGate({ onSubmit }: Props) {
           Enter Your Name
         </h2>
         <p style={{ fontSize: '0.8125rem', color: 'var(--ndl-faint)', fontWeight: 400, marginBottom: '1.5rem', lineHeight: 1.6 }}>
-          Your high scores will be saved locally in your browser.
+          Your high scores are stored in this browser. Sign in to sync best scores across devices.
         </p>
         <form onSubmit={handleSubmit}>
           <input

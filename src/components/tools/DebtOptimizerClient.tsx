@@ -1,13 +1,15 @@
 'use client';
 
 import {
-  useState, useRef, useCallback, useLayoutEffect, useId, useMemo,
+  useState, useRef, useCallback, useLayoutEffect, useId, useMemo, useEffect,
 } from 'react';
 import Script from 'next/script';
 import {
   type Expense, type Debt, type MultiPlanResult, type PlanResult, type PlanHorizon,
   runEngine, fmtC, fmtMo, fmtPct,
 } from '@/lib/debt-engine';
+import CloudDraftBar from '@/components/CloudDraftBar';
+import { useCloudToolDraft } from '@/hooks/useCloudToolDraft';
 
 // ── Currency constants ─────────────────────────────────────────────────────────
 const CURRENCY_MAP: Record<string, { symbol: string; label: string }> = {
@@ -153,6 +155,49 @@ export default function DebtOptimizerClient() {
   const [isCalc, setIsCalc] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
+  type DebtDraft = {
+    currency: string;
+    income: number;
+    expenses: Expense[];
+    debts: Debt[];
+    expUid: number;
+    debtUid: number;
+    selectedHorizon: PlanHorizon;
+  };
+
+  const getDebtPayload = useCallback((): DebtDraft => ({
+    currency,
+    income,
+    expenses,
+    debts,
+    expUid,
+    debtUid,
+    selectedHorizon,
+  }), [currency, income, expenses, debts, expUid, debtUid, selectedHorizon]);
+
+  const applyDebtPayload = useCallback((payload: DebtDraft) => {
+    if (typeof payload.currency === 'string') setCurrencyCode(payload.currency);
+    if (typeof payload.income === 'number') setIncome(payload.income);
+    if (Array.isArray(payload.expenses)) setExpenses(payload.expenses as Expense[]);
+    if (Array.isArray(payload.debts)) setDebts(payload.debts as Debt[]);
+    if (typeof payload.expUid === 'number') setExpUid(payload.expUid);
+    if (typeof payload.debtUid === 'number') setDebtUid(payload.debtUid);
+    if (payload.selectedHorizon === 'short' || payload.selectedHorizon === 'medium' || payload.selectedHorizon === 'long') {
+      setSelectedHorizon(payload.selectedHorizon);
+    }
+  }, []);
+
+  const cloudDraft = useCloudToolDraft({
+    toolKey: 'debt-optimizer',
+    getPayload: getDebtPayload,
+    applyPayload: applyDebtPayload,
+  });
+
+  useEffect(() => {
+    cloudDraft.scheduleSave();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currency, income, expenses, debts, expUid, debtUid, selectedHorizon, cloudDraft.optIn, cloudDraft.scheduleSave]);
+
   const sym = CURRENCY_MAP[currency]?.symbol ?? '$';
   const totalExp = expenses.reduce((s, e) => s + e.amount, 0);
   const fcf = income - totalExp;
@@ -249,7 +294,7 @@ export default function DebtOptimizerClient() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                   d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
-              100% client-side · Zero data transmitted
+              100% client-side · Optional cloud draft
             </div>
           </div>
         </div>
@@ -257,6 +302,16 @@ export default function DebtOptimizerClient() {
 
       {/* ── MAIN LAYOUT ─────────────────────────────────────────────────────── */}
       <div className="max-w-7xl mx-auto px-6 sm:px-10 py-8">
+        <CloudDraftBar
+          signedIn={Boolean(cloudDraft.user)}
+          optIn={cloudDraft.optIn}
+          status={cloudDraft.status}
+          message={cloudDraft.message}
+          loginHref="/login/?next=/tools/debt-optimizer/"
+          onEnable={() => { void cloudDraft.enable(); }}
+          onDisable={(del) => { void cloudDraft.disable(del); }}
+          onSaveNow={() => { void cloudDraft.saveNow(); }}
+        />
         <div className="flex gap-10 lg:gap-14 items-start flex-col lg:flex-row">
 
           {/* ── LEFT: Inputs ─────────────────────────────────────────────────── */}

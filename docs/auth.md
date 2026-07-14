@@ -54,8 +54,20 @@ Anonymous `user_code` sync continues to work without signing in.
 
 ## Privacy / legal
 
-Account and Fuel Tracker processing is disclosed in [`/privacy-policy/`](https://nexusdigitallabs.dev/privacy-policy/). See also [`docs/tools/fuel-tracker.md`](tools/fuel-tracker.md).
+Account and Fuel Tracker processing is disclosed in [`/privacy-policy/`](https://nexusdigitallabs.dev/privacy-policy/) and [`/terms/`](https://nexusdigitallabs.dev/terms/). See also [`docs/tools/fuel-tracker.md`](tools/fuel-tracker.md).
 
-## Later (optional)
+## Phase B+ — Unlink garage
 
-- Games high-score sync.
+Run [`004_unlink_fuel_garage.sql`](../supabase/migrations/004_unlink_fuel_garage.sql). UI: **Unlink from account** on the sync card / Settings. Clears `user_id` and auth lock; sync code remains.
+
+## Phase C — Games high scores
+
+Run [`005_game_scores.sql`](../supabase/migrations/005_game_scores.sql). Signed-in players merge local ↔ cloud best scores via `useGameState` + `src/lib/game-scores.ts` (RLS: own rows).
+
+## Opt-in tool drafts (Invoice / Debt)
+
+Run [`006_tool_drafts.sql`](../supabase/migrations/006_tool_drafts.sql). Default remains local-only. Users can enable **Cloud draft** while signed in (`tool_drafts` table, RLS own row only).
+
+## Deferred
+
+- Custom SMTP for magic-link email branding (Resend / DNS).

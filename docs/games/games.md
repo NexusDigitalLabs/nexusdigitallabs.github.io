@@ -6,13 +6,13 @@
 
 ![Status](https://img.shields.io/badge/Status-Live-brightgreen?style=flat-square)
 ![Built With](https://img.shields.io/badge/Built%20With-React%20%2F%20Next.js-000000?style=flat-square&logo=next.js)
-![Storage](https://img.shields.io/badge/Storage-localStorage%20only-lightgrey?style=flat-square)
+![Storage](https://img.shields.io/badge/Storage-localStorage%20%2B%20optional%20cloud-lightgrey?style=flat-square)
 
 ---
 
 ## Overview
 
-The `/games/` section provides a set of lightweight, skill-based browser games built entirely with React and (where needed) HTML5 Canvas. All game logic is client-side. A shared username gate appears on first visit to any game, and high scores persist in `localStorage`.
+The `/games/` section provides a set of lightweight, skill-based browser games built entirely with React and (where needed) HTML5 Canvas. All game logic is client-side. A shared username gate appears on first visit to any game, and high scores persist in `localStorage`. When signed in, best scores also sync to Supabase (`game_scores`) and merge with local on load.
 
 ---
 
@@ -62,6 +62,8 @@ Custom hook providing:
 `localStorage` keys:
 - `ndl_username` — temporary player name
 - `ndl_hs_{gameKey}` — high score per game (`2048`, `snake`, `blackjack`)
+
+Cloud (optional, signed-in): table `public.game_scores` via [`005_game_scores.sql`](../../supabase/migrations/005_game_scores.sql). Helpers in `src/lib/game-scores.ts`.
 
 ---
 

@@ -194,6 +194,10 @@ export default function LoginForm() {
         <a href="/privacy-policy/" className="underline" style={{ color: 'var(--ndl-muted)' }}>
           Privacy Policy
         </a>
+        {' '}and{' '}
+        <a href="/terms/" className="underline" style={{ color: 'var(--ndl-muted)' }}>
+          Terms of Use
+        </a>
         . We don&apos;t sell your data.
       </p>
     </div>

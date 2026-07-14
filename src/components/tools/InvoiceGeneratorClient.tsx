@@ -2,6 +2,8 @@
 
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import Script from 'next/script';
+import CloudDraftBar from '@/components/CloudDraftBar';
+import { useCloudToolDraft } from '@/hooks/useCloudToolDraft';
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 const SYM: Record<string, string> = {
@@ -297,6 +299,93 @@ export default function InvoiceGeneratorClient() {
   const [nextId, setNextId] = useState(3);
   const [isDownloading, setIsDownloading] = useState(false);
 
+  type InvoiceDraft = {
+    num: string;
+    currency: string;
+    date: string;
+    due: string;
+    issName: string;
+    issEmail: string;
+    issAddr: string;
+    issWeb: string;
+    cliName: string;
+    cliContact: string;
+    cliEmail: string;
+    cliAddr: string;
+    taxLabel: string;
+    taxRate: number;
+    discount: number;
+    bankName: string;
+    bankAcctName: string;
+    bankAcctNum: string;
+    bankSwift: string;
+    bankIban: string;
+    notes: string;
+    items: LineItem[];
+    nextId: number;
+  };
+
+  const getInvoicePayload = useCallback((): InvoiceDraft => ({
+    num, currency, date, due,
+    issName, issEmail, issAddr, issWeb,
+    cliName, cliContact, cliEmail, cliAddr,
+    taxLabel, taxRate, discount,
+    bankName, bankAcctName, bankAcctNum, bankSwift, bankIban,
+    notes, items, nextId,
+  }), [
+    num, currency, date, due,
+    issName, issEmail, issAddr, issWeb,
+    cliName, cliContact, cliEmail, cliAddr,
+    taxLabel, taxRate, discount,
+    bankName, bankAcctName, bankAcctNum, bankSwift, bankIban,
+    notes, items, nextId,
+  ]);
+
+  const applyInvoicePayload = useCallback((payload: InvoiceDraft) => {
+    if (typeof payload.num === 'string') setNum(payload.num);
+    if (typeof payload.currency === 'string') setCurrency(payload.currency);
+    if (typeof payload.date === 'string') setDate(payload.date);
+    if (typeof payload.due === 'string') setDue(payload.due);
+    if (typeof payload.issName === 'string') setIssName(payload.issName);
+    if (typeof payload.issEmail === 'string') setIssEmail(payload.issEmail);
+    if (typeof payload.issAddr === 'string') setIssAddr(payload.issAddr);
+    if (typeof payload.issWeb === 'string') setIssWeb(payload.issWeb);
+    if (typeof payload.cliName === 'string') setCliName(payload.cliName);
+    if (typeof payload.cliContact === 'string') setCliContact(payload.cliContact);
+    if (typeof payload.cliEmail === 'string') setCliEmail(payload.cliEmail);
+    if (typeof payload.cliAddr === 'string') setCliAddr(payload.cliAddr);
+    if (typeof payload.taxLabel === 'string') setTaxLabel(payload.taxLabel);
+    if (typeof payload.taxRate === 'number') setTaxRate(payload.taxRate);
+    if (typeof payload.discount === 'number') setDiscount(payload.discount);
+    if (typeof payload.bankName === 'string') setBankName(payload.bankName);
+    if (typeof payload.bankAcctName === 'string') setBankAcctName(payload.bankAcctName);
+    if (typeof payload.bankAcctNum === 'string') setBankAcctNum(payload.bankAcctNum);
+    if (typeof payload.bankSwift === 'string') setBankSwift(payload.bankSwift);
+    if (typeof payload.bankIban === 'string') setBankIban(payload.bankIban);
+    if (typeof payload.notes === 'string') setNotes(payload.notes);
+    if (Array.isArray(payload.items)) setItems(payload.items as LineItem[]);
+    if (typeof payload.nextId === 'number') setNextId(payload.nextId);
+  }, []);
+
+  const cloudDraft = useCloudToolDraft({
+    toolKey: 'invoice-generator',
+    getPayload: getInvoicePayload,
+    applyPayload: applyInvoicePayload,
+  });
+
+  useEffect(() => {
+    cloudDraft.scheduleSave();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- autosave when form fields change
+  }, [
+    num, currency, date, due,
+    issName, issEmail, issAddr, issWeb,
+    cliName, cliContact, cliEmail, cliAddr,
+    taxLabel, taxRate, discount,
+    bankName, bankAcctName, bankAcctNum, bankSwift, bankIban,
+    notes, items, nextId,
+    cloudDraft.optIn, cloudDraft.scheduleSave,
+  ]);
+
   const sym = SYM[currency] || '$';
   const totals = useMemo(() => calcTotals(items, discount, taxRate), [items, discount, taxRate]);
 
@@ -395,6 +484,17 @@ export default function InvoiceGeneratorClient() {
           style={{ width: '420px', background: 'var(--ndl-surface)', borderRight: '1px solid var(--ndl-border)' }}
         >
           <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
+
+            <CloudDraftBar
+              signedIn={Boolean(cloudDraft.user)}
+              optIn={cloudDraft.optIn}
+              status={cloudDraft.status}
+              message={cloudDraft.message}
+              loginHref="/login/?next=/tools/invoice-generator/"
+              onEnable={() => { void cloudDraft.enable(); }}
+              onDisable={(del) => { void cloudDraft.disable(del); }}
+              onSaveNow={() => { void cloudDraft.saveNow(); }}
+            />
 
             {/* Invoice Details */}
             <Section label="Invoice Details">

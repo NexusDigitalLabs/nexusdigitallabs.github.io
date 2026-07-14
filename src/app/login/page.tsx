@@ -34,6 +34,10 @@ export default function LoginPage() {
           <a href="/privacy-policy/" className="underline" style={{ color: 'var(--ndl-accent)' }}>
             Privacy Policy
           </a>
+          {' '}and{' '}
+          <a href="/terms/" className="underline" style={{ color: 'var(--ndl-accent)' }}>
+            Terms of Use
+          </a>
           .
         </p>
 
