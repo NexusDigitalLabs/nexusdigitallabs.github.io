@@ -219,20 +219,20 @@ export default function Game2048() {
     <>
       <GameHelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} title="2048">
         <p style={{ marginBottom: '1rem' }}>
-          Slide tiles on a <strong>4×4 grid</strong> using arrow keys or swipe gestures. When two tiles with the same number collide, they <strong>merge into one</strong>.
+          Slide tiles on a <strong style={{ color: '#f8fafc' }}>4×4 grid</strong> using arrow keys or swipe gestures. When two tiles with the same number collide, they <strong style={{ color: '#f8fafc' }}>merge into one</strong>.
         </p>
-        <p style={{ fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>Goal</p>
-        <p style={{ marginBottom: '1rem' }}>Create a tile with the value <strong style={{ color: '#16a34a' }}>2048</strong> to win. You can keep playing after winning to beat your high score.</p>
-        <p style={{ fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>Controls</p>
+        <p style={{ fontWeight: 700, color: '#f8fafc', marginBottom: '0.5rem' }}>Goal</p>
+        <p style={{ marginBottom: '1rem' }}>Create a tile with the value <strong style={{ color: '#4ade80' }}>2048</strong> to win. Keep playing after winning to beat your high score.</p>
+        <p style={{ fontWeight: 700, color: '#f8fafc', marginBottom: '0.5rem' }}>Controls</p>
         <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-          <li><strong>Arrow keys</strong> or <strong>W / A / S / D</strong> — move all tiles</li>
-          <li><strong>Swipe</strong> — on touch screens</li>
+          <li><strong style={{ color: '#f8fafc' }}>Arrow keys</strong> or <strong style={{ color: '#f8fafc' }}>W / A / S / D</strong> — move all tiles</li>
+          <li><strong style={{ color: '#f8fafc' }}>Swipe</strong> — on touch screens</li>
         </ul>
-        <p style={{ marginTop: '1rem', marginBottom: '0.5rem', fontWeight: 700, color: '#0f172a' }}>Tips</p>
+        <p style={{ marginTop: '1rem', marginBottom: '0.5rem', fontWeight: 700, color: '#f8fafc' }}>Strategy Tips</p>
         <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-          <li>Keep your highest tile in a corner</li>
-          <li>Build a chain of descending tiles along one edge</li>
-          <li>Avoid filling the board — plan moves ahead</li>
+          <li>Keep your highest tile locked in a corner</li>
+          <li>Build a descending chain of tiles along one edge</li>
+          <li>Avoid filling the board — always plan two moves ahead</li>
         </ul>
       </GameHelpModal>
 
@@ -250,15 +250,19 @@ export default function Game2048() {
               <button
                 type="button"
                 onClick={() => setShowHelp(true)}
-                title="How to play"
                 style={{
-                  background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-                  width: '36px', height: '36px', cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '0.875rem', fontWeight: 700, color: '#94a3b8',
+                  background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)',
+                  padding: '0 0.875rem', height: '36px', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: '0.375rem',
+                  fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.07em',
+                  textTransform: 'uppercase', color: '#94a3b8', whiteSpace: 'nowrap',
                 }}
               >
-                ?
+                <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" strokeWidth="2"/>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 16v-4m0-4h.01"/>
+                </svg>
+                How to Play
               </button>
               {[{ label: 'Score', val: score }, { label: 'Best', val: best }].map(({ label, val }) => (
                 <div key={label} style={{ border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)', padding: '0.5rem 1rem', textAlign: 'center', minWidth: '76px' }}>

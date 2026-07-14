@@ -4,8 +4,14 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useGameState } from '@/hooks/useGameState';
 import UsernameGate from './UsernameGate';
+import GameHelpModal from './GameHelpModal';
 
-const GAMES = [
+type GameId = '2048' | 'snake' | 'blackjack';
+
+const GAMES: {
+  id: GameId; href: string; tag: string; title: string; desc: string;
+  accent: string; accentBg: string; accentBorder: string; symbol: string; label: string;
+}[] = [
   {
     id: '2048',
     href: '/games/2048/',
@@ -44,9 +50,77 @@ const GAMES = [
   },
 ];
 
+function HelpContent2048() {
+  return (
+    <>
+      <p style={{ marginBottom: '1rem' }}>Slide tiles using <strong style={{ color: '#f8fafc' }}>arrow keys</strong> or swipe. Matching tiles merge — reach <strong style={{ color: '#4ade80' }}>2048</strong> to win.</p>
+      <p style={{ fontWeight: 700, color: '#f8fafc', marginBottom: '0.4rem' }}>Controls</p>
+      <ul style={{ paddingLeft: '1.25rem', margin: '0 0 1rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+        <li><strong style={{ color: '#f8fafc' }}>Arrow keys / W A S D</strong> — move tiles</li>
+        <li><strong style={{ color: '#f8fafc' }}>Swipe</strong> — on touch screens</li>
+      </ul>
+      <p style={{ fontWeight: 700, color: '#f8fafc', marginBottom: '0.4rem' }}>Tips</p>
+      <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+        <li>Lock your highest tile in a corner</li>
+        <li>Build a descending chain along one edge</li>
+        <li>Never fill the board — plan two moves ahead</li>
+      </ul>
+    </>
+  );
+}
+
+function HelpContentSnake() {
+  return (
+    <>
+      <p style={{ marginBottom: '1rem' }}>Guide the snake to eat food and grow. Hit a <strong style={{ color: '#f8fafc' }}>wall</strong> or your own <strong style={{ color: '#f8fafc' }}>tail</strong> and it's game over. Speed increases as you grow.</p>
+      <p style={{ fontWeight: 700, color: '#f8fafc', marginBottom: '0.4rem' }}>Controls</p>
+      <ul style={{ paddingLeft: '1.25rem', margin: '0 0 1rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+        <li><strong style={{ color: '#f8fafc' }}>Arrow keys / W A S D</strong> — change direction</li>
+        <li><strong style={{ color: '#f8fafc' }}>D-pad</strong> — on touch screens</li>
+        <li><strong style={{ color: '#f8fafc' }}>Swipe on canvas</strong> — also works on touch</li>
+      </ul>
+      <p style={{ fontWeight: 700, color: '#f8fafc', marginBottom: '0.4rem' }}>Rules</p>
+      <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+        <li>No instant 180° reversal</li>
+        <li>Hitting a wall ends the game</li>
+        <li>Each food = <strong style={{ color: '#4ade80' }}>+1 point</strong> + growth</li>
+      </ul>
+    </>
+  );
+}
+
+function HelpContentBlackjack() {
+  return (
+    <>
+      <p style={{ marginBottom: '1rem' }}>Get closer to <strong style={{ color: '#f8fafc' }}>21</strong> than the dealer without going over. You start with <strong style={{ color: '#f8fafc' }}>500 chips</strong>.</p>
+      <p style={{ fontWeight: 700, color: '#f8fafc', marginBottom: '0.4rem' }}>Card Values</p>
+      <ul style={{ paddingLeft: '1.25rem', margin: '0 0 1rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+        <li>2–10 = face value · J/Q/K = 10 · Ace = 11 (or 1)</li>
+      </ul>
+      <p style={{ fontWeight: 700, color: '#f8fafc', marginBottom: '0.4rem' }}>Actions</p>
+      <ul style={{ paddingLeft: '1.25rem', margin: '0 0 1rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+        <li><strong style={{ color: '#f8fafc' }}>Hit</strong> — draw a card</li>
+        <li><strong style={{ color: '#f8fafc' }}>Stand</strong> — end your turn</li>
+        <li><strong style={{ color: '#f8fafc' }}>Double Down</strong> — double bet, one card, stand</li>
+      </ul>
+      <p style={{ fontWeight: 700, color: '#f8fafc', marginBottom: '0.4rem' }}>Payouts</p>
+      <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+        <li><strong style={{ color: '#4ade80' }}>Blackjack</strong> — 1.5× · <strong style={{ color: '#f8fafc' }}>Win</strong> — 1× · <strong style={{ color: '#f87171' }}>Bust</strong> — forfeit</li>
+      </ul>
+    </>
+  );
+}
+
+const HELP_CONTENT: Record<GameId, React.ReactNode> = {
+  '2048': <HelpContent2048 />,
+  'snake': <HelpContentSnake />,
+  'blackjack': <HelpContentBlackjack />,
+};
+
 export default function GamesLobbyClient() {
   const { username, setUsername, clearUsername, getHighScore, loaded } = useGameState();
   const [scores, setScores] = useState<Record<string, number>>({});
+  const [helpGame, setHelpGame] = useState<GameId | null>(null);
 
   useEffect(() => {
     if (!loaded) return;
@@ -66,6 +140,14 @@ export default function GamesLobbyClient() {
 
   return (
     <div style={{ background: '#0b0f19', minHeight: '100vh' }}>
+      {/* Help modal — rendered at this level so it sits above game cards */}
+      <GameHelpModal
+        isOpen={helpGame !== null}
+        onClose={() => setHelpGame(null)}
+        title={helpGame ? GAMES.find(g => g.id === helpGame)!.title : ''}
+      >
+        {helpGame ? HELP_CONTENT[helpGame] : null}
+      </GameHelpModal>
 
       {/* ── Page header ─────────────────────────────────────────────────────── */}
       <div style={{ borderBottom: '1px solid rgba(255,255,255,0.07)', padding: '2rem 0' }}>
@@ -139,9 +221,30 @@ export default function GamesLobbyClient() {
                 <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: '#f8fafc', marginBottom: '0.625rem' }}>
                   {g.title}
                 </h2>
-                <p style={{ fontSize: '0.8125rem', color: '#64748b', lineHeight: 1.65, flexGrow: 1, marginBottom: '1.5rem' }}>
+                <p style={{ fontSize: '0.8125rem', color: '#64748b', lineHeight: 1.65, flexGrow: 1, marginBottom: '1rem' }}>
                   {g.desc}
                 </p>
+
+                {/* How to Play trigger */}
+                <button
+                  type="button"
+                  onClick={(e) => { e.preventDefault(); setHelpGame(g.id); }}
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
+                    background: 'transparent', border: 'none', padding: 0,
+                    fontSize: '0.75rem', fontWeight: 600, color: '#475569',
+                    cursor: 'pointer', marginBottom: '1.25rem',
+                    letterSpacing: '0.03em',
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.color = g.accent)}
+                  onMouseLeave={e => (e.currentTarget.style.color = '#475569')}
+                >
+                  <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" strokeWidth="2"/>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 16v-4m0-4h.01"/>
+                  </svg>
+                  How to Play
+                </button>
 
                 {/* Footer row */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

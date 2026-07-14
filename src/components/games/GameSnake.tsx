@@ -270,19 +270,19 @@ export default function GameSnake() {
     <>
       <GameHelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} title="Snake">
         <p style={{ marginBottom: '1rem' }}>
-          Guide the snake to eat food and grow longer. The game ends if you hit a <strong>wall</strong> or your own <strong>tail</strong>. Every food item you eat increases your score and the snake speeds up slightly.
+          Guide the snake to eat food and grow longer. The game ends if you hit a <strong style={{ color: '#f8fafc' }}>wall</strong> or your own <strong style={{ color: '#f8fafc' }}>tail</strong>. Speed increases as you grow.
         </p>
-        <p style={{ fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>Controls</p>
+        <p style={{ fontWeight: 700, color: '#f8fafc', marginBottom: '0.5rem' }}>Controls</p>
         <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem', marginBottom: '1rem' }}>
-          <li><strong>Arrow keys</strong> or <strong>W / A / S / D</strong> — change direction</li>
-          <li><strong>D-pad</strong> — on touch screens (shown automatically)</li>
-          <li><strong>Swipe on canvas</strong> — also works on touch</li>
+          <li><strong style={{ color: '#f8fafc' }}>Arrow keys</strong> or <strong style={{ color: '#f8fafc' }}>W / A / S / D</strong> — change direction</li>
+          <li><strong style={{ color: '#f8fafc' }}>D-pad buttons</strong> — on touch screens (shown automatically)</li>
+          <li><strong style={{ color: '#f8fafc' }}>Swipe on the canvas</strong> — also works on touch</li>
         </ul>
-        <p style={{ fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>Rules</p>
+        <p style={{ fontWeight: 700, color: '#f8fafc', marginBottom: '0.5rem' }}>Rules</p>
         <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-          <li>You cannot reverse direction (180°) instantly</li>
-          <li>The snake wraps — no wait, it doesn&apos;t: hitting the wall ends the game</li>
-          <li>Each food eaten = +1 point and the snake grows by one segment</li>
+          <li>You cannot instantly reverse direction (180°)</li>
+          <li>Hitting a wall ends the game — no wrapping</li>
+          <li>Each food eaten = <strong style={{ color: '#4ade80' }}>+1 point</strong> and snake grows by one segment</li>
         </ul>
       </GameHelpModal>
 
@@ -299,15 +299,19 @@ export default function GameSnake() {
               <button
                 type="button"
                 onClick={() => setShowHelp(true)}
-                title="How to play"
                 style={{
-                  background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-                  width: '36px', height: '36px', cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '0.875rem', fontWeight: 700, color: '#94a3b8',
+                  background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)',
+                  padding: '0 0.875rem', height: '36px', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: '0.375rem',
+                  fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.07em',
+                  textTransform: 'uppercase', color: '#94a3b8', whiteSpace: 'nowrap',
                 }}
               >
-                ?
+                <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" strokeWidth="2"/>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 16v-4m0-4h.01"/>
+                </svg>
+                How to Play
               </button>
               {[{ label: 'Score', val: dispScore }, { label: 'Best', val: dispBest }].map(({ label, val }) => (
                 <div key={label} style={{ border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)', padding: '0.5rem 1rem', textAlign: 'center', minWidth: '76px' }}>

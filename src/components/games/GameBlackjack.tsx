@@ -297,31 +297,31 @@ export default function GameBlackjack() {
 
       <GameHelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} title="Blackjack">
         <p style={{ marginBottom: '1rem' }}>
-          Beat the dealer by getting a hand total closer to <strong>21</strong> without going over (<em>busting</em>). You start with <strong>500 chips</strong>.
+          Beat the dealer by getting a hand total closer to <strong style={{ color: '#f8fafc' }}>21</strong> without going over (<em>busting</em>). You start with <strong style={{ color: '#f8fafc' }}>500 chips</strong>.
         </p>
-        <p style={{ fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>Card Values</p>
+        <p style={{ fontWeight: 700, color: '#f8fafc', marginBottom: '0.5rem' }}>Card Values</p>
         <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem', marginBottom: '1rem' }}>
-          <li><strong>Number cards (2–10)</strong> — face value</li>
-          <li><strong>J / Q / K</strong> — worth 10</li>
-          <li><strong>Ace</strong> — worth 11, reduced to 1 if you would bust</li>
+          <li><strong style={{ color: '#f8fafc' }}>Number cards (2–10)</strong> — face value</li>
+          <li><strong style={{ color: '#f8fafc' }}>J / Q / K</strong> — worth 10</li>
+          <li><strong style={{ color: '#f8fafc' }}>Ace</strong> — worth 11, reduced to 1 if you would bust</li>
         </ul>
-        <p style={{ fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>Actions</p>
+        <p style={{ fontWeight: 700, color: '#f8fafc', marginBottom: '0.5rem' }}>Actions</p>
         <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem', marginBottom: '1rem' }}>
-          <li><strong>Hit</strong> — draw another card</li>
-          <li><strong>Stand</strong> — end your turn, dealer plays</li>
-          <li><strong>Double Down</strong> — double your bet, receive exactly one more card, then stand</li>
+          <li><strong style={{ color: '#f8fafc' }}>Hit</strong> — draw another card</li>
+          <li><strong style={{ color: '#f8fafc' }}>Stand</strong> — end your turn, dealer plays</li>
+          <li><strong style={{ color: '#f8fafc' }}>Double Down</strong> — double your bet, receive one more card, then stand</li>
         </ul>
-        <p style={{ fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>Dealer Rules</p>
+        <p style={{ fontWeight: 700, color: '#f8fafc', marginBottom: '0.5rem' }}>Dealer Rules</p>
         <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem', marginBottom: '1rem' }}>
-          <li>Dealer must draw until reaching <strong>17 or higher</strong></li>
+          <li>Dealer must draw until reaching <strong style={{ color: '#f8fafc' }}>17 or higher</strong></li>
           <li>Dealer&apos;s first card is hidden until you stand</li>
         </ul>
-        <p style={{ fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>Payouts</p>
+        <p style={{ fontWeight: 700, color: '#f8fafc', marginBottom: '0.5rem' }}>Payouts</p>
         <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-          <li><strong style={{ color: '#16a34a' }}>Blackjack</strong> (Ace + 10-value on deal) — pays 1.5× your bet</li>
-          <li><strong>Win</strong> — pays 1× your bet</li>
-          <li><strong>Push</strong> (tie) — bet returned</li>
-          <li><strong>Bust / Lose</strong> — bet forfeited</li>
+          <li><strong style={{ color: '#4ade80' }}>Blackjack</strong> (Ace + 10-value on deal) — pays 1.5× your bet</li>
+          <li><strong style={{ color: '#f8fafc' }}>Win</strong> — pays 1× your bet</li>
+          <li><strong style={{ color: '#f8fafc' }}>Push</strong> (tie) — bet returned</li>
+          <li><strong style={{ color: '#f87171' }}>Bust / Lose</strong> — bet forfeited</li>
         </ul>
       </GameHelpModal>
 
@@ -338,15 +338,19 @@ export default function GameBlackjack() {
               <button
                 type="button"
                 onClick={() => setShowHelp(true)}
-                title="How to play"
                 style={{
-                  background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-                  width: '36px', height: '36px', cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '0.875rem', fontWeight: 700, color: '#94a3b8',
+                  background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)',
+                  padding: '0 0.875rem', height: '36px', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: '0.375rem',
+                  fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.07em',
+                  textTransform: 'uppercase', color: '#94a3b8', whiteSpace: 'nowrap',
                 }}
               >
-                ?
+                <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" strokeWidth="2"/>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 16v-4m0-4h.01"/>
+                </svg>
+                How to Play
               </button>
               {[{ label: 'Chips', val: chips.toLocaleString('en-US') }, { label: 'Best', val: best.toString() }].map(({ label, val }) => (
                 <div key={label} style={{ border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)', padding: '0.5rem 1rem', textAlign: 'center', minWidth: '76px' }}>
