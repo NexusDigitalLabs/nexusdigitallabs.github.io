@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 const KEYS = {
   username: 'ndl_username',
@@ -12,32 +12,43 @@ export function useGameState() {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem(KEYS.username);
-    setUsernameState(stored);
+    try {
+      const stored = localStorage.getItem(KEYS.username);
+      setUsernameState(stored);
+    } catch {
+      // localStorage blocked (private browsing restriction in some browsers)
+    }
     setLoaded(true);
   }, []);
 
-  const setUsername = (name: string) => {
-    localStorage.setItem(KEYS.username, name);
+  const setUsername = useCallback((name: string) => {
+    try { localStorage.setItem(KEYS.username, name); } catch { /* ignore */ }
     setUsernameState(name);
-  };
+  }, []);
 
-  const clearUsername = () => {
-    localStorage.removeItem(KEYS.username);
+  const clearUsername = useCallback(() => {
+    try { localStorage.removeItem(KEYS.username); } catch { /* ignore */ }
     setUsernameState(null);
-  };
+  }, []);
 
-  const getHighScore = (game: string): number => {
-    if (typeof window === 'undefined') return 0;
-    return parseInt(localStorage.getItem(KEYS.score(game)) ?? '0', 10);
-  };
-
-  const saveScore = (game: string, score: number) => {
-    const current = getHighScore(game);
-    if (score > current) {
-      localStorage.setItem(KEYS.score(game), String(score));
+  // useCallback gives a stable reference so components that include
+  // getHighScore in a useEffect dependency array don't trigger infinite loops.
+  const getHighScore = useCallback((game: string): number => {
+    try {
+      return parseInt(localStorage.getItem(KEYS.score(game)) ?? '0', 10);
+    } catch {
+      return 0;
     }
-  };
+  }, []);
+
+  const saveScore = useCallback((game: string, score: number) => {
+    try {
+      const current = parseInt(localStorage.getItem(KEYS.score(game)) ?? '0', 10);
+      if (score > current) {
+        localStorage.setItem(KEYS.score(game), String(score));
+      }
+    } catch { /* ignore */ }
+  }, []);
 
   return { username, setUsername, clearUsername, getHighScore, saveScore, loaded };
 }

@@ -49,12 +49,14 @@ export default function GamesLobbyClient() {
   const [scores, setScores] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    if (loaded) {
-      const s: Record<string, number> = {};
-      GAMES.forEach((g) => { s[g.id] = getHighScore(g.id); });
-      setScores(s);
-    }
-  }, [loaded, getHighScore]);
+    if (!loaded) return;
+    const s: Record<string, number> = {};
+    GAMES.forEach((g) => { s[g.id] = getHighScore(g.id); });
+    setScores(s);
+  // getHighScore is now stable (useCallback) so listing it is safe,
+  // but we only need this effect to fire once when loaded becomes true.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaded]);
 
   if (!loaded) return null;
 
