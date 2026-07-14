@@ -295,16 +295,6 @@ export default function GameBlackjack() {
     <>
       <style>{`@keyframes cardDeal{from{transform:scale(0.8) translateY(-8px);opacity:0.6;}to{transform:scale(1) translateY(0);opacity:1;}}`}</style>
 
-      {/* Entertainment disclaimer — important for AdSense policy compliance */}
-      <div style={{
-        background: 'rgba(245,158,11,0.06)', borderBottom: '1px solid rgba(245,158,11,0.2)',
-        padding: '0.5rem 1rem', textAlign: 'center',
-      }}>
-        <p style={{ fontSize: '0.6875rem', color: '#92400e', fontWeight: 500, margin: 0 }}>
-          <span style={{ color: '#f59e0b', fontWeight: 700 }}>For entertainment only</span>
-          {' '}— No real money, no gambling, no financial risk. Chip balances are simulated and reset on reload.
-        </p>
-      </div>
 
       <GameHelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} title="Blackjack">
         <p style={{ marginBottom: '1rem' }}>
