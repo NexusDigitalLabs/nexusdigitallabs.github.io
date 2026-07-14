@@ -190,6 +190,33 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* ── FAQ ──────────────────────────────────────────────────────────── */}
+      <section className="py-16 sm:py-20 border-t border-slate-800/50">
+        <div className="max-w-4xl mx-auto px-6 sm:px-10">
+          <ScrollReveal className="mb-10">
+            <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-3">FAQ</p>
+            <h2 className="text-2xl sm:text-3xl font-light text-white tracking-tight">Common questions.</h2>
+          </ScrollReveal>
+          <div className="space-y-6 max-w-2xl">
+            {[
+              { q: 'Who built NexusDigitalLabs?', a: 'NexusDigitalLabs is an independent software studio. The tools, articles, and games on this site are built and maintained by a small team of developers focused on building useful things without unnecessary complexity.' },
+              { q: 'Are the tools really free forever?', a: 'Yes. Every tool on this site is free with no usage limits, no account required, and no paywalled features. The site is deployed on Vercel\'s free tier, which means zero infrastructure cost and no financial pressure to monetise.' },
+              { q: 'Do you collect any user data?', a: 'No. None of the tools transmit user input to any server. Everything runs client-side in your browser. We use privacy-respecting, cookie-free analytics (Umami) that records only aggregate page view counts — no personally identifiable information, no session tracking, no fingerprinting.' },
+              { q: 'Can I suggest a tool or feature?', a: 'Yes. Use the Contact page to send a suggestion. We build what we find genuinely useful, so real-world requests from real users carry a lot of weight in what gets prioritised next.' },
+              { q: 'Is the source code available?', a: 'The site\'s source code is publicly visible on GitHub. You can view the implementation, raise issues, or propose changes via pull request. See the GitHub link in the header or footer.' },
+              { q: 'Why not use a popular framework like WordPress or Webflow?', a: "WordPress and Webflow solve the wrong problem for what we're building. Managed CMSs add complexity, cookies, plugin dependencies, and performance overhead that are simply unnecessary for a site built around lightweight, client-side tools. Next.js and React give us full control with zero compromise on speed or privacy." },
+            ].map(({ q, a }, i) => (
+              <ScrollReveal key={q} delay={i * 60}>
+                <div className="border-l-2 border-slate-700 pl-5 py-1">
+                  <p className="text-sm font-semibold text-white mb-2">{q}</p>
+                  <p className="text-sm text-slate-400 font-light leading-relaxed">{a}</p>
+                </div>
+              </ScrollReveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── CTA ──────────────────────────────────────────────────────────── */}
       <section className="py-20 border-t border-slate-800/50">
         <div className="max-w-4xl mx-auto px-6 sm:px-10 text-center">
