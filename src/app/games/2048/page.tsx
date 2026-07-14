@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Game2048 from '@/components/games/Game2048';
+import GameLoader from '@/components/games/GameLoader';
 
 export const metadata: Metadata = {
   title: '2048 — NexusDigitalLabs Games',
@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function Game2048Page() {
-  return <Game2048 />;
+  return <GameLoader game="2048" />;
 }

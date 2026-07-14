@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import GamesLobbyClient from '@/components/games/GamesLobbyClient';
+import GameLoader from '@/components/games/GameLoader';
 
 export const metadata: Metadata = {
   title: 'Games — NexusDigitalLabs',
@@ -15,5 +15,5 @@ export const metadata: Metadata = {
 };
 
 export default function GamesPage() {
-  return <GamesLobbyClient />;
+  return <GameLoader game="lobby" />;
 }

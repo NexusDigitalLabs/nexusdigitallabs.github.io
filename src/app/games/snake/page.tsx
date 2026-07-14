@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import GameSnake from '@/components/games/GameSnake';
+import GameLoader from '@/components/games/GameLoader';
 
 export const metadata: Metadata = {
   title: 'Snake — NexusDigitalLabs Games',
@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function GameSnakePage() {
-  return <GameSnake />;
+  return <GameLoader game="snake" />;
 }
