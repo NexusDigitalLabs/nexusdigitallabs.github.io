@@ -5,12 +5,12 @@ import { pageMetadata } from '@/lib/seo';
 export const metadata = pageMetadata({
   title: 'Fuel Tracker — Track Mileage, Cost & Efficiency | Nexus Digital Labs',
   description:
-    'Free browser-based fuel tracking tool. Log fill-ups, track L/100km efficiency, visualise spend over time, and sync data across devices — no account needed.',
+    'Free browser-based fuel tracking. Log fill-ups, track L/100km, visualise spend, sync with a personal code — optionally link to your account.',
   path: '/tools/fuel-tracker/',
   absoluteTitle: true,
   ogTitle: 'Fuel Tracker | Nexus Digital Labs',
   ogDescription:
-    'Log fill-ups, track fuel efficiency and costs across your vehicles. Free, private, no sign-up.',
+    'Log fill-ups, track fuel efficiency and costs. Free sync code; optional account link.',
 });
 
 export default function FuelTrackerPage() {
@@ -49,7 +49,7 @@ export default function FuelTrackerPage() {
             What is the Fuel Tracker?
           </h2>
           <p style={{ fontSize: '0.9375rem', color: '#94a3b8', lineHeight: 1.75, marginBottom: '2rem' }}>
-            The Nexus Digital Labs Fuel Tracker is a fully browser-based tool for tracking fuel fill-ups, calculating real-world fuel efficiency (L/100km and km/L), and monitoring your spend across one or more vehicles over time. All data is stored in a private cloud database — synced via a personal code you create. No login, no email, no third-party tracking.
+            The Nexus Digital Labs Fuel Tracker is a browser-based tool for tracking fuel fill-ups, calculating real-world fuel efficiency (L/100km and km/L), and monitoring spend across one or more vehicles. Data syncs via a personal code you create — no account required. Optionally sign in and link the garage to your account so it restores on new devices.
           </p>
 
           <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: '#f8fafc', marginBottom: '0.875rem' }}>
@@ -60,7 +60,7 @@ export default function FuelTrackerPage() {
             <li><strong style={{ color: '#f8fafc' }}>Add your vehicle</strong> — make, model, year, and fuel type.</li>
             <li><strong style={{ color: '#f8fafc' }}>Log each fill-up</strong> — enter the odometer reading, litres pumped, and price per litre.</li>
             <li><strong style={{ color: '#f8fafc' }}>Read your stats</strong> — average efficiency, best/worst fill, total spend, and cost per km update instantly.</li>
-            <li><strong style={{ color: '#f8fafc' }}>Sync anywhere</strong> — enter your sync code on any device to access your full history.</li>
+            <li><strong style={{ color: '#f8fafc' }}>Sync anywhere</strong> — enter your sync code on any device, or sign in if you linked the garage to your account.</li>
           </ol>
 
           <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: '#f8fafc', marginBottom: '1.25rem' }}>
@@ -73,11 +73,15 @@ export default function FuelTrackerPage() {
             },
             {
               q: 'How does cross-device syncing work?',
-              a: 'When you create a garage, a unique sync code (e.g. "MyGarage-7X4P") is generated. This code is stored in your browser\'s local storage so your device loads automatically. On any other device, simply visit the Fuel Tracker and choose "I have a code" — enter your sync code and all your vehicles and fill history loads instantly.',
+              a: 'When you create a garage, a unique sync code (e.g. "MyGarage-7X4P") is generated and stored in your browser\'s local storage. On another device, choose "I have a code" and enter it. If you also link the garage to your NexusDigitalLabs account, signing in on a new device can restore your garage automatically.',
             },
             {
               q: 'Is my fuel data private?',
-              a: 'Yes. The only identifier stored is your randomly-suffixed sync code. We never ask for your name, email, or any personal information. Your data is associated solely with your code — which only you know. We do not share or sell any data.',
+              a: 'With the sync-code flow alone, your garage is keyed only by that code — we do not require your name or email. Avoid putting personal identifiers in nicknames or notes. If you optionally sign in and link the garage, your account email/profile is stored via Supabase Auth and associated with that garage. See our Privacy Policy. We do not sell your data.',
+            },
+            {
+              q: 'Do I need an account?',
+              a: 'No. Sync codes work without signing in. An account is optional and useful if you want to restore a linked garage by signing in instead of re-entering the code.',
             },
             {
               q: 'What is a partial fill and how does it affect calculations?',

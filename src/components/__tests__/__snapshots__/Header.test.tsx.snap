@@ -164,6 +164,13 @@ exports[`Header — snapshot > matches snapshot on homepage 1`] = `
           </svg>
         </button>
       </div>
+      <a
+        class="hidden sm:inline-flex items-center text-xs font-semibold px-3 py-1.5 rounded-lg no-underline transition-colors"
+        href="/login"
+        style="color: var(--ndl-text); border: 1px solid var(--ndl-border); background: var(--ndl-surface-2);"
+      >
+        Sign in
+      </a>
       <button
         aria-label="Open menu"
         class="md:hidden p-2 transition-colors"

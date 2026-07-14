@@ -18,10 +18,10 @@ NexusDigitalLabs is an independent software studio that builds zero-bloat, singl
 
 The guiding philosophy:
 
-- **Client-side first.** Every tool processes data entirely in the user's browser. No user input is ever transmitted to a server. Users do not need an account, and there is no telemetry on what they type or calculate.
+- **Client-side first.** Calculators and generators process data in the browser. No telemetry on what users type. Accounts and Fuel Tracker sync are optional cloud features.
 - **Zero unnecessary dependencies.** React, Next.js, and Tailwind CSS. Nothing else in the production bundle beyond what's actively used.
 - **Free forever.** Deployed on Vercel's free tier with Supabase's free tier for analytics. There are no paywalls, no freemium tiers, and no subscription gates.
-- **Privacy by architecture.** The tools are GDPR/CCPA compliant without a cookie banner because no cookies are set. Umami analytics is cookie-free and records only aggregate counts.
+- **Privacy by architecture.** Umami analytics is cookie-free and aggregate-only. Auth cookies exist only after voluntary sign-in. See `/privacy-policy/`.
 
 ---
 
@@ -121,6 +121,9 @@ nexusdigitallabs.github.io/
 | `/about/` | Page | Studio mission, principles, values, tech stack, FAQ |
 | `/contact/` | Page | Contact form |
 | `/privacy-policy/` | Page | Privacy policy |
+| `/login/` | Page | Google OAuth + magic link sign-in |
+| `/account/` | Page | Profile / display name (signed in) |
+| `/auth/callback/` | Route | Completes OAuth / magic-link exchange |
 | `/articles/` | Page | Articles index — listing all published articles |
 | `/articles/optimizing-ai-prompt-tokens-for-llms/` | Article | LLM token waste, whitespace, JSON flattening |
 | `/articles/how-to-reduce-openai-api-costs/` | Article | 6 techniques: compression, routing, caching, batching |
@@ -211,9 +214,9 @@ Enter income, expenses, and outstanding balances (no monthly payment field). Fre
 ---
 
 ### Fuel Tracker
-> Log fill-ups, track L/100km efficiency, and monitor fuel spend — cross-device via sync code.
+> Log fill-ups, track L/100km efficiency, and monitor fuel spend — cross-device via sync code (optional account link).
 
-Users create a "garage" by choosing a nickname; the system appends a 4-char random suffix to generate a unique sync code (e.g. `MyGarage-7X4P`). The code is stored in `localStorage` for automatic loading and can be entered on any other device. All data (vehicles + fill-ups) is stored in Supabase under the sync code.
+Users create a "garage" by choosing a nickname; the system appends a 4-char random suffix to generate a unique sync code (e.g. `MyGarage-7X4P`). The code is stored in `localStorage` for automatic loading and can be entered on any other device. All data (vehicles + fill-ups) is stored in Supabase under the sync code. Signed-in users can optionally **link** the garage to their account so it restores on login.
 
 **Features:**
 - Multi-vehicle support (add unlimited vehicles — make, model, year, fuel type, nickname)
@@ -226,7 +229,8 @@ Users create a "garage" by choosing a nickname; the system appends a 4-char rand
 - CSV export with all calculated columns
 - Delete individual fills, vehicles, or all data
 - Cross-device sync via sync code (Supabase backend)
-- Privacy-safe: no email/name required; warning if `@` detected in nickname
+- Optional account claim / restore-on-sign-in
+- Sync-code flow needs no email; warning if `@` detected in nickname
 
 **Efficiency Formulas:**
 - `L/100km = (litres ÷ distance) × 100`
@@ -239,7 +243,7 @@ Users create a "garage" by choosing a nickname; the system appends a 4-char rand
 | Route | `/tools/fuel-tracker/` |
 | Source | `src/components/tools/FuelTrackerClient.tsx` |
 | API | `src/app/api/fuel/route.ts` |
-| Docs | [`docs/tools/fuel-tracker.md`](docs/tools/fuel-tracker.md) |
+| Docs | [`docs/tools/fuel-tracker.md`](docs/tools/fuel-tracker.md), [`docs/auth.md`](docs/auth.md) |
 | Status | Live ✅ |
 
 ---
@@ -341,6 +345,7 @@ Copy `.env.local.example` to `.env.local` and fill in your Supabase credentials:
 
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=https://xxxxxxxxxxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key_here
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
 ```
 
@@ -389,6 +394,7 @@ git push origin main
 
 **Vercel environment variables** must be set in the Vercel Dashboard under **Settings → Environment Variables** for the production deployment to use Supabase:
 - `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
 
 ---
@@ -416,7 +422,8 @@ A `position: fixed; inset: 0` element at `z-index: 100` covers the entire viewpo
 | [`docs/tools/prompt-architect.md`](docs/tools/prompt-architect.md) | Token counter implementation, BPE approach, transformation pipeline |
 | [`docs/tools/invoice-generator.md`](docs/tools/invoice-generator.md) | Invoice fields, PDF generation, layout notes |
 | [`docs/tools/debt-optimizer.md`](docs/tools/debt-optimizer.md) | Short/Medium/Long plans, snowball + savings splits, PDF export |
-| [`docs/tools/fuel-tracker.md`](docs/tools/fuel-tracker.md) | Data model, sync code design, Supabase SQL, efficiency formulas |
+| [`docs/tools/fuel-tracker.md`](docs/tools/fuel-tracker.md) | Data model, sync code, account claim, API, efficiency formulas |
+| [`docs/auth.md`](docs/auth.md) | Supabase Auth, profiles, Fuel Tracker claim / restore |
 | [`docs/games/games.md`](docs/games/games.md) | Game architecture, useGameState hook, all three game mechanics |
 
 ---
@@ -424,7 +431,7 @@ A `position: fixed; inset: 0` element at `z-index: 100` covers the entire viewpo
 ## Contributing
 
 Open an issue or pull request on GitHub. Contributions welcome for:
-- New utility tools (must be 100% client-side, no auth required)
+- New utility tools (prefer client-side processing; optional auth only when clearly valuable)
 - Article corrections or additions
 - Bug fixes
 - Accessibility improvements

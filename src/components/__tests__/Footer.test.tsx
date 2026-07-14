@@ -42,7 +42,7 @@ describe('Footer — structure', () => {
 
   it('renders the privacy tagline', () => {
     render(<Footer />);
-    expect(screen.getByText(/privacy.first design/i)).toBeInTheDocument();
+    expect(screen.getByText(/privacy-first · optional accounts/i)).toBeInTheDocument();
   });
 
   it('renders the copyright notice with current year', () => {

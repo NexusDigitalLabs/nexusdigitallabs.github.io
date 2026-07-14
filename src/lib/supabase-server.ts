@@ -1,9 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
 
 /**
- * Creates a Supabase client with the service role key.
+ * Creates a Supabase client with the service role key (admin).
  * Only call this from server-side code (Route Handlers, Server Components, Server Actions).
  * Never expose this client or its key to the browser.
+ *
+ * For user-session auth (Google / magic link), use:
+ * - `createBrowserSupabaseClient` from `@/lib/supabase/client`
+ * - `createServerSupabaseAuthClient` from `@/lib/supabase/server`
  */
 export function createServerSupabaseClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
+import AuthMenu, { AuthMenuMobile } from '@/components/AuthMenu';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type BadgeColor = 'violet' | 'emerald' | 'sky' | 'amber' | 'blue' | 'slate';
@@ -145,6 +146,8 @@ export default function Header() {
 
           <ThemeToggle />
 
+          <AuthMenu />
+
           <button
             className="md:hidden p-2 transition-colors"
             style={{ color: 'var(--ndl-muted)' }}
@@ -174,6 +177,12 @@ export default function Header() {
                 {label}
               </Link>
             ))}
+            <div className="pt-2" style={{ borderTop: '1px solid var(--ndl-border)' }}>
+              <p className="text-[0.65rem] font-semibold tracking-widest uppercase mb-2.5" style={{ color: 'var(--ndl-faint)' }}>
+                Account
+              </p>
+              <AuthMenuMobile onNavigate={() => setMobileOpen(false)} />
+            </div>
             <div className="pt-2" style={{ borderTop: '1px solid var(--ndl-border)' }}>
               <p className="text-[0.65rem] font-semibold tracking-widest uppercase mb-2.5" style={{ color: 'var(--ndl-faint)' }}>
                 Theme

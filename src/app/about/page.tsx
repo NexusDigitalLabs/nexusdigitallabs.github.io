@@ -18,7 +18,7 @@ const PRINCIPLES = [
     dot: 'bg-blue-400',
     ring: 'bg-blue-500/15 border-blue-500/25',
     title: 'Privacy by default',
-    desc: 'No tracking cookies. Tools that stay client-side never send your data anywhere. GDPR/CCPA compliant.',
+    desc: 'Client-side tools keep your work private. Optional accounts use auth cookies only when you sign in. GDPR/CCPA conscious.',
   },
   {
     color: 'violet',
@@ -122,7 +122,7 @@ export default function AboutPage() {
                 The web doesn&apos;t need more bloated SaaS platforms. It needs sharp, single-purpose tools that do exactly what they say — fast, privately, and without unnecessary friction.
               </p>
               <p className="text-slate-400 font-light leading-relaxed text-sm sm:text-base mt-4">
-                Most tools run entirely in your browser — nothing leaves your device. Where cross-device sync is needed (like the Fuel Tracker), only an anonymous code is used. No email. No password. No personal profiles.
+                Most tools run entirely in your browser — nothing leaves your device. Fuel Tracker can sync via an anonymous code with no account. Sign-in is optional: link a garage to your account if you want restore-on-login.
               </p>
             </ScrollReveal>
             <ScrollReveal delay={120}>
@@ -200,8 +200,8 @@ export default function AboutPage() {
           <div className="space-y-6 max-w-2xl">
             {[
               { q: 'Who built NexusDigitalLabs?', a: 'NexusDigitalLabs is an independent software studio. The tools, articles, and games on this site are built and maintained by a small team of developers focused on building useful things without unnecessary complexity.' },
-              { q: 'Are the tools free to use?', a: 'Yes — core tools are free to use with no account required. We believe good tools should be accessible to everyone. We may introduce optional premium features down the road, but the core functionality will always remain free.' },
-              { q: 'Do you collect any user data?', a: 'For most tools, all processing happens inside your browser — nothing is sent to any server. Tools that sync data between devices (like the Fuel Tracker) use an anonymous code only — no email, name, or personal details are stored. Our analytics (Umami) records only aggregate page view counts — no personally identifiable information, no session tracking, no fingerprinting.' },
+              { q: 'Are the tools free to use?', a: 'Yes — core tools are free to use with no account required. Optional sign-in unlocks extras such as linking a Fuel Tracker garage to your account. We may introduce premium features later, but core functionality stays free.' },
+              { q: 'Do you collect any user data?', a: 'Most tools process everything in your browser. Fuel Tracker stores vehicles and fill-ups under a sync code you choose (no email required). If you sign in, we store account profile data (email, display name, avatar) via Supabase Auth, and optional garage linking associates that code with your account. Analytics (Umami) and our page counters are aggregate only. See the Privacy Policy for details.' },
               { q: 'Can I suggest a tool or feature?', a: 'Yes. Use the Contact page to send a suggestion. We build what we find genuinely useful, so real-world requests from real users carry a lot of weight in what gets prioritised next.' },
               { q: 'How do I report a bug or request a feature?', a: 'Use the Contact page to send us a message. We review every submission and prioritise based on real-world impact and frequency of request.' },
               { q: 'Why not use a popular framework like WordPress or Webflow?', a: "WordPress and Webflow solve the wrong problem for what we're building. Managed CMSs add complexity, cookies, plugin dependencies, and performance overhead that are simply unnecessary for a site built around lightweight, client-side tools. Next.js and React give us full control with zero compromise on speed or privacy." },
