@@ -845,13 +845,10 @@ export default function FuelTrackerClient() {
             >
               {CURRENCIES.map(c => <option key={c.code} value={c.code}>{c.code}</option>)}
             </select>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.125rem' }}>
-              <button type="button" onClick={() => setShowSettings(s => !s)}
-                style={{ ...S.btn('rgba(255,255,255,0.3)'), padding: '0.375rem 0.75rem' }}>
-                ⚙ Settings
-              </button>
-              <span style={{ fontSize: '0.5625rem', color: '#475569', letterSpacing: '0.02em' }}>sync code · email · export · delete</span>
-            </div>
+            <button type="button" onClick={() => setShowSettings(s => !s)}
+              style={{ ...S.btn('rgba(255,255,255,0.3)'), padding: '0.375rem 0.75rem' }}>
+              ⚙ Settings
+            </button>
           </div>
         </div>
       </div>
