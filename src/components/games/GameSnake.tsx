@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useGameState } from '@/hooks/useGameState';
 import UsernameGate from './UsernameGate';
+import GameHelpModal from './GameHelpModal';
 
 const CELL = 20;
 
@@ -38,6 +39,7 @@ export default function GameSnake() {
   // UI state
   const [dispScore, setDispScore] = useState(0);
   const [dispBest,  setDispBest]  = useState(0);
+  const [showHelp, setShowHelp] = useState(false);
   const [overlay, setOverlay] = useState<OverlayState>({
     title: 'Snake',
     sub: 'Arrow keys, WASD, or D-pad to move',
@@ -266,6 +268,24 @@ export default function GameSnake() {
 
   return (
     <>
+      <GameHelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} title="Snake">
+        <p style={{ marginBottom: '1rem' }}>
+          Guide the snake to eat food and grow longer. The game ends if you hit a <strong>wall</strong> or your own <strong>tail</strong>. Every food item you eat increases your score and the snake speeds up slightly.
+        </p>
+        <p style={{ fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>Controls</p>
+        <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem', marginBottom: '1rem' }}>
+          <li><strong>Arrow keys</strong> or <strong>W / A / S / D</strong> — change direction</li>
+          <li><strong>D-pad</strong> — on touch screens (shown automatically)</li>
+          <li><strong>Swipe on canvas</strong> — also works on touch</li>
+        </ul>
+        <p style={{ fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>Rules</p>
+        <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+          <li>You cannot reverse direction (180°) instantly</li>
+          <li>The snake wraps — no wait, it doesn&apos;t: hitting the wall ends the game</li>
+          <li>Each food eaten = +1 point and the snake grows by one segment</li>
+        </ul>
+      </GameHelpModal>
+
       <div style={{ borderBottom: '1px solid #e2e8f0', background: '#fff' }}>
         <div className="max-w-lg mx-auto px-6 py-5">
           <div className="flex items-center justify-between">
@@ -273,9 +293,22 @@ export default function GameSnake() {
               <Link href="/games/" className={`${slbl} hover:text-slate-600 transition-colors no-underline`}>← Games</Link>
               <h1 className="text-xl font-bold text-slate-900 mt-1">Snake</h1>
             </div>
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowHelp(true)}
+                title="How to play"
+                style={{
+                  border: '1px solid #e2e8f0', background: '#fff',
+                  width: '36px', height: '36px', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '0.875rem', fontWeight: 700, color: '#64748b',
+                }}
+              >
+                ?
+              </button>
               {[{ label: 'Score', val: dispScore }, { label: 'Best', val: dispBest }].map(({ label, val }) => (
-                <div key={label} style={{ border: '1px solid #e2e8f0', background: '#fff', padding: '0.5rem 1rem', textAlign: 'center', minWidth: '90px' }}>
+                <div key={label} style={{ border: '1px solid #e2e8f0', background: '#fff', padding: '0.5rem 1rem', textAlign: 'center', minWidth: '80px' }}>
                   <div className="text-[0.5625rem] font-bold tracking-[0.1em] uppercase text-slate-400">{label}</div>
                   <div className="text-xl font-extrabold text-slate-900 leading-tight">{val}</div>
                 </div>

@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { useGameState } from '@/hooks/useGameState';
 import UsernameGate from './UsernameGate';
+import GameHelpModal from './GameHelpModal';
 
 // ── Tile colour palette ────────────────────────────────────────────────────────
 const TILE_STYLE: Record<number, { bg: string; fg: string }> = {
@@ -127,6 +128,8 @@ export default function Game2048() {
   const [best, setBest] = useState(0);
   const [overlay, setOverlay] = useState<Overlay>({ title: '2048', sub: 'Merge tiles to reach 2048', titleColor: '#0f172a' });
   const [started, setStarted] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
+  const gridRef = useRef<HTMLDivElement>(null);
 
   // Init best after load
   useEffect(() => {
@@ -188,9 +191,11 @@ export default function Game2048() {
     return () => window.removeEventListener('keydown', handler);
   }, [started, move]);
 
-  // Touch/swipe input
+  // Touch/swipe input — scoped to the game grid to avoid intercepting header link taps
   useEffect(() => {
     if (!started) return;
+    const el = gridRef.current;
+    if (!el) return;
     let tx0 = 0, ty0 = 0;
     const onStart = (e: TouchEvent) => { tx0 = e.touches[0].clientX; ty0 = e.touches[0].clientY; };
     const onEnd = (e: TouchEvent) => {
@@ -200,9 +205,9 @@ export default function Game2048() {
       if (Math.abs(dx) > Math.abs(dy)) move(dx > 0 ? 'right' : 'left');
       else move(dy > 0 ? 'down' : 'up');
     };
-    document.addEventListener('touchstart', onStart, { passive: true });
-    document.addEventListener('touchend', onEnd, { passive: true });
-    return () => { document.removeEventListener('touchstart', onStart); document.removeEventListener('touchend', onEnd); };
+    el.addEventListener('touchstart', onStart, { passive: true });
+    el.addEventListener('touchend', onEnd, { passive: true });
+    return () => { el.removeEventListener('touchstart', onStart); el.removeEventListener('touchend', onEnd); };
   }, [started, move]);
 
   if (!loaded) return null;
@@ -212,6 +217,25 @@ export default function Game2048() {
 
   return (
     <>
+      <GameHelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} title="2048">
+        <p style={{ marginBottom: '1rem' }}>
+          Slide tiles on a <strong>4×4 grid</strong> using arrow keys or swipe gestures. When two tiles with the same number collide, they <strong>merge into one</strong>.
+        </p>
+        <p style={{ fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>Goal</p>
+        <p style={{ marginBottom: '1rem' }}>Create a tile with the value <strong style={{ color: '#16a34a' }}>2048</strong> to win. You can keep playing after winning to beat your high score.</p>
+        <p style={{ fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>Controls</p>
+        <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+          <li><strong>Arrow keys</strong> or <strong>W / A / S / D</strong> — move all tiles</li>
+          <li><strong>Swipe</strong> — on touch screens</li>
+        </ul>
+        <p style={{ marginTop: '1rem', marginBottom: '0.5rem', fontWeight: 700, color: '#0f172a' }}>Tips</p>
+        <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+          <li>Keep your highest tile in a corner</li>
+          <li>Build a chain of descending tiles along one edge</li>
+          <li>Avoid filling the board — plan moves ahead</li>
+        </ul>
+      </GameHelpModal>
+
       {/* Page header */}
       <div style={{ borderBottom: '1px solid #e2e8f0', background: '#fff' }}>
         <div className="max-w-lg mx-auto px-6 py-5">
@@ -220,9 +244,22 @@ export default function Game2048() {
               <Link href="/games/" className={`${slbl} hover:text-slate-600 transition-colors no-underline`}>← Games</Link>
               <h1 className="text-xl font-bold text-slate-900 mt-1">2048</h1>
             </div>
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowHelp(true)}
+                title="How to play"
+                style={{
+                  border: '1px solid #e2e8f0', background: '#fff',
+                  width: '36px', height: '36px', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '0.875rem', fontWeight: 700, color: '#64748b',
+                }}
+              >
+                ?
+              </button>
               {[{ label: 'Score', val: score }, { label: 'Best', val: best }].map(({ label, val }) => (
-                <div key={label} style={{ border: '1px solid #e2e8f0', background: '#fff', padding: '0.5rem 1rem', textAlign: 'center', minWidth: '90px' }}>
+                <div key={label} style={{ border: '1px solid #e2e8f0', background: '#fff', padding: '0.5rem 1rem', textAlign: 'center', minWidth: '80px' }}>
                   <div className="text-[0.5625rem] font-bold tracking-[0.1em] uppercase text-slate-400">{label}</div>
                   <div className="text-xl font-extrabold text-slate-900 leading-tight">{val.toLocaleString('en-US')}</div>
                 </div>
@@ -247,7 +284,7 @@ export default function Game2048() {
         </div>
 
         {/* Grid wrapper */}
-        <div style={{ position: 'relative', display: 'inline-block', width: 'min(360px, calc(100vw - 2.5rem))' }}>
+        <div ref={gridRef} style={{ position: 'relative', display: 'inline-block', width: 'min(360px, calc(100vw - 2.5rem))' }}>
           {/* Grid */}
           <div
             style={{

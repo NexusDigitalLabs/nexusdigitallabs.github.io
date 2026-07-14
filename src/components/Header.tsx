@@ -122,7 +122,7 @@ export default function Header() {
                 key={href}
                 href={href}
                 className={`text-sm transition-colors duration-200 no-underline relative group ${
-                  active ? 'text-white' : 'text-slate-400 hover:text-white'
+                  active ? 'text-white' : 'text-slate-300 hover:text-white'
                 }`}
               >
                 {label}
@@ -172,7 +172,7 @@ export default function Header() {
               <Link
                 key={href}
                 href={href}
-                className="text-sm text-slate-300 hover:text-white transition-colors no-underline"
+                className="text-sm text-slate-200 hover:text-white transition-colors no-underline"
                 onClick={() => setMobileOpen(false)}
               >
                 {label}

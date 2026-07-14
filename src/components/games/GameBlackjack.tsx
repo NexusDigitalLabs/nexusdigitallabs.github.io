@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useGameState } from '@/hooks/useGameState';
 import UsernameGate from './UsernameGate';
+import GameHelpModal from './GameHelpModal';
 
 // ── Card engine types ──────────────────────────────────────────────────────────
 interface Card {
@@ -98,6 +99,7 @@ export default function GameBlackjack() {
   const [phase,  setPhase]  = useState<Phase>('idle');
   const [dealerRevealed, setDealerRevealed] = useState(false);
   const [result, setResult] = useState<{ outcome: Outcome; delta: number } | null>(null);
+  const [showHelp, setShowHelp] = useState(false);
 
   // We need mutable refs for the dealer draw timeout chain
   const deckRef    = useRef<Card[]>([]);
@@ -293,6 +295,36 @@ export default function GameBlackjack() {
     <>
       <style>{`@keyframes cardDeal{from{transform:scale(0.8) translateY(-8px);opacity:0.6;}to{transform:scale(1) translateY(0);opacity:1;}}`}</style>
 
+      <GameHelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} title="Blackjack">
+        <p style={{ marginBottom: '1rem' }}>
+          Beat the dealer by getting a hand total closer to <strong>21</strong> without going over (<em>busting</em>). You start with <strong>500 chips</strong>.
+        </p>
+        <p style={{ fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>Card Values</p>
+        <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem', marginBottom: '1rem' }}>
+          <li><strong>Number cards (2–10)</strong> — face value</li>
+          <li><strong>J / Q / K</strong> — worth 10</li>
+          <li><strong>Ace</strong> — worth 11, reduced to 1 if you would bust</li>
+        </ul>
+        <p style={{ fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>Actions</p>
+        <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem', marginBottom: '1rem' }}>
+          <li><strong>Hit</strong> — draw another card</li>
+          <li><strong>Stand</strong> — end your turn, dealer plays</li>
+          <li><strong>Double Down</strong> — double your bet, receive exactly one more card, then stand</li>
+        </ul>
+        <p style={{ fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>Dealer Rules</p>
+        <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem', marginBottom: '1rem' }}>
+          <li>Dealer must draw until reaching <strong>17 or higher</strong></li>
+          <li>Dealer&apos;s first card is hidden until you stand</li>
+        </ul>
+        <p style={{ fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>Payouts</p>
+        <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+          <li><strong style={{ color: '#16a34a' }}>Blackjack</strong> (Ace + 10-value on deal) — pays 1.5× your bet</li>
+          <li><strong>Win</strong> — pays 1× your bet</li>
+          <li><strong>Push</strong> (tie) — bet returned</li>
+          <li><strong>Bust / Lose</strong> — bet forfeited</li>
+        </ul>
+      </GameHelpModal>
+
       <div style={{ borderBottom: '1px solid #e2e8f0', background: '#fff' }}>
         <div className="max-w-lg mx-auto px-6 py-5">
           <div className="flex items-center justify-between">
@@ -300,9 +332,22 @@ export default function GameBlackjack() {
               <Link href="/games/" className={`${slbl} hover:text-slate-600 transition-colors no-underline`}>← Games</Link>
               <h1 className="text-xl font-bold text-slate-900 mt-1">Blackjack</h1>
             </div>
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowHelp(true)}
+                title="How to play"
+                style={{
+                  border: '1px solid #e2e8f0', background: '#fff',
+                  width: '36px', height: '36px', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '0.875rem', fontWeight: 700, color: '#64748b',
+                }}
+              >
+                ?
+              </button>
               {[{ label: 'Chips', val: chips.toLocaleString('en-US') }, { label: 'Best', val: best.toString() }].map(({ label, val }) => (
-                <div key={label} style={{ border: '1px solid #e2e8f0', background: '#fff', padding: '0.5rem 1rem', textAlign: 'center', minWidth: '90px' }}>
+                <div key={label} style={{ border: '1px solid #e2e8f0', background: '#fff', padding: '0.5rem 1rem', textAlign: 'center', minWidth: '80px' }}>
                   <div className="text-[0.5625rem] font-bold tracking-[0.1em] uppercase text-slate-400">{label}</div>
                   <div className="text-xl font-extrabold text-slate-900 leading-tight">{val}</div>
                 </div>
