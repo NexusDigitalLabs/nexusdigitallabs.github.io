@@ -1,8 +1,12 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import {
+  type FillUp, type FillStats,
+  genCode, normaliseCode, fmt, fmtCurrency, fmtDate, friendlyError, computeStats,
+} from '@/lib/fuel-utils';
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// ── Local types ────────────────────────────────────────────────────────────────
 interface Vehicle {
   id: string;
   make: string;
@@ -10,27 +14,6 @@ interface Vehicle {
   year: number | null;
   fuel_type: string;
   nickname: string | null;
-}
-
-interface FillUp {
-  id: string;
-  vehicle_id: string;
-  fill_date: string;
-  odometer: number;
-  litres: number;
-  price_per_litre: number;
-  is_partial: boolean;
-  notes: string | null;
-}
-
-interface FillStats {
-  fill: FillUp;
-  distance: number | null;
-  l100km: number | null;
-  kmpl: number | null;
-  totalCost: number;
-  costPerKm: number | null;
-  isFirst: boolean;
 }
 
 const CURRENCIES = [
@@ -43,59 +26,7 @@ const CURRENCIES = [
 
 const FUEL_TYPES = ['Petrol', 'Diesel', 'Hybrid', 'Electric', 'LPG'];
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-/** Translate raw Supabase / network errors into something actionable */
-function friendlyError(raw: string): string {
-  const r = raw.toLowerCase();
-  if (r.includes('invalid api key') || r.includes('invalid_key') || r.includes('apikey')) {
-    return 'API key error — check that SUPABASE_SERVICE_ROLE_KEY is correctly set in your Vercel environment variables.';
-  }
-  if (r.includes('does not exist') || r.includes('42p01') || r.includes('relation')) {
-    return 'Database tables not found. Run the SQL migration from docs/tools/fuel-tracker.md in your Supabase SQL editor first.';
-  }
-  if (r.includes('jwt') || r.includes('unauthorized') || r.includes('401')) {
-    return 'Authentication failed — the Supabase service role key may be expired or incorrect.';
-  }
-  return raw;
-}
-
-function genCode(nickname: string): string {
-  const clean = nickname.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 20) || 'mygarage';
-  const suffix = Math.random().toString(36).slice(2, 6);
-  // Normalise to lowercase so the code is case-insensitive on re-entry
-  return `${clean}-${suffix}`.toLowerCase();
-}
-
-function normaliseCode(raw: string): string {
-  return raw.trim().toLowerCase();
-}
-
-function fmt(n: number, dp = 2) { return n.toFixed(dp); }
-function fmtCurrency(sym: string, n: number) { return `${sym}${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`; }
-function fmtDate(d: string) { return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }); }
-
-function computeStats(fills: FillUp[]): FillStats[] {
-  const sorted = [...fills].sort((a, b) =>
-    new Date(a.fill_date).getTime() - new Date(b.fill_date).getTime() ||
-    a.odometer - b.odometer
-  );
-  return sorted.map((fill, i) => {
-    const totalCost = fill.litres * fill.price_per_litre;
-    if (i === 0) return { fill, distance: null, l100km: null, kmpl: null, totalCost, costPerKm: null, isFirst: true };
-    if (fill.is_partial) return { fill, distance: null, l100km: null, kmpl: null, totalCost, costPerKm: null, isFirst: false };
-    const dist = fill.odometer - sorted[i - 1].odometer;
-    if (dist <= 0) return { fill, distance: null, l100km: null, kmpl: null, totalCost, costPerKm: null, isFirst: false };
-    return {
-      fill, distance: dist,
-      l100km: (fill.litres / dist) * 100,
-      kmpl: dist / fill.litres,
-      totalCost,
-      costPerKm: totalCost / dist,
-      isFirst: false,
-    };
-  });
-}
+// (genCode, normaliseCode, fmt, fmtCurrency, fmtDate, friendlyError, computeStats imported from @/lib/fuel-utils)
 
 // ── SVG Line Chart ────────────────────────────────────────────────────────────
 function LineChart({ points, color, yLabel }: {
