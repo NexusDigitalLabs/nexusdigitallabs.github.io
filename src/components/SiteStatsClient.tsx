@@ -84,10 +84,10 @@ export default function SiteStatsClient() {
   }, []);
 
   const STATS = [
-    { value: totalViews, label: 'Site Visits',       suffix: '',  isLoading: loading, delay: 0   },
-    { value: 4,          label: 'Tools Built',        suffix: '',  isLoading: false,   delay: 120 },
-    { value: 5,          label: 'Articles Published', suffix: '',  isLoading: false,   delay: 240 },
-    { value: 3,          label: 'Games Available',    suffix: '',  isLoading: false,   delay: 360 },
+    { value: totalViews, label: 'People helped',  suffix: '',  isLoading: loading, delay: 0   },
+    { value: 4,          label: 'Free tools',      suffix: '',  isLoading: false,   delay: 120 },
+    { value: 5,          label: 'Articles',        suffix: '',  isLoading: false,   delay: 240 },
+    { value: 3,          label: 'Browser games',   suffix: '',  isLoading: false,   delay: 360 },
   ] as const;
 
   return (

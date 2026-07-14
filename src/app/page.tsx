@@ -115,12 +115,12 @@ export default function HomePage() {
               Software Studio — Open to new projects
             </Link>
             <h1 className="ndl-anim-2 text-5xl sm:text-6xl lg:text-[3.8rem] xl:text-[4.2rem] font-light tracking-tight leading-[1.12] mb-6">
-              Minimalist tools<br />
-              built for the<br />
-              <span className="ndl-gradient-text">modern developer.</span>
+              Free tools that<br />
+              make everyday<br />
+              <span className="ndl-gradient-text">tasks effortless.</span>
             </h1>
             <p className="ndl-anim-3 text-slate-400 font-light max-w-md leading-relaxed text-base sm:text-lg mb-10">
-              Zero-bloat digital products engineered for speed, privacy, and utility. 100% client-side. Zero cookies.
+              Free tools built for everyone — fast, private, and simple. No account needed. No cookies. No tracking.
             </p>
             <div className="ndl-anim-4 flex flex-col sm:flex-row items-start gap-3">
               <Link
@@ -256,10 +256,10 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-6 sm:px-10 py-5">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
             {[
-              ['Architecture', '100% Client-Side'],
-              ['Privacy', 'Zero Cookies'],
-              ['Stack', 'React · Tailwind'],
-              ['Hosting', 'Vercel'],
+              ['Privacy', 'No cookies, ever'],
+              ['Access', 'Free forever'],
+              ['Data', 'Stays on your device'],
+              ['Signup', 'Never required'],
             ].map(([label, val], i) => (
               <ScrollReveal key={label} delay={i * 120}>
                 <div className="space-y-1">
@@ -276,7 +276,7 @@ export default function HomePage() {
       <section id="tools" className="py-20 sm:py-28">
         <div className="max-w-7xl mx-auto px-6 sm:px-10">
           <ScrollReveal className="mb-14">
-            <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-3">Production Utilities</p>
+            <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-3">Free Tools</p>
             <h2 className="text-2xl sm:text-3xl font-light text-white tracking-tight">Tools built for engineers.</h2>
           </ScrollReveal>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">

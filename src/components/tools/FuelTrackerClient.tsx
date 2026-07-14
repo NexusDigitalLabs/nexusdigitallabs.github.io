@@ -756,7 +756,7 @@ export default function FuelTrackerClient() {
           <style>{`
             @media (max-width: 680px) {
               .vehicle-setup-grid { grid-template-columns: 1fr !important; }
-              .sync-code-panel { order: -1; }
+              .sync-code-panel { order: -1; position: static !important; }
             }
           `}</style>
 
@@ -857,7 +857,31 @@ export default function FuelTrackerClient() {
 
       <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '1.5rem' }}>
 
+        {/* ── No vehicles found — recovery state ───────────────────────── */}
+        {vehicles.length === 0 && !dataLoading && (
+          <div style={{ ...S.card, textAlign: 'center', padding: '2.5rem 1.5rem', marginBottom: '1.5rem' }}>
+            <p style={{ fontSize: '1.5rem', marginBottom: '0.75rem' }}>🚗</p>
+            <p style={{ fontSize: '0.9375rem', fontWeight: 700, color: '#f8fafc', marginBottom: '0.5rem' }}>No vehicles found</p>
+            <p style={{ fontSize: '0.8125rem', color: '#64748b', marginBottom: '1.25rem', lineHeight: 1.6 }}>
+              Your sync code is valid but no vehicles are saved yet — or they may have been saved under a different code.
+            </p>
+            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <button type="button"
+                onClick={() => userCode && fetchVehicles(userCode)}
+                style={{ ...S.btnFill('#f59e0b'), padding: '0.5rem 1.25rem', fontSize: '0.75rem' }}>
+                Retry
+              </button>
+              <button type="button"
+                onClick={() => { setShowAddVehicle(true); setStep('vehicle_setup'); }}
+                style={{ ...S.btn('rgba(255,255,255,0.2)'), padding: '0.5rem 1.25rem', fontSize: '0.75rem' }}>
+                + Add Vehicle
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* ── Vehicle switcher ──────────────────────────────────────────── */}
+        {vehicles.length > 0 && (
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '1.5rem' }}>
           {vehicles.map(v => (
             <button key={v.id} type="button"
@@ -879,6 +903,7 @@ export default function FuelTrackerClient() {
             + Add Vehicle
           </button>
         </div>
+        )}
 
         {/* ── Vehicle info ──────────────────────────────────────────────── */}
         {(() => {

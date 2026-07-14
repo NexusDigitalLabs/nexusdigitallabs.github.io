@@ -85,7 +85,7 @@ export default function Footer() {
         <div className="pt-8 border-t border-slate-800/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-600">
           <span>© {new Date().getFullYear()} NexusDigitalLabs. All rights reserved.</span>
           <MetricCounter />
-          <span>React · Zero cookies · No tracking</span>
+          <span>Zero cookies · No tracking · No ads</span>
         </div>
       </div>
     </footer>

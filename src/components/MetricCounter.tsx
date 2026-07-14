@@ -32,9 +32,8 @@ export default function MetricCounter() {
   if (count === null) return null;
 
   return (
-    <span className="font-mono text-xs text-slate-400 select-none">
-      {'// Views: '}
-      {count.toLocaleString()}
+    <span className="text-xs text-slate-500 select-none">
+      {count.toLocaleString()} visitors
     </span>
   );
 }
