@@ -203,7 +203,7 @@ export default function AboutPage() {
               { q: 'Are the tools really free forever?', a: 'Yes. Every tool on this site is free with no usage limits, no account required, and no paywalled features. The site is deployed on Vercel\'s free tier, which means zero infrastructure cost and no financial pressure to monetise.' },
               { q: 'Do you collect any user data?', a: 'No. None of the tools transmit user input to any server. Everything runs client-side in your browser. We use privacy-respecting, cookie-free analytics (Umami) that records only aggregate page view counts — no personally identifiable information, no session tracking, no fingerprinting.' },
               { q: 'Can I suggest a tool or feature?', a: 'Yes. Use the Contact page to send a suggestion. We build what we find genuinely useful, so real-world requests from real users carry a lot of weight in what gets prioritised next.' },
-              { q: 'Is the source code available?', a: 'The site\'s source code is publicly visible on GitHub. You can view the implementation, raise issues, or propose changes via pull request. See the GitHub link in the header or footer.' },
+              { q: 'How do I report a bug or request a feature?', a: 'Use the Contact page to send us a message. We review every submission and prioritise based on real-world impact and frequency of request.' },
               { q: 'Why not use a popular framework like WordPress or Webflow?', a: "WordPress and Webflow solve the wrong problem for what we're building. Managed CMSs add complexity, cookies, plugin dependencies, and performance overhead that are simply unnecessary for a site built around lightweight, client-side tools. Next.js and React give us full control with zero compromise on speed or privacy." },
             ].map(({ q, a }, i) => (
               <ScrollReveal key={q} delay={i * 60}>
@@ -236,14 +236,6 @@ export default function AboutPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
               </Link>
-              <a
-                href="https://github.com/NexusDigitalLabs"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-slate-300 hover:text-white border border-slate-700 hover:border-slate-500 text-sm font-medium px-7 py-3 rounded-xl transition-all duration-200 hover:-translate-y-0.5 no-underline"
-              >
-                View on GitHub
-              </a>
             </div>
           </ScrollReveal>
         </div>

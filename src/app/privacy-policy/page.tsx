@@ -119,7 +119,6 @@ export default function PrivacyPolicyPage() {
               {href.replace(/\//g, '')}
             </Link>
           ))}
-          <a href="https://github.com/NexusDigitalLabs" target="_blank" rel="noopener noreferrer" className="hover:text-slate-300 transition-colors no-underline">GitHub</a>
         </div>
       </footer>
     </div>

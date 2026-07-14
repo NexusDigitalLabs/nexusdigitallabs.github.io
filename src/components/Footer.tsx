@@ -77,13 +77,7 @@ export default function Footer() {
           </div>
 
           <FooterColumn heading="Company" links={COMPANY_LINKS} />
-          <FooterColumn
-            heading="Tools"
-            links={[
-              ...TOOL_LINKS,
-              { href: 'https://github.com/NexusDigitalLabs', label: 'GitHub ↗', external: true },
-            ]}
-          />
+          <FooterColumn heading="Tools" links={TOOL_LINKS} />
           <FooterColumn heading="Games" links={GAME_LINKS} />
         </div>
 
