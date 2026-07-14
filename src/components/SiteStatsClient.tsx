@@ -54,14 +54,14 @@ function AnimatedStat({
 
   return (
     <div>
-      <p className="text-xl font-bold text-white tabular-nums">
+      <p className="text-xl font-bold tabular-nums" style={{ color: 'var(--ndl-text)' }}>
         {isLoading ? (
           <span className="ndl-skeleton inline-block w-14 h-5 rounded align-middle" />
         ) : (
           `${prefix}${count.toLocaleString()}${suffix}`
         )}
       </p>
-      <p className="text-xs text-slate-500 mt-0.5">{label}</p>
+      <p className="text-xs mt-0.5" style={{ color: 'var(--ndl-faint)' }}>{label}</p>
     </div>
   );
 }

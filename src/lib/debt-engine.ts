@@ -60,6 +60,21 @@ export interface RunwayRow {
   savingsTotal: number;
   pivotMonth: boolean;
   debtDetail: Array<{ id: string; outstanding: number }>;
+  /** Per-debt payment applied this month (snowball focus). */
+  paymentsByDebt: Array<{ id: string; amount: number }>;
+}
+
+/** How much to put toward each debt under a plan, and when. */
+export interface DebtAllocation {
+  id: string;
+  name: string;
+  outstanding: number;
+  /** Typical monthly amount to put toward this debt while it is the snowball focus. */
+  monthlyPut: number;
+  startMonth: number;
+  endMonth: number | null;
+  months: number;
+  totalPaid: number;
 }
 
 export interface PlanResult {
@@ -73,6 +88,8 @@ export interface PlanResult {
   /** Monthly amount set aside for savings. */
   monthlySavings: number;
   runway: RunwayRow[];
+  /** Ordered snowball schedule: which debt gets how much, and for which months. */
+  allocations: DebtAllocation[];
   debtFreeMonth: number | null;
   /** Total saved by the month debts are cleared (0 if never cleared). */
   totalSavedByDebtFree: number;
@@ -111,6 +128,57 @@ export function fmtPct(pct: number): string {
   return `${Math.round(pct * 100)}%`;
 }
 
+function buildAllocations(
+  debts: Debt[],
+  monthlyDebtBudget: number,
+  runway: RunwayRow[],
+): DebtAllocation[] {
+  const nameById = new Map(debts.map((d) => [d.id, d.name || 'Unnamed debt']));
+  const outstandingById = new Map(debts.map((d) => [d.id, d.outstanding]));
+
+  // Preserve snowball order (lowest outstanding first)
+  const order = [...debts]
+    .filter((d) => d.outstanding > 0)
+    .sort((a, b) => a.outstanding - b.outstanding)
+    .map((d) => d.id);
+
+  const stats = new Map<string, { totalPaid: number; startMonth: number | null; endMonth: number | null; focusMonths: number[] }>();
+  for (const id of order) {
+    stats.set(id, { totalPaid: 0, startMonth: null, endMonth: null, focusMonths: [] });
+  }
+
+  for (const row of runway) {
+    for (const p of row.paymentsByDebt) {
+      const s = stats.get(p.id);
+      if (!s) continue;
+      s.totalPaid += p.amount;
+      if (s.startMonth === null) s.startMonth = row.month;
+      s.endMonth = row.month;
+      if (p.amount > 0.5) s.focusMonths.push(row.month);
+    }
+  }
+
+  return order.map((id) => {
+    const s = stats.get(id)!;
+    const months = s.startMonth && s.endMonth ? s.endMonth - s.startMonth + 1 : 0;
+    // Typical monthly put = full debt budget while this is the focus (partial last month allowed)
+    const monthlyPut = months > 0
+      ? Math.min(monthlyDebtBudget, s.totalPaid / Math.max(1, s.focusMonths.length || months))
+      : 0;
+
+    return {
+      id,
+      name: nameById.get(id) ?? 'Unnamed debt',
+      outstanding: outstandingById.get(id) ?? 0,
+      monthlyPut: Math.round(monthlyPut * 100) / 100,
+      startMonth: s.startMonth ?? 1,
+      endMonth: s.endMonth,
+      months,
+      totalPaid: Math.round(s.totalPaid * 100) / 100,
+    };
+  });
+}
+
 // ── Single-plan simulator (snowball — lowest outstanding first) ────────────────
 function simulatePlan(
   freeCashFlow: number,
@@ -120,7 +188,9 @@ function simulatePlan(
   const monthlyDebtBudget = freeCashFlow * split.debtPct;
   const monthlySavings = freeCashFlow * split.savingsPct;
 
-  const base: Omit<PlanResult, 'runway' | 'debtFreeMonth' | 'totalSavedByDebtFree' | 'isViable' | 'error'> = {
+  const empty = (
+    extra: Partial<PlanResult> & { isViable: boolean; error: string | null },
+  ): PlanResult => ({
     horizon: split.horizon,
     label: split.label,
     description: split.description,
@@ -128,17 +198,18 @@ function simulatePlan(
     savingsPct: split.savingsPct,
     monthlyDebtBudget,
     monthlySavings,
-  };
+    runway: [],
+    allocations: [],
+    debtFreeMonth: null,
+    totalSavedByDebtFree: 0,
+    ...extra,
+  });
 
   if (monthlyDebtBudget < 0.5) {
-    return {
-      ...base,
-      runway: [],
-      debtFreeMonth: null,
-      totalSavedByDebtFree: 0,
+    return empty({
       isViable: false,
       error: 'Debt budget is too small to make progress. Increase income or reduce expenses.',
-    };
+    });
   }
 
   let sim = debts
@@ -147,14 +218,10 @@ function simulatePlan(
     .sort((a, b) => a.outstanding - b.outstanding);
 
   if (sim.length === 0) {
-    return {
-      ...base,
-      runway: [],
-      debtFreeMonth: null,
-      totalSavedByDebtFree: 0,
+    return empty({
       isViable: false,
       error: 'All outstanding balances are zero.',
-    };
+    });
   }
 
   const runway: RunwayRow[] = [];
@@ -165,14 +232,15 @@ function simulatePlan(
     if (sim.length === 0) break;
 
     let budget = monthlyDebtBudget;
+    const paymentsByDebt: Array<{ id: string; amount: number }> = [];
 
-    // Apply full debt budget snowball-style (lowest balance first)
     for (const d of sim) {
       if (budget < 0.5) break;
       if (d.outstanding > 0) {
         const pay = Math.min(d.outstanding, budget);
         d.outstanding -= pay;
         budget -= pay;
+        if (pay > 0) paymentsByDebt.push({ id: d.id, amount: pay });
       }
     }
 
@@ -198,15 +266,24 @@ function simulatePlan(
       savingsTotal,
       pivotMonth: isPivot,
       debtDetail: sim.map((d) => ({ id: d.id, outstanding: d.outstanding })),
+      paymentsByDebt,
     });
   }
 
   const pivotRow = runway.find((r) => r.pivotMonth);
   const totalSavedByDebtFree = pivotRow?.savingsTotal ?? 0;
+  const allocations = buildAllocations(debts, monthlyDebtBudget, runway);
 
   return {
-    ...base,
+    horizon: split.horizon,
+    label: split.label,
+    description: split.description,
+    debtPct: split.debtPct,
+    savingsPct: split.savingsPct,
+    monthlyDebtBudget,
+    monthlySavings,
     runway,
+    allocations,
     debtFreeMonth,
     totalSavedByDebtFree,
     isViable: debtFreeMonth !== null,

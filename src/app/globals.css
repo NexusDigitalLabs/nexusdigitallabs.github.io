@@ -1,14 +1,62 @@
 @import "tailwindcss";
 
-/* ── Design tokens ────────────────────────────────────────────────────────── */
-:root {
-  --ndl-bg:        #0b0f19;
-  --ndl-surface:   #0f1420;
-  --ndl-border:    rgba(30, 41, 59, 0.8);
-  --ndl-text:      #f8fafc;
-  --ndl-muted:     #94a3b8;
-  --ndl-accent:    #3b82f6;
-  --ndl-accent-2:  #6366f1;
+/* ── Design tokens — dark (default) ───────────────────────────────────────── */
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+  --ndl-bg:          #0b0f19;
+  --ndl-surface:     #0f1420;
+  --ndl-surface-2:   #141b2b;
+  --ndl-header:      rgba(11, 15, 25, 0.93);
+  --ndl-border:      rgba(30, 41, 59, 0.8);
+  --ndl-border-soft: rgba(51, 65, 85, 0.55);
+  --ndl-text:        #f8fafc;
+  --ndl-text-secondary: #cbd5e1;
+  --ndl-muted:       #94a3b8;
+  --ndl-faint:       #64748b;
+  --ndl-accent:      #3b82f6;
+  --ndl-accent-2:    #6366f1;
+  --ndl-scrollbar-track: #0b0f19;
+  --ndl-scrollbar-thumb: #1e293b;
+  --ndl-skeleton-a:  #1a2234;
+  --ndl-skeleton-b:  #243050;
+  --ndl-card-bg:     rgba(15, 23, 42, 0.4);
+  --ndl-input-bg:    rgba(255, 255, 255, 0.05);
+  --ndl-input-border: rgba(255, 255, 255, 0.1);
+  --ndl-footer-bg:   rgba(15, 23, 42, 0.2);
+  --ndl-dot:         rgba(148, 163, 184, 0.055);
+  --ndl-gradient-a:  #ffffff;
+  --ndl-gradient-b:  #93c5fd;
+  --ndl-gradient-c:  #a5b4fc;
+}
+
+/* ── Design tokens — light ────────────────────────────────────────────────── */
+[data-theme="light"] {
+  color-scheme: light;
+  --ndl-bg:          #f8fafc;
+  --ndl-surface:     #ffffff;
+  --ndl-surface-2:   #f1f5f9;
+  --ndl-header:      rgba(248, 250, 252, 0.92);
+  --ndl-border:      rgba(15, 23, 42, 0.1);
+  --ndl-border-soft: rgba(15, 23, 42, 0.08);
+  --ndl-text:        #0f172a;
+  --ndl-text-secondary: #334155;
+  --ndl-muted:       #64748b;
+  --ndl-faint:       #94a3b8;
+  --ndl-accent:      #2563eb;
+  --ndl-accent-2:    #4f46e5;
+  --ndl-scrollbar-track: #e2e8f0;
+  --ndl-scrollbar-thumb: #94a3b8;
+  --ndl-skeleton-a:  #e2e8f0;
+  --ndl-skeleton-b:  #f1f5f9;
+  --ndl-card-bg:     rgba(255, 255, 255, 0.95);
+  --ndl-input-bg:    #ffffff;
+  --ndl-input-border: rgba(15, 23, 42, 0.15);
+  --ndl-footer-bg:   rgba(241, 245, 249, 0.8);
+  --ndl-dot:         rgba(15, 23, 42, 0.06);
+  --ndl-gradient-a:  #0f172a;
+  --ndl-gradient-b:  #2563eb;
+  --ndl-gradient-c:  #4f46e5;
 }
 
 /* ── Base reset ───────────────────────────────────────────────────────────── */
@@ -23,12 +71,13 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* ── Custom scrollbar ─────────────────────────────────────────────────────── */
 ::-webkit-scrollbar       { width: 5px; }
-::-webkit-scrollbar-track { background: #0b0f19; }
-::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+::-webkit-scrollbar-track { background: var(--ndl-scrollbar-track); }
+::-webkit-scrollbar-thumb { background: var(--ndl-scrollbar-thumb); border-radius: 3px; }
 
 /* ── Hero ambient orbs ────────────────────────────────────────────────────── */
 .ndl-orb {
@@ -58,6 +107,15 @@ body {
   animation-duration: 11s;
   animation-delay: 2.5s;
 }
+[data-theme="light"] .ndl-orb-1 {
+  background: radial-gradient(circle, rgba(37,99,235,0.12) 0%, transparent 65%);
+}
+[data-theme="light"] .ndl-orb-2 {
+  background: radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 65%);
+}
+[data-theme="light"] .ndl-orb-3 {
+  background: radial-gradient(circle, rgba(59,130,246,0.06) 0%, transparent 65%);
+}
 @keyframes ndlOrbPulse {
   0%, 100% { opacity: 0.55; transform: scale(1); }
   50%       { opacity: 0.90; transform: scale(1.07); }
@@ -65,13 +123,13 @@ body {
 
 /* ── Dot grid background ──────────────────────────────────────────────────── */
 .ndl-dot-grid {
-  background-image: radial-gradient(circle, rgba(148,163,184,0.055) 1px, transparent 1px);
+  background-image: radial-gradient(circle, var(--ndl-dot) 1px, transparent 1px);
   background-size: 28px 28px;
 }
 
 /* ── Shimmer gradient text ────────────────────────────────────────────────── */
 .ndl-gradient-text {
-  background: linear-gradient(120deg, #ffffff 0%, #93c5fd 38%, #a5b4fc 62%, #ffffff 100%);
+  background: linear-gradient(120deg, var(--ndl-gradient-a) 0%, var(--ndl-gradient-b) 38%, var(--ndl-gradient-c) 62%, var(--ndl-gradient-a) 100%);
   background-size: 260% 100%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -133,7 +191,7 @@ body {
 
 /* ── Skeleton shimmer ─────────────────────────────────────────────────────── */
 .ndl-skeleton {
-  background: linear-gradient(90deg, #1a2234 25%, #243050 50%, #1a2234 75%);
+  background: linear-gradient(90deg, var(--ndl-skeleton-a) 25%, var(--ndl-skeleton-b) 50%, var(--ndl-skeleton-a) 75%);
   background-size: 200% 100%;
   animation: ndlSkeletonShimmer 1.5s ease-in-out infinite;
   border-radius: 4px;
@@ -149,4 +207,68 @@ body {
 }
 .ndl-card:hover {
   transform: translateY(-2px);
+}
+
+/* ── Light-theme bridge for existing Tailwind dark utilities ─────────────── */
+/* Remaps the site's common dark palette without rewriting every page.        */
+[data-theme="light"] .text-white,
+[data-theme="light"] .text-slate-50,
+[data-theme="light"] .text-slate-100 {
+  color: var(--ndl-text) !important;
+}
+[data-theme="light"] .text-slate-200,
+[data-theme="light"] .text-slate-300 {
+  color: var(--ndl-text-secondary) !important;
+}
+[data-theme="light"] .text-slate-400 {
+  color: var(--ndl-muted) !important;
+}
+[data-theme="light"] .text-slate-500,
+[data-theme="light"] .text-slate-600,
+[data-theme="light"] .text-slate-700 {
+  color: var(--ndl-faint) !important;
+}
+[data-theme="light"] .hover\:text-white:hover,
+[data-theme="light"] .group:hover .group-hover\:text-white {
+  color: var(--ndl-text) !important;
+}
+[data-theme="light"] .border-slate-800,
+[data-theme="light"] .border-slate-800\/40,
+[data-theme="light"] .border-slate-800\/50,
+[data-theme="light"] .border-slate-800\/60,
+[data-theme="light"] .border-slate-800\/80,
+[data-theme="light"] .border-slate-700,
+[data-theme="light"] .border-slate-700\/50,
+[data-theme="light"] .border-slate-600,
+[data-theme="light"] .border-slate-600\/40,
+[data-theme="light"] .border-slate-600\/55 {
+  border-color: var(--ndl-border) !important;
+}
+[data-theme="light"] .hover\:border-slate-500:hover,
+[data-theme="light"] .hover\:border-slate-600\/55:hover,
+[data-theme="light"] .group:hover .group-hover\:border-slate-600\/55 {
+  border-color: rgba(15, 23, 42, 0.22) !important;
+}
+[data-theme="light"] .bg-slate-900,
+[data-theme="light"] .bg-slate-900\/20,
+[data-theme="light"] .bg-slate-900\/30,
+[data-theme="light"] .bg-slate-900\/40,
+[data-theme="light"] .bg-slate-900\/50,
+[data-theme="light"] .bg-slate-950 {
+  background-color: var(--ndl-card-bg) !important;
+}
+[data-theme="light"] .bg-black\/40,
+[data-theme="light"] .bg-black\/50 {
+  background-color: rgba(15, 23, 42, 0.04) !important;
+}
+[data-theme="light"] .placeholder\:text-slate-600::placeholder {
+  color: var(--ndl-faint) !important;
+}
+
+/* ── Footer link hover ────────────────────────────────────────────────────── */
+.ndl-footer-link {
+  color: var(--ndl-muted);
+}
+.ndl-footer-link:hover {
+  color: var(--ndl-text);
 }

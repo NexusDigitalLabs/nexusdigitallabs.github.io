@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import ThemeToggle from '@/components/ThemeToggle';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type BadgeColor = 'violet' | 'emerald' | 'sky' | 'amber' | 'blue' | 'slate';
@@ -88,8 +89,13 @@ export default function Header() {
 
   return (
     <header
-      className="sticky top-0 z-[9999] border-b border-slate-800/80"
-      style={{ background: 'rgba(11,15,25,0.93)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)' }}
+      className="sticky top-0 z-[9999] border-b"
+      style={{
+        background: 'var(--ndl-header)',
+        borderColor: 'var(--ndl-border)',
+        backdropFilter: 'blur(14px)',
+        WebkitBackdropFilter: 'blur(14px)',
+      }}
     >
       {/* ── Desktop bar ── */}
       <div className="max-w-7xl mx-auto px-6 sm:px-10 h-16 flex items-center gap-6">
@@ -102,7 +108,9 @@ export default function Header() {
           >
             N
           </div>
-          <span className="text-sm font-semibold tracking-tight text-white">NexusDigitalLabs</span>
+          <span className="text-sm font-semibold tracking-tight" style={{ color: 'var(--ndl-text)' }}>
+            NexusDigitalLabs
+          </span>
         </Link>
 
         {/* Centered nav links (hidden on mobile) */}
@@ -113,9 +121,8 @@ export default function Header() {
               <Link
                 key={href}
                 href={href}
-                className={`text-sm transition-colors duration-200 no-underline relative group ${
-                  active ? 'text-white' : 'text-slate-300 hover:text-white'
-                }`}
+                className="text-sm transition-colors duration-200 no-underline relative group"
+                style={{ color: active ? 'var(--ndl-text)' : 'var(--ndl-muted)' }}
               >
                 {label}
                 <span
@@ -128,7 +135,7 @@ export default function Header() {
           })}
         </nav>
 
-        {/* Right: badge + hamburger */}
+        {/* Right: badge + theme + hamburger */}
         <div className="ml-auto flex items-center gap-3 flex-shrink-0">
           {badge && (
             <span className={`hidden md:inline-flex items-center text-xs font-medium px-3 py-1.5 rounded-lg whitespace-nowrap ${BADGE_CLASSES[badge.color]}`}>
@@ -136,8 +143,11 @@ export default function Header() {
             </span>
           )}
 
+          <ThemeToggle />
+
           <button
-            className="md:hidden p-2 text-slate-400 hover:text-white transition-colors"
+            className="md:hidden p-2 transition-colors"
+            style={{ color: 'var(--ndl-muted)' }}
             aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
             onClick={() => setMobileOpen((v) => !v)}
           >
@@ -148,18 +158,28 @@ export default function Header() {
 
       {/* ── Mobile drawer ── */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-slate-800/60" style={{ background: 'rgba(8,9,18,0.5)' }}>
+        <div
+          className="md:hidden border-t"
+          style={{ background: 'var(--ndl-surface)', borderColor: 'var(--ndl-border)' }}
+        >
           <nav className="max-w-7xl mx-auto px-6 py-5 flex flex-col gap-4">
             {NAV_LINKS.map(({ href, label }) => (
               <Link
                 key={href}
                 href={href}
-                className="text-sm text-slate-200 hover:text-white transition-colors no-underline"
+                className="text-sm transition-colors no-underline"
+                style={{ color: 'var(--ndl-text-secondary)' }}
                 onClick={() => setMobileOpen(false)}
               >
                 {label}
               </Link>
             ))}
+            <div className="pt-2" style={{ borderTop: '1px solid var(--ndl-border)' }}>
+              <p className="text-[0.65rem] font-semibold tracking-widest uppercase mb-2.5" style={{ color: 'var(--ndl-faint)' }}>
+                Theme
+              </p>
+              <ThemeToggle showLabels />
+            </div>
           </nav>
         </div>
       )}

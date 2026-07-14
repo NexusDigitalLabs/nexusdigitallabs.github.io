@@ -35,28 +35,28 @@ function todayStr() {
   return new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
-// ── Dark-theme design tokens ───────────────────────────────────────────────────
+// ── Theme-aware design tokens (CSS variables) ──────────────────────────────────
 const D = {
-  pageBg:       '#0b0f19',
-  cardBg:       'rgba(255,255,255,0.04)',
-  cardBgAlt:    'rgba(255,255,255,0.06)',
-  cardBorder:   'rgba(255,255,255,0.08)',
-  cardBorderHi: 'rgba(255,255,255,0.14)',
-  inputBg:      'rgba(255,255,255,0.05)',
-  inputBorder:  'rgba(255,255,255,0.1)',
-  inputFocus:   'rgba(255,255,255,0.9)',
-  sep:          'rgba(255,255,255,0.06)',
-  textPrimary:  '#f8fafc',
-  textSecondary:'#cbd5e1',
-  textMuted:    '#94a3b8',
-  textFaint:    '#64748b',
-  green:        '#4ade80',
+  pageBg:       'var(--ndl-bg)',
+  cardBg:       'var(--ndl-card-bg)',
+  cardBgAlt:    'var(--ndl-surface-2)',
+  cardBorder:   'var(--ndl-border)',
+  cardBorderHi: 'var(--ndl-border-soft)',
+  inputBg:      'var(--ndl-input-bg)',
+  inputBorder:  'var(--ndl-input-border)',
+  inputFocus:   'var(--ndl-accent)',
+  sep:          'var(--ndl-border-soft)',
+  textPrimary:  'var(--ndl-text)',
+  textSecondary:'var(--ndl-text-secondary)',
+  textMuted:    'var(--ndl-muted)',
+  textFaint:    'var(--ndl-faint)',
+  green:        '#16a34a',
   greenDark:    '#052e16',
-  blue:         '#60a5fa',
-  red:          '#f87171',
+  blue:         'var(--ndl-accent)',
+  red:          '#dc2626',
   redBg:        'rgba(239,68,68,0.08)',
   redBorder:    'rgba(239,68,68,0.25)',
-  accent:       '#2563eb',
+  accent:       'var(--ndl-accent)',
 } as const;
 
 const siBaseClass =
@@ -221,14 +221,6 @@ export default function DebtOptimizerClient() {
     }
   }, [result, selectedPlan]);
 
-  const payoffMonth = useCallback((id: string): number | null => {
-    if (!selectedPlan?.isViable) return null;
-    for (const row of selectedPlan.runway) {
-      if (!row.debtDetail.some((dd) => dd.id === id)) return row.month;
-    }
-    return null;
-  }, [selectedPlan]);
-
   return (
     <>
       <Script
@@ -265,10 +257,10 @@ export default function DebtOptimizerClient() {
 
       {/* ── MAIN LAYOUT ─────────────────────────────────────────────────────── */}
       <div className="max-w-7xl mx-auto px-6 sm:px-10 py-8">
-        <div className="flex gap-8 items-start flex-col lg:flex-row">
+        <div className="flex gap-10 lg:gap-14 items-start flex-col lg:flex-row">
 
           {/* ── LEFT: Inputs ─────────────────────────────────────────────────── */}
-          <div className="w-full lg:w-[380px] lg:shrink-0 lg:sticky lg:top-16 lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto">
+          <div className="w-full lg:w-[380px] lg:shrink-0 lg:sticky lg:top-16 lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto lg:pr-4">
 
             <div className="mb-6">
               <label className={lblBase} htmlFor={`${uid}-currency`}>Currency</label>
@@ -569,6 +561,20 @@ export default function DebtOptimizerClient() {
                             <span style={{ color: D.textFaint }}>Saved by then</span>
                             <span className="font-mono" style={{ color: D.textSecondary }}>{fmtC(plan.totalSavedByDebtFree, sym)}</span>
                           </div>
+                          {plan.allocations.length > 0 && (
+                            <div className="pt-1.5 mt-0.5 space-y-1" style={{ borderTop: `1px solid ${D.sep}` }}>
+                              <p className="text-[9px] font-semibold tracking-wide uppercase" style={{ color: D.textFaint }}>Put toward</p>
+                              {plan.allocations.slice(0, 3).map((a) => (
+                                <div key={a.id} className="flex justify-between gap-2 text-[10px]">
+                                  <span className="truncate" style={{ color: D.textMuted }}>{a.name}</span>
+                                  <span className="font-mono shrink-0" style={{ color: D.textSecondary }}>{fmtC(a.monthlyPut, sym)}/mo</span>
+                                </div>
+                              ))}
+                              {plan.allocations.length > 3 && (
+                                <p className="text-[10px]" style={{ color: D.textFaint }}>+{plan.allocations.length - 3} more</p>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </button>
                     );
@@ -591,37 +597,63 @@ export default function DebtOptimizerClient() {
                   ))}
                 </div>
 
-                {/* Payoff order */}
+                {/* Per-debt allocation for selected plan */}
                 <div className="mb-6" style={{ border: `1px solid ${D.cardBorder}`, background: D.cardBg, padding: '1rem 1.25rem' }}>
-                  <p className="text-[0.6875rem] font-bold tracking-[0.1em] uppercase mb-3" style={{ color: D.textFaint }}>
-                    Payoff Order <span className="font-normal normal-case tracking-normal">— lowest balance first · {selectedPlan.label} plan</span>
+                  <p className="text-[0.6875rem] font-bold tracking-[0.1em] uppercase mb-1" style={{ color: D.textFaint }}>
+                    What to Put Toward Each Debt
                   </p>
-                  {debts
-                    .filter((d) => d.outstanding > 0)
-                    .slice()
-                    .sort((a, b) => a.outstanding - b.outstanding)
-                    .map((d) => {
-                      const mo = payoffMonth(d.id);
-                      const pct = d.totalAmt > 0 ? Math.min(100, (d.outstanding / d.totalAmt) * 100) : 0;
-                      return (
-                        <div key={d.id} className="flex items-center justify-between gap-4 py-2.5" style={{ borderBottom: `1px solid ${D.sep}` }}>
+                  <p className="text-[11px] font-light mb-4" style={{ color: D.textMuted }}>
+                    {selectedPlan.label} plan · snowball order (lowest balance first). Put the full monthly debt budget toward one debt at a time until it is cleared, then roll to the next.
+                  </p>
+                  {selectedPlan.allocations.map((a, idx) => {
+                    const debt = debts.find((d) => d.id === a.id);
+                    const pct = debt && debt.totalAmt > 0
+                      ? Math.min(100, (debt.outstanding / debt.totalAmt) * 100)
+                      : 0;
+                    const monthRange = a.endMonth
+                      ? a.startMonth === a.endMonth
+                        ? `Month ${a.startMonth}`
+                        : `Months ${a.startMonth}–${a.endMonth}`
+                      : `From month ${a.startMonth}`;
+                    return (
+                      <div key={a.id} className="py-3" style={{ borderBottom: idx < selectedPlan.allocations.length - 1 ? `1px solid ${D.sep}` : undefined }}>
+                        <div className="flex items-start justify-between gap-4">
                           <div className="min-w-0 flex-1">
-                            <p className="text-sm font-medium truncate" style={{ color: D.textSecondary }}>{d.name || 'Unnamed debt'}</p>
-                            <div className="mt-1 h-[3px] overflow-hidden" style={{ width: '100%', background: D.sep }}>
+                            <div className="flex items-center gap-2 mb-1">
+                              <span
+                                className="text-[10px] font-bold tabular-nums w-5 h-5 flex items-center justify-center shrink-0"
+                                style={{ background: D.cardBgAlt, color: D.textFaint, border: `1px solid ${D.cardBorder}` }}
+                              >
+                                {idx + 1}
+                              </span>
+                              <p className="text-sm font-medium truncate" style={{ color: D.textSecondary }}>{a.name}</p>
+                            </div>
+                            <div className="mt-1 h-[3px] overflow-hidden ml-7" style={{ width: 'calc(100% - 1.75rem)', background: D.sep }}>
                               <div className="h-[3px] transition-all" style={{ width: `${pct.toFixed(1)}%`, background: D.textFaint }} />
                             </div>
-                            <p className="text-[10px] mt-0.5" style={{ color: D.textMuted }}>{fmtC(d.outstanding, sym)} of {fmtC(d.totalAmt, sym)}</p>
+                            <p className="text-[10px] mt-1 ml-7" style={{ color: D.textMuted }}>
+                              Outstanding {fmtC(a.outstanding, sym)}
+                              {debt ? ` of ${fmtC(debt.totalAmt, sym)}` : ''}
+                              {' · '}{monthRange}
+                            </p>
                           </div>
                           <div className="text-right shrink-0">
-                            {mo ? (
-                              <p className="text-[11px] font-semibold" style={{ color: D.green }}>Paid off mo. {mo}</p>
+                            <p className="text-sm font-semibold font-mono" style={{ color: D.textPrimary }}>
+                              {fmtC(a.monthlyPut, sym)}
+                              <span className="text-[10px] font-normal" style={{ color: D.textFaint }}>/mo</span>
+                            </p>
+                            {a.endMonth ? (
+                              <p className="text-[11px] font-semibold mt-0.5" style={{ color: D.green }}>
+                                Cleared month {a.endMonth}
+                              </p>
                             ) : (
-                              <p className="text-[11px]" style={{ color: D.textFaint }}>—</p>
+                              <p className="text-[11px] mt-0.5" style={{ color: D.textFaint }}>—</p>
                             )}
                           </div>
                         </div>
-                      );
-                    })}
+                      </div>
+                    );
+                  })}
                 </div>
 
                 {/* Month-by-month runway */}
@@ -731,13 +763,6 @@ function PdfContent({
   const totalDebt = debts.reduce((s, d) => s + d.outstanding, 0);
   const sortedDebts = [...debts].filter((d) => d.outstanding > 0).sort((a, b) => a.outstanding - b.outstanding);
 
-  const payoffMo = (id: string): number | null => {
-    for (const row of plan.runway) {
-      if (!row.debtDetail.some((dd) => dd.id === id)) return row.month;
-    }
-    return null;
-  };
-
   const shownRows = plan.runway.slice(0, 48);
 
   return (
@@ -821,32 +846,57 @@ function PdfContent({
         </tbody>
       </table>
 
+      <h2 style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#64748b', margin: '20px 0 8px', borderBottom: '1px solid #e2e8f0', paddingBottom: '4px' }}>
+        What to Put Toward Each Debt ({plan.label})
+      </h2>
+      <p style={{ fontSize: '9px', color: '#94a3b8', margin: '0 0 8px' }}>
+        Snowball order — put the monthly debt budget toward one balance at a time until cleared, then roll to the next.
+      </p>
+      <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '12px' }}>
+        <thead>
+          <tr>
+            {['#', 'Debt', 'Outstanding', 'Put Toward / Mo', 'Months', 'Cleared'].map((h, i) => (
+              <th key={h} style={{ padding: '5px 8px', fontSize: '8px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', background: '#f8fafc', borderBottom: '1px solid #0f172a', textAlign: i <= 1 ? 'left' : 'right' }}>{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {plan.allocations.map((a, idx) => (
+            <tr key={a.id}>
+              <td style={{ padding: '5px 8px', borderBottom: '1px solid #f1f5f9', fontSize: '10px' }}>{idx + 1}</td>
+              <td style={{ padding: '5px 8px', borderBottom: '1px solid #f1f5f9', fontSize: '10px' }}>{a.name}</td>
+              <td style={{ padding: '5px 8px', borderBottom: '1px solid #f1f5f9', fontSize: '10px', textAlign: 'right' }}>{fmtC(a.outstanding, sym)}</td>
+              <td style={{ padding: '5px 8px', borderBottom: '1px solid #f1f5f9', fontSize: '10px', textAlign: 'right', fontWeight: 600 }}>{fmtC(a.monthlyPut, sym)}</td>
+              <td style={{ padding: '5px 8px', borderBottom: '1px solid #f1f5f9', fontSize: '10px', textAlign: 'right' }}>
+                {a.endMonth ? (a.startMonth === a.endMonth ? `${a.startMonth}` : `${a.startMonth}–${a.endMonth}`) : '—'}
+              </td>
+              <td style={{ padding: '5px 8px', borderBottom: '1px solid #f1f5f9', fontSize: '10px', textAlign: 'right' }}>{a.endMonth ? `Month ${a.endMonth}` : '—'}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
       <h2 style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#64748b', margin: '20px 0 8px', borderBottom: '1px solid #e2e8f0', paddingBottom: '4px' }}>Loans &amp; Credit Cards</h2>
       <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '12px' }}>
         <thead>
           <tr>
-            {['Name', 'Total / Limit', 'Outstanding', 'Paid Off'].map((h, i) => (
+            {['Name', 'Total / Limit', 'Outstanding'].map((h, i) => (
               <th key={h} style={{ padding: '5px 8px', fontSize: '8px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', background: '#f8fafc', borderBottom: '1px solid #0f172a', textAlign: i === 0 ? 'left' : 'right' }}>{h}</th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {sortedDebts.map((d) => {
-            const mo = payoffMo(d.id);
-            return (
-              <tr key={d.id}>
-                <td style={{ padding: '5px 8px', borderBottom: '1px solid #f1f5f9', fontSize: '10px' }}>{d.name}</td>
-                <td style={{ padding: '5px 8px', borderBottom: '1px solid #f1f5f9', fontSize: '10px', textAlign: 'right' }}>{fmtC(d.totalAmt, sym)}</td>
-                <td style={{ padding: '5px 8px', borderBottom: '1px solid #f1f5f9', fontSize: '10px', textAlign: 'right' }}>{fmtC(d.outstanding, sym)}</td>
-                <td style={{ padding: '5px 8px', borderBottom: '1px solid #f1f5f9', fontSize: '10px', textAlign: 'right' }}>{mo ? `Month ${mo}` : '—'}</td>
-              </tr>
-            );
-          })}
+          {sortedDebts.map((d) => (
+            <tr key={d.id}>
+              <td style={{ padding: '5px 8px', borderBottom: '1px solid #f1f5f9', fontSize: '10px' }}>{d.name}</td>
+              <td style={{ padding: '5px 8px', borderBottom: '1px solid #f1f5f9', fontSize: '10px', textAlign: 'right' }}>{fmtC(d.totalAmt, sym)}</td>
+              <td style={{ padding: '5px 8px', borderBottom: '1px solid #f1f5f9', fontSize: '10px', textAlign: 'right' }}>{fmtC(d.outstanding, sym)}</td>
+            </tr>
+          ))}
           <tr style={{ fontWeight: 700, borderTop: '2px solid #0f172a' }}>
             <td style={{ padding: '5px 8px', fontSize: '10px' }}>Total</td>
             <td style={{ padding: '5px 8px', fontSize: '10px' }} />
             <td style={{ padding: '5px 8px', fontSize: '10px', textAlign: 'right' }}>{fmtC(totalDebt, sym)}</td>
-            <td />
           </tr>
         </tbody>
       </table>

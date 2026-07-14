@@ -2,7 +2,8 @@
 
 exports[`Footer — snapshot > matches snapshot 1`] = `
 <footer
-  class="border-t border-slate-800/50 bg-slate-900/20"
+  class="border-t"
+  style="border-color: var(--ndl-border); background: var(--ndl-footer-bg);"
 >
   <div
     class="max-w-7xl mx-auto px-6 sm:px-10 py-14"
@@ -23,20 +24,23 @@ exports[`Footer — snapshot > matches snapshot 1`] = `
             N
           </div>
           <span
-            class="text-sm font-semibold text-white"
+            class="text-sm font-semibold"
+            style="color: var(--ndl-text);"
           >
             NexusDigitalLabs
           </span>
         </div>
         <p
-          class="text-xs text-slate-500 font-light leading-relaxed max-w-[200px]"
+          class="text-xs font-light leading-relaxed max-w-[200px]"
+          style="color: var(--ndl-faint);"
         >
           Minimalist web utilities and developer tools built for speed, privacy, and utility.
         </p>
       </div>
       <div>
         <p
-          class="text-[10px] font-semibold tracking-widest text-slate-500 uppercase mb-4"
+          class="text-[10px] font-semibold tracking-widest uppercase mb-4"
+          style="color: var(--ndl-faint);"
         >
           Company
         </p>
@@ -44,19 +48,19 @@ exports[`Footer — snapshot > matches snapshot 1`] = `
           class="space-y-3"
         >
           <a
-            class="block text-sm text-slate-400 hover:text-white transition-colors no-underline"
+            class="ndl-footer-link block text-sm transition-colors no-underline"
             href="/about"
           >
             About
           </a>
           <a
-            class="block text-sm text-slate-400 hover:text-white transition-colors no-underline"
+            class="ndl-footer-link block text-sm transition-colors no-underline"
             href="/contact"
           >
             Contact
           </a>
           <a
-            class="block text-sm text-slate-400 hover:text-white transition-colors no-underline"
+            class="ndl-footer-link block text-sm transition-colors no-underline"
             href="/privacy-policy"
           >
             Privacy Policy
@@ -65,7 +69,8 @@ exports[`Footer — snapshot > matches snapshot 1`] = `
       </div>
       <div>
         <p
-          class="text-[10px] font-semibold tracking-widest text-slate-500 uppercase mb-4"
+          class="text-[10px] font-semibold tracking-widest uppercase mb-4"
+          style="color: var(--ndl-faint);"
         >
           Tools
         </p>
@@ -73,25 +78,25 @@ exports[`Footer — snapshot > matches snapshot 1`] = `
           class="space-y-3"
         >
           <a
-            class="block text-sm text-slate-400 hover:text-white transition-colors no-underline"
+            class="ndl-footer-link block text-sm transition-colors no-underline"
             href="/tools/prompt-architect"
           >
             Prompt Architect
           </a>
           <a
-            class="block text-sm text-slate-400 hover:text-white transition-colors no-underline"
+            class="ndl-footer-link block text-sm transition-colors no-underline"
             href="/tools/invoice-generator"
           >
             Invoice Generator
           </a>
           <a
-            class="block text-sm text-slate-400 hover:text-white transition-colors no-underline"
+            class="ndl-footer-link block text-sm transition-colors no-underline"
             href="/tools/debt-optimizer"
           >
             Debt Optimizer
           </a>
           <a
-            class="block text-sm text-slate-400 hover:text-white transition-colors no-underline"
+            class="ndl-footer-link block text-sm transition-colors no-underline"
             href="/tools/fuel-tracker"
           >
             Fuel Tracker
@@ -100,7 +105,8 @@ exports[`Footer — snapshot > matches snapshot 1`] = `
       </div>
       <div>
         <p
-          class="text-[10px] font-semibold tracking-widest text-slate-500 uppercase mb-4"
+          class="text-[10px] font-semibold tracking-widest uppercase mb-4"
+          style="color: var(--ndl-faint);"
         >
           Games
         </p>
@@ -108,25 +114,25 @@ exports[`Footer — snapshot > matches snapshot 1`] = `
           class="space-y-3"
         >
           <a
-            class="block text-sm text-slate-400 hover:text-white transition-colors no-underline"
+            class="ndl-footer-link block text-sm transition-colors no-underline"
             href="/games"
           >
             All Games
           </a>
           <a
-            class="block text-sm text-slate-400 hover:text-white transition-colors no-underline"
+            class="ndl-footer-link block text-sm transition-colors no-underline"
             href="/games/2048"
           >
             2048
           </a>
           <a
-            class="block text-sm text-slate-400 hover:text-white transition-colors no-underline"
+            class="ndl-footer-link block text-sm transition-colors no-underline"
             href="/games/snake"
           >
             Snake
           </a>
           <a
-            class="block text-sm text-slate-400 hover:text-white transition-colors no-underline"
+            class="ndl-footer-link block text-sm transition-colors no-underline"
             href="/games/blackjack"
           >
             Blackjack
@@ -135,7 +141,8 @@ exports[`Footer — snapshot > matches snapshot 1`] = `
       </div>
     </div>
     <div
-      class="pt-8 border-t border-slate-800/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-600"
+      class="pt-8 border-t flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px]"
+      style="border-color: var(--ndl-border-soft); color: var(--ndl-faint);"
     >
       <span>
         © 

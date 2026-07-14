@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import Header from '../Header';
+import { ThemeProvider } from '../ThemeProvider';
 
 // Header uses usePathname from next/navigation
 vi.mock('next/navigation', () => ({
@@ -10,14 +11,22 @@ vi.mock('next/navigation', () => ({
 import { usePathname } from 'next/navigation';
 const mockPathname = usePathname as ReturnType<typeof vi.fn>;
 
+function renderHeader() {
+  return render(
+    <ThemeProvider>
+      <Header />
+    </ThemeProvider>,
+  );
+}
+
 describe('Header — structure', () => {
   it('renders the NexusDigitalLabs logo text', () => {
-    render(<Header />);
+    renderHeader();
     expect(screen.getByText('NexusDigitalLabs')).toBeInTheDocument();
   });
 
   it('renders all 5 nav links', () => {
-    render(<Header />);
+    renderHeader();
     expect(screen.getAllByRole('link', { name: /tools/i }).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByRole('link', { name: /articles/i }).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByRole('link', { name: /games/i }).length).toBeGreaterThanOrEqual(1);
@@ -26,7 +35,7 @@ describe('Header — structure', () => {
   });
 
   it('logo links to /', () => {
-    render(<Header />);
+    renderHeader();
     const logoLink = screen.getAllByRole('link').find(
       (el) => el.getAttribute('href') === '/',
     );
@@ -34,33 +43,65 @@ describe('Header — structure', () => {
   });
 
   it('renders the hamburger menu button', () => {
-    render(<Header />);
+    renderHeader();
     expect(screen.getByRole('button', { name: /open menu/i })).toBeInTheDocument();
+  });
+
+  it('renders the color theme radiogroup', () => {
+    renderHeader();
+    expect(screen.getByRole('radiogroup', { name: /color theme/i })).toBeInTheDocument();
+  });
+});
+
+describe('Header — theme toggle', () => {
+  it('exposes Light, Dark, and System options', () => {
+    renderHeader();
+    expect(screen.getByRole('radio', { name: /light/i })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /dark/i })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /system/i })).toBeInTheDocument();
+  });
+
+  it('switches to light theme when Light is clicked', () => {
+    renderHeader();
+    fireEvent.click(screen.getByRole('radio', { name: /^light$/i }));
+    expect(screen.getByRole('radio', { name: /^light$/i })).toHaveAttribute('aria-checked', 'true');
+    expect(document.documentElement.getAttribute('data-theme')).toBe('light');
+  });
+
+  it('switches to dark theme when Dark is clicked', () => {
+    renderHeader();
+    fireEvent.click(screen.getByRole('radio', { name: /^dark$/i }));
+    expect(screen.getByRole('radio', { name: /^dark$/i })).toHaveAttribute('aria-checked', 'true');
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
   });
 });
 
 describe('Header — mobile menu', () => {
   it('opens mobile drawer when hamburger is clicked', () => {
-    render(<Header />);
+    renderHeader();
     const menuBtn = screen.getByRole('button', { name: /open menu/i });
     fireEvent.click(menuBtn);
-    // After opening, button label changes to "Close menu"
     expect(screen.getByRole('button', { name: /close menu/i })).toBeInTheDocument();
   });
 
   it('shows nav links in mobile drawer after opening', () => {
-    render(<Header />);
+    renderHeader();
     fireEvent.click(screen.getByRole('button', { name: /open menu/i }));
-    // Mobile nav links appear in drawer
     const allGameLinks = screen.getAllByRole('link', { name: /games/i });
-    expect(allGameLinks.length).toBeGreaterThan(1); // desktop + mobile
+    expect(allGameLinks.length).toBeGreaterThan(1);
+  });
+
+  it('shows theme section in mobile drawer', () => {
+    renderHeader();
+    fireEvent.click(screen.getByRole('button', { name: /open menu/i }));
+    expect(screen.getByText(/^theme$/i)).toBeInTheDocument();
   });
 
   it('closes mobile drawer when hamburger is clicked again', () => {
-    render(<Header />);
+    renderHeader();
     const menuBtn = screen.getByRole('button', { name: /open menu/i });
-    fireEvent.click(menuBtn); // open
-    fireEvent.click(screen.getByRole('button', { name: /close menu/i })); // close
+    fireEvent.click(menuBtn);
+    fireEvent.click(screen.getByRole('button', { name: /close menu/i }));
     expect(screen.getByRole('button', { name: /open menu/i })).toBeInTheDocument();
   });
 });
@@ -68,19 +109,19 @@ describe('Header — mobile menu', () => {
 describe('Header — active state badge', () => {
   it('shows "Prompt Architect" badge on the prompt architect page', () => {
     mockPathname.mockReturnValue('/tools/prompt-architect/');
-    render(<Header />);
+    renderHeader();
     expect(screen.getByText('Prompt Architect')).toBeInTheDocument();
   });
 
   it('shows "Invoice Generator" badge on the invoice page', () => {
     mockPathname.mockReturnValue('/tools/invoice-generator/');
-    render(<Header />);
+    renderHeader();
     expect(screen.getByText('Invoice Generator')).toBeInTheDocument();
   });
 
   it('shows no badge on the homepage', () => {
     mockPathname.mockReturnValue('/');
-    render(<Header />);
+    renderHeader();
     expect(screen.queryByText(/prompt architect/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/invoice generator/i)).not.toBeInTheDocument();
   });
@@ -89,7 +130,7 @@ describe('Header — active state badge', () => {
 describe('Header — snapshot', () => {
   it('matches snapshot on homepage', () => {
     mockPathname.mockReturnValue('/');
-    const { container } = render(<Header />);
+    const { container } = renderHeader();
     expect(container.firstChild).toMatchSnapshot();
   });
 });

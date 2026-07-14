@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import Script from 'next/script';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { ThemeProvider } from '@/components/ThemeProvider';
+import { THEME_BOOT_SCRIPT } from '@/lib/theme';
 import './globals.css';
 
 // ── Fonts ──────────────────────────────────────────────────────────────────
@@ -68,9 +70,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable}`}
       style={{ scrollBehavior: 'smooth' }}
+      suppressHydrationWarning
     >
       <head>
-        {/* ── Google Tag Manager — replace GTM-XXXXXXX with your container ID ── */}
+        {/* Apply theme before paint to avoid flash of wrong theme */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
+        {/* ── Google Tag Manager ── */}
         <Script id="gtm-head" strategy="beforeInteractive">{`
           (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
           new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -81,7 +86,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body
         className="min-h-screen flex flex-col"
-        style={{ background: '#0b0f19', color: '#f8fafc', fontFamily: 'var(--font-geist-sans), system-ui, sans-serif' }}
+        style={{ fontFamily: 'var(--font-geist-sans), system-ui, sans-serif' }}
       >
         {/* GTM noscript fallback */}
         <noscript>
@@ -92,13 +97,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           />
         </noscript>
 
-        <Header />
+        <ThemeProvider>
+          <Header />
 
-        <main className="flex-1">
-          {children}
-        </main>
+          <main className="flex-1">
+            {children}
+          </main>
 
-        <Footer />
+          <Footer />
+        </ThemeProvider>
 
         {/* Umami Analytics — cookie-free, GDPR/CCPA compliant */}
         <Script

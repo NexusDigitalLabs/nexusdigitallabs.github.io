@@ -103,6 +103,18 @@ describe('DebtOptimizerClient — calculation with default values', () => {
       expect(screen.getByRole('button', { name: /^long/i })).toBeInTheDocument();
     }, { timeout: 2000 });
   });
+
+  it('shows per-debt put-toward amounts after calculation', async () => {
+    const user = userEvent.setup();
+    render(<DebtOptimizerClient />);
+
+    await user.click(screen.getByRole('button', { name: /calculate plan/i }));
+
+    await waitFor(() => {
+      expect(screen.getAllByText(/what to put toward each debt/i).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/cleared month/i).length).toBeGreaterThan(0);
+    }, { timeout: 2000 });
+  });
 });
 
 // ── Adding items ────────────────────────────────────────────────────────────────

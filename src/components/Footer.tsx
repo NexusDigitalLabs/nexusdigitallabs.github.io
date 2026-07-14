@@ -24,7 +24,12 @@ const GAME_LINKS = [
 function FooterColumn({ heading, links }: { heading: string; links: { href: string; label: string; external?: boolean }[] }) {
   return (
     <div>
-      <p className="text-[10px] font-semibold tracking-widest text-slate-500 uppercase mb-4">{heading}</p>
+      <p
+        className="text-[10px] font-semibold tracking-widest uppercase mb-4"
+        style={{ color: 'var(--ndl-faint)' }}
+      >
+        {heading}
+      </p>
       <div className="space-y-3">
         {links.map(({ href, label, external }) => (
           external ? (
@@ -33,7 +38,7 @@ function FooterColumn({ heading, links }: { heading: string; links: { href: stri
               href={href}
               target="_blank"
               rel="noopener noreferrer"
-              className="block text-sm text-slate-400 hover:text-white transition-colors no-underline"
+              className="ndl-footer-link block text-sm transition-colors no-underline"
             >
               {label}
             </a>
@@ -41,7 +46,7 @@ function FooterColumn({ heading, links }: { heading: string; links: { href: stri
             <Link
               key={href}
               href={href}
-              className="block text-sm text-slate-400 hover:text-white transition-colors no-underline"
+              className="ndl-footer-link block text-sm transition-colors no-underline"
             >
               {label}
             </Link>
@@ -54,13 +59,14 @@ function FooterColumn({ heading, links }: { heading: string; links: { href: stri
 
 export default function Footer() {
   return (
-    <footer className="border-t border-slate-800/50 bg-slate-900/20">
+    <footer
+      className="border-t"
+      style={{ borderColor: 'var(--ndl-border)', background: 'var(--ndl-footer-bg)' }}
+    >
       <div className="max-w-7xl mx-auto px-6 sm:px-10 py-14">
 
-        {/* ── Columns ── */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-10 mb-12">
 
-          {/* Brand */}
           <div className="col-span-2 sm:col-span-1 space-y-4">
             <div className="flex items-center gap-2.5">
               <div
@@ -69,9 +75,11 @@ export default function Footer() {
               >
                 N
               </div>
-              <span className="text-sm font-semibold text-white">NexusDigitalLabs</span>
+              <span className="text-sm font-semibold" style={{ color: 'var(--ndl-text)' }}>
+                NexusDigitalLabs
+              </span>
             </div>
-            <p className="text-xs text-slate-500 font-light leading-relaxed max-w-[200px]">
+            <p className="text-xs font-light leading-relaxed max-w-[200px]" style={{ color: 'var(--ndl-faint)' }}>
               Minimalist web utilities and developer tools built for speed, privacy, and utility.
             </p>
           </div>
@@ -81,8 +89,10 @@ export default function Footer() {
           <FooterColumn heading="Games" links={GAME_LINKS} />
         </div>
 
-        {/* ── Bottom bar ── */}
-        <div className="pt-8 border-t border-slate-800/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-600">
+        <div
+          className="pt-8 border-t flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px]"
+          style={{ borderColor: 'var(--ndl-border-soft)', color: 'var(--ndl-faint)' }}
+        >
           <span>© {new Date().getFullYear()} NexusDigitalLabs. All rights reserved.</span>
           <MetricCounter />
           <span>No tracking cookies · Privacy-first design</span>

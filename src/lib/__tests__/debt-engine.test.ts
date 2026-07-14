@@ -184,6 +184,26 @@ describe('runEngine — multi-plan happy path', () => {
     expect(earlyRow).toBeDefined();
     expect(earlyRow?.debtDetail[0]?.id).toBe('d2'); // loan remains after card is cleared
   });
+
+  it('lists per-debt monthly put amounts in snowball order', () => {
+    const result = runEngine(5000, baseExpenses, baseDebts, '$');
+    const short = result.plans.find((p) => p.horizon === 'short')!;
+    expect(short.allocations).toHaveLength(2);
+    expect(short.allocations[0].id).toBe('d1'); // credit card first
+    expect(short.allocations[1].id).toBe('d2');
+    expect(short.allocations[0].monthlyPut).toBeGreaterThan(0);
+    expect(short.allocations[0].endMonth).not.toBeNull();
+    expect(short.allocations[1].endMonth).not.toBeNull();
+    // First debt clears before or when second clears
+    expect(short.allocations[0].endMonth!).toBeLessThanOrEqual(short.allocations[1].endMonth!);
+  });
+
+  it('records paymentsByDebt on runway rows', () => {
+    const result = runEngine(5000, baseExpenses, baseDebts, '$');
+    const short = result.plans.find((p) => p.horizon === 'short')!;
+    expect(short.runway[0].paymentsByDebt.length).toBeGreaterThan(0);
+    expect(short.runway[0].paymentsByDebt[0].amount).toBeGreaterThan(0);
+  });
 });
 
 // ── runEngine — single debt ────────────────────────────────────────────────────

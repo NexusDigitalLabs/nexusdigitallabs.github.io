@@ -32,7 +32,7 @@ export default function MetricCounter() {
   if (count === null) return null;
 
   return (
-    <span className="text-xs text-slate-500 select-none">
+    <span className="text-xs select-none" style={{ color: 'var(--ndl-faint)' }}>
       {count.toLocaleString()} visitors
     </span>
   );
