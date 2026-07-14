@@ -120,7 +120,7 @@ export default function HomePage() {
               <span className="ndl-gradient-text">tasks effortless.</span>
             </h1>
             <p className="ndl-anim-3 text-slate-400 font-light max-w-md leading-relaxed text-base sm:text-lg mb-10">
-              Free tools built for everyone — fast, private, and simple. No account needed. No cookies. No tracking.
+              Practical tools built for everyone — fast, private, and simple. Most tools work without an account and collect no personal data.
             </p>
             <div className="ndl-anim-4 flex flex-col sm:flex-row items-start gap-3">
               <Link
@@ -256,10 +256,10 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-6 sm:px-10 py-5">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
             {[
-              ['Privacy', 'No cookies, ever'],
-              ['Access', 'Free forever'],
-              ['Data', 'Stays on your device'],
-              ['Signup', 'Never required'],
+              ['Privacy', 'No tracking cookies'],
+              ['Access', 'Free to get started'],
+              ['Data', 'Private by design'],
+              ['Signup', 'Not required for free tools'],
             ].map(([label, val], i) => (
               <ScrollReveal key={label} delay={i * 120}>
                 <div className="space-y-1">
