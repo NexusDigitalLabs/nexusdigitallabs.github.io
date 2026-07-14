@@ -850,7 +850,7 @@ export default function FuelTrackerClient() {
                 style={{ ...S.btn('rgba(255,255,255,0.3)'), padding: '0.375rem 0.75rem' }}>
                 ⚙ Settings
               </button>
-              <span style={{ fontSize: '0.5625rem', color: '#475569', letterSpacing: '0.02em' }}>sync code · export · delete</span>
+              <span style={{ fontSize: '0.5625rem', color: '#475569', letterSpacing: '0.02em' }}>sync code · email · export · delete</span>
             </div>
           </div>
         </div>
@@ -878,6 +878,14 @@ export default function FuelTrackerClient() {
                 style={{ ...S.btn('#4ade80'), padding: '0.375rem 0.875rem' }}>
                 ↓ Export CSV
               </button>
+              <a
+                href={`mailto:?subject=${encodeURIComponent('My Fuel Tracker Sync Code')}&body=${encodeURIComponent(
+                  `Hi,\n\nHere is my Fuel Tracker sync code:\n\n  ${userCode}\n\nTo access my data on another device:\n1. Go to https://nexusdigitallabs.dev/tools/fuel-tracker/\n2. Choose "I have a code"\n3. Enter the code above\n\n— Sent from NexusDigitalLabs Fuel Tracker`
+                )}`}
+                style={{ ...S.btn('rgba(99,102,241,0.7)'), padding: '0.375rem 0.875rem', textDecoration: 'none', display: 'inline-block' }}
+              >
+                ✉ Email my code
+              </a>
               <button type="button" onClick={handleDeleteAll}
                 style={{ ...S.btn('#f87171'), padding: '0.375rem 0.875rem', marginLeft: 'auto' }}>
                 Delete All My Data
