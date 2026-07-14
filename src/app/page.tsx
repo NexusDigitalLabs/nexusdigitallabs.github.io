@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import ScrollReveal from '@/components/ScrollReveal';
+import SiteStatsClient from '@/components/SiteStatsClient';
 
 export const metadata: Metadata = {
   title: 'NexusDigitalLabs — Software Studio',
@@ -133,17 +134,9 @@ export default function HomePage() {
                 Read Articles
               </Link>
             </div>
-            {/* Stats strip */}
-            <div className="ndl-anim-5 flex items-center gap-6 mt-12 pt-8 border-t border-slate-800/60">
-              {[['100%', 'Client-side'], ['0', 'Cookies'], ['2+', 'Tools live'], ['Free', 'Always']].map(([val, label], i, arr) => (
-                <div key={label} className="flex items-center gap-6">
-                  <div>
-                    <p className="text-xl font-bold text-white">{val}</p>
-                    <p className="text-xs text-slate-500 mt-0.5">{label}</p>
-                  </div>
-                  {i < arr.length - 1 && <div className="w-px h-8 bg-slate-800" />}
-                </div>
-              ))}
+            {/* Live metrics strip */}
+            <div className="ndl-anim-5">
+              <SiteStatsClient />
             </div>
           </div>
 

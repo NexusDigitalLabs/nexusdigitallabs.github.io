@@ -64,18 +64,40 @@ export async function POST(request: NextRequest) {
 /**
  * GET /api/counters?path=/your/page
  * Returns the current view count for the given page path.
+ *
+ * GET /api/counters?aggregate=total
+ * Returns the sum of all page view counts across the entire site.
+ *
  * Returns: { count: number }
  */
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
+    const aggregate = searchParams.get('aggregate');
     const path = searchParams.get('path');
 
-    if (!path) {
-      return NextResponse.json({ error: 'Missing ?path= parameter' }, { status: 400 });
+    const supabase = createServerSupabaseClient();
+
+    // ── Aggregate: sum all page views ─────────────────────────────────────
+    if (aggregate === 'total') {
+      const { data, error } = await supabase
+        .from('page_views')
+        .select('count');
+
+      if (error) throw error;
+
+      const total = (data ?? []).reduce(
+        (sum: number, row: { count: number }) => sum + (row.count ?? 0),
+        0,
+      );
+
+      return NextResponse.json({ count: total });
     }
 
-    const supabase = createServerSupabaseClient();
+    // ── Single page count ─────────────────────────────────────────────────
+    if (!path) {
+      return NextResponse.json({ error: 'Missing ?path= or ?aggregate= parameter' }, { status: 400 });
+    }
 
     const { data, error } = await supabase
       .from('page_views')
