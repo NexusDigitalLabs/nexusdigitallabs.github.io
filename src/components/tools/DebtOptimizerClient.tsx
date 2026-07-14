@@ -70,7 +70,7 @@ function AmountInput({ value, onChange, placeholder = '0', className = '', prefi
   return (
     <div className="relative" style={style}>
       {prefix && (
-        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs select-none pointer-events-none">
+        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs select-none pointer-events-none" style={{ color: D.textMuted }}>
           {prefix}
         </span>
       )}
@@ -81,18 +81,53 @@ function AmountInput({ value, onChange, placeholder = '0', className = '', prefi
         value={formatted}
         onChange={handleChange}
         placeholder={placeholder}
-        onFocus={(e) => { isFocused.current = true; setTimeout(() => e.target.select(), 0); }}
-        onBlur={() => { isFocused.current = false; fromEnd.current = 0; }}
-        className={`block w-full bg-white border border-slate-200 focus:border-black outline-none px-2.5 py-2 text-[0.8125rem] font-[Inter,sans-serif] text-slate-900 placeholder:text-slate-400 ${prefix ? 'pl-7' : ''} ${className}`}
-        style={{ borderRadius: 0, MozAppearance: 'textfield' } as React.CSSProperties}
+        onFocus={(e) => {
+          isFocused.current = true;
+          e.target.style.borderColor = D.inputFocus;
+          setTimeout(() => e.target.select(), 0);
+        }}
+        onBlur={(e) => {
+          isFocused.current = false;
+          fromEnd.current = 0;
+          e.target.style.borderColor = D.inputBorder;
+        }}
+        className={`${siBaseClass} ${prefix ? 'pl-7' : ''} ${className}`}
+        style={{ ...siBaseStyle, MozAppearance: 'textfield' } as React.CSSProperties}
       />
     </div>
   );
 }
 
+// ── Dark-theme design tokens ───────────────────────────────────────────────────
+const D = {
+  pageBg:      '#0b0f19',
+  cardBg:      'rgba(255,255,255,0.04)',
+  cardBgAlt:   'rgba(255,255,255,0.06)',
+  cardBorder:  'rgba(255,255,255,0.08)',
+  cardBorderHi:'rgba(255,255,255,0.14)',
+  inputBg:     'rgba(255,255,255,0.05)',
+  inputBorder: 'rgba(255,255,255,0.1)',
+  inputFocus:  'rgba(255,255,255,0.9)',
+  sep:         'rgba(255,255,255,0.06)',
+  textPrimary: '#f8fafc',
+  textSecondary:'#cbd5e1',
+  textMuted:   '#94a3b8',
+  textFaint:   '#64748b',
+  green:       '#4ade80',
+  greenDark:   '#052e16',
+  red:         '#f87171',
+  redBg:       'rgba(239,68,68,0.08)',
+  redBorder:   'rgba(239,68,68,0.25)',
+} as const;
+
 // ── CSS helpers ────────────────────────────────────────────────────────────────
-const siBase =
-  'block w-full bg-white border border-slate-200 focus:border-black outline-none px-2.5 py-2 text-[0.8125rem] font-[Inter,sans-serif] text-slate-900 placeholder:text-slate-400 transition-colors';
+// Input base uses inline style for bg/border so AmountInput and text inputs share the same look
+const siBaseClass =
+  'block w-full outline-none px-2.5 py-2 text-[0.8125rem] font-[Inter,sans-serif] placeholder:text-slate-600 transition-colors';
+const siBaseStyle: React.CSSProperties = {
+  background: D.inputBg, border: `1px solid ${D.inputBorder}`,
+  color: D.textPrimary, borderRadius: 0,
+};
 
 const lblBase =
   'block text-[0.6875rem] font-semibold tracking-[0.07em] uppercase text-slate-500 mb-[0.3rem]';
@@ -197,22 +232,22 @@ export default function DebtOptimizerClient() {
       />
 
       {/* ── PAGE HEADER ─────────────────────────────────────────────────────── */}
-      <div style={{ borderBottom: '1px solid #e2e8f0', background: '#fff' }}>
+      <div style={{ borderBottom: `1px solid ${D.cardBorder}`, background: D.pageBg }}>
         <div className="max-w-7xl mx-auto px-6 sm:px-10 py-7">
           <div className="flex items-start justify-between gap-6 flex-wrap">
             <div>
-              <p className="text-[0.6875rem] font-bold tracking-[0.1em] uppercase text-slate-400 mb-1.5">
+              <p className="text-[0.6875rem] font-bold tracking-[0.1em] uppercase mb-1.5" style={{ color: D.textFaint }}>
                 Financial Tool
               </p>
-              <h1 className="text-2xl sm:text-[1.625rem] font-semibold text-slate-900 tracking-tight leading-snug mt-1">
+              <h1 className="text-2xl sm:text-[1.625rem] font-semibold tracking-tight leading-snug mt-1" style={{ color: D.textPrimary }}>
                 Debt Settlement &amp; Savings Planner
               </h1>
-              <p className="text-sm text-slate-400 font-light mt-1.5 leading-relaxed">
+              <p className="text-sm font-light mt-1.5 leading-relaxed" style={{ color: D.textMuted }}>
                 Add your income, expenses, and debts — get a month-by-month payoff runway and download a PDF plan.
               </p>
             </div>
-            <div className="hidden sm:flex items-center gap-2 text-[11px] text-slate-400 shrink-0"
-              style={{ border: '1px solid #e2e8f0', padding: '0.5rem 0.75rem', alignSelf: 'flex-start', marginTop: '4px' }}>
+            <div className="hidden sm:flex items-center gap-2 text-[11px] shrink-0"
+              style={{ border: `1px solid ${D.cardBorder}`, padding: '0.5rem 0.75rem', alignSelf: 'flex-start', marginTop: '4px', color: D.textFaint }}>
               <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                   d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -235,10 +270,12 @@ export default function DebtOptimizerClient() {
               <label className={lblBase} htmlFor={`${uid}-currency`}>Currency</label>
               <select
                 id={`${uid}-currency`}
-                className={siBase}
-                style={{ borderRadius: 0, cursor: 'pointer' }}
+                className={siBaseClass}
+                style={{ ...siBaseStyle, cursor: 'pointer' }}
                 value={currency}
                 onChange={(e) => setCurrencyCode(e.target.value)}
+                onFocus={(e) => (e.target.style.borderColor = D.inputFocus)}
+                onBlur={(e)  => (e.target.style.borderColor = D.inputBorder)}
               >
                 {Object.entries(CURRENCY_MAP).map(([code, { label }]) => (
                   <option key={code} value={code}>{label}</option>
@@ -255,11 +292,14 @@ export default function DebtOptimizerClient() {
             {/* Expenses */}
             <div className="mb-6">
               <div className="flex items-center justify-between mb-3">
-                <p className="text-[0.6875rem] font-bold tracking-[0.1em] uppercase text-slate-400">Monthly Expenses</p>
+                <p className="text-[0.6875rem] font-bold tracking-[0.1em] uppercase" style={{ color: D.textFaint }}>Monthly Expenses</p>
                 <button
                   type="button"
                   onClick={addExpense}
-                  className="inline-flex items-center gap-[0.3rem] text-[0.6875rem] font-bold tracking-[0.05em] uppercase text-slate-900 hover:text-slate-500 bg-transparent border-none cursor-pointer p-0 transition-colors font-[Inter,sans-serif]"
+                  className="inline-flex items-center gap-[0.3rem] text-[0.6875rem] font-bold tracking-[0.05em] uppercase bg-transparent border-none cursor-pointer p-0 transition-colors font-[Inter,sans-serif]"
+                  style={{ color: D.textSecondary }}
+                  onMouseEnter={e => (e.currentTarget.style.color = D.textPrimary)}
+                  onMouseLeave={e => (e.currentTarget.style.color = D.textSecondary)}
                 >
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
@@ -269,7 +309,7 @@ export default function DebtOptimizerClient() {
               </div>
 
               {expenses.length === 0 ? (
-                <p className="text-xs text-slate-400 font-light py-3 text-center">No expenses yet.</p>
+                <p className="text-xs font-light py-3 text-center" style={{ color: D.textMuted }}>No expenses yet.</p>
               ) : (
                 <div className="space-y-2">
                   {expenses.map((exp) => (
@@ -279,8 +319,10 @@ export default function DebtOptimizerClient() {
                         value={exp.name}
                         placeholder="Expense name"
                         onChange={(e) => updateExpense(exp.id, 'name', e.target.value)}
-                        className={`${siBase} flex-1`}
-                        style={{ borderRadius: 0, padding: '0.375rem 0.5rem' }}
+                        className={`${siBaseClass} flex-1`}
+                        style={{ ...siBaseStyle, padding: '0.375rem 0.5rem' }}
+                        onFocus={(e) => (e.target.style.borderColor = D.inputFocus)}
+                        onBlur={(e)  => (e.target.style.borderColor = D.inputBorder)}
                       />
                       <AmountInput
                         value={exp.amount}
@@ -291,7 +333,10 @@ export default function DebtOptimizerClient() {
                       <button
                         type="button"
                         onClick={() => removeExpense(exp.id)}
-                        className="text-slate-300 hover:text-red-400 transition-colors bg-transparent border-none cursor-pointer p-0 leading-none shrink-0"
+                        className="transition-colors bg-transparent border-none cursor-pointer p-0 leading-none shrink-0"
+                        style={{ color: D.textFaint }}
+                        onMouseEnter={e => (e.currentTarget.style.color = D.red)}
+                        onMouseLeave={e => (e.currentTarget.style.color = D.textFaint)}
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -302,17 +347,17 @@ export default function DebtOptimizerClient() {
                 </div>
               )}
 
-              <div className="flex justify-between items-center mt-2.5 pt-2.5" style={{ borderTop: '1px solid #e2e8f0' }}>
-                <span className="text-xs text-slate-400 font-medium">Total Expenses</span>
-                <span className="text-xs font-semibold text-slate-700">{fmtC(totalExp, sym)}</span>
+              <div className="flex justify-between items-center mt-2.5 pt-2.5" style={{ borderTop: `1px solid ${D.sep}` }}>
+                <span className="text-xs font-medium" style={{ color: D.textMuted }}>Total Expenses</span>
+                <span className="text-xs font-semibold" style={{ color: D.textSecondary }}>{fmtC(totalExp, sym)}</span>
               </div>
             </div>
 
             {/* FCF preview */}
-            <div className="mb-6 px-3 py-2.5" style={{ border: '1px solid #e2e8f0', background: '#f8fafc' }}>
+            <div className="mb-6 px-3 py-2.5" style={{ border: `1px solid ${D.cardBorder}`, background: D.cardBg }}>
               <div className="flex justify-between items-center">
-                <span className="text-[11px] text-slate-400 font-medium">Free Cash Flow</span>
-                <span className="text-sm font-semibold" style={{ color: fcf >= 0 ? '#0f172a' : '#ef4444' }}>
+                <span className="text-[11px] font-medium" style={{ color: D.textMuted }}>Free Cash Flow</span>
+                <span className="text-sm font-semibold" style={{ color: fcf >= 0 ? D.green : D.red }}>
                   {fmtC(fcf, sym)}
                 </span>
               </div>
@@ -321,11 +366,14 @@ export default function DebtOptimizerClient() {
             {/* Debts */}
             <div className="mb-6">
               <div className="flex items-center justify-between mb-3">
-                <p className="text-[0.6875rem] font-bold tracking-[0.1em] uppercase text-slate-400">Loans &amp; Credit Cards</p>
+                <p className="text-[0.6875rem] font-bold tracking-[0.1em] uppercase" style={{ color: D.textFaint }}>Loans &amp; Credit Cards</p>
                 <button
                   type="button"
                   onClick={addDebt}
-                  className="inline-flex items-center gap-[0.3rem] text-[0.6875rem] font-bold tracking-[0.05em] uppercase text-slate-900 hover:text-slate-500 bg-transparent border-none cursor-pointer p-0 transition-colors font-[Inter,sans-serif]"
+                  className="inline-flex items-center gap-[0.3rem] text-[0.6875rem] font-bold tracking-[0.05em] uppercase bg-transparent border-none cursor-pointer p-0 transition-colors font-[Inter,sans-serif]"
+                  style={{ color: D.textSecondary }}
+                  onMouseEnter={e => (e.currentTarget.style.color = D.textPrimary)}
+                  onMouseLeave={e => (e.currentTarget.style.color = D.textSecondary)}
                 >
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
@@ -335,7 +383,7 @@ export default function DebtOptimizerClient() {
               </div>
 
               {debts.length === 0 ? (
-                <p className="text-xs text-slate-400 font-light py-3 text-center">No debts yet.</p>
+                <p className="text-xs font-light py-3 text-center" style={{ color: D.textMuted }}>No debts yet.</p>
               ) : (
                 <div className="space-y-3">
                   {debts.map((debt) => {
@@ -343,7 +391,7 @@ export default function DebtOptimizerClient() {
                       ? Math.min(100, (debt.outstanding / debt.totalAmt) * 100)
                       : 0;
                     return (
-                      <div key={debt.id} style={{ border: '1px solid #e2e8f0', background: '#fff', padding: '12px' }}>
+                      <div key={debt.id} style={{ border: `1px solid ${D.cardBorder}`, background: D.cardBg, padding: '12px' }}>
                         {/* Name + remove */}
                         <div className="flex items-center gap-2 mb-2.5">
                           <input
@@ -351,13 +399,18 @@ export default function DebtOptimizerClient() {
                             value={debt.name}
                             placeholder="Loan / Card name"
                             onChange={(e) => updateDebt(debt.id, 'name', e.target.value)}
-                            className={`${siBase} flex-1`}
-                            style={{ borderRadius: 0, padding: '0.3rem 0.5rem', fontSize: '0.8125rem', fontWeight: 500 }}
+                            className={`${siBaseClass} flex-1`}
+                            style={{ ...siBaseStyle, padding: '0.3rem 0.5rem', fontSize: '0.8125rem', fontWeight: 500 }}
+                            onFocus={(e) => (e.target.style.borderColor = D.inputFocus)}
+                            onBlur={(e)  => (e.target.style.borderColor = D.inputBorder)}
                           />
                           <button
                             type="button"
                             onClick={() => removeDebt(debt.id)}
-                            className="text-slate-300 hover:text-red-400 transition-colors bg-transparent border-none cursor-pointer p-0 leading-none shrink-0"
+                            className="transition-colors bg-transparent border-none cursor-pointer p-0 leading-none shrink-0"
+                            style={{ color: D.textFaint }}
+                            onMouseEnter={e => (e.currentTarget.style.color = D.red)}
+                            onMouseLeave={e => (e.currentTarget.style.color = D.textFaint)}
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -380,10 +433,10 @@ export default function DebtOptimizerClient() {
                           </div>
                         </div>
                         {/* Progress bar */}
-                        <div className="mt-2.5 h-[3px] bg-slate-100 overflow-hidden">
-                          <div className="h-[3px] bg-slate-400 transition-all" style={{ width: `${pct.toFixed(1)}%` }} />
+                        <div className="mt-2.5 h-[3px] overflow-hidden" style={{ background: D.sep }}>
+                          <div className="h-[3px] transition-all" style={{ width: `${pct.toFixed(1)}%`, background: D.textFaint }} />
                         </div>
-                        <p className="text-[10px] text-slate-400 mt-1">{Math.round(pct)}% outstanding</p>
+                        <p className="text-[10px] mt-1" style={{ color: D.textFaint }}>{Math.round(pct)}% outstanding</p>
                       </div>
                     );
                   })}
@@ -396,8 +449,11 @@ export default function DebtOptimizerClient() {
               type="button"
               onClick={calculate}
               disabled={isCalc}
-              className="w-full py-3 bg-slate-900 hover:bg-slate-700 disabled:bg-slate-400 text-white text-[0.8125rem] font-semibold tracking-[0.04em] uppercase cursor-pointer border-none transition-colors disabled:cursor-not-allowed font-[Inter,sans-serif]"
-              style={{ borderRadius: 0 }}
+              className="w-full py-3 text-[0.8125rem] font-semibold tracking-[0.04em] uppercase cursor-pointer border-none transition-colors disabled:cursor-not-allowed font-[Inter,sans-serif]"
+              style={{
+                borderRadius: 0, background: '#2563eb', color: '#fff',
+                opacity: isCalc ? 0.7 : 1,
+              }}
             >
               {isCalc ? 'Calculating…' : 'Calculate Plan'}
             </button>
@@ -406,8 +462,8 @@ export default function DebtOptimizerClient() {
               type="button"
               onClick={handleDownloadPDF}
               disabled={!result?.isViable || isDownloading}
-              className="w-full mt-2 py-3 bg-white hover:bg-slate-50 text-slate-900 text-[0.8125rem] font-semibold tracking-[0.04em] uppercase cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-[Inter,sans-serif]"
-              style={{ border: '1px solid #0f172a', borderRadius: 0 }}
+              className="w-full mt-2 py-3 text-[0.8125rem] font-semibold tracking-[0.04em] uppercase cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-[Inter,sans-serif]"
+              style={{ border: `1px solid ${D.cardBorderHi}`, borderRadius: 0, background: 'transparent', color: D.textSecondary }}
             >
               {isDownloading ? (
                 <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -421,7 +477,7 @@ export default function DebtOptimizerClient() {
               {isDownloading ? 'Generating…' : 'Download PDF'}
             </button>
 
-            <p className="text-[10px] text-slate-400 mt-4 leading-relaxed font-light">
+            <p className="text-[10px] mt-4 leading-relaxed font-light" style={{ color: D.textFaint }}>
               Debts are paid lowest-balance-first (snowball method). This plan does not account for interest accrual — actual payoff time may vary.
             </p>
           </div>
@@ -430,26 +486,26 @@ export default function DebtOptimizerClient() {
           <div className="flex-1 min-w-0">
             {!result ? (
               <div className="flex flex-col items-center justify-center py-28 text-center">
-                <div className="w-12 h-12 flex items-center justify-center mb-4" style={{ border: '1px solid #e2e8f0' }}>
-                  <svg className="w-6 h-6 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-12 h-12 flex items-center justify-center mb-4" style={{ border: `1px solid ${D.cardBorder}` }}>
+                  <svg className="w-6 h-6" style={{ color: D.textFaint }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                       d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                 </div>
-                <p className="text-sm text-slate-400 font-light leading-relaxed">
+                <p className="text-sm font-light leading-relaxed" style={{ color: D.textMuted }}>
                   Fill in your details and click<br />
-                  <strong className="font-medium text-slate-500">Calculate Plan</strong>.
+                  <strong className="font-medium" style={{ color: D.textSecondary }}>Calculate Plan</strong>.
                 </p>
               </div>
             ) : !result.isViable ? (
-              <div className="flex items-start gap-3 p-5" style={{ border: '1px solid #fca5a5', background: '#fef2f2' }}>
-                <svg className="w-5 h-5 shrink-0 mt-0.5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex items-start gap-3 p-5" style={{ border: `1px solid ${D.redBorder}`, background: D.redBg }}>
+                <svg className="w-5 h-5 shrink-0 mt-0.5" style={{ color: D.red }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                     d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.962-.833-2.732 0L3.072 16.5c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
                 <div>
-                  <p className="text-sm font-semibold text-red-900 mb-0.5">Cannot Build Plan</p>
-                  <p className="text-sm text-red-700 font-light leading-relaxed">{result.error}</p>
+                  <p className="text-sm font-semibold mb-0.5" style={{ color: D.red }}>Cannot Build Plan</p>
+                  <p className="text-sm font-light leading-relaxed" style={{ color: D.textMuted }}>{result.error}</p>
                 </div>
               </div>
             ) : (
@@ -462,18 +518,18 @@ export default function DebtOptimizerClient() {
                     { label: 'Debt-Free In',    value: fmtMo(result.debtFreeMonth),         sub: result.debtFreeMonth ? `Month ${result.debtFreeMonth}` : '—', green: true },
                     { label: 'Total to Repay',  value: fmtC(result.totalInitialDebt, sym),  sub: 'Sum of outstanding balances',  green: false },
                   ].map(({ label, value, sub, green }) => (
-                    <div key={label} style={{ border: '1px solid #e2e8f0', background: '#fff', padding: '1rem 1.25rem' }}>
-                      <p className="text-[0.6875rem] font-bold tracking-[0.1em] uppercase text-slate-400 mb-2">{label}</p>
-                      <p className="text-2xl font-semibold leading-none mb-1.5" style={{ color: green ? '#16a34a' : '#0f172a' }}>{value}</p>
-                      <p className="text-[11px] text-slate-400 font-light">{sub}</p>
+                    <div key={label} style={{ border: `1px solid ${D.cardBorder}`, background: D.cardBg, padding: '1rem 1.25rem' }}>
+                      <p className="text-[0.6875rem] font-bold tracking-[0.1em] uppercase mb-2" style={{ color: D.textFaint }}>{label}</p>
+                      <p className="text-2xl font-semibold leading-none mb-1.5" style={{ color: green ? D.green : D.textPrimary }}>{value}</p>
+                      <p className="text-[11px] font-light" style={{ color: D.textMuted }}>{sub}</p>
                     </div>
                   ))}
                 </div>
 
                 {/* Payoff schedule per debt */}
-                <div className="mb-6" style={{ border: '1px solid #e2e8f0', background: '#fff', padding: '1rem 1.25rem' }}>
-                  <p className="text-[0.6875rem] font-bold tracking-[0.1em] uppercase text-slate-400 mb-3">
-                    Payoff Order <span className="font-normal normal-case text-slate-400 tracking-normal">— lowest balance first</span>
+                <div className="mb-6" style={{ border: `1px solid ${D.cardBorder}`, background: D.cardBg, padding: '1rem 1.25rem' }}>
+                  <p className="text-[0.6875rem] font-bold tracking-[0.1em] uppercase mb-3" style={{ color: D.textFaint }}>
+                    Payoff Order <span className="font-normal normal-case tracking-normal" style={{ color: D.textFaint }}>— lowest balance first</span>
                   </p>
                   {debts
                     .slice()
@@ -482,20 +538,20 @@ export default function DebtOptimizerClient() {
                       const mo = payoffMonth(d.id);
                       const pct = d.totalAmt > 0 ? Math.min(100, (d.outstanding / d.totalAmt) * 100) : 0;
                       return (
-                        <div key={d.id} className="flex items-center justify-between gap-4 py-2.5" style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        <div key={d.id} className="flex items-center justify-between gap-4 py-2.5" style={{ borderBottom: `1px solid ${D.sep}` }}>
                           <div className="min-w-0 flex-1">
-                            <p className="text-sm font-medium text-slate-700 truncate">{d.name}</p>
-                            <div className="mt-1 h-[3px] bg-slate-100 overflow-hidden" style={{ width: '100%' }}>
-                              <div className="h-[3px] bg-slate-400 transition-all" style={{ width: `${pct.toFixed(1)}%` }} />
+                            <p className="text-sm font-medium truncate" style={{ color: D.textSecondary }}>{d.name}</p>
+                            <div className="mt-1 h-[3px] overflow-hidden" style={{ width: '100%', background: D.sep }}>
+                              <div className="h-[3px] transition-all" style={{ width: `${pct.toFixed(1)}%`, background: D.textFaint }} />
                             </div>
-                            <p className="text-[10px] text-slate-400 mt-0.5">{fmtC(d.outstanding, sym)} of {fmtC(d.totalAmt, sym)}</p>
+                            <p className="text-[10px] mt-0.5" style={{ color: D.textMuted }}>{fmtC(d.outstanding, sym)} of {fmtC(d.totalAmt, sym)}</p>
                           </div>
                           <div className="text-right shrink-0">
-                            <p className="text-xs font-mono text-slate-600">{fmtC(d.monthlyPay, sym)}/mo</p>
+                            <p className="text-xs font-mono" style={{ color: D.textMuted }}>{fmtC(d.monthlyPay, sym)}/mo</p>
                             {mo ? (
-                              <p className="text-[11px] font-semibold" style={{ color: '#16a34a' }}>Paid off mo. {mo}</p>
+                              <p className="text-[11px] font-semibold" style={{ color: D.green }}>Paid off mo. {mo}</p>
                             ) : (
-                              <p className="text-[11px] text-slate-400">—</p>
+                              <p className="text-[11px]" style={{ color: D.textFaint }}>—</p>
                             )}
                           </div>
                         </div>
@@ -504,10 +560,10 @@ export default function DebtOptimizerClient() {
                 </div>
 
                 {/* Month-by-month runway */}
-                <div style={{ border: '1px solid #e2e8f0', background: '#fff' }}>
-                  <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid #e2e8f0' }}>
-                    <p className="text-[0.6875rem] font-bold tracking-[0.1em] uppercase text-slate-400 mb-[2px]">Month-by-Month Runway</p>
-                    <p className="text-[11px] text-slate-400 font-light">{result.runway.length} months total</p>
+                <div style={{ border: `1px solid ${D.cardBorder}`, background: D.cardBg }}>
+                  <div style={{ padding: '1rem 1.25rem', borderBottom: `1px solid ${D.sep}` }}>
+                    <p className="text-[0.6875rem] font-bold tracking-[0.1em] uppercase mb-[2px]" style={{ color: D.textFaint }}>Month-by-Month Runway</p>
+                    <p className="text-[11px] font-light" style={{ color: D.textMuted }}>{result.runway.length} months total</p>
                   </div>
                   <div style={{ overflow: 'auto', maxHeight: '480px' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '480px' }}>
@@ -516,8 +572,8 @@ export default function DebtOptimizerClient() {
                           {['Mo.', 'Status', 'Outstanding', 'Paid Down', 'Payment'].map((h, i) => (
                             <th key={h} style={{
                               padding: '0.625rem 1rem', fontSize: '0.5625rem', fontWeight: 700,
-                              letterSpacing: '0.1em', textTransform: 'uppercase', color: '#64748b',
-                              background: '#fff', borderBottom: '2px solid #0f172a',
+                              letterSpacing: '0.1em', textTransform: 'uppercase', color: D.textFaint,
+                              background: D.cardBgAlt, borderBottom: `1px solid ${D.cardBorderHi}`,
                               whiteSpace: 'nowrap', position: 'sticky', top: 0, zIndex: 2,
                               textAlign: 'left',
                               paddingLeft: i === 0 ? '1rem' : undefined,
@@ -533,34 +589,34 @@ export default function DebtOptimizerClient() {
                           return (
                             <tr key={row.month}
                               style={row.pivotMonth
-                                ? { background: '#f0fdf4', borderLeft: '3px solid #4ade80' }
+                                ? { background: 'rgba(74,222,128,0.06)', borderLeft: `3px solid ${D.green}` }
                                 : undefined}
                             >
-                              <td style={{ padding: '0.5rem 1rem', fontSize: '0.75rem', borderBottom: '1px solid #f1f5f9', fontFamily: 'monospace', color: '#94a3b8', width: '52px' }}>{row.month}</td>
-                              <td style={{ padding: '0.5rem 1rem', fontSize: '0.75rem', borderBottom: '1px solid #f1f5f9' }}>
+                              <td style={{ padding: '0.5rem 1rem', fontSize: '0.75rem', borderBottom: `1px solid ${D.sep}`, fontFamily: 'monospace', color: D.textMuted, width: '52px' }}>{row.month}</td>
+                              <td style={{ padding: '0.5rem 1rem', fontSize: '0.75rem', borderBottom: `1px solid ${D.sep}` }}>
                                 {row.pivotMonth ? (
-                                  <span style={{ display: 'inline-block', padding: '1px 6px', background: '#4ade80', color: '#052e16', fontSize: '8px', fontWeight: 800, letterSpacing: '0.07em', textTransform: 'uppercase' }}>
+                                  <span style={{ display: 'inline-block', padding: '1px 6px', background: D.green, color: D.greenDark, fontSize: '8px', fontWeight: 800, letterSpacing: '0.07em', textTransform: 'uppercase' }}>
                                     PAID OFF
                                   </span>
                                 ) : row.debtCount === 0 ? (
-                                  <span className="text-xs font-medium" style={{ color: '#16a34a' }}>Done</span>
+                                  <span className="text-xs font-medium" style={{ color: D.green }}>Done</span>
                                 ) : (
-                                  <span className="text-xs text-slate-400">{row.debtCount} active</span>
+                                  <span className="text-xs" style={{ color: D.textMuted }}>{row.debtCount} active</span>
                                 )}
                               </td>
-                              <td style={{ padding: '0.5rem 1rem', fontSize: '0.75rem', borderBottom: '1px solid #f1f5f9' }}>
+                              <td style={{ padding: '0.5rem 1rem', fontSize: '0.75rem', borderBottom: `1px solid ${D.sep}` }}>
                                 {row.totalOut > 0.5 ? (
-                                  <span className="font-mono text-slate-700">{fmtC(row.totalOut, sym)}</span>
+                                  <span className="font-mono" style={{ color: D.textSecondary }}>{fmtC(row.totalOut, sym)}</span>
                                 ) : (
-                                  <span className="font-mono font-semibold" style={{ color: '#16a34a' }}>{fmtC(0, sym)}</span>
+                                  <span className="font-mono font-semibold" style={{ color: D.green }}>{fmtC(0, sym)}</span>
                                 )}
                               </td>
-                              <td style={{ padding: '0.5rem 1rem', fontSize: '0.75rem', borderBottom: '1px solid #f1f5f9', width: '110px' }}>
-                                <div style={{ height: '3px', background: '#f1f5f9', width: '90px', overflow: 'hidden' }}>
-                                  <div style={{ height: '3px', background: '#4ade80', width: `${pct.toFixed(1)}%` }} />
+                              <td style={{ padding: '0.5rem 1rem', fontSize: '0.75rem', borderBottom: `1px solid ${D.sep}`, width: '110px' }}>
+                                <div style={{ height: '3px', background: D.sep, width: '90px', overflow: 'hidden' }}>
+                                  <div style={{ height: '3px', background: D.green, width: `${pct.toFixed(1)}%` }} />
                                 </div>
                               </td>
-                              <td style={{ padding: '0.5rem 1rem', fontSize: '0.75rem', borderBottom: '1px solid #f1f5f9', fontFamily: 'monospace', color: '#475569' }}>{fmtC(row.payment, sym)}</td>
+                              <td style={{ padding: '0.5rem 1rem', fontSize: '0.75rem', borderBottom: `1px solid ${D.sep}`, fontFamily: 'monospace', color: D.textMuted }}>{fmtC(row.payment, sym)}</td>
                             </tr>
                           );
                         })}
