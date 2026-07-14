@@ -18,7 +18,7 @@ const PRINCIPLES = [
     dot: 'bg-blue-400',
     ring: 'bg-blue-500/15 border-blue-500/25',
     title: 'Privacy by default',
-    desc: 'Zero cookies. Zero server calls with user data. GDPR/CCPA compliant without a banner.',
+    desc: 'No tracking cookies. Tools that stay client-side never send your data anywhere. GDPR/CCPA compliant.',
   },
   {
     color: 'violet',
@@ -38,8 +38,8 @@ const PRINCIPLES = [
     color: 'amber',
     dot: 'bg-amber-400',
     ring: 'bg-amber-500/15 border-amber-500/25',
-    title: 'Free forever',
-    desc: 'Deployed on Vercel. No infra costs means no paywalls, no freemium gates, no ads.',
+    title: 'Accessible by design',
+    desc: 'Core tools are free to use with no account required. Built lean so access stays wide.',
   },
 ];
 
@@ -106,7 +106,7 @@ export default function AboutPage() {
             <span className="ndl-gradient-text">engineers trust.</span>
           </h1>
           <p className="ndl-anim-3 text-slate-400 font-light max-w-xl leading-relaxed text-base sm:text-lg">
-            NexusDigitalLabs is a software studio focused on engineering minimalist, privacy-first developer utilities. No framework bloat. No cookie banners. No compromises.
+            NexusDigitalLabs is a software studio focused on engineering minimalist, privacy-first utilities. No framework bloat. No tracking. No compromises.
           </p>
         </div>
       </section>
@@ -119,10 +119,10 @@ export default function AboutPage() {
               <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-4">Mission</p>
               <h2 className="text-2xl sm:text-3xl font-light text-white tracking-tight mb-5">Utility over complexity.</h2>
               <p className="text-slate-400 font-light leading-relaxed text-sm sm:text-base">
-                The web doesn&apos;t need more bloated SaaS platforms. It needs sharp, single-purpose tools that do exactly what they say — fast, privately, and without requiring a login.
+                The web doesn&apos;t need more bloated SaaS platforms. It needs sharp, single-purpose tools that do exactly what they say — fast, privately, and without unnecessary friction.
               </p>
               <p className="text-slate-400 font-light leading-relaxed text-sm sm:text-base mt-4">
-                Every product we ship runs entirely in the browser. Your data never leaves your device. There are no accounts, no subscriptions, and no telemetry.
+                Most tools run entirely in your browser — nothing leaves your device. Where cross-device sync is needed (like the Fuel Tracker), only an anonymous code is used. No email. No password. No personal profiles.
               </p>
             </ScrollReveal>
             <ScrollReveal delay={120}>
@@ -200,8 +200,8 @@ export default function AboutPage() {
           <div className="space-y-6 max-w-2xl">
             {[
               { q: 'Who built NexusDigitalLabs?', a: 'NexusDigitalLabs is an independent software studio. The tools, articles, and games on this site are built and maintained by a small team of developers focused on building useful things without unnecessary complexity.' },
-              { q: 'Are the tools really free forever?', a: 'Yes. Every tool on this site is free with no usage limits, no account required, and no paywalled features. The site is deployed on Vercel\'s free tier, which means zero infrastructure cost and no financial pressure to monetise.' },
-              { q: 'Do you collect any user data?', a: 'No. None of the tools transmit user input to any server. Everything runs client-side in your browser. We use privacy-respecting, cookie-free analytics (Umami) that records only aggregate page view counts — no personally identifiable information, no session tracking, no fingerprinting.' },
+              { q: 'Are the tools free to use?', a: 'Yes — core tools are free to use with no account required. We believe good tools should be accessible to everyone. We may introduce optional premium features down the road, but the core functionality will always remain free.' },
+              { q: 'Do you collect any user data?', a: 'For most tools, all processing happens inside your browser — nothing is sent to any server. Tools that sync data between devices (like the Fuel Tracker) use an anonymous code only — no email, name, or personal details are stored. Our analytics (Umami) records only aggregate page view counts — no personally identifiable information, no session tracking, no fingerprinting.' },
               { q: 'Can I suggest a tool or feature?', a: 'Yes. Use the Contact page to send a suggestion. We build what we find genuinely useful, so real-world requests from real users carry a lot of weight in what gets prioritised next.' },
               { q: 'How do I report a bug or request a feature?', a: 'Use the Contact page to send us a message. We review every submission and prioritise based on real-world impact and frequency of request.' },
               { q: 'Why not use a popular framework like WordPress or Webflow?', a: "WordPress and Webflow solve the wrong problem for what we're building. Managed CMSs add complexity, cookies, plugin dependencies, and performance overhead that are simply unnecessary for a site built around lightweight, client-side tools. Next.js and React give us full control with zero compromise on speed or privacy." },

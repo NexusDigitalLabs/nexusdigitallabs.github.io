@@ -103,7 +103,7 @@ export default function PromptArchitectPage() {
                 { q: 'Does this tool send my prompts anywhere?', a: 'No. All processing happens inside your browser using JavaScript. Your text is never transmitted to any server. You can verify this by opening your browser\'s network inspector — no outbound requests are made when you type or paste.' },
                 { q: 'What is the most effective way to reduce token count?', a: 'For most prompts, trailing whitespace removal and blank line collapsing together reduce token count by 8–15%. If you are injecting structured data (JSON, YAML, code), flattening nested objects to key-value pairs can reduce token count by an additional 20–40% on the data block.' },
                 { q: 'Which AI models does this support?', a: 'Cost estimates are provided for GPT-4o, GPT-4o mini, Claude 3.5 Sonnet, Claude 3 Haiku, and Gemini 1.5 Pro. Pricing is based on published provider rates and updated periodically.' },
-                { q: 'Can I use this for free in production?', a: 'Yes, completely. There are no usage limits, no accounts, no API keys required, and no paid tier. The tool is free indefinitely.' },
+                { q: 'Can I use this for free in production?', a: 'Yes, completely. Prompt Architect runs entirely in your browser with no accounts, no API keys, and no usage limits. There is no cost to use it.' },
               ].map(({ q, a }) => (
                 <div key={q} className="border-l-2 border-slate-700 pl-5">
                   <p className="text-sm font-semibold text-slate-200 mb-2">{q}</p>
