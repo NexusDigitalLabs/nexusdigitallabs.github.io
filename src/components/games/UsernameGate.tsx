@@ -6,6 +6,12 @@ interface Props {
   onSubmit: (name: string) => void;
 }
 
+/**
+ * UsernameGate — renders as a full-height page section (NOT a fixed overlay).
+ * A fixed overlay at z-100 can intercept pointer events from the sticky header
+ * even when the header's z-index is higher, depending on browser stacking
+ * context resolution. Rendering inline avoids this entirely.
+ */
 export default function UsernameGate({ onSubmit }: Props) {
   const [name, setName] = useState('');
   const fallback = useRef(`Player_${Math.floor(1000 + Math.random() * 9000)}`);
@@ -18,22 +24,30 @@ export default function UsernameGate({ onSubmit }: Props) {
   return (
     <div
       style={{
-        position: 'fixed', inset: 0, zIndex: 100,
-        background: 'rgba(15,23,42,0.55)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        minHeight: 'calc(100vh - 64px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#0b0f19',
+        padding: '2rem 1rem',
       }}
     >
       <div
         style={{
-          background: '#fff', border: '1px solid #e2e8f0',
-          padding: '2rem', maxWidth: '340px', width: '100%', margin: '0 1rem',
+          background: '#0d1117',
+          border: '1px solid rgba(255,255,255,0.08)',
+          padding: '2.25rem',
+          maxWidth: '360px',
+          width: '100%',
         }}
       >
-        <p className="text-[0.625rem] font-bold tracking-[0.1em] uppercase text-slate-400 mb-1">
+        <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#4ade80', marginBottom: '0.5rem' }}>
           NexusDigitalLabs Games
         </p>
-        <h2 className="text-xl font-bold text-slate-900 mb-1">Enter Your Name</h2>
-        <p className="text-sm text-slate-400 font-light mb-6">
+        <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#f8fafc', marginBottom: '0.375rem' }}>
+          Enter Your Name
+        </h2>
+        <p style={{ fontSize: '0.8125rem', color: '#64748b', fontWeight: 400, marginBottom: '1.5rem', lineHeight: 1.6 }}>
           Your high scores will be saved locally in your browser.
         </p>
         <form onSubmit={handleSubmit}>
@@ -44,13 +58,26 @@ export default function UsernameGate({ onSubmit }: Props) {
             placeholder={fallback.current}
             autoFocus
             maxLength={30}
-            className="block w-full border border-slate-200 focus:border-black outline-none px-3 py-2.5 text-sm text-slate-900 mb-4"
-            style={{ borderRadius: 0 }}
+            style={{
+              display: 'block', width: '100%', boxSizing: 'border-box',
+              border: '1px solid rgba(255,255,255,0.1)',
+              background: 'rgba(255,255,255,0.04)',
+              outline: 'none', padding: '0.625rem 0.75rem',
+              fontSize: '0.875rem', color: '#f8fafc',
+              marginBottom: '1rem', borderRadius: 0,
+            }}
+            onFocus={e => (e.currentTarget.style.borderColor = '#f8fafc')}
+            onBlur={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')}
           />
           <button
             type="submit"
-            className="w-full bg-slate-900 hover:bg-slate-700 text-white text-[0.8125rem] font-bold tracking-[0.06em] uppercase py-3 border-none cursor-pointer transition-colors"
-            style={{ borderRadius: 0 }}
+            style={{
+              width: '100%', background: '#f8fafc', color: '#0f172a',
+              border: 'none', padding: '0.75rem',
+              fontSize: '0.8125rem', fontWeight: 700,
+              letterSpacing: '0.07em', textTransform: 'uppercase',
+              cursor: 'pointer', borderRadius: 0,
+            }}
           >
             Start Playing
           </button>

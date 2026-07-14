@@ -121,10 +121,12 @@ body {
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.55s ease, transform 0.55s ease;
+  pointer-events: none; /* invisible elements must not absorb pointer events */
 }
 .ndl-reveal.ndl-revealed {
   opacity: 1;
   transform: translateY(0);
+  pointer-events: auto;
 }
 
 /* ── Tool / article card hover ────────────────────────────────────────────── */
