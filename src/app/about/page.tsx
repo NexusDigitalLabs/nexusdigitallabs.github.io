@@ -228,7 +228,7 @@ export default function AboutPage() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
                 href="/contact/"
-                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold px-7 py-3 rounded-xl transition-all duration-200 hover:-translate-y-0.5 no-underline"
+                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 ndl-on-accent text-sm font-semibold px-7 py-3 rounded-xl transition-all duration-200 hover:-translate-y-0.5 no-underline"
                 style={{ boxShadow: '0 4px 20px rgba(37,99,235,0.4)' }}
               >
                 Get in touch

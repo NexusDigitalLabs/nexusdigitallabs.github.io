@@ -18,7 +18,7 @@ exports[`Footer — snapshot > matches snapshot 1`] = `
           class="flex items-center gap-2.5"
         >
           <div
-            class="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-white text-xs"
+            class="w-7 h-7 rounded-lg flex items-center justify-center font-bold ndl-on-accent text-xs"
             style="background: linear-gradient(135deg, rgb(37, 99, 235), rgb(99, 102, 241));"
           >
             N

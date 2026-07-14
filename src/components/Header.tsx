@@ -103,7 +103,7 @@ export default function Header() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 no-underline flex-shrink-0">
           <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white text-sm"
+            className="w-8 h-8 rounded-lg flex items-center justify-center font-bold ndl-on-accent text-sm"
             style={{ background: 'linear-gradient(135deg,#2563eb,#6366f1)', boxShadow: '0 4px 14px rgba(37,99,235,0.28)' }}
           >
             N

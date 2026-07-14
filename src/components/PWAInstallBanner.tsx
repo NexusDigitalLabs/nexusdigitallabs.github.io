@@ -84,7 +84,7 @@ export default function PWAInstallBanner() {
       zIndex: 9999,
       width: 'calc(100% - 2rem)',
       maxWidth: '420px',
-      background: '#0d1117',
+      background: 'var(--ndl-surface)',
       border: '1px solid rgba(245,158,11,0.35)',
       boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
       padding: '1rem 1.25rem',
@@ -103,12 +103,12 @@ export default function PWAInstallBanner() {
       </div>
 
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#f8fafc', margin: '0 0 0.25rem' }}>
+        <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--ndl-text)', margin: '0 0 0.25rem' }}>
           Add Fuel Tracker to your home screen
         </p>
 
         {isIOS ? (
-          <p style={{ fontSize: '0.75rem', color: '#94a3b8', margin: '0 0 0.75rem', lineHeight: 1.6 }}>
+          <p style={{ fontSize: '0.75rem', color: 'var(--ndl-muted)', margin: '0 0 0.75rem', lineHeight: 1.6 }}>
             Tap{' '}
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem', color: '#f59e0b', fontWeight: 600 }}>
               {/* iOS Share icon */}
@@ -118,11 +118,11 @@ export default function PWAInstallBanner() {
               Share
             </span>
             {' '}then{' '}
-            <strong style={{ color: '#f8fafc' }}>Add to Home Screen</strong>
+            <strong style={{ color: 'var(--ndl-text)' }}>Add to Home Screen</strong>
             {' '}to use Fuel Tracker like a native app.
           </p>
         ) : (
-          <p style={{ fontSize: '0.75rem', color: '#94a3b8', margin: '0 0 0.75rem', lineHeight: 1.6 }}>
+          <p style={{ fontSize: '0.75rem', color: 'var(--ndl-muted)', margin: '0 0 0.75rem', lineHeight: 1.6 }}>
             Install as an app — works offline, opens instantly, no browser chrome.
           </p>
         )}
@@ -150,7 +150,7 @@ export default function PWAInstallBanner() {
         onClick={dismiss}
         aria-label="Dismiss"
         style={{
-          background: 'none', border: 'none', color: '#475569',
+          background: 'none', border: 'none', color: 'var(--ndl-faint)',
           cursor: 'pointer', fontSize: '1rem', padding: '0',
           flexShrink: 0, lineHeight: 1,
         }}

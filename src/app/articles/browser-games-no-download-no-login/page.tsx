@@ -203,7 +203,7 @@ export default function BrowserGamesPage() {
             </p>
             <Link
               href="/games/"
-              className="inline-flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-all duration-200 hover:-translate-y-0.5 no-underline"
+              className="inline-flex items-center gap-2 bg-slate-700 hover:bg-slate-600 ndl-on-accent text-sm font-semibold px-6 py-2.5 rounded-xl transition-all duration-200 hover:-translate-y-0.5 no-underline"
             >
               Browse all games
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

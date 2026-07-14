@@ -70,7 +70,7 @@ export default function Footer() {
           <div className="col-span-2 sm:col-span-1 space-y-4">
             <div className="flex items-center gap-2.5">
               <div
-                className="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-white text-xs"
+                className="w-7 h-7 rounded-lg flex items-center justify-center font-bold ndl-on-accent text-xs"
                 style={{ background: 'linear-gradient(135deg,#2563eb,#6366f1)' }}
               >
                 N

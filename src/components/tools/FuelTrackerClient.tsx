@@ -37,7 +37,7 @@ function LineChart({ points, color, yLabel }: {
   if (points.length < 2) {
     return (
       <div style={{ height: '180px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.375rem' }}>
-        <p style={{ fontSize: '0.8125rem', color: '#475569', textAlign: 'center' }}>Not enough data yet</p>
+        <p style={{ fontSize: '0.8125rem', color: 'var(--ndl-faint)', textAlign: 'center' }}>Not enough data yet</p>
         <p style={{ fontSize: '0.6875rem', color: '#334155', textAlign: 'center' }}>
           {yLabel === 'L/100km'
             ? 'Log a 3rd fill-up to unlock the efficiency chart'
@@ -80,7 +80,7 @@ function LineChart({ points, color, yLabel }: {
             <line x1={PAD.l} y1={scaleY(y)} x2={W - PAD.r} y2={scaleY(y)}
               stroke="rgba(255,255,255,0.05)" strokeWidth={1} />
             <text x={PAD.l - 6} y={scaleY(y) + 4} textAnchor="end"
-              fontSize={10} fill="#475569">{fmt(y, 1)}</text>
+              fontSize={10} fill="var(--ndl-faint)">{fmt(y, 1)}</text>
           </g>
         );
       })}
@@ -105,7 +105,7 @@ function LineChart({ points, color, yLabel }: {
       {points.map((p, i) => {
         if (i % labelStep !== 0 && i !== points.length - 1) return null;
         return (
-          <text key={i} x={scaleX(i)} y={H - 6} textAnchor="middle" fontSize={9} fill="#475569">
+          <text key={i} x={scaleX(i)} y={H - 6} textAnchor="middle" fontSize={9} fill="var(--ndl-faint)">
             {p.x}
           </text>
         );
@@ -114,7 +114,7 @@ function LineChart({ points, color, yLabel }: {
       {/* Y axis label */}
       <text
         x={10} y={H / 2}
-        textAnchor="middle" fontSize={9} fill="#475569"
+        textAnchor="middle" fontSize={9} fill="var(--ndl-faint)"
         transform={`rotate(-90, 10, ${H / 2})`}
       >
         {yLabel}
@@ -127,21 +127,21 @@ function LineChart({ points, color, yLabel }: {
 const inputStyle: React.CSSProperties = {
   width: '100%', boxSizing: 'border-box',
   background: 'rgba(255,255,255,0.04)',
-  border: '1px solid rgba(255,255,255,0.1)',
-  color: '#f8fafc', padding: '0.5rem 0.75rem',
+  border: '1px solid var(--ndl-border)',
+  color: 'var(--ndl-text)', padding: '0.5rem 0.75rem',
   fontSize: '0.875rem', outline: 'none', borderRadius: 0,
 };
 
 function InputField({ label, ...props }: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-      <label style={{ fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#64748b' }}>
+      <label style={{ fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--ndl-faint)' }}>
         {label}
       </label>
       <input
         {...props}
         style={{ ...inputStyle, ...(props.style || {}) }}
-        onFocus={e => (e.currentTarget.style.borderColor = '#f8fafc')}
+        onFocus={e => (e.currentTarget.style.borderColor = 'var(--ndl-accent)')}
         onBlur={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')}
       />
     </div>
@@ -151,13 +151,13 @@ function InputField({ label, ...props }: { label: string } & React.InputHTMLAttr
 function SelectField({ label, children, ...props }: { label: string } & React.SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-      <label style={{ fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#64748b' }}>
+      <label style={{ fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--ndl-faint)' }}>
         {label}
       </label>
       <select
         {...props}
         style={{ ...inputStyle, ...(props.style || {}), appearance: 'none' }}
-        onFocus={e => (e.currentTarget.style.borderColor = '#f8fafc')}
+        onFocus={e => (e.currentTarget.style.borderColor = 'var(--ndl-accent)')}
         onBlur={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')}
       >
         {children}
@@ -206,7 +206,7 @@ function SyncCodeCard({ userCode }: { userCode: string | null }) {
           </span>
           {/* Show truncated code in header when collapsed */}
           {!expanded && userCode && (
-            <code style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8', letterSpacing: '0.04em' }}>
+            <code style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--ndl-muted)', letterSpacing: '0.04em' }}>
               {userCode.length > 14 ? `${userCode.slice(0, 14)}…` : userCode}
             </code>
           )}
@@ -228,7 +228,7 @@ function SyncCodeCard({ userCode }: { userCode: string | null }) {
             display: 'block',
             fontSize: 'clamp(1.25rem, 5vw, 2rem)',
             fontWeight: 800,
-            color: '#f8fafc',
+            color: 'var(--ndl-text)',
             letterSpacing: '0.06em',
             wordBreak: 'break-all',
             lineHeight: 1.25,
@@ -267,7 +267,7 @@ function SyncCodeCard({ userCode }: { userCode: string | null }) {
 
           {/* How it works */}
           <div style={{ marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px solid rgba(245,158,11,0.12)' }}>
-            <p style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#64748b', marginBottom: '0.75rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+            <p style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--ndl-faint)', marginBottom: '0.75rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
               How to use on another device
             </p>
             {[
@@ -279,7 +279,7 @@ function SyncCodeCard({ userCode }: { userCode: string | null }) {
                 <span style={{ fontSize: '0.6rem', fontWeight: 700, color: '#f59e0b', minWidth: '14px', marginTop: '0.15rem' }}>
                   {i + 1}.
                 </span>
-                <p style={{ fontSize: '0.75rem', color: '#64748b', margin: 0, lineHeight: 1.6 }}>{tip}</p>
+                <p style={{ fontSize: '0.75rem', color: 'var(--ndl-faint)', margin: 0, lineHeight: 1.6 }}>{tip}</p>
               </div>
             ))}
           </div>
@@ -605,7 +605,7 @@ export default function FuelTrackerClient() {
 
   // ── Shared styles ─────────────────────────────────────────────────────────
   const S = {
-    card: { background: '#0d1117', border: '1px solid rgba(255,255,255,0.07)', padding: '1rem' } as React.CSSProperties,
+    card: { background: 'var(--ndl-surface)', border: '1px solid var(--ndl-border)', padding: '1rem' } as React.CSSProperties,
     btn: (accent: string): React.CSSProperties => ({
       background: 'transparent', border: `1px solid ${accent}`,
       color: accent, padding: '0.5rem 1rem', cursor: 'pointer',
@@ -618,7 +618,7 @@ export default function FuelTrackerClient() {
       fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.07em',
       textTransform: 'uppercase' as const, borderRadius: 0,
     }),
-    label: { fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase' as const, color: '#475569', marginBottom: '0.25rem' } as React.CSSProperties,
+    label: { fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase' as const, color: 'var(--ndl-faint)', marginBottom: '0.25rem' } as React.CSSProperties,
   };
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -626,9 +626,9 @@ export default function FuelTrackerClient() {
   // ─────────────────────────────────────────────────────────────────────────
   if (step === 'loading') {
     return (
-      <div style={{ background: '#0b0f19', minHeight: '100vh' }}>
+      <div style={{ background: 'var(--ndl-bg)', minHeight: '100vh' }}>
         {/* Top bar skeleton */}
-        <div style={{ borderBottom: '1px solid rgba(255,255,255,0.07)', padding: '1rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ borderBottom: '1px solid var(--ndl-border)', padding: '1rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
             <div className="ndl-skeleton" style={{ width: '100px', height: '10px' }} />
             <div className="ndl-skeleton" style={{ width: '140px', height: '20px' }} />
@@ -649,14 +649,14 @@ export default function FuelTrackerClient() {
           {/* Stats grid skeleton */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1px', background: 'rgba(255,255,255,0.06)', marginBottom: '1.5rem' }}>
             {[...Array(4)].map((_, i) => (
-              <div key={i} style={{ background: '#0d1117', padding: '1.25rem' }}>
+              <div key={i} style={{ background: 'var(--ndl-surface)', padding: '1.25rem' }}>
                 <div className="ndl-skeleton" style={{ width: '70px', height: '10px', marginBottom: '0.5rem' }} />
                 <div className="ndl-skeleton" style={{ width: '90px', height: '28px' }} />
               </div>
             ))}
           </div>
           {/* Chart skeleton */}
-          <div style={{ background: '#0d1117', border: '1px solid rgba(255,255,255,0.07)', padding: '1rem', marginBottom: '1.5rem' }}>
+          <div style={{ background: 'var(--ndl-surface)', border: '1px solid var(--ndl-border)', padding: '1rem', marginBottom: '1.5rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
               <div className="ndl-skeleton" style={{ width: '80px', height: '12px' }} />
               <div style={{ display: 'flex', gap: '1px' }}>
@@ -668,7 +668,7 @@ export default function FuelTrackerClient() {
           </div>
           {/* Fills table skeleton */}
           {[...Array(3)].map((_, i) => (
-            <div key={i} style={{ background: '#0d1117', border: '1px solid rgba(255,255,255,0.07)', padding: '1rem', marginBottom: '1px', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <div key={i} style={{ background: 'var(--ndl-surface)', border: '1px solid var(--ndl-border)', padding: '1rem', marginBottom: '1px', display: 'flex', gap: '1rem', alignItems: 'center' }}>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
                 <div className="ndl-skeleton" style={{ width: '80px', height: '10px' }} />
                 <div className="ndl-skeleton" style={{ width: '140px', height: '14px' }} />
@@ -687,16 +687,16 @@ export default function FuelTrackerClient() {
   // ─────────────────────────────────────────────────────────────────────────
   if (step === 'onboarding') {
     return (
-      <div style={{ minHeight: 'calc(100vh - 64px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem 1rem', background: '#0b0f19' }}>
+      <div style={{ minHeight: 'calc(100vh - 64px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem 1rem', background: 'var(--ndl-bg)' }}>
         <div style={{ maxWidth: '420px', width: '100%' }}>
           {/* Header */}
           <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#f59e0b', marginBottom: '0.5rem' }}>
             NexusDigitalLabs
           </p>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#f8fafc', marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--ndl-text)', marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>
             Fuel Tracker
           </h1>
-          <p style={{ fontSize: '0.8125rem', color: '#64748b', marginBottom: '2rem', lineHeight: 1.6 }}>
+          <p style={{ fontSize: '0.8125rem', color: 'var(--ndl-faint)', marginBottom: '2rem', lineHeight: 1.6 }}>
             Track fuel costs, efficiency, and mileage across all your vehicles. Data syncs across devices via a personal code — no account needed.
           </p>
 
@@ -707,7 +707,7 @@ export default function FuelTrackerClient() {
                 style={{
                   flex: 1, padding: '0.625rem', cursor: 'pointer', border: 'none',
                   background: onboardMode === m ? '#f59e0b' : 'transparent',
-                  color: onboardMode === m ? '#0f172a' : '#94a3b8',
+                  color: onboardMode === m ? '#0f172a' : 'var(--ndl-muted)',
                   fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase',
                 }}>
                 {m === 'new' ? 'Start Fresh' : 'I Have a Code'}
@@ -730,7 +730,7 @@ export default function FuelTrackerClient() {
                   ⚠️ Avoid using your email address — this becomes your sync code.
                 </p>
               )}
-              <p style={{ fontSize: '0.75rem', color: '#475569', margin: 0 }}>
+              <p style={{ fontSize: '0.75rem', color: 'var(--ndl-faint)', margin: 0 }}>
                 A unique sync code will be generated from your nickname. Keep it safe — it&apos;s how you access your data on other devices.
               </p>
               {onboardError && <p style={{ fontSize: '0.75rem', color: '#f87171', margin: 0 }}>{onboardError}</p>}
@@ -765,7 +765,7 @@ export default function FuelTrackerClient() {
   // ─────────────────────────────────────────────────────────────────────────
   if (step === 'vehicle_setup' && !showAddVehicle) {
     return (
-      <div style={{ minHeight: 'calc(100vh - 64px)', background: '#0b0f19', display: 'flex', alignItems: 'center', padding: '3rem 1.5rem' }}>
+      <div style={{ minHeight: 'calc(100vh - 64px)', background: 'var(--ndl-bg)', display: 'flex', alignItems: 'center', padding: '3rem 1.5rem' }}>
         <div style={{ maxWidth: '900px', width: '100%', margin: '0 auto', display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)', gap: '3rem', alignItems: 'start' }}
           className="vehicle-setup-grid">
           <style>{`
@@ -780,10 +780,10 @@ export default function FuelTrackerClient() {
             <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#4ade80', marginBottom: '0.5rem' }}>
               Step 2 of 2
             </p>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#f8fafc', marginBottom: '0.375rem', letterSpacing: '-0.02em' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--ndl-text)', marginBottom: '0.375rem', letterSpacing: '-0.02em' }}>
               Add your first vehicle
             </h2>
-            <p style={{ fontSize: '0.8125rem', color: '#64748b', marginBottom: '2rem', lineHeight: 1.6 }}>
+            <p style={{ fontSize: '0.8125rem', color: 'var(--ndl-faint)', marginBottom: '2rem', lineHeight: 1.6 }}>
               Set up your vehicle and start logging fill-ups right away.
             </p>
             <VehicleForm
@@ -812,14 +812,14 @@ export default function FuelTrackerClient() {
   // RENDER: Main view
   // ─────────────────────────────────────────────────────────────────────────
   return (
-    <div style={{ background: '#0b0f19', minHeight: '100vh' }}>
+    <div style={{ background: 'var(--ndl-bg)', minHeight: '100vh' }}>
 
       {/* ── Top bar ──────────────────────────────────────────────────────── */}
-      <div style={{ borderBottom: '1px solid rgba(255,255,255,0.07)', background: '#0b0f19' }}>
+      <div style={{ borderBottom: '1px solid var(--ndl-border)', background: 'var(--ndl-bg)' }}>
         <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '1rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
           <div>
             <p style={{ ...S.label, color: '#f59e0b' }}>NexusDigitalLabs</p>
-            <h1 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#f8fafc', margin: 0, letterSpacing: '-0.02em' }}>
+            <h1 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--ndl-text)', margin: 0, letterSpacing: '-0.02em' }}>
               Fuel Tracker
             </h1>
           </div>
@@ -841,7 +841,7 @@ export default function FuelTrackerClient() {
 
       {/* ── Settings panel ───────────────────────────────────────────────── */}
       {showSettings && (
-        <div style={{ background: '#0d1117', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+        <div style={{ background: 'var(--ndl-surface)', borderBottom: '1px solid var(--ndl-border)' }}>
           <style>{`
             .ft-settings-inner { max-width: 72rem; margin: 0 auto; padding: 1.25rem 1rem; display: flex; flex-direction: column; gap: 1rem; }
             .ft-settings-actions { display: flex; gap: 0.625rem; flex-wrap: wrap; }
@@ -868,7 +868,7 @@ export default function FuelTrackerClient() {
                   {codeCopied ? '✓ Copied' : 'Copy'}
                 </button>
               </div>
-              <p style={{ fontSize: '0.6875rem', color: '#475569', marginTop: '0.375rem' }}>
+              <p style={{ fontSize: '0.6875rem', color: 'var(--ndl-faint)', marginTop: '0.375rem' }}>
                 Enter this code on any device to load your full history.
               </p>
             </div>
@@ -906,8 +906,8 @@ export default function FuelTrackerClient() {
         {vehicles.length === 0 && !dataLoading && (
           <div style={{ ...S.card, textAlign: 'center', padding: '2.5rem 1.5rem', marginBottom: '1.5rem' }}>
             <p style={{ fontSize: '1.5rem', marginBottom: '0.75rem' }}>🚗</p>
-            <p style={{ fontSize: '0.9375rem', fontWeight: 700, color: '#f8fafc', marginBottom: '0.5rem' }}>No vehicles found</p>
-            <p style={{ fontSize: '0.8125rem', color: '#64748b', marginBottom: '1.25rem', lineHeight: 1.6 }}>
+            <p style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--ndl-text)', marginBottom: '0.5rem' }}>No vehicles found</p>
+            <p style={{ fontSize: '0.8125rem', color: 'var(--ndl-faint)', marginBottom: '1.25rem', lineHeight: 1.6 }}>
               Your sync code is valid but no vehicles are saved yet — or they may have been saved under a different code.
             </p>
             <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -933,9 +933,9 @@ export default function FuelTrackerClient() {
               onClick={() => setActiveVehicleId(v.id)}
               style={{
                 padding: '0.375rem 0.875rem', cursor: 'pointer', borderRadius: 0,
-                border: v.id === activeVehicleId ? '1px solid #f59e0b' : '1px solid rgba(255,255,255,0.1)',
+                border: v.id === activeVehicleId ? '1px solid #f59e0b' : '1px solid var(--ndl-border)',
                 background: v.id === activeVehicleId ? 'rgba(245,158,11,0.1)' : 'transparent',
-                color: v.id === activeVehicleId ? '#f59e0b' : '#94a3b8',
+                color: v.id === activeVehicleId ? '#f59e0b' : 'var(--ndl-muted)',
                 fontSize: '0.8125rem', fontWeight: 600,
               }}>
               {v.nickname || `${v.make} ${v.model}`}
@@ -955,7 +955,7 @@ export default function FuelTrackerClient() {
           const v = vehicles.find(vv => vv.id === activeVehicleId);
           if (!v) return null;
           return (
-            <p style={{ fontSize: '0.75rem', color: '#475569', marginBottom: '1.25rem' }}>
+            <p style={{ fontSize: '0.75rem', color: 'var(--ndl-faint)', marginBottom: '1.25rem' }}>
               {v.make} {v.model}{v.year ? ` · ${v.year}` : ''} · {v.fuel_type}
               {fills.length > 0 && ` · ${fills.length} fill${fills.length > 1 ? 's' : ''} logged`}
             </p>
@@ -968,13 +968,13 @@ export default function FuelTrackerClient() {
             { label: 'Avg L/100km', value: avgL100 ? fmt(avgL100) : '—', accent: '#f59e0b' },
             { label: 'Avg km/L', value: avgKmpl ? fmt(avgKmpl) : '—', accent: '#f59e0b' },
             { label: 'Best Efficiency', value: bestL100 ? `${fmt(bestL100)} L/100` : '—', accent: '#4ade80' },
-            { label: 'Total Spent', value: totalSpend > 0 ? fmtCurrency(currency.symbol, totalSpend) : '—', accent: '#94a3b8' },
-            { label: 'Total Litres', value: totalLitres > 0 ? `${fmt(totalLitres)} L` : '—', accent: '#94a3b8' },
-            { label: 'Total KM Tracked', value: totalKm > 0 ? `${Math.round(totalKm).toLocaleString()} km` : '—', accent: '#94a3b8' },
-            { label: 'Cost per km', value: avgCostKm ? fmtCurrency(currency.symbol, avgCostKm) : '—', accent: '#94a3b8' },
+            { label: 'Total Spent', value: totalSpend > 0 ? fmtCurrency(currency.symbol, totalSpend) : '—', accent: 'var(--ndl-muted)' },
+            { label: 'Total Litres', value: totalLitres > 0 ? `${fmt(totalLitres)} L` : '—', accent: 'var(--ndl-muted)' },
+            { label: 'Total KM Tracked', value: totalKm > 0 ? `${Math.round(totalKm).toLocaleString()} km` : '—', accent: 'var(--ndl-muted)' },
+            { label: 'Cost per km', value: avgCostKm ? fmtCurrency(currency.symbol, avgCostKm) : '—', accent: 'var(--ndl-muted)' },
             { label: 'Worst Efficiency', value: worstL100 ? `${fmt(worstL100)} L/100` : '—', accent: '#f87171' },
           ].map(stat => (
-            <div key={stat.label} style={{ background: '#0d1117', padding: '1rem 1.25rem' }}>
+            <div key={stat.label} style={{ background: 'var(--ndl-surface)', padding: '1rem 1.25rem' }}>
               <p style={{ ...S.label, marginBottom: '0.375rem' }}>{stat.label}</p>
               <p style={{ fontSize: '1.25rem', fontWeight: 800, color: stat.accent, margin: 0, letterSpacing: '-0.01em' }}>
                 {stat.value}
@@ -986,12 +986,12 @@ export default function FuelTrackerClient() {
         {/* ── Data loading skeleton ─────────────────────────────────────── */}
         {dataLoading && fills.length === 0 && (
           <>
-            <div style={{ background: '#0d1117', border: '1px solid rgba(255,255,255,0.07)', padding: '1.25rem', marginBottom: '1px' }}>
+            <div style={{ background: 'var(--ndl-surface)', border: '1px solid var(--ndl-border)', padding: '1.25rem', marginBottom: '1px' }}>
               <div className="ndl-skeleton" style={{ width: '60px', height: '10px', marginBottom: '1rem' }} />
               <div className="ndl-skeleton" style={{ width: '100%', height: '180px', borderRadius: '4px' }} />
             </div>
             {[...Array(3)].map((_, i) => (
-              <div key={i} style={{ background: '#0d1117', border: '1px solid rgba(255,255,255,0.07)', padding: '1rem', marginBottom: '1px', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+              <div key={i} style={{ background: 'var(--ndl-surface)', border: '1px solid var(--ndl-border)', padding: '1rem', marginBottom: '1px', display: 'flex', gap: '1rem', alignItems: 'center' }}>
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
                   <div className="ndl-skeleton" style={{ width: '80px', height: '10px' }} />
                   <div className="ndl-skeleton" style={{ width: '150px', height: '14px' }} />
@@ -1045,7 +1045,7 @@ export default function FuelTrackerClient() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
               <p style={{ ...S.label, color: '#f59e0b' }}>New Fill-Up</p>
               <button type="button" onClick={() => { setShowAddFill(false); setFillError(''); }}
-                style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: '0.875rem' }}>✕</button>
+                style={{ background: 'none', border: 'none', color: 'var(--ndl-faint)', cursor: 'pointer', fontSize: '0.875rem' }}>✕</button>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '0.75rem', marginBottom: '0.75rem' }}>
               <InputField label="Date" type="date" value={fillDate} onChange={e => setFillDate(e.target.value)} />
@@ -1056,7 +1056,7 @@ export default function FuelTrackerClient() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
               <InputField label="Notes (optional)" placeholder="e.g. Before highway trip" value={fillNotes} onChange={e => setFillNotes(e.target.value)} />
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.625rem' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.8125rem', color: '#94a3b8', paddingBottom: '0.5rem' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.8125rem', color: 'var(--ndl-muted)', paddingBottom: '0.5rem' }}>
                   <input type="checkbox" checked={fillPartial} onChange={e => setFillPartial(e.target.checked)}
                     style={{ width: '14px', height: '14px', accentColor: '#f59e0b' }} />
                   Partial fill (exclude from efficiency)
@@ -1065,8 +1065,8 @@ export default function FuelTrackerClient() {
             </div>
             {/* Quick calc preview */}
             {fillLitres && fillPrice && (
-              <p style={{ fontSize: '0.8125rem', color: '#64748b', marginBottom: '0.75rem' }}>
-                Total cost: <strong style={{ color: '#f8fafc' }}>{fmtCurrency(currency.symbol, parseFloat(fillLitres || '0') * parseFloat(fillPrice || '0'))}</strong>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--ndl-faint)', marginBottom: '0.75rem' }}>
+                Total cost: <strong style={{ color: 'var(--ndl-text)' }}>{fmtCurrency(currency.symbol, parseFloat(fillLitres || '0') * parseFloat(fillPrice || '0'))}</strong>
               </p>
             )}
             {fillError && <p style={{ fontSize: '0.75rem', color: '#f87171', marginBottom: '0.75rem' }}>{fillError}</p>}
@@ -1089,9 +1089,9 @@ export default function FuelTrackerClient() {
             <p style={{ ...S.label, marginBottom: '0.875rem', color: '#f59e0b' }}>Fill History</p>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8125rem' }}>
               <thead>
-                <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+                <tr style={{ borderBottom: '1px solid var(--ndl-border)' }}>
                   {['Date', 'Odometer', 'Distance', 'Litres', `${currency.symbol}/L`, 'Total', 'L/100km', 'km/L', 'Cost/km', ''].map(h => (
-                    <th key={h} style={{ padding: '0.5rem 0.75rem', textAlign: 'right', fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#475569', whiteSpace: 'nowrap' }}>
+                    <th key={h} style={{ padding: '0.5rem 0.75rem', textAlign: 'right', fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ndl-faint)', whiteSpace: 'nowrap' }}>
                       {h}
                     </th>
                   ))}
@@ -1100,24 +1100,24 @@ export default function FuelTrackerClient() {
               <tbody>
                 {[...fillStats].reverse().map(s => (
                   <tr key={s.fill.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                    <td style={{ padding: '0.625rem 0.75rem', color: '#94a3b8', whiteSpace: 'nowrap', textAlign: 'right' }}>
+                    <td style={{ padding: '0.625rem 0.75rem', color: 'var(--ndl-muted)', whiteSpace: 'nowrap', textAlign: 'right' }}>
                       {fmtDate(s.fill.fill_date)}
                       {s.fill.is_partial && <span style={{ fontSize: '0.6rem', color: '#f59e0b', marginLeft: '0.375rem' }}>PARTIAL</span>}
-                      {s.fill.notes && <div style={{ fontSize: '0.6875rem', color: '#475569' }}>{s.fill.notes}</div>}
+                      {s.fill.notes && <div style={{ fontSize: '0.6875rem', color: 'var(--ndl-faint)' }}>{s.fill.notes}</div>}
                     </td>
-                    <td style={{ padding: '0.625rem 0.75rem', color: '#f8fafc', textAlign: 'right', whiteSpace: 'nowrap' }}>{s.fill.odometer.toLocaleString()}</td>
-                    <td style={{ padding: '0.625rem 0.75rem', color: '#94a3b8', textAlign: 'right' }}>{s.distance ? `${Math.round(s.distance)} km` : (s.isFirst ? 'First' : '—')}</td>
-                    <td style={{ padding: '0.625rem 0.75rem', color: '#f8fafc', textAlign: 'right' }}>{fmt(s.fill.litres)} L</td>
-                    <td style={{ padding: '0.625rem 0.75rem', color: '#94a3b8', textAlign: 'right' }}>{fmt(s.fill.price_per_litre, 3)}</td>
-                    <td style={{ padding: '0.625rem 0.75rem', color: '#f8fafc', textAlign: 'right', whiteSpace: 'nowrap' }}>{fmtCurrency(currency.symbol, s.totalCost)}</td>
-                    <td style={{ padding: '0.625rem 0.75rem', textAlign: 'right', color: s.l100km ? (s.l100km <= (bestL100 ?? Infinity) * 1.05 ? '#4ade80' : s.l100km >= (worstL100 ?? 0) * 0.95 ? '#f87171' : '#f8fafc') : '#475569', fontWeight: s.l100km ? 700 : 400 }}>
+                    <td style={{ padding: '0.625rem 0.75rem', color: 'var(--ndl-text)', textAlign: 'right', whiteSpace: 'nowrap' }}>{s.fill.odometer.toLocaleString()}</td>
+                    <td style={{ padding: '0.625rem 0.75rem', color: 'var(--ndl-muted)', textAlign: 'right' }}>{s.distance ? `${Math.round(s.distance)} km` : (s.isFirst ? 'First' : '—')}</td>
+                    <td style={{ padding: '0.625rem 0.75rem', color: 'var(--ndl-text)', textAlign: 'right' }}>{fmt(s.fill.litres)} L</td>
+                    <td style={{ padding: '0.625rem 0.75rem', color: 'var(--ndl-muted)', textAlign: 'right' }}>{fmt(s.fill.price_per_litre, 3)}</td>
+                    <td style={{ padding: '0.625rem 0.75rem', color: 'var(--ndl-text)', textAlign: 'right', whiteSpace: 'nowrap' }}>{fmtCurrency(currency.symbol, s.totalCost)}</td>
+                    <td style={{ padding: '0.625rem 0.75rem', textAlign: 'right', color: s.l100km ? (s.l100km <= (bestL100 ?? Infinity) * 1.05 ? '#4ade80' : s.l100km >= (worstL100 ?? 0) * 0.95 ? '#f87171' : 'var(--ndl-text)') : 'var(--ndl-faint)', fontWeight: s.l100km ? 700 : 400 }}>
                       {s.l100km ? fmt(s.l100km) : '—'}
                     </td>
-                    <td style={{ padding: '0.625rem 0.75rem', textAlign: 'right', color: '#94a3b8' }}>{s.kmpl ? fmt(s.kmpl) : '—'}</td>
-                    <td style={{ padding: '0.625rem 0.75rem', textAlign: 'right', color: '#94a3b8', whiteSpace: 'nowrap' }}>{s.costPerKm ? fmtCurrency(currency.symbol, s.costPerKm) : '—'}</td>
+                    <td style={{ padding: '0.625rem 0.75rem', textAlign: 'right', color: 'var(--ndl-muted)' }}>{s.kmpl ? fmt(s.kmpl) : '—'}</td>
+                    <td style={{ padding: '0.625rem 0.75rem', textAlign: 'right', color: 'var(--ndl-muted)', whiteSpace: 'nowrap' }}>{s.costPerKm ? fmtCurrency(currency.symbol, s.costPerKm) : '—'}</td>
                     <td style={{ padding: '0.625rem 0.75rem', textAlign: 'right' }}>
                       <button type="button" onClick={() => handleDeleteFill(s.fill.id)}
-                        style={{ background: 'none', border: 'none', color: '#475569', cursor: 'pointer', fontSize: '0.875rem', padding: '0' }}>
+                        style={{ background: 'none', border: 'none', color: 'var(--ndl-faint)', cursor: 'pointer', fontSize: '0.875rem', padding: '0' }}>
                         ✕
                       </button>
                     </td>
@@ -1137,8 +1137,8 @@ export default function FuelTrackerClient() {
         {fills.length === 0 && !dataLoading && (
           <div style={{ ...S.card, textAlign: 'center', padding: '3rem 1.5rem' }}>
             <p style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>⛽</p>
-            <p style={{ fontSize: '0.9375rem', fontWeight: 700, color: '#f8fafc', marginBottom: '0.375rem' }}>No fill-ups yet</p>
-            <p style={{ fontSize: '0.8125rem', color: '#64748b' }}>Add your first fill-up to start tracking efficiency and cost.</p>
+            <p style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--ndl-text)', marginBottom: '0.375rem' }}>No fill-ups yet</p>
+            <p style={{ fontSize: '0.8125rem', color: 'var(--ndl-faint)' }}>Add your first fill-up to start tracking efficiency and cost.</p>
           </div>
         )}
       </div>
@@ -1147,12 +1147,12 @@ export default function FuelTrackerClient() {
       {step === 'vehicle_setup' && showAddVehicle && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(5,10,20,0.8)', zIndex: 9000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}
           onClick={() => { setShowAddVehicle(false); setStep('main'); }}>
-          <div style={{ background: '#0d1117', border: '1px solid rgba(255,255,255,0.1)', padding: '2rem', maxWidth: '420px', width: '100%' }}
+          <div style={{ background: 'var(--ndl-surface)', border: '1px solid var(--ndl-border)', padding: '2rem', maxWidth: '420px', width: '100%' }}
             onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-              <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: '#f8fafc', margin: 0 }}>Add Vehicle</h2>
+              <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--ndl-text)', margin: 0 }}>Add Vehicle</h2>
               <button type="button" onClick={() => { setShowAddVehicle(false); setStep('main'); }}
-                style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: '1rem' }}>✕</button>
+                style={{ background: 'none', border: 'none', color: 'var(--ndl-faint)', cursor: 'pointer', fontSize: '1rem' }}>✕</button>
             </div>
             <VehicleForm
               make={vMake} setMake={setVMake}

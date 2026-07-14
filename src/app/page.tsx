@@ -128,7 +128,7 @@ export default function HomePage() {
             <div className="ndl-anim-4 flex flex-col sm:flex-row items-start gap-3">
               <Link
                 href="#tools"
-                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold px-7 py-3.5 rounded-xl transition-all duration-200 no-underline"
+                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 ndl-on-accent text-sm font-semibold px-7 py-3.5 rounded-xl transition-all duration-200 no-underline"
                 style={{ boxShadow: '0 4px 20px rgba(37,99,235,0.4)' }}
               >
                 Explore Tools <ArrowRight className="w-4 h-4" />

@@ -13,7 +13,7 @@ exports[`Header — snapshot > matches snapshot on homepage 1`] = `
       href="/"
     >
       <div
-        class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white text-sm"
+        class="w-8 h-8 rounded-lg flex items-center justify-center font-bold ndl-on-accent text-sm"
         style="background: linear-gradient(135deg, rgb(37, 99, 235), rgb(99, 102, 241)); box-shadow: 0 4px 14px rgba(37,99,235,0.28);"
       >
         N

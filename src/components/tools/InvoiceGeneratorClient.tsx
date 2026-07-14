@@ -72,7 +72,7 @@ function calcTotals(items: LineItem[], discountPct: number, taxPct: number) {
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
     <span className="block text-[10.5px] font-medium tracking-wide uppercase mb-1"
-      style={{ color: '#4b6278', letterSpacing: '0.03em' }}>
+      style={{ color: 'var(--ndl-muted)', letterSpacing: '0.03em' }}>
       {children}
     </span>
   );
@@ -80,7 +80,7 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
 
 // ── Subcomponent: dark form input ──────────────────────────────────────────────
 const inputCls =
-  'block w-full bg-[rgba(15,23,42,0.8)] border border-[#1e293b] rounded-[7px] px-[11px] py-[7px] text-[12.5px] text-slate-200 outline-none transition-colors focus:border-[rgba(99,102,241,0.55)] placeholder:text-[#3f526b] font-[Inter,sans-serif]';
+  'block w-full rounded-[7px] px-[11px] py-[7px] text-[12.5px] outline-none transition-colors font-[Inter,sans-serif] ndl-invoice-input';
 
 // ── Subcomponent: Invoice preview (rendered as JSX, captured by html2pdf) ──────
 interface InvoicePreviewProps {
@@ -385,14 +385,14 @@ export default function InvoiceGeneratorClient() {
         style={{
           height: 'calc(100vh - 64px)',
           overflow: 'hidden',
-          background: '#0b0f19',
-          color: '#cbd5e1',
+          background: 'var(--ndl-bg)',
+          color: 'var(--ndl-text-secondary)',
         }}
       >
         {/* ── LEFT PANE: CONFIG FORM ──────────────────────────────────────── */}
         <div
           className="shrink-0 overflow-y-auto"
-          style={{ width: '420px', background: '#07090f', borderRight: '1px solid rgba(30,41,59,0.6)' }}
+          style={{ width: '420px', background: 'var(--ndl-surface)', borderRight: '1px solid var(--ndl-border)' }}
         >
           <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
 
@@ -404,8 +404,8 @@ export default function InvoiceGeneratorClient() {
                 </Field>
                 <Field label="Currency">
                   <select className={inputCls} value={currency} onChange={(e) => setCurrency(e.target.value)}
-                    style={{ background: 'rgba(15,23,42,0.8)' }}>
-                    {CURRENCIES.map((c) => <option key={c.value} value={c.value} style={{ background: '#0f172a' }}>{c.label}</option>)}
+                    style={{ background: 'var(--ndl-input-bg)', color: 'var(--ndl-text)', border: '1px solid var(--ndl-input-border)' }}>
+                    {CURRENCIES.map((c) => <option key={c.value} value={c.value} style={{ background: 'var(--ndl-surface)' }}>{c.label}</option>)}
                   </select>
                 </Field>
                 <Field label="Invoice Date">
@@ -478,14 +478,14 @@ export default function InvoiceGeneratorClient() {
                 {items.map((item) => (
                   <div
                     key={item.id}
-                    style={{ background: 'rgba(15,23,42,0.6)', border: '1px solid #1a2744', borderRadius: '9px', padding: '11px' }}
+                    style={{ background: 'var(--ndl-card-bg)', border: '1px solid var(--ndl-border)', borderRadius: '9px', padding: '11px' }}
                   >
                     <div className="flex items-center justify-between mb-[8px]">
-                      <span style={{ fontSize: '10px', fontWeight: 500, color: '#3b5268', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Item</span>
+                      <span style={{ fontSize: '10px', fontWeight: 500, color: 'var(--ndl-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Item</span>
                       <button
                         type="button"
                         onClick={() => removeItem(item.id)}
-                        className="text-[#2d4a60] hover:text-red-400 transition-colors bg-transparent border-none cursor-pointer p-0 leading-none"
+                        className="text-[color:var(--ndl-muted)] hover:text-red-400 transition-colors bg-transparent border-none cursor-pointer p-0 leading-none"
                       >
                         <svg className="w-[13px] h-[13px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
@@ -582,7 +582,7 @@ export default function InvoiceGeneratorClient() {
         <div
           ref={previewPaneRef}
           className="flex-1 overflow-y-auto flex flex-col items-center"
-          style={{ background: '#0d1117', padding: '24px 24px 40px' }}
+          style={{ background: 'var(--ndl-surface-2)', padding: '24px 24px 40px' }}
         >
           {/* Action bar */}
           <div className="w-full flex items-center justify-between mb-[18px] shrink-0" style={{ maxWidth: '794px' }}>
@@ -591,7 +591,7 @@ export default function InvoiceGeneratorClient() {
                 type="button"
                 onClick={handleDownload}
                 disabled={isDownloading}
-                className="inline-flex items-center gap-[7px] text-[13px] font-semibold text-white px-[18px] py-[9px] rounded-[10px] border-none cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-[7px] text-[13px] font-semibold ndl-on-accent px-[18px] py-[9px] rounded-[10px] border-none cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                 style={{ background: '#2563eb', boxShadow: '0 4px 20px rgba(37,99,235,0.35)' }}
               >
                 {isDownloading ? (
@@ -605,9 +605,9 @@ export default function InvoiceGeneratorClient() {
                 )}
                 {isDownloading ? 'Generating…' : 'Download PDF'}
               </button>
-              <span style={{ fontSize: '11px', color: '#334155' }}>A4 · Portrait · Vector-quality</span>
+              <span style={{ fontSize: '11px', color: 'var(--ndl-faint)' }}>A4 · Portrait · Vector-quality</span>
             </div>
-            <span style={{ fontSize: '11px', color: '#1e3a5f', fontStyle: 'italic' }}>Live preview</span>
+            <span style={{ fontSize: '11px', color: 'var(--ndl-muted)', fontStyle: 'italic' }}>Live preview</span>
           </div>
 
           {/* Invoice paper — scaled to fit pane */}
@@ -645,7 +645,7 @@ export default function InvoiceGeneratorClient() {
 // ── Small layout helpers ───────────────────────────────────────────────────────
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-[10px] font-semibold tracking-widest uppercase mb-[10px]" style={{ color: '#475569' }}>
+    <p className="text-[10px] font-semibold tracking-widest uppercase mb-[10px]" style={{ color: 'var(--ndl-faint)' }}>
       {children}
     </p>
   );

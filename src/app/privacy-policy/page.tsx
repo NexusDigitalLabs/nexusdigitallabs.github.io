@@ -34,7 +34,7 @@ export default function PrivacyPolicyPage() {
           className="flex items-center gap-2.5 no-underline group w-fit"
         >
           <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center font-semibold text-white text-sm"
+            className="w-8 h-8 rounded-lg flex items-center justify-center font-semibold ndl-on-accent text-sm"
             style={{ background: 'linear-gradient(135deg,#2563eb,#6366f1)' }}
           >
             N

@@ -224,13 +224,88 @@ body {
   color: var(--ndl-muted) !important;
 }
 [data-theme="light"] .text-slate-500,
-[data-theme="light"] .text-slate-600,
+[data-theme="light"] .text-slate-600 {
+  color: var(--ndl-muted) !important;
+}
 [data-theme="light"] .text-slate-700 {
-  color: var(--ndl-faint) !important;
+  color: var(--ndl-text-secondary) !important;
 }
 [data-theme="light"] .hover\:text-white:hover,
 [data-theme="light"] .group:hover .group-hover\:text-white {
   color: var(--ndl-text) !important;
+}
+
+/* Accent surfaces: keep white text (bridge must not turn these near-black). */
+.ndl-on-accent {
+  color: #ffffff !important;
+}
+[data-theme="light"] .ndl-on-accent,
+[data-theme="light"] .ndl-on-accent.text-white,
+[data-theme="light"] .bg-blue-600.text-white,
+[data-theme="light"] .bg-blue-500.text-white,
+[data-theme="light"] .bg-emerald-600.text-white,
+[data-theme="light"] .bg-emerald-500.text-white,
+[data-theme="light"] .bg-indigo-600.text-white,
+[data-theme="light"] .bg-indigo-500.text-white,
+[data-theme="light"] .bg-violet-600.text-white,
+[data-theme="light"] .bg-violet-500.text-white,
+[data-theme="light"] .bg-sky-600.text-white,
+[data-theme="light"] .bg-sky-500.text-white,
+[data-theme="light"] .bg-slate-700.text-white,
+[data-theme="light"] .bg-slate-800.text-white,
+[data-theme="light"] .bg-amber-600.text-white,
+[data-theme="light"] .bg-amber-500.text-white {
+  color: #ffffff !important;
+}
+[data-theme="light"] a.bg-blue-600,
+[data-theme="light"] a.bg-blue-500,
+[data-theme="light"] a.bg-emerald-600,
+[data-theme="light"] a.bg-emerald-500,
+[data-theme="light"] a.bg-indigo-600,
+[data-theme="light"] a.bg-violet-600,
+[data-theme="light"] a.bg-violet-500,
+[data-theme="light"] a.bg-sky-600,
+[data-theme="light"] a.bg-amber-600,
+[data-theme="light"] a.bg-amber-500,
+[data-theme="light"] a.bg-slate-700,
+[data-theme="light"] button.bg-blue-600,
+[data-theme="light"] button.bg-blue-500,
+[data-theme="light"] button.bg-emerald-600,
+[data-theme="light"] button.bg-emerald-500,
+[data-theme="light"] button.bg-indigo-600,
+[data-theme="light"] button.bg-violet-600 {
+  color: #ffffff !important;
+}
+
+/* Zinc bridge (Prompt Architect + similar) */
+[data-theme="light"] .text-zinc-50,
+[data-theme="light"] .text-zinc-100 {
+  color: var(--ndl-text) !important;
+}
+[data-theme="light"] .text-zinc-200,
+[data-theme="light"] .text-zinc-300 {
+  color: var(--ndl-text-secondary) !important;
+}
+[data-theme="light"] .text-zinc-400 {
+  color: var(--ndl-muted) !important;
+}
+[data-theme="light"] .text-zinc-500,
+[data-theme="light"] .text-zinc-600 {
+  color: var(--ndl-muted) !important;
+}
+[data-theme="light"] .bg-zinc-950,
+[data-theme="light"] .bg-zinc-900,
+[data-theme="light"] .bg-zinc-900\/40,
+[data-theme="light"] .bg-zinc-900\/50,
+[data-theme="light"] .bg-zinc-800,
+[data-theme="light"] .bg-zinc-800\/50 {
+  background-color: var(--ndl-card-bg) !important;
+}
+[data-theme="light"] .border-zinc-800,
+[data-theme="light"] .border-zinc-800\/50,
+[data-theme="light"] .border-zinc-700,
+[data-theme="light"] .border-zinc-700\/50 {
+  border-color: var(--ndl-border) !important;
 }
 [data-theme="light"] .border-slate-800,
 [data-theme="light"] .border-slate-800\/40,
@@ -271,4 +346,44 @@ body {
 }
 .ndl-footer-link:hover {
   color: var(--ndl-text);
+}
+
+
+
+[data-theme="light"] .bg-zinc-900\/60,
+[data-theme="light"] .bg-zinc-900\/70,
+[data-theme="light"] .bg-zinc-900\/40,
+[data-theme="light"] .bg-zinc-800\/70,
+[data-theme="light"] .bg-zinc-800\/50,
+[data-theme="light"] .hover\:bg-zinc-900\/60:hover,
+[data-theme="light"] .hover\:bg-zinc-800\/70:hover {
+  background-color: var(--ndl-surface-2) !important;
+}
+[data-theme="light"] .border-zinc-800\/60,
+[data-theme="light"] .border-zinc-700 {
+  border-color: var(--ndl-border) !important;
+}
+[data-theme="light"] .placeholder\:text-zinc-700::placeholder {
+  color: var(--ndl-faint) !important;
+}
+[data-theme="light"] .text-zinc-700 {
+  color: var(--ndl-text-secondary) !important;
+}
+[data-theme="light"] .hover\:text-zinc-100:hover,
+[data-theme="light"] .hover\:text-zinc-200:hover,
+[data-theme="light"] .hover\:text-zinc-300:hover {
+  color: var(--ndl-text) !important;
+}
+
+/* ── Invoice generator inputs (theme-aware) ───────────────────────────────── */
+.ndl-invoice-input {
+  background: var(--ndl-input-bg);
+  border: 1px solid var(--ndl-input-border);
+  color: var(--ndl-text);
+}
+.ndl-invoice-input::placeholder {
+  color: var(--ndl-faint);
+}
+.ndl-invoice-input:focus {
+  border-color: rgba(99, 102, 241, 0.55);
 }

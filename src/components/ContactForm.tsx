@@ -111,7 +111,7 @@ export default function ContactForm() {
 
       <button
         type="submit"
-        className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold px-7 py-3 rounded-xl transition-all duration-200 hover:-translate-y-0.5"
+        className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 ndl-on-accent text-sm font-semibold px-7 py-3 rounded-xl transition-all duration-200 hover:-translate-y-0.5"
         style={{ boxShadow: '0 4px 20px rgba(37,99,235,0.4)' }}
       >
         Send message

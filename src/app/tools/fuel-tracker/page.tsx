@@ -42,7 +42,7 @@ export default function FuelTrackerPage() {
       <PWAInstallBanner />
 
       {/* ── SEO Content Block ─────────────────────────────────────────── */}
-      <section style={{ background: '#090d15', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '4rem 1.5rem' }}>
+      <section style={{ background: 'var(--ndl-bg)', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '4rem 1.5rem' }}>
         <div style={{ maxWidth: '52rem', margin: '0 auto' }}>
 
           <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#f8fafc', marginBottom: '0.75rem', letterSpacing: '-0.02em' }}>
