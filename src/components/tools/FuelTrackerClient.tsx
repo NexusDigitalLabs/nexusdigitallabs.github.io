@@ -266,25 +266,7 @@ export default function FuelTrackerClient() {
   // chart
   const [activeChart, setActiveChart] = useState<'efficiency' | 'spend'>('efficiency');
 
-  // ── Init ──────────────────────────────────────────────────────────────────
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem('ndl_fuel_code');
-      const code = stored ? normaliseCode(stored) : null;
-      const cur = localStorage.getItem('ndl_fuel_currency');
-      if (cur) setCurrencyCode(cur);
-      if (code) {
-        setUserCode(code);
-        setStep('loading');
-      } else {
-        setStep('onboarding');
-      }
-    } catch {
-      setStep('onboarding');
-    }
-  }, []);
-
-  // ── Fetch vehicles when code is set ──────────────────────────────────────
+  // ── Fetch vehicles (only called explicitly, never reactively on userCode change)
   const fetchVehicles = useCallback(async (code: string) => {
     setDataLoading(true);
     try {
@@ -298,18 +280,36 @@ export default function FuelTrackerClient() {
         setVehicles([]);
         setStep('vehicle_setup');
       } else {
-        setStep('onboarding');
+        // API error — stay on current step, don't bounce back to onboarding
+        setStep(prev => (prev === 'loading' ? 'onboarding' : prev));
       }
     } catch {
-      setStep('onboarding');
+      setStep(prev => (prev === 'loading' ? 'onboarding' : prev));
     } finally {
       setDataLoading(false);
     }
   }, []);
 
+  // ── Init — only runs once on mount ────────────────────────────────────────
   useEffect(() => {
-    if (userCode) fetchVehicles(userCode);
-  }, [userCode, fetchVehicles]);
+    try {
+      const stored = localStorage.getItem('ndl_fuel_code');
+      const code = stored ? normaliseCode(stored) : null;
+      const cur = localStorage.getItem('ndl_fuel_currency');
+      if (cur) setCurrencyCode(cur);
+      if (code) {
+        setUserCode(code);
+        // Explicitly fetch for returning users only
+        fetchVehicles(code);
+      } else {
+        setStep('onboarding');
+      }
+    } catch {
+      setStep('onboarding');
+    }
+  // fetchVehicles is stable (useCallback with []) — safe to include
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ── Fetch fills when active vehicle changes ───────────────────────────────
   const fetchFills = useCallback(async (vehicleId: string, code: string) => {
@@ -330,17 +330,15 @@ export default function FuelTrackerClient() {
   }, [activeVehicleId, userCode, fetchFills]);
 
   // ── Onboarding ────────────────────────────────────────────────────────────
-  async function handleStartNew() {
+  function handleStartNew() {
     if (!nicknameInput.trim()) { setOnboardError('Enter a nickname first'); return; }
     setOnboardError('');
-    setOnboardLoading(true);
     const code = genCode(nicknameInput.trim());
-    try {
-      localStorage.setItem('ndl_fuel_code', code);
-    } catch { /* ignore */ }
+    try { localStorage.setItem('ndl_fuel_code', code); } catch { /* ignore */ }
+    // Set code in state then go directly to vehicle setup — no API fetch needed
+    // for a brand new user who has no vehicles yet.
     setUserCode(code);
     setStep('vehicle_setup');
-    setOnboardLoading(false);
   }
 
   async function handleExistingCode() {
@@ -354,7 +352,14 @@ export default function FuelTrackerClient() {
       if (json.data) {
         try { localStorage.setItem('ndl_fuel_code', code); } catch { /* ignore */ }
         setUserCode(code);
-        if (json.data.length === 0) setStep('vehicle_setup');
+        // Navigate directly — don't rely on a reactive useEffect
+        if (json.data.length > 0) {
+          setVehicles(json.data);
+          setActiveVehicleId(json.data[0].id);
+          setStep('main');
+        } else {
+          setStep('vehicle_setup');
+        }
       } else {
         setOnboardError('No data found for that code. Double-check and try again.');
       }
