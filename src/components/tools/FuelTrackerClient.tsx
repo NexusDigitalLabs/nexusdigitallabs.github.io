@@ -488,19 +488,16 @@ export default function FuelTrackerClient() {
     try {
       const res = await fetch(`/api/fuel?code=${encodeURIComponent(code)}&resource=vehicles`);
       const json = await res.json();
-      if (json.data) {
+      // A valid existing garage must have at least one vehicle.
+      // An empty array means the code was never registered — treat as not found.
+      if (json.data && json.data.length > 0) {
         try { localStorage.setItem('ndl_fuel_code', code); } catch { /* ignore */ }
         setUserCode(code);
-        // Navigate directly — don't rely on a reactive useEffect
-        if (json.data.length > 0) {
-          setVehicles(json.data);
-          setActiveVehicleId(json.data[0].id);
-          setStep('main');
-        } else {
-          setStep('vehicle_setup');
-        }
+        setVehicles(json.data);
+        setActiveVehicleId(json.data[0].id);
+        setStep('main');
       } else {
-        setOnboardError('No data found for that code. Double-check and try again.');
+        setOnboardError('No garage found for that code. Check the full code including the suffix (e.g. MyName-AB3X) and try again.');
       }
     } catch {
       setOnboardError('Could not connect. Please try again.');
@@ -848,10 +845,13 @@ export default function FuelTrackerClient() {
             >
               {CURRENCIES.map(c => <option key={c.code} value={c.code}>{c.code}</option>)}
             </select>
-            <button type="button" onClick={() => setShowSettings(s => !s)}
-              style={{ ...S.btn('rgba(255,255,255,0.3)'), padding: '0.375rem 0.75rem' }}>
-              ⚙ Settings
-            </button>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.125rem' }}>
+              <button type="button" onClick={() => setShowSettings(s => !s)}
+                style={{ ...S.btn('rgba(255,255,255,0.3)'), padding: '0.375rem 0.75rem' }}>
+                ⚙ Settings
+              </button>
+              <span style={{ fontSize: '0.5625rem', color: '#475569', letterSpacing: '0.02em' }}>sync code · export · delete</span>
+            </div>
           </div>
         </div>
       </div>
