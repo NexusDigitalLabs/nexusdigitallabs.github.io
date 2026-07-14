@@ -19,7 +19,7 @@ describe('DebtOptimizerClient — rendering', () => {
 
   it('renders Free Cash Flow preview', () => {
     render(<DebtOptimizerClient />);
-    expect(screen.getByText(/free cash flow/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/free cash flow/i).length).toBeGreaterThan(0);
   });
 
   it('renders default expense names', () => {
@@ -89,6 +89,19 @@ describe('DebtOptimizerClient — calculation with default values', () => {
       () => expect(screen.getByRole('button', { name: /download pdf/i })).not.toBeDisabled(),
       { timeout: 2000 },
     );
+  });
+
+  it('shows Short, Medium, and Long plan options after calculation', async () => {
+    const user = userEvent.setup();
+    render(<DebtOptimizerClient />);
+
+    await user.click(screen.getByRole('button', { name: /calculate plan/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /^short/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /^medium/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /^long/i })).toBeInTheDocument();
+    }, { timeout: 2000 });
   });
 });
 

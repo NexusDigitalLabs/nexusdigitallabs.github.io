@@ -31,7 +31,7 @@ const TOOLS = [
     accent: 'sky',
     iconPath: 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6',
     title: 'Debt Optimizer',
-    desc: 'Avalanche vs snowball debt payoff calculator with month-by-month runway and HYSA savings compounding.',
+    desc: 'Short, Medium, and Long plans that clear debt while building savings — no monthly payment guesswork.',
   },
   {
     href: '/tools/fuel-tracker/',

@@ -187,24 +187,24 @@ A single-page invoice builder with a live preview. Supports dynamic line items, 
 ---
 
 ### Debt Settlement & Savings Planner
-> Month-by-month snowball debt payoff engine with PDF export.
+> Short / Medium / Long debt payoff plans that also build savings — with PDF export.
 
-Enter monthly income, itemised expenses, and debts. The tool calculates monthly free cash flow, applies it to debts using the snowball method (smallest balance first), and generates a month-by-month payoff timeline. Once debt-free, the same monthly budget pivots automatically to a savings projection.
+Enter income, expenses, and outstanding balances (no monthly payment field). Free cash flow is split into three strategies: Short (90% debt / 10% savings), Medium (70/30), and Long (50/50). Each plan uses snowball (lowest balance first) and shows debt-free date, monthly savings, and a month-by-month runway.
 
 **Features:**
 - Add unlimited expense categories via `+` button
-- Add unlimited debts (balance + minimum payment)
-- Real-time comma-formatted currency inputs (cursor-position-stable)
+- Debts need only name, total/limit, and outstanding balance
+- Three selectable plans: Short, Medium, Long
+- Real-time comma-formatted currency inputs
 - Currency selector
-- Month-by-month payoff runway table
-- Savings pivot projection after final debt cleared
-- PDF summary download (html2pdf.js, client-side)
-- Insufficient cash flow warning if minimums exceed free cash
+- Month-by-month runway with debt payments and cumulative savings
+- PDF export of selected plan + all-plan comparison
+- Warning when expenses exceed income
 
 | | |
 |---|---|
 | Route | `/tools/debt-optimizer/` |
-| Source | `src/components/tools/DebtOptimizerClient.tsx` |
+| Source | `src/components/tools/DebtOptimizerClient.tsx` + `src/lib/debt-engine.ts` |
 | Docs | [`docs/tools/debt-optimizer.md`](docs/tools/debt-optimizer.md) |
 | Status | Live ✅ |
 
@@ -415,7 +415,7 @@ A `position: fixed; inset: 0` element at `z-index: 100` covers the entire viewpo
 |---|---|
 | [`docs/tools/prompt-architect.md`](docs/tools/prompt-architect.md) | Token counter implementation, BPE approach, transformation pipeline |
 | [`docs/tools/invoice-generator.md`](docs/tools/invoice-generator.md) | Invoice fields, PDF generation, layout notes |
-| [`docs/tools/debt-optimizer.md`](docs/tools/debt-optimizer.md) | Snowball algorithm, PDF export, currency input logic |
+| [`docs/tools/debt-optimizer.md`](docs/tools/debt-optimizer.md) | Short/Medium/Long plans, snowball + savings splits, PDF export |
 | [`docs/tools/fuel-tracker.md`](docs/tools/fuel-tracker.md) | Data model, sync code design, Supabase SQL, efficiency formulas |
 | [`docs/games/games.md`](docs/games/games.md) | Game architecture, useGameState hook, all three game mechanics |
 

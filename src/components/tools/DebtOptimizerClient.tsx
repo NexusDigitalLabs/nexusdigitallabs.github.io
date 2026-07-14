@@ -1,12 +1,12 @@
 'use client';
 
 import {
-  useState, useRef, useCallback, useLayoutEffect, useId,
+  useState, useRef, useCallback, useLayoutEffect, useId, useMemo,
 } from 'react';
 import Script from 'next/script';
 import {
-  type Expense, type Debt, type RunwayRow, type RunResult,
-  runEngine, fmtNum, fmtC, fmtMo,
+  type Expense, type Debt, type MultiPlanResult, type PlanResult, type PlanHorizon,
+  runEngine, fmtC, fmtMo, fmtPct,
 } from '@/lib/debt-engine';
 
 // ── Currency constants ─────────────────────────────────────────────────────────
@@ -35,7 +35,41 @@ function todayStr() {
   return new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
-// ── Amount input component (comma formatting while typing, cursor-stable) ──────
+// ── Dark-theme design tokens ───────────────────────────────────────────────────
+const D = {
+  pageBg:       '#0b0f19',
+  cardBg:       'rgba(255,255,255,0.04)',
+  cardBgAlt:    'rgba(255,255,255,0.06)',
+  cardBorder:   'rgba(255,255,255,0.08)',
+  cardBorderHi: 'rgba(255,255,255,0.14)',
+  inputBg:      'rgba(255,255,255,0.05)',
+  inputBorder:  'rgba(255,255,255,0.1)',
+  inputFocus:   'rgba(255,255,255,0.9)',
+  sep:          'rgba(255,255,255,0.06)',
+  textPrimary:  '#f8fafc',
+  textSecondary:'#cbd5e1',
+  textMuted:    '#94a3b8',
+  textFaint:    '#64748b',
+  green:        '#4ade80',
+  greenDark:    '#052e16',
+  blue:         '#60a5fa',
+  red:          '#f87171',
+  redBg:        'rgba(239,68,68,0.08)',
+  redBorder:    'rgba(239,68,68,0.25)',
+  accent:       '#2563eb',
+} as const;
+
+const siBaseClass =
+  'block w-full outline-none px-2.5 py-2 text-[0.8125rem] font-[Inter,sans-serif] placeholder:text-slate-600 transition-colors';
+const siBaseStyle: React.CSSProperties = {
+  background: D.inputBg, border: `1px solid ${D.inputBorder}`,
+  color: D.textPrimary, borderRadius: 0,
+};
+
+const lblBase =
+  'block text-[0.6875rem] font-semibold tracking-[0.07em] uppercase text-slate-500 mb-[0.3rem]';
+
+// ── Amount input ───────────────────────────────────────────────────────────────
 interface AmountInputProps {
   value: number;
   onChange: (n: number) => void;
@@ -58,7 +92,6 @@ function AmountInput({ value, onChange, placeholder = '0', className = '', prefi
     onChange(digits ? parseInt(digits, 10) : 0);
   };
 
-  // Restore cursor position after React updates the value
   useLayoutEffect(() => {
     const el = ref.current;
     if (el && isFocused.current) {
@@ -98,45 +131,10 @@ function AmountInput({ value, onChange, placeholder = '0', className = '', prefi
   );
 }
 
-// ── Dark-theme design tokens ───────────────────────────────────────────────────
-const D = {
-  pageBg:      '#0b0f19',
-  cardBg:      'rgba(255,255,255,0.04)',
-  cardBgAlt:   'rgba(255,255,255,0.06)',
-  cardBorder:  'rgba(255,255,255,0.08)',
-  cardBorderHi:'rgba(255,255,255,0.14)',
-  inputBg:     'rgba(255,255,255,0.05)',
-  inputBorder: 'rgba(255,255,255,0.1)',
-  inputFocus:  'rgba(255,255,255,0.9)',
-  sep:         'rgba(255,255,255,0.06)',
-  textPrimary: '#f8fafc',
-  textSecondary:'#cbd5e1',
-  textMuted:   '#94a3b8',
-  textFaint:   '#64748b',
-  green:       '#4ade80',
-  greenDark:   '#052e16',
-  red:         '#f87171',
-  redBg:       'rgba(239,68,68,0.08)',
-  redBorder:   'rgba(239,68,68,0.25)',
-} as const;
-
-// ── CSS helpers ────────────────────────────────────────────────────────────────
-// Input base uses inline style for bg/border so AmountInput and text inputs share the same look
-const siBaseClass =
-  'block w-full outline-none px-2.5 py-2 text-[0.8125rem] font-[Inter,sans-serif] placeholder:text-slate-600 transition-colors';
-const siBaseStyle: React.CSSProperties = {
-  background: D.inputBg, border: `1px solid ${D.inputBorder}`,
-  color: D.textPrimary, borderRadius: 0,
-};
-
-const lblBase =
-  'block text-[0.6875rem] font-semibold tracking-[0.07em] uppercase text-slate-500 mb-[0.3rem]';
-
 // ── Main component ─────────────────────────────────────────────────────────────
 export default function DebtOptimizerClient() {
   const uid = useId();
 
-  // State
   const [currency, setCurrencyCode] = useState('LKR');
   const [income, setIncome] = useState(150000);
   const [expenses, setExpenses] = useState<Expense[]>([
@@ -145,12 +143,13 @@ export default function DebtOptimizerClient() {
     { id: 'exp-3', name: 'Utilities',         amount:  8000 },
   ]);
   const [debts, setDebts] = useState<Debt[]>([
-    { id: 'debt-1', name: 'Credit Card', totalAmt: 200000, outstanding:  85000, monthlyPay:  5000 },
-    { id: 'debt-2', name: 'Car Loan',    totalAmt: 800000, outstanding: 420000, monthlyPay: 18000 },
+    { id: 'debt-1', name: 'Credit Card', totalAmt: 200000, outstanding:  85000 },
+    { id: 'debt-2', name: 'Car Loan',    totalAmt: 800000, outstanding: 420000 },
   ]);
   const [expUid, setExpUid] = useState(4);
   const [debtUid, setDebtUid] = useState(3);
-  const [result, setResult] = useState<RunResult | null>(null);
+  const [result, setResult] = useState<MultiPlanResult | null>(null);
+  const [selectedHorizon, setSelectedHorizon] = useState<PlanHorizon>('medium');
   const [isCalc, setIsCalc] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
@@ -158,7 +157,13 @@ export default function DebtOptimizerClient() {
   const totalExp = expenses.reduce((s, e) => s + e.amount, 0);
   const fcf = income - totalExp;
 
-  // ── Expense helpers ──────────────────────────────────────────────────────────
+  const selectedPlan: PlanResult | null = useMemo(() => {
+    if (!result?.isViable) return null;
+    return result.plans.find((p) => p.horizon === selectedHorizon)
+      ?? result.plans.find((p) => p.isViable)
+      ?? null;
+  }, [result, selectedHorizon]);
+
   const addExpense = () => {
     setExpenses((prev) => [...prev, { id: `exp-${expUid}`, name: '', amount: 0 }]);
     setExpUid((n) => n + 1);
@@ -167,30 +172,31 @@ export default function DebtOptimizerClient() {
   const updateExpense = (id: string, field: keyof Expense, value: string | number) =>
     setExpenses((prev) => prev.map((e) => e.id === id ? { ...e, [field]: value } : e));
 
-  // ── Debt helpers ─────────────────────────────────────────────────────────────
   const addDebt = () => {
-    setDebts((prev) => [...prev, { id: `debt-${debtUid}`, name: '', totalAmt: 0, outstanding: 0, monthlyPay: 0 }]);
+    setDebts((prev) => [...prev, { id: `debt-${debtUid}`, name: '', totalAmt: 0, outstanding: 0 }]);
     setDebtUid((n) => n + 1);
   };
   const removeDebt = (id: string) => setDebts((prev) => prev.filter((d) => d.id !== id));
   const updateDebt = (id: string, field: keyof Debt, value: string | number) =>
     setDebts((prev) => prev.map((d) => d.id === id ? { ...d, [field]: value } : d));
 
-  // ── Calculate ────────────────────────────────────────────────────────────────
   const calculate = useCallback(() => {
     setIsCalc(true);
     setTimeout(() => {
       const r = runEngine(income, expenses, debts, sym);
       setResult(r);
+      // Prefer medium if viable, else first viable plan
+      const preferred = r.plans.find((p) => p.horizon === 'medium' && p.isViable)
+        ?? r.plans.find((p) => p.isViable);
+      if (preferred) setSelectedHorizon(preferred.horizon);
       setIsCalc(false);
     }, 20);
   }, [income, expenses, debts, sym]);
 
-  // ── PDF download ─────────────────────────────────────────────────────────────
   const pdfRef = useRef<HTMLDivElement>(null);
 
   const handleDownloadPDF = useCallback(async () => {
-    if (!result?.isViable || !pdfRef.current) return;
+    if (!result?.isViable || !selectedPlan || !pdfRef.current) return;
     const w = window as Window & { html2pdf?: () => Html2PdfInstance };
     if (!w.html2pdf) { alert('PDF engine is still loading, please wait.'); return; }
     setIsDownloading(true);
@@ -201,7 +207,7 @@ export default function DebtOptimizerClient() {
       await w.html2pdf()
         .set({
           margin: [10, 10, 10, 10],
-          filename: 'debt-payoff-plan.pdf',
+          filename: `debt-payoff-${selectedPlan.horizon}-plan.pdf`,
           image: { type: 'jpeg', quality: 0.98 },
           html2canvas: { scale: 2, useCORS: true, logging: false },
           jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
@@ -213,16 +219,15 @@ export default function DebtOptimizerClient() {
       el.style.display = 'none';
       setIsDownloading(false);
     }
-  }, [result]);
+  }, [result, selectedPlan]);
 
-  // ── Payoff month per debt ────────────────────────────────────────────────────
   const payoffMonth = useCallback((id: string): number | null => {
-    if (!result?.isViable) return null;
-    for (const row of result.runway) {
+    if (!selectedPlan?.isViable) return null;
+    for (const row of selectedPlan.runway) {
       if (!row.debtDetail.some((dd) => dd.id === id)) return row.month;
     }
     return null;
-  }, [result]);
+  }, [selectedPlan]);
 
   return (
     <>
@@ -243,7 +248,7 @@ export default function DebtOptimizerClient() {
                 Debt Settlement &amp; Savings Planner
               </h1>
               <p className="text-sm font-light mt-1.5 leading-relaxed" style={{ color: D.textMuted }}>
-                Add your income, expenses, and debts — get a month-by-month payoff runway and download a PDF plan.
+                Add income, expenses, and debts — compare Short, Medium, and Long plans that clear debt while building savings.
               </p>
             </div>
             <div className="hidden sm:flex items-center gap-2 text-[11px] shrink-0"
@@ -265,7 +270,6 @@ export default function DebtOptimizerClient() {
           {/* ── LEFT: Inputs ─────────────────────────────────────────────────── */}
           <div className="w-full lg:w-[380px] lg:shrink-0 lg:sticky lg:top-16 lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto">
 
-            {/* Currency */}
             <div className="mb-6">
               <label className={lblBase} htmlFor={`${uid}-currency`}>Currency</label>
               <select
@@ -283,7 +287,6 @@ export default function DebtOptimizerClient() {
               </select>
             </div>
 
-            {/* Income */}
             <div className="mb-6">
               <label className={lblBase} htmlFor={`${uid}-income`}>Monthly Net Income</label>
               <AmountInput value={income} onChange={setIncome} prefix={sym} />
@@ -353,7 +356,6 @@ export default function DebtOptimizerClient() {
               </div>
             </div>
 
-            {/* FCF preview */}
             <div className="mb-6 px-3 py-2.5" style={{ border: `1px solid ${D.cardBorder}`, background: D.cardBg }}>
               <div className="flex justify-between items-center">
                 <span className="text-[11px] font-medium" style={{ color: D.textMuted }}>Free Cash Flow</span>
@@ -361,9 +363,12 @@ export default function DebtOptimizerClient() {
                   {fmtC(fcf, sym)}
                 </span>
               </div>
+              <p className="text-[10px] mt-1.5 font-light" style={{ color: D.textFaint }}>
+                Split across debt payoff and savings in each plan.
+              </p>
             </div>
 
-            {/* Debts */}
+            {/* Debts — no monthly payment */}
             <div className="mb-6">
               <div className="flex items-center justify-between mb-3">
                 <p className="text-[0.6875rem] font-bold tracking-[0.1em] uppercase" style={{ color: D.textFaint }}>Loans &amp; Credit Cards</p>
@@ -392,7 +397,6 @@ export default function DebtOptimizerClient() {
                       : 0;
                     return (
                       <div key={debt.id} style={{ border: `1px solid ${D.cardBorder}`, background: D.cardBg, padding: '12px' }}>
-                        {/* Name + remove */}
                         <div className="flex items-center gap-2 mb-2.5">
                           <input
                             type="text"
@@ -417,22 +421,16 @@ export default function DebtOptimizerClient() {
                             </svg>
                           </button>
                         </div>
-                        {/* Three fields */}
-                        <div className="grid grid-cols-3 gap-2">
+                        <div className="grid grid-cols-2 gap-2">
                           <div>
-                            <label className={lblBase}>Total Amount</label>
+                            <label className={lblBase}>Total / Limit</label>
                             <AmountInput value={debt.totalAmt} onChange={(n) => updateDebt(debt.id, 'totalAmt', n)} prefix={sym} />
                           </div>
                           <div>
                             <label className={lblBase}>Outstanding</label>
                             <AmountInput value={debt.outstanding} onChange={(n) => updateDebt(debt.id, 'outstanding', n)} prefix={sym} />
                           </div>
-                          <div>
-                            <label className={lblBase}>Monthly Pay</label>
-                            <AmountInput value={debt.monthlyPay} onChange={(n) => updateDebt(debt.id, 'monthlyPay', n)} prefix={sym} />
-                          </div>
                         </div>
-                        {/* Progress bar */}
                         <div className="mt-2.5 h-[3px] overflow-hidden" style={{ background: D.sep }}>
                           <div className="h-[3px] transition-all" style={{ width: `${pct.toFixed(1)}%`, background: D.textFaint }} />
                         </div>
@@ -444,16 +442,12 @@ export default function DebtOptimizerClient() {
               )}
             </div>
 
-            {/* Actions */}
             <button
               type="button"
               onClick={calculate}
               disabled={isCalc}
               className="w-full py-3 text-[0.8125rem] font-semibold tracking-[0.04em] uppercase cursor-pointer border-none transition-colors disabled:cursor-not-allowed font-[Inter,sans-serif]"
-              style={{
-                borderRadius: 0, background: '#2563eb', color: '#fff',
-                opacity: isCalc ? 0.7 : 1,
-              }}
+              style={{ borderRadius: 0, background: D.accent, color: '#fff', opacity: isCalc ? 0.7 : 1 }}
             >
               {isCalc ? 'Calculating…' : 'Calculate Plan'}
             </button>
@@ -461,7 +455,7 @@ export default function DebtOptimizerClient() {
             <button
               type="button"
               onClick={handleDownloadPDF}
-              disabled={!result?.isViable || isDownloading}
+              disabled={!result?.isViable || !selectedPlan || isDownloading}
               className="w-full mt-2 py-3 text-[0.8125rem] font-semibold tracking-[0.04em] uppercase cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-[Inter,sans-serif]"
               style={{ border: `1px solid ${D.cardBorderHi}`, borderRadius: 0, background: 'transparent', color: D.textSecondary }}
             >
@@ -478,7 +472,8 @@ export default function DebtOptimizerClient() {
             </button>
 
             <p className="text-[10px] mt-4 leading-relaxed font-light" style={{ color: D.textFaint }}>
-              Debts are paid lowest-balance-first (snowball method). This plan does not account for interest accrual — actual payoff time may vary.
+              No monthly payment needed — the tool builds Short, Medium, and Long plans from your free cash flow.
+              Debts paid lowest-balance-first. Interest not included.
             </p>
           </div>
 
@@ -508,15 +503,14 @@ export default function DebtOptimizerClient() {
                   <p className="text-sm font-light leading-relaxed" style={{ color: D.textMuted }}>{result.error}</p>
                 </div>
               </div>
-            ) : (
+            ) : selectedPlan ? (
               <div>
-                {/* Summary cards */}
-                <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 mb-6">
+                {/* Overview strip */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
                   {[
-                    { label: 'Free Cash Flow',  value: fmtC(result.freeCashFlow, sym),     sub: 'Income minus total expenses',  green: false },
-                    { label: 'Monthly Overage', value: fmtC(result.overage, sym),           sub: 'After all minimum payments',   green: false },
-                    { label: 'Debt-Free In',    value: fmtMo(result.debtFreeMonth),         sub: result.debtFreeMonth ? `Month ${result.debtFreeMonth}` : '—', green: true },
-                    { label: 'Total to Repay',  value: fmtC(result.totalInitialDebt, sym),  sub: 'Sum of outstanding balances',  green: false },
+                    { label: 'Free Cash Flow', value: fmtC(result.freeCashFlow, sym), sub: 'Income − expenses' },
+                    { label: 'Total to Repay', value: fmtC(result.totalInitialDebt, sym), sub: 'Outstanding balances' },
+                    { label: 'Debt-Free In', value: fmtMo(selectedPlan.debtFreeMonth), sub: `${selectedPlan.label} plan`, green: true },
                   ].map(({ label, value, sub, green }) => (
                     <div key={label} style={{ border: `1px solid ${D.cardBorder}`, background: D.cardBg, padding: '1rem 1.25rem' }}>
                       <p className="text-[0.6875rem] font-bold tracking-[0.1em] uppercase mb-2" style={{ color: D.textFaint }}>{label}</p>
@@ -526,12 +520,84 @@ export default function DebtOptimizerClient() {
                   ))}
                 </div>
 
-                {/* Payoff schedule per debt */}
+                {/* Short / Medium / Long plan cards */}
+                <p className="text-[0.6875rem] font-bold tracking-[0.1em] uppercase mb-3" style={{ color: D.textFaint }}>
+                  Choose a Plan
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+                  {result.plans.map((plan) => {
+                    const active = plan.horizon === selectedHorizon;
+                    return (
+                      <button
+                        key={plan.horizon}
+                        type="button"
+                        onClick={() => plan.isViable && setSelectedHorizon(plan.horizon)}
+                        disabled={!plan.isViable}
+                        className="text-left cursor-pointer transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                        style={{
+                          border: `1px solid ${active ? D.blue : D.cardBorder}`,
+                          background: active ? 'rgba(37,99,235,0.12)' : D.cardBg,
+                          padding: '1rem',
+                          borderRadius: 0,
+                        }}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-semibold" style={{ color: active ? D.blue : D.textPrimary }}>
+                            {plan.label}
+                          </span>
+                          <span className="text-[10px] font-mono" style={{ color: D.textFaint }}>
+                            {fmtPct(plan.debtPct)} / {fmtPct(plan.savingsPct)}
+                          </span>
+                        </div>
+                        <p className="text-[11px] font-light leading-relaxed mb-3" style={{ color: D.textMuted }}>
+                          {plan.description}
+                        </p>
+                        <div className="space-y-1.5">
+                          <div className="flex justify-between text-[11px]">
+                            <span style={{ color: D.textFaint }}>Debt budget</span>
+                            <span className="font-mono" style={{ color: D.textSecondary }}>{fmtC(plan.monthlyDebtBudget, sym)}/mo</span>
+                          </div>
+                          <div className="flex justify-between text-[11px]">
+                            <span style={{ color: D.textFaint }}>Savings</span>
+                            <span className="font-mono" style={{ color: D.green }}>{fmtC(plan.monthlySavings, sym)}/mo</span>
+                          </div>
+                          <div className="flex justify-between text-[11px] pt-1.5" style={{ borderTop: `1px solid ${D.sep}` }}>
+                            <span style={{ color: D.textFaint }}>Debt-free</span>
+                            <span className="font-semibold" style={{ color: D.green }}>{fmtMo(plan.debtFreeMonth)}</span>
+                          </div>
+                          <div className="flex justify-between text-[11px]">
+                            <span style={{ color: D.textFaint }}>Saved by then</span>
+                            <span className="font-mono" style={{ color: D.textSecondary }}>{fmtC(plan.totalSavedByDebtFree, sym)}</span>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Selected plan detail metrics */}
+                <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 mb-6">
+                  {[
+                    { label: 'Monthly to Debt', value: fmtC(selectedPlan.monthlyDebtBudget, sym), sub: `${fmtPct(selectedPlan.debtPct)} of free cash flow` },
+                    { label: 'Monthly Savings', value: fmtC(selectedPlan.monthlySavings, sym), sub: `${fmtPct(selectedPlan.savingsPct)} of free cash flow`, green: true },
+                    { label: 'Debt-Free In', value: fmtMo(selectedPlan.debtFreeMonth), sub: selectedPlan.debtFreeMonth ? `Month ${selectedPlan.debtFreeMonth}` : '—', green: true },
+                    { label: 'Total Saved', value: fmtC(selectedPlan.totalSavedByDebtFree, sym), sub: 'By debt-free date', green: true },
+                  ].map(({ label, value, sub, green }) => (
+                    <div key={label} style={{ border: `1px solid ${D.cardBorder}`, background: D.cardBg, padding: '1rem 1.25rem' }}>
+                      <p className="text-[0.6875rem] font-bold tracking-[0.1em] uppercase mb-2" style={{ color: D.textFaint }}>{label}</p>
+                      <p className="text-xl font-semibold leading-none mb-1.5" style={{ color: green ? D.green : D.textPrimary }}>{value}</p>
+                      <p className="text-[11px] font-light" style={{ color: D.textMuted }}>{sub}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Payoff order */}
                 <div className="mb-6" style={{ border: `1px solid ${D.cardBorder}`, background: D.cardBg, padding: '1rem 1.25rem' }}>
                   <p className="text-[0.6875rem] font-bold tracking-[0.1em] uppercase mb-3" style={{ color: D.textFaint }}>
-                    Payoff Order <span className="font-normal normal-case tracking-normal" style={{ color: D.textFaint }}>— lowest balance first</span>
+                    Payoff Order <span className="font-normal normal-case tracking-normal">— lowest balance first · {selectedPlan.label} plan</span>
                   </p>
                   {debts
+                    .filter((d) => d.outstanding > 0)
                     .slice()
                     .sort((a, b) => a.outstanding - b.outstanding)
                     .map((d) => {
@@ -540,14 +606,13 @@ export default function DebtOptimizerClient() {
                       return (
                         <div key={d.id} className="flex items-center justify-between gap-4 py-2.5" style={{ borderBottom: `1px solid ${D.sep}` }}>
                           <div className="min-w-0 flex-1">
-                            <p className="text-sm font-medium truncate" style={{ color: D.textSecondary }}>{d.name}</p>
+                            <p className="text-sm font-medium truncate" style={{ color: D.textSecondary }}>{d.name || 'Unnamed debt'}</p>
                             <div className="mt-1 h-[3px] overflow-hidden" style={{ width: '100%', background: D.sep }}>
                               <div className="h-[3px] transition-all" style={{ width: `${pct.toFixed(1)}%`, background: D.textFaint }} />
                             </div>
                             <p className="text-[10px] mt-0.5" style={{ color: D.textMuted }}>{fmtC(d.outstanding, sym)} of {fmtC(d.totalAmt, sym)}</p>
                           </div>
                           <div className="text-right shrink-0">
-                            <p className="text-xs font-mono" style={{ color: D.textMuted }}>{fmtC(d.monthlyPay, sym)}/mo</p>
                             {mo ? (
                               <p className="text-[11px] font-semibold" style={{ color: D.green }}>Paid off mo. {mo}</p>
                             ) : (
@@ -562,14 +627,18 @@ export default function DebtOptimizerClient() {
                 {/* Month-by-month runway */}
                 <div style={{ border: `1px solid ${D.cardBorder}`, background: D.cardBg }}>
                   <div style={{ padding: '1rem 1.25rem', borderBottom: `1px solid ${D.sep}` }}>
-                    <p className="text-[0.6875rem] font-bold tracking-[0.1em] uppercase mb-[2px]" style={{ color: D.textFaint }}>Month-by-Month Runway</p>
-                    <p className="text-[11px] font-light" style={{ color: D.textMuted }}>{result.runway.length} months total</p>
+                    <p className="text-[0.6875rem] font-bold tracking-[0.1em] uppercase mb-[2px]" style={{ color: D.textFaint }}>
+                      Month-by-Month Runway
+                    </p>
+                    <p className="text-[11px] font-light" style={{ color: D.textMuted }}>
+                      {selectedPlan.label} plan · {selectedPlan.runway.length} months · {fmtC(selectedPlan.monthlySavings, sym)}/mo saved
+                    </p>
                   </div>
                   <div style={{ overflow: 'auto', maxHeight: '480px' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '480px' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '520px' }}>
                       <thead>
                         <tr>
-                          {['Mo.', 'Status', 'Outstanding', 'Paid Down', 'Payment'].map((h, i) => (
+                          {['Mo.', 'Status', 'Outstanding', 'Paid Down', 'To Debt', 'Saved'].map((h, i) => (
                             <th key={h} style={{
                               padding: '0.625rem 1rem', fontSize: '0.5625rem', fontWeight: 700,
                               letterSpacing: '0.1em', textTransform: 'uppercase', color: D.textFaint,
@@ -582,7 +651,7 @@ export default function DebtOptimizerClient() {
                         </tr>
                       </thead>
                       <tbody>
-                        {result.runway.map((row) => {
+                        {selectedPlan.runway.map((row) => {
                           const pct = result.totalInitialDebt > 0
                             ? Math.max(0, 100 - (row.totalOut / result.totalInitialDebt) * 100)
                             : 100;
@@ -598,8 +667,6 @@ export default function DebtOptimizerClient() {
                                   <span style={{ display: 'inline-block', padding: '1px 6px', background: D.green, color: D.greenDark, fontSize: '8px', fontWeight: 800, letterSpacing: '0.07em', textTransform: 'uppercase' }}>
                                     PAID OFF
                                   </span>
-                                ) : row.debtCount === 0 ? (
-                                  <span className="text-xs font-medium" style={{ color: D.green }}>Done</span>
                                 ) : (
                                   <span className="text-xs" style={{ color: D.textMuted }}>{row.debtCount} active</span>
                                 )}
@@ -611,12 +678,13 @@ export default function DebtOptimizerClient() {
                                   <span className="font-mono font-semibold" style={{ color: D.green }}>{fmtC(0, sym)}</span>
                                 )}
                               </td>
-                              <td style={{ padding: '0.5rem 1rem', fontSize: '0.75rem', borderBottom: `1px solid ${D.sep}`, width: '110px' }}>
-                                <div style={{ height: '3px', background: D.sep, width: '90px', overflow: 'hidden' }}>
+                              <td style={{ padding: '0.5rem 1rem', fontSize: '0.75rem', borderBottom: `1px solid ${D.sep}`, width: '100px' }}>
+                                <div style={{ height: '3px', background: D.sep, width: '80px', overflow: 'hidden' }}>
                                   <div style={{ height: '3px', background: D.green, width: `${pct.toFixed(1)}%` }} />
                                 </div>
                               </td>
                               <td style={{ padding: '0.5rem 1rem', fontSize: '0.75rem', borderBottom: `1px solid ${D.sep}`, fontFamily: 'monospace', color: D.textMuted }}>{fmtC(row.payment, sym)}</td>
+                              <td style={{ padding: '0.5rem 1rem', fontSize: '0.75rem', borderBottom: `1px solid ${D.sep}`, fontFamily: 'monospace', color: D.green }}>{fmtC(row.savingsTotal, sym)}</td>
                             </tr>
                           );
                         })}
@@ -625,37 +693,52 @@ export default function DebtOptimizerClient() {
                   </div>
                 </div>
               </div>
-            )}
+            ) : null}
           </div>
         </div>
       </div>
 
       {/* ── Hidden PDF content ────────────────────────────────────────────────── */}
       <div ref={pdfRef} style={{ display: 'none' }}>
-        {result?.isViable && <PdfContent result={result} debts={debts} expenses={expenses} income={income} currency={currency} sym={sym} />}
+        {result?.isViable && selectedPlan && (
+          <PdfContent
+            result={result}
+            plan={selectedPlan}
+            debts={debts}
+            expenses={expenses}
+            income={income}
+            currency={currency}
+            sym={sym}
+          />
+        )}
       </div>
     </>
   );
 }
 
-// ── PDF content component ──────────────────────────────────────────────────────
+// ── PDF content ────────────────────────────────────────────────────────────────
 function PdfContent({
-  result, debts, expenses, income, currency, sym,
+  result, plan, debts, expenses, income, currency, sym,
 }: {
-  result: RunResult; debts: Debt[]; expenses: Expense[];
-  income: number; currency: string; sym: string;
+  result: MultiPlanResult;
+  plan: PlanResult;
+  debts: Debt[];
+  expenses: Expense[];
+  income: number;
+  currency: string;
+  sym: string;
 }) {
   const totalDebt = debts.reduce((s, d) => s + d.outstanding, 0);
-  const sortedDebts = [...debts].sort((a, b) => a.outstanding - b.outstanding);
+  const sortedDebts = [...debts].filter((d) => d.outstanding > 0).sort((a, b) => a.outstanding - b.outstanding);
 
   const payoffMo = (id: string): number | null => {
-    for (const row of result.runway) {
+    for (const row of plan.runway) {
       if (!row.debtDetail.some((dd) => dd.id === id)) return row.month;
     }
     return null;
   };
 
-  const shownRows = result.runway.slice(0, 48);
+  const shownRows = plan.runway.slice(0, 48);
 
   return (
     <div style={{
@@ -663,26 +746,27 @@ function PdfContent({
       fontFamily: 'Inter, sans-serif', fontSize: '11px',
       color: '#0f172a', background: '#fff', lineHeight: '1.5',
     }}>
-      {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
         <div>
-          <h1 style={{ fontSize: '18px', fontWeight: 700, margin: '0 0 4px' }}>Debt Settlement &amp; Savings Plan</h1>
+          <h1 style={{ fontSize: '18px', fontWeight: 700, margin: '0 0 4px' }}>
+            Debt Settlement &amp; Savings Plan — {plan.label}
+          </h1>
           <p style={{ color: '#64748b', fontSize: '10px', margin: '2px 0 0' }}>Generated by NexusDigitalLabs · nexusdigitallabs.dev</p>
         </div>
         <div style={{ textAlign: 'right', fontSize: '10px', color: '#64748b' }}>
           <div>{todayStr()}</div>
           <div>Currency: {currency} ({sym})</div>
+          <div>{fmtPct(plan.debtPct)} debt · {fmtPct(plan.savingsPct)} savings</div>
         </div>
       </div>
 
-      {/* Summary */}
       <h2 style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#64748b', margin: '20px 0 8px', borderBottom: '1px solid #e2e8f0', paddingBottom: '4px' }}>Summary</h2>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '8px', marginBottom: '12px' }}>
         {[
-          { lbl: 'Monthly Income',  val: fmtC(income, sym),              green: false },
-          { lbl: 'Total Expenses',  val: fmtC(result.totalExpenses, sym), green: false },
-          { lbl: 'Free Cash Flow',  val: fmtC(result.freeCashFlow, sym),  green: false },
-          { lbl: 'Debt-Free In',    val: fmtMo(result.debtFreeMonth),     green: true  },
+          { lbl: 'Monthly Income', val: fmtC(income, sym), green: false },
+          { lbl: 'Free Cash Flow', val: fmtC(result.freeCashFlow, sym), green: false },
+          { lbl: 'Debt-Free In', val: fmtMo(plan.debtFreeMonth), green: true },
+          { lbl: 'Saved by Then', val: fmtC(plan.totalSavedByDebtFree, sym), green: true },
         ].map(({ lbl, val, green }) => (
           <div key={lbl} style={{ border: '1px solid #e2e8f0', padding: '10px 12px' }}>
             <div style={{ fontSize: '8px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#94a3b8', marginBottom: '4px' }}>{lbl}</div>
@@ -691,7 +775,30 @@ function PdfContent({
         ))}
       </div>
 
-      {/* Expenses table */}
+      <h2 style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#64748b', margin: '20px 0 8px', borderBottom: '1px solid #e2e8f0', paddingBottom: '4px' }}>All Plan Options</h2>
+      <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '12px' }}>
+        <thead>
+          <tr>
+            {['Plan', 'To Debt', 'To Savings', 'Debt-Free', 'Saved by Then'].map((h, i) => (
+              <th key={h} style={{ padding: '5px 8px', fontSize: '8px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', background: '#f8fafc', borderBottom: '1px solid #0f172a', textAlign: i === 0 ? 'left' : 'right' }}>{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {result.plans.map((p) => (
+            <tr key={p.horizon} style={p.horizon === plan.horizon ? { background: '#eff6ff', fontWeight: 600 } : undefined}>
+              <td style={{ padding: '5px 8px', borderBottom: '1px solid #f1f5f9', fontSize: '10px' }}>
+                {p.label}{p.horizon === plan.horizon ? ' ★' : ''}
+              </td>
+              <td style={{ padding: '5px 8px', borderBottom: '1px solid #f1f5f9', fontSize: '10px', textAlign: 'right' }}>{fmtC(p.monthlyDebtBudget, sym)}/mo</td>
+              <td style={{ padding: '5px 8px', borderBottom: '1px solid #f1f5f9', fontSize: '10px', textAlign: 'right' }}>{fmtC(p.monthlySavings, sym)}/mo</td>
+              <td style={{ padding: '5px 8px', borderBottom: '1px solid #f1f5f9', fontSize: '10px', textAlign: 'right' }}>{fmtMo(p.debtFreeMonth)}</td>
+              <td style={{ padding: '5px 8px', borderBottom: '1px solid #f1f5f9', fontSize: '10px', textAlign: 'right' }}>{fmtC(p.totalSavedByDebtFree, sym)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
       <h2 style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#64748b', margin: '20px 0 8px', borderBottom: '1px solid #e2e8f0', paddingBottom: '4px' }}>Monthly Expenses</h2>
       <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '12px' }}>
         <thead>
@@ -714,12 +821,11 @@ function PdfContent({
         </tbody>
       </table>
 
-      {/* Debts table */}
       <h2 style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#64748b', margin: '20px 0 8px', borderBottom: '1px solid #e2e8f0', paddingBottom: '4px' }}>Loans &amp; Credit Cards</h2>
       <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '12px' }}>
         <thead>
           <tr>
-            {['Name','Total Amount','Outstanding','Monthly Pay','Paid Off'].map((h, i) => (
+            {['Name', 'Total / Limit', 'Outstanding', 'Paid Off'].map((h, i) => (
               <th key={h} style={{ padding: '5px 8px', fontSize: '8px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', background: '#f8fafc', borderBottom: '1px solid #0f172a', textAlign: i === 0 ? 'left' : 'right' }}>{h}</th>
             ))}
           </tr>
@@ -732,7 +838,6 @@ function PdfContent({
                 <td style={{ padding: '5px 8px', borderBottom: '1px solid #f1f5f9', fontSize: '10px' }}>{d.name}</td>
                 <td style={{ padding: '5px 8px', borderBottom: '1px solid #f1f5f9', fontSize: '10px', textAlign: 'right' }}>{fmtC(d.totalAmt, sym)}</td>
                 <td style={{ padding: '5px 8px', borderBottom: '1px solid #f1f5f9', fontSize: '10px', textAlign: 'right' }}>{fmtC(d.outstanding, sym)}</td>
-                <td style={{ padding: '5px 8px', borderBottom: '1px solid #f1f5f9', fontSize: '10px', textAlign: 'right' }}>{fmtC(d.monthlyPay, sym)}/mo</td>
                 <td style={{ padding: '5px 8px', borderBottom: '1px solid #f1f5f9', fontSize: '10px', textAlign: 'right' }}>{mo ? `Month ${mo}` : '—'}</td>
               </tr>
             );
@@ -741,19 +846,18 @@ function PdfContent({
             <td style={{ padding: '5px 8px', fontSize: '10px' }}>Total</td>
             <td style={{ padding: '5px 8px', fontSize: '10px' }} />
             <td style={{ padding: '5px 8px', fontSize: '10px', textAlign: 'right' }}>{fmtC(totalDebt, sym)}</td>
-            <td /><td />
+            <td />
           </tr>
         </tbody>
       </table>
 
-      {/* Runway */}
       <h2 style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#64748b', margin: '20px 0 8px', borderBottom: '1px solid #e2e8f0', paddingBottom: '4px' }}>
-        Month-by-Month Runway{result.runway.length > 48 ? ` (first 48 of ${result.runway.length})` : ''}
+        Month-by-Month Runway ({plan.label}){plan.runway.length > 48 ? ` — first 48 of ${plan.runway.length}` : ''}
       </h2>
       <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '12px' }}>
         <thead>
           <tr>
-            {['Month','Status','Outstanding','Payment'].map((h, i) => (
+            {['Month', 'Status', 'Outstanding', 'To Debt', 'Cumulative Saved'].map((h, i) => (
               <th key={h} style={{ padding: '5px 8px', fontSize: '8px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', background: '#f8fafc', borderBottom: '1px solid #0f172a', textAlign: i < 2 ? 'left' : 'right' }}>{h}</th>
             ))}
           </tr>
@@ -765,15 +869,15 @@ function PdfContent({
               <td style={{ padding: '5px 8px', borderBottom: '1px solid #f1f5f9', fontSize: '10px' }}>{row.pivotMonth ? 'PAID OFF' : `${row.debtCount} debts`}</td>
               <td style={{ padding: '5px 8px', borderBottom: '1px solid #f1f5f9', fontSize: '10px', textAlign: 'right' }}>{fmtC(row.totalOut, sym)}</td>
               <td style={{ padding: '5px 8px', borderBottom: '1px solid #f1f5f9', fontSize: '10px', textAlign: 'right' }}>{fmtC(row.payment, sym)}</td>
+              <td style={{ padding: '5px 8px', borderBottom: '1px solid #f1f5f9', fontSize: '10px', textAlign: 'right' }}>{fmtC(row.savingsTotal, sym)}</td>
             </tr>
           ))}
         </tbody>
       </table>
-      {result.runway.length > 48 && (
-        <p style={{ fontSize: '9px', color: '#94a3b8', marginTop: '8px' }}>… and {result.runway.length - 48} more months not shown.</p>
+      {plan.runway.length > 48 && (
+        <p style={{ fontSize: '9px', color: '#94a3b8', marginTop: '8px' }}>… and {plan.runway.length - 48} more months not shown.</p>
       )}
 
-      {/* Footer */}
       <div style={{ marginTop: '32px', paddingTop: '12px', borderTop: '1px solid #e2e8f0', fontSize: '9px', color: '#94a3b8' }}>
         This plan is generated for informational purposes only and does not account for interest accrual.
         Actual payoff timelines may vary. All data is processed locally in your browser — no information is transmitted or stored.

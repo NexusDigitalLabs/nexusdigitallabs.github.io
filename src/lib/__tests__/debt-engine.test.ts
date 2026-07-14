@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { runEngine, fmtNum, fmtC, fmtMo, type Expense, type Debt } from '../debt-engine';
+import {
+  runEngine, fmtNum, fmtC, fmtMo, fmtPct, PLAN_SPLITS,
+  type Expense, type Debt,
+} from '../debt-engine';
 
 // ── fmtNum ────────────────────────────────────────────────────────────────────
 describe('fmtNum', () => {
@@ -44,124 +47,163 @@ describe('fmtMo', () => {
   });
 });
 
+// ── fmtPct ────────────────────────────────────────────────────────────────────
+describe('fmtPct', () => {
+  it('formats decimal percentages', () => {
+    expect(fmtPct(0.9)).toBe('90%');
+    expect(fmtPct(0.7)).toBe('70%');
+    expect(fmtPct(0.5)).toBe('50%');
+  });
+});
+
+// ── PLAN_SPLITS ───────────────────────────────────────────────────────────────
+describe('PLAN_SPLITS', () => {
+  it('defines short, medium, and long with debt + savings summing to 100%', () => {
+    expect(PLAN_SPLITS).toHaveLength(3);
+    expect(PLAN_SPLITS.map((p) => p.horizon)).toEqual(['short', 'medium', 'long']);
+    for (const p of PLAN_SPLITS) {
+      expect(p.debtPct + p.savingsPct).toBeCloseTo(1, 5);
+    }
+  });
+});
+
+const baseExpenses: Expense[] = [{ id: 'e1', name: 'Rent', amount: 1000 }];
+const baseDebts: Debt[] = [
+  { id: 'd1', name: 'Credit Card', totalAmt: 5000, outstanding: 1200 },
+  { id: 'd2', name: 'Loan',        totalAmt: 10000, outstanding: 3600 },
+];
+// income=5000, expenses=1000 → FCF=4000
+// short:  debt 3600 / save 400
+// medium: debt 2800 / save 1200
+// long:   debt 2000 / save 2000
+
 // ── runEngine — error states ───────────────────────────────────────────────────
 describe('runEngine — error states', () => {
-  const expenses: Expense[] = [{ id: 'e1', name: 'Rent', amount: 2000 }];
-
   it('fails when income does not cover expenses', () => {
-    const result = runEngine(1000, expenses, [], '$');
+    const result = runEngine(1000, [{ id: 'e1', name: 'Rent', amount: 2000 }], [], '$');
     expect(result.isViable).toBe(false);
     expect(result.error).toContain('living expenses');
+    expect(result.plans).toHaveLength(0);
   });
 
   it('fails when no debts are provided', () => {
-    const result = runEngine(5000, expenses, [], '$');
+    const result = runEngine(5000, baseExpenses, [], '$');
     expect(result.isViable).toBe(false);
     expect(result.error).toContain('at least one debt');
   });
 
-  it('fails when minimum payments exceed free cash flow', () => {
+  it('fails when all outstanding balances are zero', () => {
     const debts: Debt[] = [
-      { id: 'd1', name: 'Loan', totalAmt: 10000, outstanding: 8000, monthlyPay: 4000 },
+      { id: 'd1', name: 'Card', totalAmt: 5000, outstanding: 0 },
     ];
-    // freeCashFlow = 5000 - 2000 = 3000; totalMinPay = 4000; overage = -1000
-    const result = runEngine(5000, expenses, debts, '$');
+    const result = runEngine(5000, baseExpenses, debts, '$');
     expect(result.isViable).toBe(false);
-    expect(result.error).toContain('exceed your free cash flow');
+    expect(result.error).toContain('outstanding');
   });
 
   it('returns correct freeCashFlow and totalExpenses in failure result', () => {
-    const result = runEngine(5000, expenses, [], '$');
+    const result = runEngine(5000, [{ id: 'e1', name: 'Rent', amount: 2000 }], [], '$');
     expect(result.freeCashFlow).toBe(3000);
     expect(result.totalExpenses).toBe(2000);
   });
 });
 
-// ── runEngine — happy path ─────────────────────────────────────────────────────
-describe('runEngine — happy path', () => {
-  const expenses: Expense[] = [{ id: 'e1', name: 'Rent', amount: 1000 }];
-
-  const debts: Debt[] = [
-    { id: 'd1', name: 'Credit Card', totalAmt: 5000, outstanding: 1200, monthlyPay: 200 },
-    { id: 'd2', name: 'Loan',        totalAmt: 10000, outstanding: 3600, monthlyPay: 300 },
-  ];
-  // income=5000, expenses=1000 → FCF=4000, minPay=500, overage=3500
-
-  it('returns isViable=true', () => {
-    const result = runEngine(5000, expenses, debts, '$');
+// ── runEngine — multi-plan happy path ──────────────────────────────────────────
+describe('runEngine — multi-plan happy path', () => {
+  it('returns isViable=true with three plans', () => {
+    const result = runEngine(5000, baseExpenses, baseDebts, '$');
     expect(result.isViable).toBe(true);
     expect(result.error).toBeNull();
+    expect(result.plans).toHaveLength(3);
   });
 
-  it('calculates freeCashFlow correctly', () => {
-    const result = runEngine(5000, expenses, debts, '$');
+  it('calculates freeCashFlow and totalInitialDebt correctly', () => {
+    const result = runEngine(5000, baseExpenses, baseDebts, '$');
     expect(result.freeCashFlow).toBe(4000);
+    expect(result.totalInitialDebt).toBe(4800);
   });
 
-  it('calculates totalInitialDebt correctly', () => {
-    const result = runEngine(5000, expenses, debts, '$');
-    expect(result.totalInitialDebt).toBe(4800); // 1200 + 3600
+  it('allocates FCF by plan percentages', () => {
+    const result = runEngine(5000, baseExpenses, baseDebts, '$');
+    const short = result.plans.find((p) => p.horizon === 'short')!;
+    const medium = result.plans.find((p) => p.horizon === 'medium')!;
+    const long = result.plans.find((p) => p.horizon === 'long')!;
+
+    expect(short.monthlyDebtBudget).toBeCloseTo(3600);
+    expect(short.monthlySavings).toBeCloseTo(400);
+    expect(medium.monthlyDebtBudget).toBeCloseTo(2800);
+    expect(medium.monthlySavings).toBeCloseTo(1200);
+    expect(long.monthlyDebtBudget).toBeCloseTo(2000);
+    expect(long.monthlySavings).toBeCloseTo(2000);
   });
 
-  it('produces a runway with at least one row', () => {
-    const result = runEngine(5000, expenses, debts, '$');
-    expect(result.runway.length).toBeGreaterThan(0);
+  it('short plan clears debt fastest', () => {
+    const result = runEngine(5000, baseExpenses, baseDebts, '$');
+    const short = result.plans.find((p) => p.horizon === 'short')!;
+    const medium = result.plans.find((p) => p.horizon === 'medium')!;
+    const long = result.plans.find((p) => p.horizon === 'long')!;
+
+    expect(short.debtFreeMonth).not.toBeNull();
+    expect(medium.debtFreeMonth).not.toBeNull();
+    expect(long.debtFreeMonth).not.toBeNull();
+    expect(short.debtFreeMonth!).toBeLessThanOrEqual(medium.debtFreeMonth!);
+    expect(medium.debtFreeMonth!).toBeLessThanOrEqual(long.debtFreeMonth!);
   });
 
-  it('sets a debtFreeMonth', () => {
-    const result = runEngine(5000, expenses, debts, '$');
-    expect(result.debtFreeMonth).not.toBeNull();
-    expect(result.debtFreeMonth).toBeGreaterThan(0);
+  it('long plan accumulates more savings by debt-free date than short', () => {
+    const result = runEngine(5000, baseExpenses, baseDebts, '$');
+    const short = result.plans.find((p) => p.horizon === 'short')!;
+    const long = result.plans.find((p) => p.horizon === 'long')!;
+    expect(long.totalSavedByDebtFree).toBeGreaterThan(short.totalSavedByDebtFree);
   });
 
-  it('marks exactly one runway row as pivotMonth', () => {
-    const result = runEngine(5000, expenses, debts, '$');
-    const pivots = result.runway.filter((r) => r.pivotMonth);
-    expect(pivots.length).toBe(1);
+  it('runway rows track savings and payment', () => {
+    const result = runEngine(5000, baseExpenses, baseDebts, '$');
+    const short = result.plans.find((p) => p.horizon === 'short')!;
+    expect(short.runway.length).toBeGreaterThan(0);
+    const first = short.runway[0];
+    expect(first.savings).toBeCloseTo(400);
+    expect(first.payment).toBeGreaterThan(0);
+    expect(first.savingsTotal).toBeCloseTo(400);
   });
 
-  it('pivot row month matches debtFreeMonth', () => {
-    const result = runEngine(5000, expenses, debts, '$');
-    const pivot = result.runway.find((r) => r.pivotMonth);
-    expect(pivot?.month).toBe(result.debtFreeMonth);
+  it('marks exactly one pivot month per viable plan', () => {
+    const result = runEngine(5000, baseExpenses, baseDebts, '$');
+    for (const plan of result.plans) {
+      const pivots = plan.runway.filter((r) => r.pivotMonth);
+      expect(pivots.length).toBe(1);
+      expect(pivots[0].month).toBe(plan.debtFreeMonth);
+      expect(pivots[0].totalOut).toBe(0);
+    }
   });
 
-  it('totalOut reaches 0 at or after the pivot month', () => {
-    const result = runEngine(5000, expenses, debts, '$');
-    const pivot = result.runway.find((r) => r.pivotMonth);
-    expect(pivot?.totalOut).toBe(0);
-  });
-
-  it('sorts debts by outstanding amount (snowball: smallest first)', () => {
-    // Credit card (1200) should be paid off before loan (3600)
-    const result = runEngine(5000, expenses, debts, '$');
-    // After a few months, debtDetail should drop to 1 (the larger debt remains)
-    const earlyRow = result.runway.find((r) => r.debtCount === 1);
+  it('pays smallest balance first (snowball)', () => {
+    const result = runEngine(5000, baseExpenses, baseDebts, '$');
+    const short = result.plans.find((p) => p.horizon === 'short')!;
+    const earlyRow = short.runway.find((r) => r.debtCount === 1);
     expect(earlyRow).toBeDefined();
-    // That remaining debt should be the loan (d2), not the credit card (d1)
-    const remainingId = earlyRow?.debtDetail[0]?.id;
-    expect(remainingId).toBe('d2');
+    expect(earlyRow?.debtDetail[0]?.id).toBe('d2'); // loan remains after card is cleared
   });
 });
 
 // ── runEngine — single debt ────────────────────────────────────────────────────
 describe('runEngine — single debt exact payoff', () => {
-  it('pays off a single debt within the expected number of months', () => {
-    // income=3000, expenses=1000 → FCF=2000; debt outstanding=2000, min=500
-    // Month 1: pay 500 min + 1500 extra = debt gone in 1 month
+  it('short plan pays off a small debt in one month when budget covers it', () => {
+    // FCF=2000, short debt budget=1800; outstanding=1500 → 1 month
     const expenses: Expense[] = [{ id: 'e1', name: 'Rent', amount: 1000 }];
-    const debts: Debt[] = [{ id: 'd1', name: 'Card', totalAmt: 2000, outstanding: 2000, monthlyPay: 500 }];
+    const debts: Debt[] = [{ id: 'd1', name: 'Card', totalAmt: 2000, outstanding: 1500 }];
     const result = runEngine(3000, expenses, debts, '$');
-    expect(result.debtFreeMonth).toBe(1);
-    expect(result.runway.length).toBe(1);
+    const short = result.plans.find((p) => p.horizon === 'short')!;
+    expect(short.debtFreeMonth).toBe(1);
   });
 
-  it('handles multi-month payoff correctly', () => {
-    // income=2000, expenses=1000 → FCF=1000; debt=5000, min=300
-    // Month 1: pay 1000, remaining=4000; Month 2: 3000; etc — 5 months total
+  it('handles multi-month payoff with short allocation', () => {
+    // FCF=1000, short debt budget=900; outstanding=5000 → ceil(5000/900)=6 months
     const expenses: Expense[] = [{ id: 'e1', name: 'Rent', amount: 1000 }];
-    const debts: Debt[] = [{ id: 'd1', name: 'Card', totalAmt: 5000, outstanding: 5000, monthlyPay: 300 }];
+    const debts: Debt[] = [{ id: 'd1', name: 'Card', totalAmt: 5000, outstanding: 5000 }];
     const result = runEngine(2000, expenses, debts, '$');
-    expect(result.debtFreeMonth).toBe(5);
+    const short = result.plans.find((p) => p.horizon === 'short')!;
+    expect(short.debtFreeMonth).toBe(6);
+    expect(short.totalSavedByDebtFree).toBeCloseTo(600); // 100 * 6
   });
 });

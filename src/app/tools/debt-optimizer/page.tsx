@@ -4,15 +4,15 @@ import DebtOptimizerClient from '@/components/tools/DebtOptimizerClient';
 export const metadata: Metadata = {
   title: 'Debt Settlement & Savings Planner — NexusDigitalLabs',
   description:
-    'Simple, free debt payoff planner. Add your income, monthly expenses, and debts to see your debt-free date and a month-by-month repayment runway. Download as PDF. 100% client-side.',
+    'Compare Short, Medium, and Long debt payoff plans that also build savings. Enter income, expenses, and balances — no monthly payment required. Free, 100% client-side, with PDF export.',
   keywords: [
     'debt payoff calculator',
     'debt free planner',
-    'loan payoff',
+    'short medium long debt plan',
     'credit card payoff',
     'debt settlement',
-    'monthly budget',
-    'financial planner',
+    'savings while paying debt',
+    'snowball method',
     'NexusDigitalLabs',
   ],
   alternates: { canonical: 'https://nexusdigitallabs.dev/tools/debt-optimizer/' },
@@ -21,13 +21,13 @@ export const metadata: Metadata = {
     url: 'https://nexusdigitallabs.dev/tools/debt-optimizer/',
     title: 'Debt Settlement & Savings Planner — NexusDigitalLabs',
     description:
-      'See your debt-free date with a month-by-month repayment plan. Add expenses, loans, and credit cards. Download as PDF.',
+      'Short, Medium, and Long plans that clear debt while building savings. No monthly payment fields — just income, expenses, and balances.',
     images: [{ url: 'https://nexusdigitallabs.dev/og-image.png' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Debt Settlement & Savings Planner — NexusDigitalLabs',
-    description: 'See your debt-free date with a month-by-month repayment plan. Download as PDF.',
+    description: 'Compare Short, Medium, and Long plans to get debt-free while saving. Download as PDF.',
     images: ['https://nexusdigitallabs.dev/og-image.png'],
   },
 };
@@ -37,7 +37,8 @@ const jsonLd = {
   '@type': 'WebApplication',
   name: 'Debt Settlement & Savings Planner',
   url: 'https://nexusdigitallabs.dev/tools/debt-optimizer/',
-  description: 'Simple browser-based debt payoff planner with PDF export.',
+  description:
+    'Browser-based debt planner with Short, Medium, and Long payoff-and-savings strategies and PDF export.',
   applicationCategory: 'FinanceApplication',
   operatingSystem: 'Any',
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
@@ -59,10 +60,10 @@ export default function DebtOptimizerPage() {
             <p className="text-xs font-semibold tracking-widest text-sky-400 uppercase mb-4">About this tool</p>
             <h2 className="text-2xl font-light text-white tracking-tight mb-4">What is the Debt Settlement &amp; Savings Planner?</h2>
             <p className="text-slate-400 font-light leading-relaxed text-sm sm:text-base mb-3">
-              The Debt Settlement &amp; Savings Planner is a free, browser-based tool that helps you build a month-by-month plan to eliminate debt and grow savings simultaneously. Enter your monthly income, recurring expenses, and debts — the tool calculates how much free cash flow you have available, applies it intelligently to your debts using the snowball method, and generates a detailed payoff timeline.
+              The Debt Settlement &amp; Savings Planner is a free, browser-based tool that builds three ways to become debt-free while still putting money into savings. Enter your monthly income, living expenses, and debt balances — you do not need to know or enter monthly payments for credit cards or loans. The tool calculates free cash flow, then generates Short, Medium, and Long plans that split that surplus between debt payoff and savings.
             </p>
             <p className="text-slate-400 font-light leading-relaxed text-sm sm:text-base">
-              Once your debts are cleared, the plan automatically pivots that same monthly budget into a savings target. The complete plan can be downloaded as a PDF for offline reference or sharing with a financial advisor.
+              Debts are cleared with the snowball method (lowest balance first). Pick the plan that fits your comfort level, review the month-by-month runway, and download a PDF that includes all three options plus the selected schedule.
             </p>
           </div>
 
@@ -71,12 +72,12 @@ export default function DebtOptimizerPage() {
             <h2 className="text-2xl font-light text-white tracking-tight mb-5">Building your debt payoff plan</h2>
             <ol className="space-y-4 text-sm sm:text-base text-slate-400 font-light">
               {[
-                ['Enter your monthly income', 'Input your total take-home (after-tax) income per month. If your income varies, use a conservative average.'],
-                ['Add your monthly expenses', 'List your fixed living costs — rent, utilities, groceries, subscriptions. Click the + button to add as many categories as needed.'],
-                ['Add your debts', 'For each debt, enter the name, outstanding balance, and minimum monthly payment. Debts can be credit cards, personal loans, car loans, or any other obligation.'],
-                ['Set your savings goal', 'Enter a monthly savings target for after your debts are cleared. The tool will show when you reach it based on your projected payoff timeline.'],
-                ['Review your plan', 'The tool displays your monthly free cash flow, the order in which debts will be eliminated, and a month-by-month runway. Adjust inputs to model different scenarios.'],
-                ['Download your PDF', 'Click "Download PDF Summary" to save a portable copy of your plan including the full payoff schedule.'],
+                ['Enter your monthly income', 'Input your take-home (after-tax) income. If income varies, use a conservative average.'],
+                ['Add your monthly expenses', 'List living costs — rent, utilities, groceries, subscriptions. Use + to add as many categories as you need.'],
+                ['Add your debts', 'For each credit card or loan, enter a name, total amount / limit, and outstanding balance. No monthly payment required — the planner decides how much to put toward debt each month.'],
+                ['Calculate and compare plans', 'Click Calculate Plan to see Short (aggressive), Medium (balanced), and Long (more savings) side by side — each with debt-free date and savings by that date.'],
+                ['Select a plan and review the runway', 'Choose the plan that fits you. Review payoff order and the month-by-month table showing debt payments and cumulative savings.'],
+                ['Download your PDF', 'Export the selected plan plus a comparison of all three options for offline use or sharing.'],
               ].map(([title, desc], i) => (
                 <li key={i} className="flex gap-4">
                   <span className="flex-shrink-0 w-6 h-6 rounded-full border border-sky-500/30 bg-sky-500/10 text-sky-400 text-xs font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
@@ -94,11 +95,12 @@ export default function DebtOptimizerPage() {
             <h2 className="text-2xl font-light text-white tracking-tight mb-6">Frequently asked questions</h2>
             <div className="space-y-6">
               {[
-                { q: 'What debt payoff method does this tool use?', a: 'The tool uses the snowball method — it targets the smallest outstanding balance first, then rolls those payments into the next debt. This approach builds momentum and is shown to improve follow-through compared to mathematically optimal but psychologically harder strategies.' },
-                { q: 'Is my financial data stored anywhere?', a: 'No. All calculations happen entirely in your browser. No data is transmitted to any server, stored in any database, or accessible to anyone other than you. You can verify this by checking your browser\'s network inspector — no outbound requests are made.' },
-                { q: 'What if I have more expenses than income?', a: 'The tool will display a warning indicating that your expenses exceed your income and a debt payoff plan cannot be calculated. In this case, review your expense list and identify areas to reduce before proceeding.' },
-                { q: 'Can I model different scenarios?', a: 'Yes. Change any input — income, an expense amount, a debt balance — and the plan updates instantly. You can model the impact of a pay rise, cutting a subscription, or making an extra lump-sum payment by adjusting the corresponding field.' },
-                { q: 'What happens to the savings pivot?', a: 'Once all debts are eliminated, the tool shows a savings projection starting from that month. The same monthly budget that was going to debt minimum payments is redirected to savings. This is the "pivot point" — the month your financial posture fundamentally changes.' },
+                { q: 'Why is there no monthly payment field?', a: 'The planner builds the payment plan for you. It takes whatever free cash flow remains after expenses and splits it between debts and savings according to Short (90/10), Medium (70/30), or Long (50/50). You only need outstanding balances.' },
+                { q: 'What do Short, Medium, and Long mean?', a: 'Short puts most surplus toward debt so you clear balances faster with a small savings buffer. Medium balances both. Long puts half toward savings so you build a larger cushion while debt takes longer to clear.' },
+                { q: 'What debt payoff method does this tool use?', a: 'Within each plan’s debt budget, the tool uses the snowball method — lowest outstanding balance first — then rolls that capacity into the next debt. That builds early wins and keeps the plan easy to follow.' },
+                { q: 'Is my financial data stored anywhere?', a: 'No. All calculations happen entirely in your browser. No data is transmitted to any server or stored in a database. You can verify this with your browser’s network inspector.' },
+                { q: 'What if I have more expenses than income?', a: 'The tool shows a warning and will not build plans until free cash flow is positive. Review expenses or income before continuing.' },
+                { q: 'Can I model different scenarios?', a: 'Yes. Change income, expenses, or balances and recalculate. Switch between Short, Medium, and Long without re-entering debts to compare timelines and savings side by side.' },
               ].map(({ q, a }) => (
                 <div key={q} className="border-l-2 border-slate-700 pl-5">
                   <p className="text-sm font-semibold text-slate-200 mb-2">{q}</p>

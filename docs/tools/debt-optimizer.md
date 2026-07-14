@@ -1,6 +1,6 @@
 # Debt Settlement & Savings Planner
 
-**A simple, free debt payoff planner with month-by-month repayment runway and PDF export.**
+**Compare Short, Medium, and Long plans to clear debt while building savings — free, client-side, with PDF export.**
 
 ### [→ Open Live Tool](https://nexusdigitallabs.dev/tools/debt-optimizer/)
 
@@ -12,7 +12,7 @@
 
 ## Overview
 
-A 100% client-side financial planner that generates a month-by-month debt payoff runway using the **Snowball** method (lowest outstanding balance first). Enter your income, monthly expenses, and debts — get your debt-free date and a downloadable PDF plan.
+A 100% client-side financial planner that turns your free cash flow into **three settlement strategies** — Short, Medium, and Long. You do **not** enter monthly payments for credit cards or loans. The engine splits surplus between debt payoff (snowball) and savings, then shows a month-by-month runway and a downloadable PDF.
 
 ---
 
@@ -27,15 +27,16 @@ A 100% client-side financial planner that generates a month-by-month debt payoff
 ## Source
 
 ```
-src/app/tools/debt-optimizer/page.tsx           ← Server component (metadata, JSON-LD)
+src/app/tools/debt-optimizer/page.tsx           ← Server component (metadata, JSON-LD, SEO)
 src/components/tools/DebtOptimizerClient.tsx    ← Interactive client component
+src/lib/debt-engine.ts                          ← Multi-plan calculation engine
 ```
 
 ---
 
 ## Core Calculation Engine
 
-All logic runs client-side in pure TypeScript. No data ever leaves the browser.
+All logic runs client-side in pure TypeScript (`src/lib/debt-engine.ts`). No data ever leaves the browser.
 
 ### Inputs
 
@@ -43,37 +44,54 @@ All logic runs client-side in pure TypeScript. No data ever leaves the browser.
 |---|---|
 | Monthly Net Income | After-tax take-home pay |
 | Monthly Expenses | Addable line items (rent, groceries, utilities, etc.) |
-| Loans / Credit Cards | Name, total loan amount / credit limit, outstanding balance, minimum monthly payment |
+| Loans / Credit Cards | Name, total amount / credit limit, outstanding balance — **no monthly payment field** |
 | Currency | Selectable from 10 currencies |
 
-### Key Calculations
+### Free Cash Flow
 
-| Calculation | Formula |
-|---|---|
-| Free Cash Flow | `Income − Σ Monthly Expenses` |
-| Monthly Overage | `Free Cash Flow − Σ Minimum Payments` |
-| Debt Payoff Order | Snowball — lowest outstanding balance first |
+```
+Free Cash Flow = Income − Σ Monthly Expenses
+```
+
+This surplus is allocated between **debt repayment** and **savings** according to the selected plan.
+
+### Plan Splits
+
+| Plan | To debts | To savings | Intent |
+|---|---|---|---|
+| **Short** | 90% | 10% | Aggressive payoff, small savings buffer |
+| **Medium** | 70% | 30% | Balanced payoff + meaningful savings |
+| **Long** | 50% | 50% | Steady payoff, stronger savings cushion |
 
 ### Algorithm Flow
 
-1. **Validate** — return an error if FCF ≤ 0, no debts entered, or total minimums exceed FCF.
-2. **Sort debts** by outstanding balance ascending (snowball).
-3. **Each month:**
-   - Pay minimums on all debts.
-   - Apply remaining budget (overage) to the priority debt (lowest outstanding).
-   - Flush sub-unit floating-point residuals (< 1 unit → 0).
-   - Remove cleared debts.
-4. **Record** each month's total outstanding, debt count, and payment applied.
-5. **Cap** at 600 months (50-year ceiling) to prevent infinite loops.
+1. **Validate** — fail if FCF ≤ 0 or no debts with outstanding balance.
+2. For **each plan**:
+   - Compute monthly debt budget and monthly savings from FCF × split %.
+   - Sort active debts by outstanding ascending (**snowball**).
+   - Each month: apply the full debt budget to lowest balances first; add savings to a running total.
+   - Record runway rows (outstanding, payment, cumulative saved).
+   - Stop when all debts clear (or at a 600-month cap).
+3. Return all three plans so the UI can compare them side by side.
+
+### Key Outputs (per plan)
+
+| Output | Description |
+|---|---|
+| Monthly debt budget | Amount applied to debts each month |
+| Monthly savings | Amount set aside each month |
+| Debt-free month | First month when all balances reach zero |
+| Total saved by debt-free | Cumulative savings at payoff |
+| Runway | Month-by-month detail for the selected plan |
 
 ### Edge Case Defences
 
 | Condition | Behaviour |
 |---|---|
-| Income ≤ Total Expenses | Empty runway + red warning banner |
-| Σ Min Payments > Free Cash Flow | Empty runway + red warning banner |
-| No debts entered | Empty runway + red warning banner |
-| Floating-point residuals | Flushed at < 1 unit per month |
+| Income ≤ Total Expenses | Empty plans + red warning |
+| No debts / all outstanding zero | Empty plans + red warning |
+| Debt budget too small | Individual plan marked non-viable |
+| Floating-point residuals | Flushed at &lt; 1 unit per month |
 | Runaway loop | Hard cap at 600 months |
 
 ---
@@ -86,40 +104,46 @@ All currency inputs format with **comma separators while typing**, preserving cu
 
 ## PDF Export
 
-The "Download PDF" button (enabled after calculation) renders a hidden `div` containing the full plan — summary metrics, expense table, debt table, and runway — then captures it with `html2pdf.js` at A4 portrait format.
+The Download PDF button (enabled after a viable calculation) exports the **selected plan**, including:
+
+- Summary metrics (income, FCF, debt-free date, savings)
+- Comparison table of all three plan options
+- Expenses and debt tables (no monthly payment column)
+- Month-by-month runway with debt payment and cumulative savings
+
+Captured with `html2pdf.js` at A4 portrait.
 
 ---
 
 ## Design System
 
-Follows the project's minimalist design language:
+Matches the dark site shell:
 
-- **Background:** `#F9FAFB` (page), `#FFFFFF` (cards/table)
-- **Typography:** `Inter`, high-contrast `slate-900`
-- **Form inputs:** `border-radius: 0`, `border: 1px solid #e2e8f0`, focus → `border: 1px solid #000`
-- **Positive metrics:** Emerald `#4ade80` / `#16a34a` (debt-free date, paid-off labels)
-- **Warning state:** Red `#fef2f2` banner
-- **No pills, no heavy gradients**
+- Page / card surfaces on dark slate with low-contrast borders
+- Accent blue for selected plan cards
+- Emerald for positive metrics (debt-free date, savings)
+- Warning state: red banner on invalid inputs
+- PDF content stays white for print legibility
 
 ---
 
 ## Layout
 
 ```
-[Global Header — Header.tsx]
-[Page header — title, description, privacy badge]
+[Global Header]
+[Page header — title + privacy badge]
 ┌─────────────────────────────┬──────────────────────────────────────┐
-│  LEFT PANEL (sticky 380px)  │  RIGHT PANEL (flex-1)                │
-│  ─────────────────────────  │  ─────────────────────────────────── │
-│  Currency selector          │  ┌─────┬──────────┬──────────┬─────┐ │
-│  Monthly Net Income         │  │ FCF │ Overage  │Debt-Free │Total│ │
-│  Monthly Expenses (+ Add)   │  └─────┴──────────┴──────────┴─────┘ │
-│  FCF preview strip          │  Payoff order (lowest balance first) │
-│  Loans & Credit Cards (+Add)│  Month-by-Month Runway Grid          │
-│  Calculate Plan button      │  (scrollable, max-h: 480px)          │
-│  Download PDF button        │                                      │
+│  LEFT PANEL (sticky)        │  RIGHT PANEL                         │
+│  Currency                   │  FCF / Total debt / Debt-free strip  │
+│  Income                     │  Short | Medium | Long plan cards    │
+│  Expenses (+)               │  Selected plan metrics               │
+│  FCF preview                │  Payoff order                        │
+│  Debts: name, limit,        │  Month-by-month runway               │
+│         outstanding         │  (debt + cumulative savings)         │
+│  Calculate / Download PDF   │                                      │
 └─────────────────────────────┴──────────────────────────────────────┘
-[Global Footer — Footer.tsx]
+[SEO block + FAQ]
+[Global Footer]
 ```
 
 ---
@@ -130,23 +154,21 @@ Follows the project's minimalist design language:
 |---|---|
 | Framework | Next.js 16 (App Router), React 19 |
 | Language | TypeScript |
-| Styling | Tailwind CSS |
-| Rendering | Server Component wrapper + `'use client'` interactive component |
-| PDF export | `html2pdf.js` via CDN (`next/script`, `strategy="lazyOnload"`) |
-| Analytics | Umami (cookie-free) + Supabase page-view counter |
+| Styling | Tailwind CSS + inline dark tokens |
+| Engine | `src/lib/debt-engine.ts` |
+| PDF | `html2pdf.js` via CDN |
 | Hosting | Vercel |
 
 ---
 
 ## Privacy
 
-- Zero cookies, zero `localStorage` writes for financial data.
-- All debt, income, and expense figures exist only in React state during the browser session.
-- Username gate in `/games/` is the only `localStorage` usage in the project (unrelated to this tool).
-- Compliant with GDPR/CCPA without requiring a cookie banner.
+- Zero cookies / `localStorage` for financial data.
+- All figures exist only in React state for the session.
+- GDPR/CCPA friendly without a cookie banner for this tool.
 
 ---
 
 ## Keywords
 
-debt payoff calculator, snowball method, debt settlement planner, loan payoff, credit card payoff, monthly budget, financial planner, free cash flow calculator, debt-free date
+debt payoff calculator, short medium long debt plan, debt savings planner, snowball method, credit card payoff without minimum payment, free cash flow calculator, debt-free date
