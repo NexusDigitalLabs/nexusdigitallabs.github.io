@@ -859,37 +859,59 @@ export default function FuelTrackerClient() {
       {/* ── Settings panel ───────────────────────────────────────────────── */}
       {showSettings && (
         <div style={{ background: '#0d1117', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-          <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '1.25rem 1.5rem' }}>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', alignItems: 'flex-end' }}>
-              <div>
-                <p style={S.label}>Your Sync Code</p>
-                <div style={{ display: 'flex', gap: '0.625rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                  <code style={{ fontSize: '1.125rem', fontWeight: 800, color: '#f59e0b', letterSpacing: '0.07em' }}>{userCode}</code>
-                  <button type="button" onClick={copyCode}
-                    style={{ ...S.btn(codeCopied ? '#4ade80' : 'rgba(245,158,11,0.5)'), padding: '0.25rem 0.75rem', fontSize: '0.6875rem' }}>
-                    {codeCopied ? '✓ Copied' : 'Copy'}
-                  </button>
-                </div>
-                <p style={{ fontSize: '0.6875rem', color: '#475569', marginTop: '0.375rem' }}>
-                  Enter this code on any device to load your full history.
-                </p>
+          <style>{`
+            .ft-settings-inner { max-width: 72rem; margin: 0 auto; padding: 1.25rem 1rem; display: flex; flex-direction: column; gap: 1rem; }
+            .ft-settings-actions { display: flex; gap: 0.625rem; flex-wrap: wrap; }
+            .ft-settings-actions a, .ft-settings-actions button { flex: 1 1 auto; justify-content: center; }
+            .ft-settings-danger { padding-top: 0.75rem; border-top: 1px solid rgba(248,113,113,0.15); }
+            .ft-settings-danger button { width: 100%; }
+            @media (min-width: 640px) {
+              .ft-settings-inner { flex-direction: row; align-items: flex-start; padding: 1.25rem 1.5rem; }
+              .ft-settings-sync { flex: 1; }
+              .ft-settings-right { display: flex; flex-direction: column; gap: 0.625rem; align-items: flex-end; }
+              .ft-settings-actions { flex-direction: row; }
+              .ft-settings-actions a, .ft-settings-actions button { flex: 0 0 auto; }
+              .ft-settings-danger button { width: auto; }
+            }
+          `}</style>
+          <div className="ft-settings-inner">
+            {/* Sync code */}
+            <div className="ft-settings-sync">
+              <p style={S.label}>Your Sync Code</p>
+              <div style={{ display: 'flex', gap: '0.625rem', alignItems: 'center', flexWrap: 'wrap', marginTop: '0.25rem' }}>
+                <code style={{ fontSize: '1.125rem', fontWeight: 800, color: '#f59e0b', letterSpacing: '0.07em', wordBreak: 'break-all' }}>{userCode}</code>
+                <button type="button" onClick={copyCode}
+                  style={{ ...S.btn(codeCopied ? '#4ade80' : 'rgba(245,158,11,0.5)'), padding: '0.25rem 0.75rem', fontSize: '0.6875rem', flexShrink: 0 }}>
+                  {codeCopied ? '✓ Copied' : 'Copy'}
+                </button>
               </div>
-              <button type="button" onClick={exportCSV}
-                style={{ ...S.btn('#4ade80'), padding: '0.375rem 0.875rem' }}>
-                ↓ Export CSV
-              </button>
-              <a
-                href={`mailto:?subject=${encodeURIComponent('My Fuel Tracker Sync Code')}&body=${encodeURIComponent(
-                  `Hi,\n\nHere is my Fuel Tracker sync code:\n\n  ${userCode}\n\nTo access my data on another device:\n1. Go to https://nexusdigitallabs.dev/tools/fuel-tracker/\n2. Choose "I have a code"\n3. Enter the code above\n\n— Sent from NexusDigitalLabs Fuel Tracker`
-                )}`}
-                style={{ ...S.btn('rgba(99,102,241,0.7)'), padding: '0.375rem 0.875rem', textDecoration: 'none', display: 'inline-block' }}
-              >
-                ✉ Email my code
-              </a>
-              <button type="button" onClick={handleDeleteAll}
-                style={{ ...S.btn('#f87171'), padding: '0.375rem 0.875rem', marginLeft: 'auto' }}>
-                Delete All My Data
-              </button>
+              <p style={{ fontSize: '0.6875rem', color: '#475569', marginTop: '0.375rem' }}>
+                Enter this code on any device to load your full history.
+              </p>
+            </div>
+
+            {/* Actions */}
+            <div className="ft-settings-right" style={{ minWidth: 0 }}>
+              <div className="ft-settings-actions">
+                <button type="button" onClick={exportCSV}
+                  style={{ ...S.btn('#4ade80'), padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                  ↓ Export CSV
+                </button>
+                <a
+                  href={`mailto:?subject=${encodeURIComponent('My Fuel Tracker Sync Code')}&body=${encodeURIComponent(
+                    `Hi,\n\nHere is my Fuel Tracker sync code:\n\n  ${userCode}\n\nTo access my data on another device:\n1. Go to https://nexusdigitallabs.dev/tools/fuel-tracker/\n2. Choose "I have a code"\n3. Enter the code above\n\n— Sent from NexusDigitalLabs Fuel Tracker`
+                  )}`}
+                  style={{ ...S.btn('rgba(99,102,241,0.7)'), padding: '0.5rem 1rem', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.375rem' }}
+                >
+                  ✉ Email my code
+                </a>
+              </div>
+              <div className="ft-settings-danger">
+                <button type="button" onClick={handleDeleteAll}
+                  style={{ ...S.btn('#f87171'), padding: '0.5rem 1rem' }}>
+                  🗑 Delete All My Data
+                </button>
+              </div>
             </div>
           </div>
         </div>
