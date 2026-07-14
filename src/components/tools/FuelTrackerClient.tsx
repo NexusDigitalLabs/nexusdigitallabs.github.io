@@ -45,9 +45,14 @@ const FUEL_TYPES = ['Petrol', 'Diesel', 'Hybrid', 'Electric', 'LPG'];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function genCode(nickname: string): string {
-  const clean = nickname.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 20) || 'MyGarage';
-  const suffix = Math.random().toString(36).slice(2, 6).toUpperCase();
-  return `${clean}-${suffix}`;
+  const clean = nickname.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 20) || 'mygarage';
+  const suffix = Math.random().toString(36).slice(2, 6);
+  // Normalise to lowercase so the code is case-insensitive on re-entry
+  return `${clean}-${suffix}`.toLowerCase();
+}
+
+function normaliseCode(raw: string): string {
+  return raw.trim().toLowerCase();
 }
 
 function fmt(n: number, dp = 2) { return n.toFixed(dp); }
@@ -264,7 +269,8 @@ export default function FuelTrackerClient() {
   // ── Init ──────────────────────────────────────────────────────────────────
   useEffect(() => {
     try {
-      const code = localStorage.getItem('ndl_fuel_code');
+      const stored = localStorage.getItem('ndl_fuel_code');
+      const code = stored ? normaliseCode(stored) : null;
       const cur = localStorage.getItem('ndl_fuel_currency');
       if (cur) setCurrencyCode(cur);
       if (code) {
@@ -338,7 +344,7 @@ export default function FuelTrackerClient() {
   }
 
   async function handleExistingCode() {
-    const code = existingCodeInput.trim();
+    const code = normaliseCode(existingCodeInput);
     if (!code) { setOnboardError('Enter your sync code'); return; }
     setOnboardError('');
     setOnboardLoading(true);
