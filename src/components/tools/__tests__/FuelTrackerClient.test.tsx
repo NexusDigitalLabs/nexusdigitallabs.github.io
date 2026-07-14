@@ -3,6 +3,17 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import FuelTrackerClient from '../FuelTrackerClient';
 
+vi.mock('@/components/AuthProvider', () => ({
+  useAuth: () => ({
+    user: null,
+    session: null,
+    profile: null,
+    loading: false,
+    signOut: vi.fn(),
+    setProfile: vi.fn(),
+  }),
+}));
+
 // Clear localStorage before each test so the component always starts fresh
 beforeEach(() => {
   localStorage.clear();

@@ -95,7 +95,7 @@ export default function Footer() {
         >
           <span>© {new Date().getFullYear()} NexusDigitalLabs. All rights reserved.</span>
           <MetricCounter />
-          <span>No tracking cookies · Privacy-first design</span>
+          <span>Privacy-first · Optional accounts</span>
         </div>
       </div>
     </footer>

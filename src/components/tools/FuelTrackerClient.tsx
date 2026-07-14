@@ -1,10 +1,50 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   type FillUp, type FillStats,
   genCode, normaliseCode, fmt, fmtCurrency, fmtDate, friendlyError, computeStats,
 } from '@/lib/fuel-utils';
+import { useAuth } from '@/components/AuthProvider';
+import AuthGate from '@/components/AuthGate';
+import {
+  CURRENCIES,
+  currencyByCode,
+  normalizeCurrencyCode,
+  type CurrencyCode,
+} from '@/lib/currencies';
+import { updateOwnPreferredCurrency } from '@/lib/profile';
+import { createBrowserSupabaseClient } from '@/lib/supabase/client';
+
+const FUEL_CODE_KEY = 'ndl_fuel_code';
+const FUEL_CURRENCY_KEY = 'ndl_fuel_currency';
+/** When set to the active sync code, garage UI requires sign-in after logout. */
+const FUEL_AUTH_LOCK_KEY = 'ndl_fuel_auth_lock';
+
+function markGarageAuthLock(code: string) {
+  try {
+    localStorage.setItem(FUEL_AUTH_LOCK_KEY, code);
+  } catch {
+    /* ignore */
+  }
+}
+
+function clearGarageAuthLock() {
+  try {
+    localStorage.removeItem(FUEL_AUTH_LOCK_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+function isGarageAuthLocked(code: string | null): boolean {
+  if (!code) return false;
+  try {
+    return localStorage.getItem(FUEL_AUTH_LOCK_KEY) === code;
+  } catch {
+    return false;
+  }
+}
 
 // ── Local types ────────────────────────────────────────────────────────────────
 interface Vehicle {
@@ -15,14 +55,6 @@ interface Vehicle {
   fuel_type: string;
   nickname: string | null;
 }
-
-const CURRENCIES = [
-  { code: 'USD', symbol: '$' }, { code: 'EUR', symbol: '€' },
-  { code: 'GBP', symbol: '£' }, { code: 'AUD', symbol: 'A$' },
-  { code: 'LKR', symbol: 'Rs' }, { code: 'INR', symbol: '₹' },
-  { code: 'SGD', symbol: 'S$' }, { code: 'CAD', symbol: 'C$' },
-  { code: 'JPY', symbol: '¥' },
-];
 
 const FUEL_TYPES = ['Petrol', 'Diesel', 'Hybrid', 'Electric', 'LPG'];
 
@@ -167,7 +199,23 @@ function SelectField({ label, children, ...props }: { label: string } & React.Se
 }
 
 // ── Sync code display card ────────────────────────────────────────────────────
-function SyncCodeCard({ userCode }: { userCode: string | null }) {
+type ClaimUiState = 'idle' | 'loading' | 'unclaimed' | 'owned' | 'claimed_other' | 'error';
+
+function SyncCodeCard({
+  userCode,
+  claimState,
+  claimMessage,
+  claimBusy,
+  signedIn,
+  onClaim,
+}: {
+  userCode: string | null;
+  claimState: ClaimUiState;
+  claimMessage: string | null;
+  claimBusy: boolean;
+  signedIn: boolean;
+  onClaim: () => void;
+}) {
   const [copied, setCopied] = useState(false);
   // Start collapsed on mobile (< 680px), expanded on desktop
   const [expanded, setExpanded] = useState(() =>
@@ -199,11 +247,19 @@ function SyncCodeCard({ userCode }: { userCode: string | null }) {
           gap: '0.75rem',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', flexWrap: 'wrap' }}>
           <div style={{ width: '8px', height: '8px', flexShrink: 0, borderRadius: '50%', background: '#f59e0b' }} />
           <span style={{ fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#f59e0b' }}>
             Your Sync Code
           </span>
+          {claimState === 'owned' && (
+            <span style={{
+              fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase',
+              color: '#4ade80', border: '1px solid rgba(74,222,128,0.35)', padding: '0.15rem 0.4rem',
+            }}>
+              Linked
+            </span>
+          )}
           {/* Show truncated code in header when collapsed */}
           {!expanded && userCode && (
             <code style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--ndl-muted)', letterSpacing: '0.04em' }}>
@@ -265,6 +321,85 @@ function SyncCodeCard({ userCode }: { userCode: string | null }) {
             )}
           </button>
 
+          {/* Account link */}
+          {userCode && claimState !== 'idle' && claimState !== 'loading' && (
+            <div style={{
+              marginTop: '1rem',
+              padding: '0.875rem',
+              border: '1px solid var(--ndl-border)',
+              background: 'var(--ndl-surface-2)',
+            }}>
+              {claimState === 'owned' && (
+                <p style={{ margin: 0, fontSize: '0.75rem', color: '#4ade80', lineHeight: 1.5 }}>
+                  Linked to your account — this garage restores automatically when you sign in on a new device.
+                </p>
+              )}
+              {claimState === 'claimed_other' && (
+                <p style={{ margin: 0, fontSize: '0.75rem', color: '#f87171', lineHeight: 1.5 }}>
+                  This sync code is linked to another account. You can still use the code on this device.
+                </p>
+              )}
+              {claimState === 'unclaimed' && signedIn && (
+                <>
+                  <p style={{ margin: '0 0 0.75rem', fontSize: '0.75rem', color: 'var(--ndl-muted)', lineHeight: 1.5 }}>
+                    Optional: link this garage to your account so it loads when you sign in elsewhere.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={onClaim}
+                    disabled={claimBusy}
+                    style={{
+                      width: '100%',
+                      padding: '0.5rem 0.75rem',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      letterSpacing: '0.06em',
+                      textTransform: 'uppercase',
+                      color: '#fff',
+                      background: '#6366f1',
+                      border: 'none',
+                      cursor: claimBusy ? 'wait' : 'pointer',
+                      opacity: claimBusy ? 0.6 : 1,
+                    }}
+                  >
+                    {claimBusy ? 'Linking…' : 'Link to my account'}
+                  </button>
+                </>
+              )}
+              {claimState === 'unclaimed' && !signedIn && (
+                <>
+                  <p style={{ margin: '0 0 0.75rem', fontSize: '0.75rem', color: 'var(--ndl-muted)', lineHeight: 1.5 }}>
+                    Sign in to link this garage to your account (optional — sync code still works alone).
+                  </p>
+                  <a
+                    href="/login/?next=/tools/fuel-tracker/"
+                    style={{
+                      display: 'block',
+                      textAlign: 'center',
+                      textDecoration: 'none',
+                      padding: '0.5rem 0.75rem',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      letterSpacing: '0.06em',
+                      textTransform: 'uppercase',
+                      color: '#a5b4fc',
+                      border: '1px solid rgba(99,102,241,0.45)',
+                      background: 'rgba(99,102,241,0.12)',
+                    }}
+                  >
+                    Sign in to link
+                  </a>
+                </>
+              )}
+              {claimState === 'error' && claimMessage && (
+                <p style={{ margin: 0, fontSize: '0.75rem', color: '#f87171', lineHeight: 1.5 }}>{claimMessage}</p>
+              )}
+              {claimMessage && claimState !== 'error' && (
+                <p style={{ margin: '0.5rem 0 0', fontSize: '0.7rem', color: 'var(--ndl-faint)' }}>{claimMessage}</p>
+              )}
+            </div>
+          )}
+
           {/* How it works */}
           <div style={{ marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px solid rgba(245,158,11,0.12)' }}>
             <p style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--ndl-faint)', marginBottom: '0.75rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
@@ -273,7 +408,7 @@ function SyncCodeCard({ userCode }: { userCode: string | null }) {
             {[
               'Save this code in your Notes app, or take a screenshot.',
               'Open Fuel Tracker on your other device.',
-              'Choose "I Have a Code" and enter it to load your data.',
+              'Choose "I Have a Code" and enter it — or sign in if you linked your account.',
             ].map((tip, i) => (
               <div key={i} style={{ display: 'flex', gap: '0.625rem', marginBottom: '0.5rem', alignItems: 'flex-start' }}>
                 <span style={{ fontSize: '0.6rem', fontWeight: 700, color: '#f59e0b', minWidth: '14px', marginTop: '0.15rem' }}>
@@ -293,10 +428,11 @@ function SyncCodeCard({ userCode }: { userCode: string | null }) {
 type Step = 'loading' | 'onboarding' | 'vehicle_setup' | 'main';
 
 export default function FuelTrackerClient() {
+  const { user, profile, loading: authLoading, setProfile: setAuthProfile } = useAuth();
   const [step, setStep] = useState<Step>('loading');
   const [userCode, setUserCode] = useState<string | null>(null);
-  const [currencyCode, setCurrencyCode] = useState('USD');
-  const currency = CURRENCIES.find(c => c.code === currencyCode) ?? CURRENCIES[0];
+  const [currencyCode, setCurrencyCode] = useState<CurrencyCode>('USD');
+  const currency = currencyByCode(currencyCode);
 
   // onboarding
   const [onboardMode, setOnboardMode] = useState<'new' | 'existing'>('new');
@@ -338,16 +474,77 @@ export default function FuelTrackerClient() {
   const [showSettings, setShowSettings] = useState(false);
   const [codeCopied, setCodeCopied] = useState(false);
 
+  // account claim
+  const [claimState, setClaimState] = useState<ClaimUiState>('idle');
+  const [claimMessage, setClaimMessage] = useState<string | null>(null);
+  const [claimBusy, setClaimBusy] = useState(false);
+
   // chart
   const [activeChart, setActiveChart] = useState<'efficiency' | 'spend'>('efficiency');
 
+  // When a signed-in user opens/uses a garage, lock it to auth after sign-out.
+  const hadSignedInRef = useRef(false);
+  useEffect(() => {
+    if (user?.id) {
+      hadSignedInRef.current = true;
+      if (userCode) markGarageAuthLock(userCode);
+    }
+  }, [user?.id, userCode]);
+
+  // Preferred currency: profile (signed in) > localStorage > USD
+  useEffect(() => {
+    if (authLoading) return;
+    if (profile?.preferred_currency) {
+      setCurrencyCode(normalizeCurrencyCode(profile.preferred_currency));
+      try { localStorage.setItem(FUEL_CURRENCY_KEY, profile.preferred_currency); } catch { /* ignore */ }
+      return;
+    }
+    try {
+      const stored = localStorage.getItem(FUEL_CURRENCY_KEY);
+      if (stored) setCurrencyCode(normalizeCurrencyCode(stored));
+    } catch { /* ignore */ }
+  }, [authLoading, profile?.preferred_currency]);
+
+  useEffect(() => {
+    if (claimState === 'owned' && userCode) {
+      markGarageAuthLock(userCode);
+    }
+  }, [claimState, userCode]);
+
+  const garageNeedsSignIn =
+    !authLoading &&
+    !user &&
+    Boolean(userCode) &&
+    (step === 'main' || step === 'vehicle_setup') &&
+    (isGarageAuthLocked(userCode) || hadSignedInRef.current);
+
+  useEffect(() => {
+    if (!garageNeedsSignIn) return;
+    setVehicles([]);
+    setFills([]);
+    setActiveVehicleId(null);
+    setShowAddFill(false);
+    setShowSettings(false);
+  }, [garageNeedsSignIn]);
+
   // ── Fetch vehicles (only called explicitly, never reactively on userCode change)
-  const fetchVehicles = useCallback(async (code: string) => {
+  const fetchVehicles = useCallback(async (code: string, signedIn = false) => {
     setDataLoading(true);
     try {
       const res = await fetch(`/api/fuel?code=${encodeURIComponent(code)}&resource=vehicles`);
       const json = await res.json();
       if (json.data && json.data.length > 0) {
+        const linked = (json.data as { user_id?: string | null }[]).some((v) => Boolean(v.user_id));
+        // Account-linked garage: do not show data while signed out.
+        if (linked && !signedIn) {
+          markGarageAuthLock(code);
+          setUserCode(code);
+          setVehicles([]);
+          setFills([]);
+          setActiveVehicleId(null);
+          setStep('main');
+          return;
+        }
         setVehicles(json.data);
         setActiveVehicleId(json.data[0].id);
         setStep('main');
@@ -365,26 +562,64 @@ export default function FuelTrackerClient() {
     }
   }, []);
 
-  // ── Init — only runs once on mount ────────────────────────────────────────
+  // ── Init — local sync code, else signed-in account garage, else onboarding ─
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem('ndl_fuel_code');
-      const code = stored ? normaliseCode(stored) : null;
-      const cur = localStorage.getItem('ndl_fuel_currency');
-      if (cur) setCurrencyCode(cur);
-      if (code) {
-        setUserCode(code);
-        // Explicitly fetch for returning users only
-        fetchVehicles(code);
-      } else {
-        setStep('onboarding');
+    if (authLoading) return;
+
+    let cancelled = false;
+
+    async function init() {
+      try {
+        const cur = localStorage.getItem(FUEL_CURRENCY_KEY);
+        if (cur && !cancelled) setCurrencyCode(normalizeCurrencyCode(cur));
+
+        const stored = localStorage.getItem(FUEL_CODE_KEY);
+        const code = stored ? normaliseCode(stored) : null;
+
+        if (code) {
+          if (!cancelled) {
+            setUserCode(code);
+            // Linked / previously signed-in garage: don't load data until signed in.
+            if (!user && isGarageAuthLocked(code)) {
+              setStep('main');
+              return;
+            }
+            await fetchVehicles(code, Boolean(user));
+          }
+          return;
+        }
+
+        if (user) {
+          const res = await fetch('/api/fuel?resource=account');
+          if (cancelled) return;
+          if (res.ok) {
+            const json = await res.json();
+            if (json.data && json.data.length > 0 && json.code) {
+              const accountCode = normaliseCode(json.code);
+              try {
+                localStorage.setItem(FUEL_CODE_KEY, accountCode);
+                markGarageAuthLock(accountCode);
+              } catch { /* ignore */ }
+              setUserCode(accountCode);
+              setVehicles(json.data);
+              setActiveVehicleId(json.data[0].id);
+              setStep('main');
+              return;
+            }
+          }
+        }
+
+        if (!cancelled) setStep('onboarding');
+      } catch {
+        if (!cancelled) setStep('onboarding');
       }
-    } catch {
-      setStep('onboarding');
     }
-  // fetchVehicles is stable (useCallback with []) — safe to include
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
+    void init();
+    return () => {
+      cancelled = true;
+    };
+  }, [authLoading, user?.id, fetchVehicles]);
 
   // ── Fetch fills when active vehicle changes ───────────────────────────────
   const fetchFills = useCallback(async (vehicleId: string, code: string) => {
@@ -404,12 +639,74 @@ export default function FuelTrackerClient() {
     if (activeVehicleId && userCode) fetchFills(activeVehicleId, userCode);
   }, [activeVehicleId, userCode, fetchFills]);
 
+  // ── Claim status for current sync code ────────────────────────────────────
+  const refreshClaimStatus = useCallback(async (code: string) => {
+    setClaimState('loading');
+    setClaimMessage(null);
+    try {
+      const res = await fetch(
+        `/api/fuel?code=${encodeURIComponent(code)}&resource=claim_status`
+      );
+      const json = await res.json();
+      if (!res.ok) {
+        setClaimState('error');
+        setClaimMessage(json.error ?? 'Could not check link status');
+        return;
+      }
+      if (json.is_owner) setClaimState('owned');
+      else if (json.claimed) setClaimState('claimed_other');
+      else setClaimState('unclaimed');
+    } catch {
+      setClaimState('error');
+      setClaimMessage('Could not check link status');
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!userCode || (step !== 'main' && step !== 'vehicle_setup')) {
+      setClaimState('idle');
+      return;
+    }
+    // Need at least one vehicle before claim is useful.
+    if (vehicles.length === 0) {
+      setClaimState('idle');
+      return;
+    }
+    void refreshClaimStatus(userCode);
+  }, [userCode, step, user?.id, vehicles.length, refreshClaimStatus]);
+
+  async function handleClaimGarage() {
+    if (!userCode || claimBusy) return;
+    setClaimBusy(true);
+    setClaimMessage(null);
+    try {
+      const res = await fetch('/api/fuel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ resource: 'claim', code: userCode }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        setClaimState(res.status === 409 ? 'claimed_other' : 'error');
+        setClaimMessage(json.error ?? 'Could not link garage');
+        return;
+      }
+      setClaimState('owned');
+      setClaimMessage('Garage linked to your account.');
+    } catch {
+      setClaimState('error');
+      setClaimMessage('Could not link garage');
+    } finally {
+      setClaimBusy(false);
+    }
+  }
+
   // ── Onboarding ────────────────────────────────────────────────────────────
   function handleStartNew() {
     if (!nicknameInput.trim()) { setOnboardError('Enter a nickname first'); return; }
     setOnboardError('');
     const code = genCode(nicknameInput.trim());
-    try { localStorage.setItem('ndl_fuel_code', code); } catch { /* ignore */ }
+    try { localStorage.setItem(FUEL_CODE_KEY, code); } catch { /* ignore */ }
     // Set code in state then go directly to vehicle setup — no API fetch needed
     // for a brand new user who has no vehicles yet.
     setUserCode(code);
@@ -427,7 +724,7 @@ export default function FuelTrackerClient() {
       // A valid existing garage must have at least one vehicle.
       // An empty array means the code was never registered — treat as not found.
       if (json.data && json.data.length > 0) {
-        try { localStorage.setItem('ndl_fuel_code', code); } catch { /* ignore */ }
+        try { localStorage.setItem(FUEL_CODE_KEY, code); } catch { /* ignore */ }
         setUserCode(code);
         setVehicles(json.data);
         setActiveVehicleId(json.data[0].id);
@@ -536,11 +833,24 @@ export default function FuelTrackerClient() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ resource: 'user', code: userCode }),
       });
-      try { localStorage.removeItem('ndl_fuel_code'); } catch { /* ignore */ }
+      try {
+        localStorage.removeItem(FUEL_CODE_KEY);
+        clearGarageAuthLock();
+      } catch { /* ignore */ }
       setUserCode(null); setVehicles([]); setFills([]);
       setStep('onboarding');
       setShowSettings(false);
     } catch { /* ignore */ }
+  }
+
+  async function handleCurrencyChange(next: string) {
+    const code = normalizeCurrencyCode(next);
+    setCurrencyCode(code);
+    try { localStorage.setItem(FUEL_CURRENCY_KEY, code); } catch { /* ignore */ }
+    if (!user) return;
+    const supabase = createBrowserSupabaseClient();
+    const { profile: updated } = await updateOwnPreferredCurrency(supabase, user.id, code);
+    if (updated) setAuthProfile(updated);
   }
 
   // ── Export CSV ────────────────────────────────────────────────────────────
@@ -697,7 +1007,7 @@ export default function FuelTrackerClient() {
             Fuel Tracker
           </h1>
           <p style={{ fontSize: '0.8125rem', color: 'var(--ndl-faint)', marginBottom: '2rem', lineHeight: 1.6 }}>
-            Track fuel costs, efficiency, and mileage across all your vehicles. Data syncs across devices via a personal code — no account needed.
+            Track fuel costs, efficiency, and mileage across all your vehicles. Data syncs via a personal code — account optional for restore-on-login.
           </p>
 
           {/* Toggle */}
@@ -761,6 +1071,23 @@ export default function FuelTrackerClient() {
   }
 
   // ─────────────────────────────────────────────────────────────────────────
+  // RENDER: Auth lock (signed out of an auth-linked garage)
+  // ─────────────────────────────────────────────────────────────────────────
+  if (garageNeedsSignIn) {
+    return (
+      <AuthGate
+        variant="page"
+        next="/tools/fuel-tracker/"
+        title="Sign in to unlock your garage"
+        description="Your fuel history is still saved. Sign back in to continue logging fill-ups and viewing stats."
+        minHeight="calc(100vh - 64px)"
+      >
+        {null}
+      </AuthGate>
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
   // RENDER: Vehicle Setup
   // ─────────────────────────────────────────────────────────────────────────
   if (step === 'vehicle_setup' && !showAddVehicle) {
@@ -801,7 +1128,14 @@ export default function FuelTrackerClient() {
 
           {/* ── RIGHT: Sync code card ────────────────────────────────────── */}
           <div className="sync-code-panel" style={{ position: 'sticky', top: '2rem' }}>
-            <SyncCodeCard userCode={userCode} />
+            <SyncCodeCard
+              userCode={userCode}
+              claimState={claimState}
+              claimMessage={claimMessage}
+              claimBusy={claimBusy}
+              signedIn={Boolean(user)}
+              onClaim={handleClaimGarage}
+            />
           </div>
         </div>
       </div>
@@ -826,7 +1160,7 @@ export default function FuelTrackerClient() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <select
               value={currencyCode}
-              onChange={e => { setCurrencyCode(e.target.value); try { localStorage.setItem('ndl_fuel_currency', e.target.value); } catch { /* ignore */ } }}
+              onChange={(e) => { void handleCurrencyChange(e.target.value); }}
               style={{ ...inputStyle, width: 'auto', fontSize: '0.75rem', padding: '0.375rem 0.625rem' }}
             >
               {CURRENCIES.map(c => <option key={c.code} value={c.code}>{c.code}</option>)}
@@ -871,6 +1205,50 @@ export default function FuelTrackerClient() {
               <p style={{ fontSize: '0.6875rem', color: 'var(--ndl-faint)', marginTop: '0.375rem' }}>
                 Enter this code on any device to load your full history.
               </p>
+              {claimState === 'owned' && (
+                <p style={{ fontSize: '0.75rem', color: '#4ade80', marginTop: '0.75rem' }}>
+                  Linked to your account.
+                </p>
+              )}
+              {claimState === 'claimed_other' && (
+                <p style={{ fontSize: '0.75rem', color: '#f87171', marginTop: '0.75rem' }}>
+                  Linked to another account.
+                </p>
+              )}
+              {claimState === 'unclaimed' && user && (
+                <button
+                  type="button"
+                  onClick={handleClaimGarage}
+                  disabled={claimBusy}
+                  style={{
+                    ...S.btn('#6366f1'),
+                    marginTop: '0.75rem',
+                    padding: '0.4rem 0.85rem',
+                    fontSize: '0.6875rem',
+                    opacity: claimBusy ? 0.6 : 1,
+                  }}
+                >
+                  {claimBusy ? 'Linking…' : 'Link to my account'}
+                </button>
+              )}
+              {claimState === 'unclaimed' && !user && (
+                <a
+                  href="/login/?next=/tools/fuel-tracker/"
+                  style={{
+                    ...S.btn('#6366f1'),
+                    marginTop: '0.75rem',
+                    padding: '0.4rem 0.85rem',
+                    fontSize: '0.6875rem',
+                    textDecoration: 'none',
+                    display: 'inline-block',
+                  }}
+                >
+                  Sign in to link
+                </a>
+              )}
+              {claimMessage && (
+                <p style={{ fontSize: '0.7rem', color: 'var(--ndl-faint)', marginTop: '0.5rem' }}>{claimMessage}</p>
+              )}
             </div>
 
             {/* Actions */}
@@ -912,7 +1290,7 @@ export default function FuelTrackerClient() {
             </p>
             <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
               <button type="button"
-                onClick={() => userCode && fetchVehicles(userCode)}
+                onClick={() => userCode && fetchVehicles(userCode, Boolean(user))}
                 style={{ ...S.btnFill('#f59e0b'), padding: '0.5rem 1.25rem', fontSize: '0.75rem' }}>
                 Retry
               </button>

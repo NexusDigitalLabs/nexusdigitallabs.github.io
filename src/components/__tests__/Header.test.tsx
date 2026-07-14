@@ -2,10 +2,24 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import Header from '../Header';
 import { ThemeProvider } from '../ThemeProvider';
+import { AuthProvider } from '../AuthProvider';
 
 // Header uses usePathname from next/navigation
 vi.mock('next/navigation', () => ({
   usePathname: vi.fn(() => '/'),
+  useRouter: () => ({ refresh: vi.fn(), push: vi.fn(), replace: vi.fn() }),
+}));
+
+vi.mock('@/lib/supabase/client', () => ({
+  createBrowserSupabaseClient: () => ({
+    auth: {
+      getSession: async () => ({ data: { session: null } }),
+      onAuthStateChange: () => ({
+        data: { subscription: { unsubscribe: () => undefined } },
+      }),
+      signOut: async () => ({ error: null }),
+    },
+  }),
 }));
 
 import { usePathname } from 'next/navigation';
@@ -14,7 +28,9 @@ const mockPathname = usePathname as ReturnType<typeof vi.fn>;
 function renderHeader() {
   return render(
     <ThemeProvider>
-      <Header />
+      <AuthProvider>
+        <Header />
+      </AuthProvider>
     </ThemeProvider>,
   );
 }
@@ -50,6 +66,12 @@ describe('Header — structure', () => {
   it('renders the color theme radiogroup', () => {
     renderHeader();
     expect(screen.getByRole('radiogroup', { name: /color theme/i })).toBeInTheDocument();
+  });
+
+  it('renders a Sign in link when logged out', async () => {
+    renderHeader();
+    const link = await screen.findByRole('link', { name: /sign in/i });
+    expect(link.getAttribute('href')).toMatch(/^\/login\/?$/);
   });
 });
 
@@ -128,9 +150,10 @@ describe('Header — active state badge', () => {
 });
 
 describe('Header — snapshot', () => {
-  it('matches snapshot on homepage', () => {
+  it('matches snapshot on homepage', async () => {
     mockPathname.mockReturnValue('/');
     const { container } = renderHeader();
+    await screen.findByRole('link', { name: /sign in/i });
     expect(container.firstChild).toMatchSnapshot();
   });
 });
