@@ -44,6 +44,22 @@ const CURRENCIES = [
 const FUEL_TYPES = ['Petrol', 'Diesel', 'Hybrid', 'Electric', 'LPG'];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
+
+/** Translate raw Supabase / network errors into something actionable */
+function friendlyError(raw: string): string {
+  const r = raw.toLowerCase();
+  if (r.includes('invalid api key') || r.includes('invalid_key') || r.includes('apikey')) {
+    return 'API key error — check that SUPABASE_SERVICE_ROLE_KEY is correctly set in your Vercel environment variables.';
+  }
+  if (r.includes('does not exist') || r.includes('42p01') || r.includes('relation')) {
+    return 'Database tables not found. Run the SQL migration from docs/tools/fuel-tracker.md in your Supabase SQL editor first.';
+  }
+  if (r.includes('jwt') || r.includes('unauthorized') || r.includes('401')) {
+    return 'Authentication failed — the Supabase service role key may be expired or incorrect.';
+  }
+  return raw;
+}
+
 function genCode(nickname: string): string {
   const clean = nickname.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 20) || 'mygarage';
   const suffix = Math.random().toString(36).slice(2, 6);
@@ -210,6 +226,97 @@ function SelectField({ label, children, ...props }: { label: string } & React.Se
       >
         {children}
       </select>
+    </div>
+  );
+}
+
+// ── Sync code display card ────────────────────────────────────────────────────
+function SyncCodeCard({ userCode }: { userCode: string | null }) {
+  const [copied, setCopied] = useState(false);
+
+  function copy() {
+    if (!userCode) return;
+    navigator.clipboard.writeText(userCode).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
+  return (
+    <div style={{
+      background: 'linear-gradient(135deg, rgba(245,158,11,0.06) 0%, rgba(245,158,11,0.02) 100%)',
+      border: '1px solid rgba(245,158,11,0.25)',
+      padding: '2rem',
+    }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
+        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#f59e0b', animation: 'pulse 2s infinite' }} />
+        <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#f59e0b', margin: 0 }}>
+          Your Sync Code
+        </p>
+      </div>
+
+      {/* Big code */}
+      <div style={{ marginBottom: '1.5rem' }}>
+        <code style={{
+          display: 'block',
+          fontSize: 'clamp(1.4rem, 4vw, 2.25rem)',
+          fontWeight: 800,
+          color: '#f8fafc',
+          letterSpacing: '0.06em',
+          wordBreak: 'break-all',
+          lineHeight: 1.2,
+        }}>
+          {userCode ?? '—'}
+        </code>
+      </div>
+
+      {/* Copy button */}
+      <button type="button" onClick={copy} style={{
+        display: 'flex', alignItems: 'center', gap: '0.5rem',
+        background: copied ? 'rgba(74,222,128,0.12)' : 'rgba(245,158,11,0.12)',
+        border: `1px solid ${copied ? 'rgba(74,222,128,0.35)' : 'rgba(245,158,11,0.35)'}`,
+        color: copied ? '#4ade80' : '#f59e0b',
+        padding: '0.625rem 1rem', cursor: 'pointer', width: '100%',
+        justifyContent: 'center', borderRadius: 0,
+        fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
+        transition: 'all 0.2s',
+      }}>
+        {copied ? (
+          <>
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+            </svg>
+            Copied!
+          </>
+        ) : (
+          <>
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3" />
+            </svg>
+            Copy Code
+          </>
+        )}
+      </button>
+
+      {/* Instructions */}
+      <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(245,158,11,0.12)' }}>
+        <p style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8', marginBottom: '0.75rem', letterSpacing: '0.05em' }}>
+          How cross-device sync works
+        </p>
+        {[
+          'Save this code somewhere safe — Notes app, password manager, or screenshot it.',
+          'On any other device, open Fuel Tracker and choose "I Have a Code".',
+          'Enter this code to instantly load all your vehicles and fill history.',
+        ].map((tip, i) => (
+          <div key={i} style={{ display: 'flex', gap: '0.75rem', marginBottom: '0.625rem', alignItems: 'flex-start' }}>
+            <span style={{ fontSize: '0.6rem', fontWeight: 700, color: '#f59e0b', minWidth: '16px', marginTop: '0.1rem' }}>
+              {i + 1}.
+            </span>
+            <p style={{ fontSize: '0.75rem', color: '#64748b', margin: 0, lineHeight: 1.6 }}>{tip}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -390,10 +497,10 @@ export default function FuelTrackerClient() {
         setStep('main');
         setVMake(''); setVModel(''); setVYear(''); setVNickname('');
       } else {
-        setVehicleError(json.error ?? 'Failed to save vehicle');
+        setVehicleError(friendlyError(json.error ?? 'Failed to save vehicle'));
       }
     } catch {
-      setVehicleError('Could not connect. Please try again.');
+      setVehicleError('Could not connect. Please check your internet connection and try again.');
     } finally {
       setVehicleLoading(false);
     }
@@ -432,10 +539,10 @@ export default function FuelTrackerClient() {
         setFillPartial(false); setFillNotes('');
         setFillDate(new Date().toISOString().slice(0, 10));
       } else {
-        setFillError(json.error ?? 'Failed to save fill-up');
+        setFillError(friendlyError(json.error ?? 'Failed to save fill-up'));
       }
     } catch {
-      setFillError('Could not connect. Please try again.');
+      setFillError('Could not connect. Please check your internet connection and try again.');
     } finally {
       setFillLoading(false);
     }
@@ -643,28 +750,44 @@ export default function FuelTrackerClient() {
   // ─────────────────────────────────────────────────────────────────────────
   if (step === 'vehicle_setup' && !showAddVehicle) {
     return (
-      <div style={{ minHeight: 'calc(100vh - 64px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem 1rem', background: '#0b0f19' }}>
-        <div style={{ maxWidth: '440px', width: '100%' }}>
-          <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#4ade80', marginBottom: '0.5rem' }}>
-            Step 2 of 2
-          </p>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#f8fafc', marginBottom: '0.375rem', letterSpacing: '-0.02em' }}>
-            Add your first vehicle
-          </h2>
-          <p style={{ fontSize: '0.8125rem', color: '#64748b', marginBottom: '2rem', lineHeight: 1.6 }}>
-            Your sync code is <strong style={{ color: '#f8fafc' }}>{userCode}</strong>. Save it — you&apos;ll need it to access your data on other devices.
-          </p>
-          <VehicleForm
-            make={vMake} setMake={setVMake}
-            model={vModel} setModel={setVModel}
-            year={vYear} setYear={setVYear}
-            fuelType={vFuelType} setFuelType={setVFuelType}
-            nickname={vNickname} setNickname={setVNickname}
-            error={vehicleError} loading={vehicleLoading}
-            onSubmit={handleCreateVehicle}
-            submitLabel="Add Vehicle & Start Tracking →"
-            accentColor="#4ade80"
-          />
+      <div style={{ minHeight: 'calc(100vh - 64px)', background: '#0b0f19', display: 'flex', alignItems: 'center', padding: '3rem 1.5rem' }}>
+        <div style={{ maxWidth: '900px', width: '100%', margin: '0 auto', display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)', gap: '3rem', alignItems: 'start' }}
+          className="vehicle-setup-grid">
+          <style>{`
+            @media (max-width: 680px) {
+              .vehicle-setup-grid { grid-template-columns: 1fr !important; }
+              .sync-code-panel { order: -1; }
+            }
+          `}</style>
+
+          {/* ── LEFT: Form ──────────────────────────────────────────────── */}
+          <div>
+            <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#4ade80', marginBottom: '0.5rem' }}>
+              Step 2 of 2
+            </p>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#f8fafc', marginBottom: '0.375rem', letterSpacing: '-0.02em' }}>
+              Add your first vehicle
+            </h2>
+            <p style={{ fontSize: '0.8125rem', color: '#64748b', marginBottom: '2rem', lineHeight: 1.6 }}>
+              Set up your vehicle and start logging fill-ups right away.
+            </p>
+            <VehicleForm
+              make={vMake} setMake={setVMake}
+              model={vModel} setModel={setVModel}
+              year={vYear} setYear={setVYear}
+              fuelType={vFuelType} setFuelType={setVFuelType}
+              nickname={vNickname} setNickname={setVNickname}
+              error={vehicleError} loading={vehicleLoading}
+              onSubmit={handleCreateVehicle}
+              submitLabel="Add Vehicle & Start Tracking →"
+              accentColor="#4ade80"
+            />
+          </div>
+
+          {/* ── RIGHT: Sync code card ────────────────────────────────────── */}
+          <div className="sync-code-panel" style={{ position: 'sticky', top: '2rem' }}>
+            <SyncCodeCard userCode={userCode} />
+          </div>
         </div>
       </div>
     );
@@ -708,15 +831,15 @@ export default function FuelTrackerClient() {
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', alignItems: 'flex-end' }}>
               <div>
                 <p style={S.label}>Your Sync Code</p>
-                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                  <code style={{ fontSize: '0.9375rem', fontWeight: 700, color: '#f59e0b', letterSpacing: '0.05em' }}>{userCode}</code>
+                <div style={{ display: 'flex', gap: '0.625rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <code style={{ fontSize: '1.125rem', fontWeight: 800, color: '#f59e0b', letterSpacing: '0.07em' }}>{userCode}</code>
                   <button type="button" onClick={copyCode}
-                    style={{ ...S.btn(codeCopied ? '#4ade80' : 'rgba(255,255,255,0.2)'), padding: '0.25rem 0.625rem', fontSize: '0.6875rem' }}>
+                    style={{ ...S.btn(codeCopied ? '#4ade80' : 'rgba(245,158,11,0.5)'), padding: '0.25rem 0.75rem', fontSize: '0.6875rem' }}>
                     {codeCopied ? '✓ Copied' : 'Copy'}
                   </button>
                 </div>
-                <p style={{ fontSize: '0.6875rem', color: '#475569', marginTop: '0.25rem' }}>
-                  Enter this code on any device to access your data.
+                <p style={{ fontSize: '0.6875rem', color: '#475569', marginTop: '0.375rem' }}>
+                  Enter this code on any device to load your full history.
                 </p>
               </div>
               <button type="button" onClick={exportCSV}
