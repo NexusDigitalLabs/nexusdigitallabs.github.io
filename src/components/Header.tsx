@@ -14,11 +14,11 @@ interface Badge {
 
 // ── Nav links ─────────────────────────────────────────────────────────────────
 const NAV_LINKS = [
-  { href: '/#tools',    label: 'Tools'    },
-  { href: '/#articles', label: 'Articles' },
-  { href: '/games/',    label: 'Games'    },
-  { href: '/about/',    label: 'About'    },
-  { href: '/contact/',  label: 'Contact'  },
+  { href: '/#tools',    label: 'Tools',    scroll: true  },
+  { href: '/#articles', label: 'Articles', scroll: true  },
+  { href: '/games/',    label: 'Games',    scroll: false },
+  { href: '/about/',    label: 'About',    scroll: false },
+  { href: '/contact/',  label: 'Contact',  scroll: false },
 ];
 
 // ── Page-context badges ───────────────────────────────────────────────────────
@@ -115,12 +115,13 @@ export default function Header() {
 
         {/* Centered nav links (hidden on mobile) */}
         <nav className="flex-1 hidden md:flex items-center justify-center gap-9">
-          {NAV_LINKS.map(({ href, label }) => {
+          {NAV_LINKS.map(({ href, label, scroll }) => {
             const active = isActive(href, pathname);
             return (
               <Link
                 key={href}
                 href={href}
+                scroll={scroll}
                 className={`text-sm transition-colors duration-200 no-underline relative group ${
                   active ? 'text-white' : 'text-slate-300 hover:text-white'
                 }`}
@@ -168,10 +169,11 @@ export default function Header() {
       {mobileOpen && (
         <div className="md:hidden border-t border-slate-800/60" style={{ background: 'rgba(8,9,18,0.5)' }}>
           <nav className="max-w-7xl mx-auto px-6 py-5 flex flex-col gap-4">
-            {NAV_LINKS.map(({ href, label }) => (
+            {NAV_LINKS.map(({ href, label, scroll }) => (
               <Link
                 key={href}
                 href={href}
+                scroll={scroll}
                 className="text-sm text-slate-200 hover:text-white transition-colors no-underline"
                 onClick={() => setMobileOpen(false)}
               >

@@ -286,31 +286,33 @@ export default function GameSnake() {
         </ul>
       </GameHelpModal>
 
-      <div style={{ borderBottom: '1px solid #e2e8f0', background: '#fff' }}>
+      <div style={{ borderBottom: '1px solid rgba(255,255,255,0.07)', background: '#0b0f19' }}>
         <div className="max-w-lg mx-auto px-6 py-5">
           <div className="flex items-center justify-between">
             <div>
-              <Link href="/games/" className={`${slbl} hover:text-slate-600 transition-colors no-underline`}>← Games</Link>
-              <h1 className="text-xl font-bold text-slate-900 mt-1">Snake</h1>
+              <Link href="/games/" style={{ fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#4ade80', textDecoration: 'none' }}>
+                ← Games
+              </Link>
+              <h1 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#f8fafc', marginTop: '0.25rem' }}>Snake</h1>
             </div>
-            <div className="flex items-center gap-2">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <button
                 type="button"
                 onClick={() => setShowHelp(true)}
                 title="How to play"
                 style={{
-                  border: '1px solid #e2e8f0', background: '#fff',
+                  background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
                   width: '36px', height: '36px', cursor: 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '0.875rem', fontWeight: 700, color: '#64748b',
+                  fontSize: '0.875rem', fontWeight: 700, color: '#94a3b8',
                 }}
               >
                 ?
               </button>
               {[{ label: 'Score', val: dispScore }, { label: 'Best', val: dispBest }].map(({ label, val }) => (
-                <div key={label} style={{ border: '1px solid #e2e8f0', background: '#fff', padding: '0.5rem 1rem', textAlign: 'center', minWidth: '80px' }}>
-                  <div className="text-[0.5625rem] font-bold tracking-[0.1em] uppercase text-slate-400">{label}</div>
-                  <div className="text-xl font-extrabold text-slate-900 leading-tight">{val}</div>
+                <div key={label} style={{ border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)', padding: '0.5rem 1rem', textAlign: 'center', minWidth: '76px' }}>
+                  <div style={{ fontSize: '0.5625rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#475569' }}>{label}</div>
+                  <div style={{ fontSize: '1.125rem', fontWeight: 800, color: '#f8fafc', lineHeight: 1.2 }}>{val}</div>
                 </div>
               ))}
             </div>
@@ -318,19 +320,19 @@ export default function GameSnake() {
         </div>
       </div>
 
+      <div style={{ background: '#0b0f19', minHeight: 'calc(100vh - 64px - 80px)' }}>
       <div className="max-w-lg mx-auto px-6 py-8 flex flex-col items-center gap-6">
         {/* Canvas */}
         <div style={{ position: 'relative', display: 'inline-block', lineHeight: 0 }}>
-          <canvas ref={canvasRef} style={{ display: 'block', border: '1px solid #e2e8f0', background: '#fff' }} />
+          <canvas ref={canvasRef} style={{ display: 'block', border: '1px solid rgba(255,255,255,0.1)', background: '#0d1117' }} />
           {showOverlay && (
-            <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.94)', zIndex: 5 }}>
-              <p className="text-xl font-bold mb-1" style={{ color: overlay.titleColor || '#0f172a' }}>{overlay.title}</p>
-              <p className="text-sm text-slate-400 font-light mb-6">{overlay.sub}</p>
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'rgba(7,9,15,0.88)', zIndex: 5 }}>
+              <p style={{ fontSize: '1.25rem', fontWeight: 800, color: overlay.titleColor || '#f8fafc', marginBottom: '0.375rem' }}>{overlay.title}</p>
+              <p style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '1.5rem' }}>{overlay.sub}</p>
               <button
                 onClick={startGame}
                 type="button"
-                className="text-xs font-bold tracking-[0.07em] uppercase text-white border-none cursor-pointer hover:bg-slate-700 transition-colors"
-                style={{ background: '#0f172a', padding: '0.625rem 1.75rem' }}
+                style={{ background: '#f8fafc', color: '#0f172a', padding: '0.625rem 1.75rem', border: 'none', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase' }}
               >
                 {overlay.btnText || 'Start Game'}
               </button>
@@ -340,19 +342,7 @@ export default function GameSnake() {
 
         {/* D-pad (touch devices) */}
         <div
-          className="hidden"
-          style={{ display: 'none' }}
-          id="dpad-container"
-        >
-          {/* Shown via CSS for pointer:coarse in globals.css or inline */}
-        </div>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 48px)',
-            gridTemplateRows: 'repeat(3, 48px)',
-            gap: '4px',
-          }}
+          style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 52px)', gridTemplateRows: 'repeat(3, 52px)', gap: '4px' }}
           className="dpad-grid"
         >
           <div />
@@ -368,20 +358,20 @@ export default function GameSnake() {
 
         {/* Keyboard hint */}
         <div className="hidden sm:flex gap-3 items-center flex-wrap justify-center">
-          <span className={slbl}>Controls:</span>
-          <span className="text-[0.6875rem] font-semibold text-slate-500 px-2 py-1" style={{ border: '1px solid #e2e8f0', background: '#fff' }}>↑ ↓ ← →</span>
-          <span className="text-xs text-slate-400">or</span>
-          <span className="text-[0.6875rem] font-semibold text-slate-500 px-2 py-1" style={{ border: '1px solid #e2e8f0', background: '#fff' }}>W A S D</span>
+          <span style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#475569' }}>Controls</span>
+          <span style={{ fontSize: '0.6875rem', fontWeight: 600, color: '#94a3b8', padding: '0.25rem 0.5rem', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)' }}>↑ ↓ ← →</span>
+          <span style={{ fontSize: '0.75rem', color: '#475569' }}>or</span>
+          <span style={{ fontSize: '0.6875rem', fontWeight: 600, color: '#94a3b8', padding: '0.25rem 0.5rem', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)' }}>W A S D</span>
         </div>
 
         <button
           onClick={startGame}
           type="button"
-          className="text-[0.6875rem] font-bold tracking-[0.07em] uppercase cursor-pointer transition-colors hover:bg-slate-50"
-          style={{ border: '1px solid #e2e8f0', background: '#fff', padding: '0.5rem 1rem' }}
+          style={{ border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)', padding: '0.5rem 1.25rem', cursor: 'pointer', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: '#94a3b8' }}
         >
           New Game
         </button>
+      </div>
       </div>
 
       <style>{`
@@ -399,7 +389,7 @@ function DpadBtn({ onClick, children }: { onClick: () => void; children: React.R
       onTouchStart={(e) => { e.preventDefault(); onClick(); }}
       onMouseDown={onClick}
       className="flex items-center justify-center text-xl cursor-pointer select-none"
-      style={{ background: '#fff', border: '1px solid #e2e8f0', WebkitTapHighlightColor: 'transparent' }}
+      style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#94a3b8', WebkitTapHighlightColor: 'transparent' }}
     >
       {children}
     </button>

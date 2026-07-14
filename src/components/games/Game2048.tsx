@@ -237,31 +237,33 @@ export default function Game2048() {
       </GameHelpModal>
 
       {/* Page header */}
-      <div style={{ borderBottom: '1px solid #e2e8f0', background: '#fff' }}>
+      <div style={{ borderBottom: '1px solid rgba(255,255,255,0.07)', background: '#0b0f19' }}>
         <div className="max-w-lg mx-auto px-6 py-5">
           <div className="flex items-center justify-between">
             <div>
-              <Link href="/games/" className={`${slbl} hover:text-slate-600 transition-colors no-underline`}>← Games</Link>
-              <h1 className="text-xl font-bold text-slate-900 mt-1">2048</h1>
+              <Link href="/games/" style={{ fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#4ade80', textDecoration: 'none' }}>
+                ← Games
+              </Link>
+              <h1 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#f8fafc', marginTop: '0.25rem' }}>2048</h1>
             </div>
-            <div className="flex items-center gap-2">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <button
                 type="button"
                 onClick={() => setShowHelp(true)}
                 title="How to play"
                 style={{
-                  border: '1px solid #e2e8f0', background: '#fff',
+                  background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
                   width: '36px', height: '36px', cursor: 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '0.875rem', fontWeight: 700, color: '#64748b',
+                  fontSize: '0.875rem', fontWeight: 700, color: '#94a3b8',
                 }}
               >
                 ?
               </button>
               {[{ label: 'Score', val: score }, { label: 'Best', val: best }].map(({ label, val }) => (
-                <div key={label} style={{ border: '1px solid #e2e8f0', background: '#fff', padding: '0.5rem 1rem', textAlign: 'center', minWidth: '80px' }}>
-                  <div className="text-[0.5625rem] font-bold tracking-[0.1em] uppercase text-slate-400">{label}</div>
-                  <div className="text-xl font-extrabold text-slate-900 leading-tight">{val.toLocaleString('en-US')}</div>
+                <div key={label} style={{ border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)', padding: '0.5rem 1rem', textAlign: 'center', minWidth: '76px' }}>
+                  <div style={{ fontSize: '0.5625rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#475569' }}>{label}</div>
+                  <div style={{ fontSize: '1.125rem', fontWeight: 800, color: '#f8fafc', lineHeight: 1.2 }}>{val.toLocaleString('en-US')}</div>
                 </div>
               ))}
             </div>
@@ -270,14 +272,14 @@ export default function Game2048() {
       </div>
 
       {/* Game */}
+      <div style={{ background: '#0b0f19', minHeight: 'calc(100vh - 64px - 80px)' }}>
       <div className="max-w-lg mx-auto px-6 py-8">
-        <div className="flex justify-between items-center mb-4">
-          <p className="text-sm text-slate-400 font-light">Merge tiles to reach <strong className="font-semibold text-slate-600">2048</strong></p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+          <p style={{ fontSize: '0.875rem', color: '#64748b', fontWeight: 400 }}>Merge tiles to reach <strong style={{ color: '#4ade80', fontWeight: 700 }}>2048</strong></p>
           <button
             onClick={startGame}
-            className="text-[0.6875rem] font-bold tracking-[0.07em] uppercase cursor-pointer transition-colors hover:bg-slate-50"
-            style={{ border: '1px solid #e2e8f0', background: '#fff', padding: '0.5rem 1rem' }}
             type="button"
+            style={{ border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)', padding: '0.5rem 1rem', cursor: 'pointer', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: '#94a3b8' }}
           >
             New Game
           </button>
@@ -322,15 +324,14 @@ export default function Game2048() {
 
           {/* Overlay */}
           {overlay && (
-            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>
-              <div style={{ background: 'rgba(255,255,255,0.95)', border: '1px solid #e2e8f0', padding: '2rem', textAlign: 'center', minWidth: '200px' }}>
-                <div className="text-2xl font-extrabold mb-2" style={{ color: overlay.titleColor }}>{overlay.title}</div>
-                <div className="text-sm text-slate-500 font-light mb-5">{overlay.sub}</div>
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10, background: 'rgba(7,9,15,0.88)' }}>
+              <div style={{ padding: '2rem', textAlign: 'center', minWidth: '200px' }}>
+                <div style={{ fontSize: '1.5rem', fontWeight: 800, color: overlay.titleColor, marginBottom: '0.5rem' }}>{overlay.title}</div>
+                <div style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '1.5rem' }}>{overlay.sub}</div>
                 <button
                   onClick={startGame}
-                  className="text-xs font-bold tracking-[0.07em] uppercase text-white cursor-pointer border-none hover:bg-slate-700 transition-colors"
-                  style={{ background: '#0f172a', padding: '0.625rem 1.5rem' }}
                   type="button"
+                  style={{ background: '#f8fafc', color: '#0f172a', padding: '0.625rem 1.75rem', border: 'none', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase' }}
                 >
                   {started ? 'Play Again' : 'Start Game'}
                 </button>
@@ -340,17 +341,18 @@ export default function Game2048() {
         </div>
 
         {/* Controls */}
-        <div className="mt-6 space-y-2">
-          <p className="text-[0.6875rem] font-bold tracking-[0.1em] uppercase text-slate-400 text-center">Controls</p>
-          <div className="flex gap-4 flex-wrap justify-center mt-2">
+        <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+          <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#475569', marginBottom: '0.75rem' }}>Controls</p>
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
             {[['↑ W', 'Up'], ['↓ S', 'Down'], ['← A', 'Left'], ['→ D', 'Right'], ['Swipe', 'Touch']].map(([key, label]) => (
-              <div key={key} className="flex flex-col items-center gap-1">
-                <span className="text-[0.6875rem] font-semibold text-slate-500 px-2 py-1" style={{ border: '1px solid #e2e8f0', background: '#fff' }}>{key}</span>
-                <span className="text-xs text-slate-400">{label}</span>
+              <div key={key} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem' }}>
+                <span style={{ fontSize: '0.6875rem', fontWeight: 600, color: '#94a3b8', padding: '0.25rem 0.5rem', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)' }}>{key}</span>
+                <span style={{ fontSize: '0.6875rem', color: '#475569' }}>{label}</span>
               </div>
             ))}
           </div>
         </div>
+      </div>
       </div>
     </>
   );

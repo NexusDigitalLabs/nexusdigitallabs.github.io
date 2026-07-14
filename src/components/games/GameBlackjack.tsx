@@ -325,31 +325,33 @@ export default function GameBlackjack() {
         </ul>
       </GameHelpModal>
 
-      <div style={{ borderBottom: '1px solid #e2e8f0', background: '#fff' }}>
+      <div style={{ borderBottom: '1px solid rgba(255,255,255,0.07)', background: '#0b0f19' }}>
         <div className="max-w-lg mx-auto px-6 py-5">
           <div className="flex items-center justify-between">
             <div>
-              <Link href="/games/" className={`${slbl} hover:text-slate-600 transition-colors no-underline`}>← Games</Link>
-              <h1 className="text-xl font-bold text-slate-900 mt-1">Blackjack</h1>
+              <Link href="/games/" style={{ fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#4ade80', textDecoration: 'none' }}>
+                ← Games
+              </Link>
+              <h1 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#f8fafc', marginTop: '0.25rem' }}>Blackjack</h1>
             </div>
-            <div className="flex items-center gap-2">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <button
                 type="button"
                 onClick={() => setShowHelp(true)}
                 title="How to play"
                 style={{
-                  border: '1px solid #e2e8f0', background: '#fff',
+                  background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
                   width: '36px', height: '36px', cursor: 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '0.875rem', fontWeight: 700, color: '#64748b',
+                  fontSize: '0.875rem', fontWeight: 700, color: '#94a3b8',
                 }}
               >
                 ?
               </button>
               {[{ label: 'Chips', val: chips.toLocaleString('en-US') }, { label: 'Best', val: best.toString() }].map(({ label, val }) => (
-                <div key={label} style={{ border: '1px solid #e2e8f0', background: '#fff', padding: '0.5rem 1rem', textAlign: 'center', minWidth: '80px' }}>
-                  <div className="text-[0.5625rem] font-bold tracking-[0.1em] uppercase text-slate-400">{label}</div>
-                  <div className="text-xl font-extrabold text-slate-900 leading-tight">{val}</div>
+                <div key={label} style={{ border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)', padding: '0.5rem 1rem', textAlign: 'center', minWidth: '76px' }}>
+                  <div style={{ fontSize: '0.5625rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#475569' }}>{label}</div>
+                  <div style={{ fontSize: '1.125rem', fontWeight: 800, color: '#f8fafc', lineHeight: 1.2 }}>{val}</div>
                 </div>
               ))}
             </div>
@@ -357,15 +359,14 @@ export default function GameBlackjack() {
         </div>
       </div>
 
+      <div style={{ background: '#0b0f19', minHeight: 'calc(100vh - 64px - 80px)' }}>
       <div className="max-w-lg mx-auto px-6 py-8 space-y-4">
 
         {/* Dealer hand */}
-        <div style={{ background: '#fff', border: '1px solid #e2e8f0', padding: '1.25rem' }}>
+        <div style={{ background: '#0d1117', border: '1px solid rgba(255,255,255,0.08)', padding: '1.25rem' }}>
           <div className="flex items-center justify-between mb-3">
-            <span className={slbl}>Dealer</span>
-            <span className="text-2xl font-extrabold" style={{
-              color: dealerRevealed && dealerScore !== null ? (dealerScore > 21 ? '#ef4444' : dealerScore === 21 ? '#16a34a' : '#0f172a') : '#0f172a',
-            }}>
+            <span style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#475569' }}>Dealer</span>
+            <span style={{ fontSize: '1.5rem', fontWeight: 800, color: dealerRevealed && dealerScore !== null ? (dealerScore > 21 ? '#ef4444' : dealerScore === 21 ? '#4ade80' : '#f8fafc') : '#f8fafc' }}>
               {dealerRevealed && dealerScore !== null ? dealerScore : dealer.length ? '?' : '—'}
             </span>
           </div>
@@ -379,24 +380,22 @@ export default function GameBlackjack() {
         {/* Result banner */}
         {result && (
           <div style={{
-            border: `2px solid ${resultMeta[result.outcome].cls === 'win' ? '#4ade80' : resultMeta[result.outcome].cls === 'lose' ? '#fca5a5' : '#e2e8f0'}`,
-            background: resultMeta[result.outcome].cls === 'win' ? '#f0fdf4' : resultMeta[result.outcome].cls === 'lose' ? '#fef2f2' : '#f8fafc',
+            border: `1px solid ${resultMeta[result.outcome].cls === 'win' ? 'rgba(74,222,128,0.35)' : resultMeta[result.outcome].cls === 'lose' ? 'rgba(239,68,68,0.35)' : 'rgba(255,255,255,0.1)'}`,
+            background: resultMeta[result.outcome].cls === 'win' ? 'rgba(74,222,128,0.08)' : resultMeta[result.outcome].cls === 'lose' ? 'rgba(239,68,68,0.08)' : 'rgba(255,255,255,0.04)',
             padding: '1rem 1.5rem', textAlign: 'center',
           }}>
-            <div className="text-xl font-extrabold text-slate-900">{resultMeta[result.outcome].title}</div>
-            <div className="text-[0.8125rem] text-slate-500 font-light mt-1">
+            <div style={{ fontSize: '1.25rem', fontWeight: 800, color: resultMeta[result.outcome].cls === 'win' ? '#4ade80' : resultMeta[result.outcome].cls === 'lose' ? '#ef4444' : '#f8fafc' }}>{resultMeta[result.outcome].title}</div>
+            <div style={{ fontSize: '0.8125rem', color: '#64748b', marginTop: '0.25rem' }}>
               Your hand: {playerScore} · Dealer: {dealerScore} · Chips: {chips.toLocaleString('en-US')}
             </div>
           </div>
         )}
 
         {/* Player hand */}
-        <div style={{ background: '#fff', border: '1px solid #e2e8f0', padding: '1.25rem' }}>
+        <div style={{ background: '#0d1117', border: '1px solid rgba(255,255,255,0.08)', padding: '1.25rem' }}>
           <div className="flex items-center justify-between mb-3">
-            <span className={slbl}>You</span>
-            <span className="text-2xl font-extrabold" style={{
-              color: playerScore !== null ? (playerScore > 21 ? '#ef4444' : playerScore === 21 ? '#16a34a' : '#0f172a') : '#0f172a',
-            }}>
+            <span style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#475569' }}>You</span>
+            <span style={{ fontSize: '1.5rem', fontWeight: 800, color: playerScore !== null ? (playerScore > 21 ? '#ef4444' : playerScore === 21 ? '#4ade80' : '#f8fafc') : '#f8fafc' }}>
               {playerScore ?? '—'}
             </span>
           </div>
@@ -407,16 +406,15 @@ export default function GameBlackjack() {
 
         {/* Bet controls (idle phase) */}
         {phase === 'idle' && (
-          <div style={{ border: '1px solid #e2e8f0', background: '#fff', padding: '1.25rem' }}>
-            <p className={`${slbl} mb-3`}>Place Your Bet</p>
+          <div style={{ border: '1px solid rgba(255,255,255,0.08)', background: '#0d1117', padding: '1.25rem' }}>
+            <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#475569', marginBottom: '0.75rem' }}>Place Your Bet</p>
             <div className="flex gap-2 mb-4 flex-wrap">
               {[5, 10, 25, 50, 100].map((v) => (
                 <button
                   key={v}
                   type="button"
                   onClick={() => addBet(v)}
-                  className="flex items-center justify-center text-[0.6875rem] font-extrabold text-slate-600 cursor-pointer hover:border-slate-900 hover:text-slate-900 transition-all"
-                  style={{ width: '44px', height: '44px', borderRadius: '50%', border: '3px dashed #d1d5db', background: '#fff' }}
+                  style={{ width: '44px', height: '44px', borderRadius: '50%', border: '2px dashed rgba(255,255,255,0.2)', background: 'transparent', color: '#94a3b8', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}
                 >
                   {v}
                 </button>
@@ -424,23 +422,21 @@ export default function GameBlackjack() {
               <button
                 type="button"
                 onClick={clearBet}
-                className="text-[0.75rem] font-bold tracking-[0.07em] uppercase cursor-pointer hover:bg-slate-50 transition-colors"
-                style={{ border: '1px solid #e2e8f0', background: '#fff', padding: '0 0.75rem', height: '44px' }}
+                style={{ border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', padding: '0 0.75rem', height: '44px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: '#64748b' }}
               >
                 Clear
               </button>
             </div>
             <div className="flex items-center justify-between mb-4">
               <div>
-                <p className="text-xs text-slate-400 font-light">Current bet</p>
-                <p className="text-2xl font-bold text-slate-900">{bet}</p>
+                <p style={{ fontSize: '0.75rem', color: '#475569', fontWeight: 400, marginBottom: '0.125rem' }}>Current bet</p>
+                <p style={{ fontSize: '1.5rem', fontWeight: 800, color: '#f8fafc' }}>{bet}</p>
               </div>
               <button
                 type="button"
                 onClick={deal}
                 disabled={bet === 0}
-                className="text-[0.8125rem] font-bold tracking-[0.06em] uppercase text-white border-none cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                style={{ background: '#0f172a', padding: '0.75rem 2.5rem' }}
+                style={{ background: '#f8fafc', color: '#0f172a', padding: '0.75rem 2.5rem', border: 'none', cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', opacity: bet === 0 ? 0.35 : 1 }}
               >
                 Deal
               </button>
@@ -450,20 +446,17 @@ export default function GameBlackjack() {
 
         {/* Action buttons (player phase) */}
         {phase === 'player' && (
-          <div className="flex gap-3">
+          <div className="flex gap-2">
             <button type="button" onClick={hit}
-              className="flex-1 py-2.5 text-xs font-bold tracking-[0.07em] uppercase text-white border-none cursor-pointer transition-colors"
-              style={{ background: '#0f172a' }}>
+              style={{ flex: 1, padding: '0.75rem', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', background: '#f8fafc', color: '#0f172a', border: 'none', cursor: 'pointer' }}>
               Hit
             </button>
             <button type="button" onClick={stand}
-              className="flex-1 py-2.5 text-xs font-bold tracking-[0.07em] uppercase cursor-pointer hover:bg-slate-50 transition-colors"
-              style={{ border: '1px solid #e2e8f0', background: '#fff' }}>
+              style={{ flex: 1, padding: '0.75rem', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', background: 'transparent', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer' }}>
               Stand
             </button>
             <button type="button" onClick={doubleDown} disabled={bet > chips}
-              className="flex-1 py-2.5 text-xs font-bold tracking-[0.07em] uppercase cursor-pointer hover:bg-slate-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              style={{ border: '1px solid #e2e8f0', background: '#fff' }}>
+              style={{ flex: 1, padding: '0.75rem', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', background: 'transparent', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', opacity: bet > chips ? 0.35 : 1 }}>
               Double
             </button>
           </div>
@@ -475,14 +468,14 @@ export default function GameBlackjack() {
             <button
               type="button"
               onClick={resetRound}
-              className="text-[0.8125rem] font-bold tracking-[0.06em] uppercase text-white border-none cursor-pointer transition-colors"
-              style={{ background: '#0f172a', padding: '0.75rem 2.5rem' }}
+              style={{ background: '#f8fafc', color: '#0f172a', padding: '0.75rem 2.5rem', border: 'none', cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}
             >
               Next Hand
             </button>
           </div>
         )}
 
+      </div>
       </div>
     </>
   );
