@@ -50,7 +50,8 @@ nexusdigitallabs.github.io/
 │   │   ├── tools/
 │   │   │   ├── prompt-architect/page.tsx       # Tool page + SEO block
 │   │   │   ├── invoice-generator/page.tsx      # Tool page + SEO block
-│   │   │   └── debt-optimizer/page.tsx         # Tool page + SEO block
+│   │   │   ├── debt-optimizer/page.tsx         # Tool page + SEO block
+│   │   │   └── fuel-tracker/page.tsx           # Tool page + SEO block
 │   │   │
 │   │   ├── games/
 │   │   │   ├── page.tsx                        # /games/ — lobby
@@ -98,7 +99,8 @@ nexusdigitallabs.github.io/
 │   ├── tools/
 │   │   ├── prompt-architect.md
 │   │   ├── invoice-generator.md
-│   │   └── debt-optimizer.md
+│   │   ├── debt-optimizer.md
+│   │   └── fuel-tracker.md
 │   └── games/
 │       └── games.md
 │
@@ -128,6 +130,7 @@ nexusdigitallabs.github.io/
 | `/tools/prompt-architect/` | Tool | LLM prompt flattener, token counter, cost estimator |
 | `/tools/invoice-generator/` | Tool | Freelancer PDF invoice generator |
 | `/tools/debt-optimizer/` | Tool | Debt settlement & savings planner with PDF export |
+| `/tools/fuel-tracker/` | Tool | Fill-up logger with L/100km efficiency tracking & cross-device sync |
 | `/games/` | Game lobby | Game index with high scores and How to Play |
 | `/games/2048/` | Game | 2048 tile merge — keyboard + swipe |
 | `/games/snake/` | Game | Snake arcade — canvas + requestAnimationFrame |
@@ -203,6 +206,40 @@ Enter monthly income, itemised expenses, and debts. The tool calculates monthly 
 | Route | `/tools/debt-optimizer/` |
 | Source | `src/components/tools/DebtOptimizerClient.tsx` |
 | Docs | [`docs/tools/debt-optimizer.md`](docs/tools/debt-optimizer.md) |
+| Status | Live ✅ |
+
+---
+
+### Fuel Tracker
+> Log fill-ups, track L/100km efficiency, and monitor fuel spend — cross-device via sync code.
+
+Users create a "garage" by choosing a nickname; the system appends a 4-char random suffix to generate a unique sync code (e.g. `MyGarage-7X4P`). The code is stored in `localStorage` for automatic loading and can be entered on any other device. All data (vehicles + fill-ups) is stored in Supabase under the sync code.
+
+**Features:**
+- Multi-vehicle support (add unlimited vehicles — make, model, year, fuel type, nickname)
+- Fill-up logging: date, odometer, litres, price per litre, partial fill toggle, notes
+- Automatic efficiency calculation: L/100km, km/L, cost per km
+- Best/worst efficiency tracking, colour-coded rows in history table
+- SVG line charts — efficiency over time & cumulative spend
+- Currency selector (9 currencies, persisted in `localStorage`)
+- Quick cost preview while entering fill form
+- CSV export with all calculated columns
+- Delete individual fills, vehicles, or all data
+- Cross-device sync via sync code (Supabase backend)
+- Privacy-safe: no email/name required; warning if `@` detected in nickname
+
+**Efficiency Formulas:**
+- `L/100km = (litres ÷ distance) × 100`
+- `km/L = distance ÷ litres`
+- `Cost/km = total_cost ÷ distance`
+- Partial fills are excluded from efficiency but included in spend totals
+
+| | |
+|---|---|
+| Route | `/tools/fuel-tracker/` |
+| Source | `src/components/tools/FuelTrackerClient.tsx` |
+| API | `src/app/api/fuel/route.ts` |
+| Docs | [`docs/tools/fuel-tracker.md`](docs/tools/fuel-tracker.md) |
 | Status | Live ✅ |
 
 ---
@@ -379,6 +416,7 @@ A `position: fixed; inset: 0` element at `z-index: 100` covers the entire viewpo
 | [`docs/tools/prompt-architect.md`](docs/tools/prompt-architect.md) | Token counter implementation, BPE approach, transformation pipeline |
 | [`docs/tools/invoice-generator.md`](docs/tools/invoice-generator.md) | Invoice fields, PDF generation, layout notes |
 | [`docs/tools/debt-optimizer.md`](docs/tools/debt-optimizer.md) | Snowball algorithm, PDF export, currency input logic |
+| [`docs/tools/fuel-tracker.md`](docs/tools/fuel-tracker.md) | Data model, sync code design, Supabase SQL, efficiency formulas |
 | [`docs/games/games.md`](docs/games/games.md) | Game architecture, useGameState hook, all three game mechanics |
 
 ---

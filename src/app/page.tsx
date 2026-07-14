@@ -31,6 +31,13 @@ const TOOLS = [
     title: 'Debt Optimizer',
     desc: 'Avalanche vs snowball debt payoff calculator with month-by-month runway and HYSA savings compounding.',
   },
+  {
+    href: '/tools/fuel-tracker/',
+    accent: 'amber',
+    iconPath: 'M3 10h2l1 2h13l1-5H6L5 5H3m0 5v6a1 1 0 001 1h1a2 2 0 104 0h4a2 2 0 104 0h1a1 1 0 001-1v-3',
+    title: 'Fuel Tracker',
+    desc: 'Log fill-ups, track L/100km efficiency, and monitor fuel costs across multiple vehicles with cross-device sync.',
+  },
 ] as const;
 
 const GAMES = [
