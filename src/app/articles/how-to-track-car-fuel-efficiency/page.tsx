@@ -1,18 +1,26 @@
-import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'How to Track Your Car\'s Fuel Efficiency — NexusDigitalLabs',
-  description: 'A practical guide to tracking fuel consumption, calculating L/100km and km/L, and understanding what affects your car\'s real-world efficiency.',
-  keywords: ['how to track fuel efficiency', 'calculate L/100km', 'fuel consumption tracker', 'km per litre calculator', 'car fuel economy', 'petrol cost tracking', 'fuel log app'],
-  alternates: { canonical: 'https://nexusdigitallabs.dev/articles/how-to-track-car-fuel-efficiency/' },
-  openGraph: {
-    title: 'How to Track Your Car\'s Fuel Efficiency',
-    description: 'Learn how to calculate L/100km, log fill-ups correctly, and spot trends that cost you money at the pump.',
-    type: 'article',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
-  },
-};
+  description:
+    'A practical guide to tracking fuel consumption, calculating L/100km and km/L, and understanding what affects your car\'s real-world efficiency.',
+  path: '/articles/how-to-track-car-fuel-efficiency/',
+  keywords: [
+    'how to track fuel efficiency',
+    'calculate L/100km',
+    'fuel consumption tracker',
+    'km per litre calculator',
+    'car fuel economy',
+    'petrol cost tracking',
+    'fuel log app',
+  ],
+  absoluteTitle: true,
+  type: 'article',
+  ogTitle: 'How to Track Your Car\'s Fuel Efficiency',
+  ogDescription:
+    'Learn how to calculate L/100km, log fill-ups correctly, and spot trends that cost you money at the pump.',
+});
 
 function H2({ children }: { children: React.ReactNode }) {
   return <h2 className="text-xl font-medium text-slate-100 tracking-tight mt-10 mb-3">{children}</h2>;

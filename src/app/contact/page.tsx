@@ -1,16 +1,16 @@
-import type { Metadata } from 'next';
 import ScrollReveal from '@/components/ScrollReveal';
 import ContactForm from '@/components/ContactForm';
+import { pageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'Contact',
-  description: "Get in touch with NexusDigitalLabs. We're open to partnerships, feature requests, bug reports, and open-source contributions.",
-  alternates: { canonical: 'https://nexusdigitallabs.dev/contact/' },
-  openGraph: {
-    title: 'Contact — NexusDigitalLabs',
-    description: 'Get in touch with NexusDigitalLabs. Partnerships, feature ideas, and open-source contributions welcome.',
-  },
-};
+  description:
+    "Get in touch with NexusDigitalLabs. We're open to partnerships, feature requests, bug reports, and open-source contributions.",
+  path: '/contact/',
+  ogTitle: 'Contact — NexusDigitalLabs',
+  ogDescription:
+    'Get in touch with NexusDigitalLabs. Partnerships, feature ideas, and open-source contributions welcome.',
+});
 
 export default function ContactPage() {
   return (
@@ -50,41 +50,50 @@ export default function ContactPage() {
             </div>
 
             {/* ── RIGHT: Contact options (2 cols) ── */}
-            <div className="lg:col-span-2 space-y-4">
+            <div className="lg:col-span-2">
               <ScrollReveal delay={120}>
                 <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-6">Other ways to reach us</p>
 
-                <a
-                  href="mailto:hello@nexusdigitallabs.dev"
-                  className="flex items-center gap-4 p-4 rounded-xl bg-slate-900/50 border border-slate-800/60 no-underline transition-all duration-250 hover:border-blue-500/28 hover:-translate-y-0.5"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
-                    <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                <div className="space-y-4">
+                  <a
+                    href="mailto:hello@nexusdigitallabs.dev"
+                    className="flex items-center gap-4 p-4 rounded-xl no-underline transition-all duration-250 hover:-translate-y-0.5"
+                    style={{ background: 'var(--ndl-card-bg)', border: '1px solid var(--ndl-border)' }}
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
+                      <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium" style={{ color: 'var(--ndl-text)' }}>Email</p>
+                      <p className="text-xs truncate" style={{ color: 'var(--ndl-faint)' }}>hello@nexusdigitallabs.dev</p>
+                    </div>
+                    <svg className="w-4 h-4 ml-auto shrink-0" style={{ color: 'var(--ndl-faint)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                     </svg>
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-white">Email</p>
-                    <p className="text-xs text-slate-500 truncate">hello@nexusdigitallabs.dev</p>
-                  </div>
-                  <svg className="w-4 h-4 text-slate-600 ml-auto shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </svg>
-                </a>
+                  </a>
 
-                <div className="p-4 rounded-xl bg-slate-900/30 border border-slate-800/40">
-                  <p className="text-xs text-slate-500 leading-relaxed">
-                    We typically respond within <span className="text-slate-300 font-medium">1–2 business days</span>. For bug reports, please include browser version and steps to reproduce.
-                  </p>
-                </div>
+                  <div
+                    className="p-4 rounded-xl"
+                    style={{ background: 'var(--ndl-surface-2)', border: '1px solid var(--ndl-border)' }}
+                  >
+                    <p className="text-xs leading-relaxed" style={{ color: 'var(--ndl-muted)' }}>
+                      We typically respond within <span className="font-medium" style={{ color: 'var(--ndl-text-secondary)' }}>1–2 business days</span>. For bug reports, please include browser version and steps to reproduce.
+                    </p>
+                  </div>
 
-                <div className="flex items-start gap-2.5 p-4 rounded-xl" style={{ background: 'rgba(6,78,59,0.3)', border: '1px solid rgba(5,46,37,0.6)' }}>
-                  <svg className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                  </svg>
-                  <p className="text-xs leading-relaxed" style={{ color: 'rgba(52,211,153,0.8)' }}>
-                    Form data is sent via <span className="font-medium">mailto:</span> — nothing is stored on our servers.
-                  </p>
+                  <div
+                    className="flex items-start gap-2.5 p-4 rounded-xl"
+                    style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)' }}
+                  >
+                    <svg className="w-4 h-4 shrink-0 mt-0.5" style={{ color: '#059669' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    <p className="text-xs leading-relaxed" style={{ color: '#047857' }}>
+                      Form data is sent via <span className="font-medium">mailto:</span> — nothing is stored on our servers.
+                    </p>
+                  </div>
                 </div>
               </ScrollReveal>
             </div>

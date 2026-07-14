@@ -55,7 +55,7 @@ function CardBack() {
     }}>
       <div style={{
         position: 'absolute', inset: '5px',
-        border: '1px solid rgba(255,255,255,0.08)',
+        border: '1px solid var(--ndl-border)',
         background: 'repeating-linear-gradient(45deg,rgba(255,255,255,0.03) 0px,rgba(255,255,255,0.03) 2px,transparent 2px,transparent 8px)',
       }} />
     </div>
@@ -298,53 +298,53 @@ export default function GameBlackjack() {
 
       <GameHelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} title="Blackjack">
         <p style={{ marginBottom: '1rem' }}>
-          Beat the dealer by getting a hand total closer to <strong style={{ color: '#f8fafc' }}>21</strong> without going over (<em>busting</em>). You start with <strong style={{ color: '#f8fafc' }}>500 chips</strong>.
+          Beat the dealer by getting a hand total closer to <strong style={{ color: 'var(--ndl-text)' }}>21</strong> without going over (<em>busting</em>). You start with <strong style={{ color: 'var(--ndl-text)' }}>500 chips</strong>.
         </p>
-        <p style={{ fontWeight: 700, color: '#f8fafc', marginBottom: '0.5rem' }}>Card Values</p>
+        <p style={{ fontWeight: 700, color: 'var(--ndl-text)', marginBottom: '0.5rem' }}>Card Values</p>
         <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem', marginBottom: '1rem' }}>
-          <li><strong style={{ color: '#f8fafc' }}>Number cards (2–10)</strong> — face value</li>
-          <li><strong style={{ color: '#f8fafc' }}>J / Q / K</strong> — worth 10</li>
-          <li><strong style={{ color: '#f8fafc' }}>Ace</strong> — worth 11, reduced to 1 if you would bust</li>
+          <li><strong style={{ color: 'var(--ndl-text)' }}>Number cards (2–10)</strong> — face value</li>
+          <li><strong style={{ color: 'var(--ndl-text)' }}>J / Q / K</strong> — worth 10</li>
+          <li><strong style={{ color: 'var(--ndl-text)' }}>Ace</strong> — worth 11, reduced to 1 if you would bust</li>
         </ul>
-        <p style={{ fontWeight: 700, color: '#f8fafc', marginBottom: '0.5rem' }}>Actions</p>
+        <p style={{ fontWeight: 700, color: 'var(--ndl-text)', marginBottom: '0.5rem' }}>Actions</p>
         <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem', marginBottom: '1rem' }}>
-          <li><strong style={{ color: '#f8fafc' }}>Hit</strong> — draw another card</li>
-          <li><strong style={{ color: '#f8fafc' }}>Stand</strong> — end your turn, dealer plays</li>
-          <li><strong style={{ color: '#f8fafc' }}>Double Down</strong> — double your bet, receive one more card, then stand</li>
+          <li><strong style={{ color: 'var(--ndl-text)' }}>Hit</strong> — draw another card</li>
+          <li><strong style={{ color: 'var(--ndl-text)' }}>Stand</strong> — end your turn, dealer plays</li>
+          <li><strong style={{ color: 'var(--ndl-text)' }}>Double Down</strong> — double your bet, receive one more card, then stand</li>
         </ul>
-        <p style={{ fontWeight: 700, color: '#f8fafc', marginBottom: '0.5rem' }}>Dealer Rules</p>
+        <p style={{ fontWeight: 700, color: 'var(--ndl-text)', marginBottom: '0.5rem' }}>Dealer Rules</p>
         <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem', marginBottom: '1rem' }}>
-          <li>Dealer must draw until reaching <strong style={{ color: '#f8fafc' }}>17 or higher</strong></li>
+          <li>Dealer must draw until reaching <strong style={{ color: 'var(--ndl-text)' }}>17 or higher</strong></li>
           <li>Dealer&apos;s first card is hidden until you stand</li>
         </ul>
-        <p style={{ fontWeight: 700, color: '#f8fafc', marginBottom: '0.5rem' }}>Payouts</p>
+        <p style={{ fontWeight: 700, color: 'var(--ndl-text)', marginBottom: '0.5rem' }}>Payouts</p>
         <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
           <li><strong style={{ color: '#4ade80' }}>Blackjack</strong> (Ace + 10-value on deal) — pays 1.5× your bet</li>
-          <li><strong style={{ color: '#f8fafc' }}>Win</strong> — pays 1× your bet</li>
-          <li><strong style={{ color: '#f8fafc' }}>Push</strong> (tie) — bet returned</li>
+          <li><strong style={{ color: 'var(--ndl-text)' }}>Win</strong> — pays 1× your bet</li>
+          <li><strong style={{ color: 'var(--ndl-text)' }}>Push</strong> (tie) — bet returned</li>
           <li><strong style={{ color: '#f87171' }}>Bust / Lose</strong> — bet forfeited</li>
         </ul>
       </GameHelpModal>
 
-      <div style={{ borderBottom: '1px solid rgba(255,255,255,0.07)', background: '#0b0f19' }}>
+      <div style={{ borderBottom: '1px solid var(--ndl-border)', background: 'var(--ndl-bg)' }}>
         <div className="max-w-lg mx-auto px-6 py-5">
           <div className="flex items-center justify-between">
             <div>
               <Link href="/games/" style={{ fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#4ade80', textDecoration: 'none' }}>
                 ← Games
               </Link>
-              <h1 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#f8fafc', marginTop: '0.25rem' }}>Blackjack</h1>
+              <h1 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--ndl-text)', marginTop: '0.25rem' }}>Blackjack</h1>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <button
                 type="button"
                 onClick={() => setShowHelp(true)}
                 style={{
-                  background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)',
+                  background: 'var(--ndl-surface-2)', border: '1px solid var(--ndl-border)',
                   padding: '0 0.875rem', height: '36px', cursor: 'pointer',
                   display: 'flex', alignItems: 'center', gap: '0.375rem',
                   fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.07em',
-                  textTransform: 'uppercase', color: '#94a3b8', whiteSpace: 'nowrap',
+                  textTransform: 'uppercase', color: 'var(--ndl-muted)', whiteSpace: 'nowrap',
                 }}
               >
                 <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -354,9 +354,9 @@ export default function GameBlackjack() {
                 How to Play
               </button>
               {[{ label: 'Chips', val: chips.toLocaleString('en-US') }, { label: 'Best', val: best.toString() }].map(({ label, val }) => (
-                <div key={label} style={{ border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)', padding: '0.5rem 1rem', textAlign: 'center', minWidth: '76px' }}>
-                  <div style={{ fontSize: '0.5625rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#475569' }}>{label}</div>
-                  <div style={{ fontSize: '1.125rem', fontWeight: 800, color: '#f8fafc', lineHeight: 1.2 }}>{val}</div>
+                <div key={label} style={{ border: '1px solid var(--ndl-border)', background: 'var(--ndl-surface-2)', padding: '0.5rem 1rem', textAlign: 'center', minWidth: '76px' }}>
+                  <div style={{ fontSize: '0.5625rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ndl-faint)' }}>{label}</div>
+                  <div style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--ndl-text)', lineHeight: 1.2 }}>{val}</div>
                 </div>
               ))}
             </div>
@@ -364,14 +364,14 @@ export default function GameBlackjack() {
         </div>
       </div>
 
-      <div style={{ background: '#0b0f19', minHeight: 'calc(100vh - 64px - 80px)' }}>
+      <div style={{ background: 'var(--ndl-bg)', minHeight: 'calc(100vh - 64px - 80px)' }}>
       <div className="max-w-lg mx-auto px-6 py-8 space-y-4">
 
         {/* Dealer hand */}
-        <div style={{ background: '#0d1117', border: '1px solid rgba(255,255,255,0.08)', padding: '1.25rem' }}>
+        <div style={{ background: 'var(--ndl-surface)', border: '1px solid var(--ndl-border)', padding: '1.25rem' }}>
           <div className="flex items-center justify-between mb-3">
-            <span style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#475569' }}>Dealer</span>
-            <span style={{ fontSize: '1.5rem', fontWeight: 800, color: dealerRevealed && dealerScore !== null ? (dealerScore > 21 ? '#ef4444' : dealerScore === 21 ? '#4ade80' : '#f8fafc') : '#f8fafc' }}>
+            <span style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--ndl-faint)' }}>Dealer</span>
+            <span style={{ fontSize: '1.5rem', fontWeight: 800, color: dealerRevealed && dealerScore !== null ? (dealerScore > 21 ? '#ef4444' : dealerScore === 21 ? '#4ade80' : 'var(--ndl-text)') : 'var(--ndl-text)' }}>
               {dealerRevealed && dealerScore !== null ? dealerScore : dealer.length ? '?' : '—'}
             </span>
           </div>
@@ -385,22 +385,22 @@ export default function GameBlackjack() {
         {/* Result banner */}
         {result && (
           <div style={{
-            border: `1px solid ${resultMeta[result.outcome].cls === 'win' ? 'rgba(74,222,128,0.35)' : resultMeta[result.outcome].cls === 'lose' ? 'rgba(239,68,68,0.35)' : 'rgba(255,255,255,0.1)'}`,
-            background: resultMeta[result.outcome].cls === 'win' ? 'rgba(74,222,128,0.08)' : resultMeta[result.outcome].cls === 'lose' ? 'rgba(239,68,68,0.08)' : 'rgba(255,255,255,0.04)',
+            border: `1px solid ${resultMeta[result.outcome].cls === 'win' ? 'rgba(74,222,128,0.35)' : resultMeta[result.outcome].cls === 'lose' ? 'rgba(239,68,68,0.35)' : 'var(--ndl-border)'}`,
+            background: resultMeta[result.outcome].cls === 'win' ? 'rgba(74,222,128,0.08)' : resultMeta[result.outcome].cls === 'lose' ? 'rgba(239,68,68,0.08)' : 'var(--ndl-surface-2)',
             padding: '1rem 1.5rem', textAlign: 'center',
           }}>
-            <div style={{ fontSize: '1.25rem', fontWeight: 800, color: resultMeta[result.outcome].cls === 'win' ? '#4ade80' : resultMeta[result.outcome].cls === 'lose' ? '#ef4444' : '#f8fafc' }}>{resultMeta[result.outcome].title}</div>
-            <div style={{ fontSize: '0.8125rem', color: '#64748b', marginTop: '0.25rem' }}>
+            <div style={{ fontSize: '1.25rem', fontWeight: 800, color: resultMeta[result.outcome].cls === 'win' ? '#4ade80' : resultMeta[result.outcome].cls === 'lose' ? '#ef4444' : 'var(--ndl-text)' }}>{resultMeta[result.outcome].title}</div>
+            <div style={{ fontSize: '0.8125rem', color: 'var(--ndl-faint)', marginTop: '0.25rem' }}>
               Your hand: {playerScore} · Dealer: {dealerScore} · Chips: {chips.toLocaleString('en-US')}
             </div>
           </div>
         )}
 
         {/* Player hand */}
-        <div style={{ background: '#0d1117', border: '1px solid rgba(255,255,255,0.08)', padding: '1.25rem' }}>
+        <div style={{ background: 'var(--ndl-surface)', border: '1px solid var(--ndl-border)', padding: '1.25rem' }}>
           <div className="flex items-center justify-between mb-3">
-            <span style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#475569' }}>You</span>
-            <span style={{ fontSize: '1.5rem', fontWeight: 800, color: playerScore !== null ? (playerScore > 21 ? '#ef4444' : playerScore === 21 ? '#4ade80' : '#f8fafc') : '#f8fafc' }}>
+            <span style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--ndl-faint)' }}>You</span>
+            <span style={{ fontSize: '1.5rem', fontWeight: 800, color: playerScore !== null ? (playerScore > 21 ? '#ef4444' : playerScore === 21 ? '#4ade80' : 'var(--ndl-text)') : 'var(--ndl-text)' }}>
               {playerScore ?? '—'}
             </span>
           </div>
@@ -411,15 +411,15 @@ export default function GameBlackjack() {
 
         {/* Bet controls (idle phase) */}
         {phase === 'idle' && (
-          <div style={{ border: '1px solid rgba(255,255,255,0.08)', background: '#0d1117', padding: '1.25rem' }}>
-            <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#475569', marginBottom: '0.75rem' }}>Place Your Bet</p>
+          <div style={{ border: '1px solid var(--ndl-border)', background: 'var(--ndl-surface)', padding: '1.25rem' }}>
+            <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--ndl-faint)', marginBottom: '0.75rem' }}>Place Your Bet</p>
             <div className="flex gap-2 mb-4 flex-wrap">
               {[5, 10, 25, 50, 100].map((v) => (
                 <button
                   key={v}
                   type="button"
                   onClick={() => addBet(v)}
-                  style={{ width: '44px', height: '44px', borderRadius: '50%', border: '2px dashed rgba(255,255,255,0.2)', background: 'transparent', color: '#94a3b8', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}
+                  style={{ width: '44px', height: '44px', borderRadius: '50%', border: '2px dashed var(--ndl-border)', background: 'transparent', color: 'var(--ndl-muted)', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}
                 >
                   {v}
                 </button>
@@ -427,21 +427,21 @@ export default function GameBlackjack() {
               <button
                 type="button"
                 onClick={clearBet}
-                style={{ border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', padding: '0 0.75rem', height: '44px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: '#64748b' }}
+                style={{ border: '1px solid var(--ndl-border)', background: 'transparent', padding: '0 0.75rem', height: '44px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--ndl-faint)' }}
               >
                 Clear
               </button>
             </div>
             <div className="flex items-center justify-between mb-4">
               <div>
-                <p style={{ fontSize: '0.75rem', color: '#475569', fontWeight: 400, marginBottom: '0.125rem' }}>Current bet</p>
-                <p style={{ fontSize: '1.5rem', fontWeight: 800, color: '#f8fafc' }}>{bet}</p>
+                <p style={{ fontSize: '0.75rem', color: 'var(--ndl-faint)', fontWeight: 400, marginBottom: '0.125rem' }}>Current bet</p>
+                <p style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--ndl-text)' }}>{bet}</p>
               </div>
               <button
                 type="button"
                 onClick={deal}
                 disabled={bet === 0}
-                style={{ background: '#f8fafc', color: '#0f172a', padding: '0.75rem 2.5rem', border: 'none', cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', opacity: bet === 0 ? 0.35 : 1 }}
+                style={{ background: 'var(--ndl-text)', color: 'var(--ndl-bg)', padding: '0.75rem 2.5rem', border: 'none', cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', opacity: bet === 0 ? 0.35 : 1 }}
               >
                 Deal
               </button>
@@ -453,15 +453,15 @@ export default function GameBlackjack() {
         {phase === 'player' && (
           <div className="flex gap-2">
             <button type="button" onClick={hit}
-              style={{ flex: 1, padding: '0.75rem', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', background: '#f8fafc', color: '#0f172a', border: 'none', cursor: 'pointer' }}>
+              style={{ flex: 1, padding: '0.75rem', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', background: 'var(--ndl-text)', color: 'var(--ndl-bg)', border: 'none', cursor: 'pointer' }}>
               Hit
             </button>
             <button type="button" onClick={stand}
-              style={{ flex: 1, padding: '0.75rem', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', background: 'transparent', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer' }}>
+              style={{ flex: 1, padding: '0.75rem', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', background: 'transparent', color: 'var(--ndl-muted)', border: '1px solid var(--ndl-border)', cursor: 'pointer' }}>
               Stand
             </button>
             <button type="button" onClick={doubleDown} disabled={bet > chips}
-              style={{ flex: 1, padding: '0.75rem', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', background: 'transparent', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', opacity: bet > chips ? 0.35 : 1 }}>
+              style={{ flex: 1, padding: '0.75rem', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', background: 'transparent', color: 'var(--ndl-muted)', border: '1px solid var(--ndl-border)', cursor: 'pointer', opacity: bet > chips ? 0.35 : 1 }}>
               Double
             </button>
           </div>
@@ -473,7 +473,7 @@ export default function GameBlackjack() {
             <button
               type="button"
               onClick={resetRound}
-              style={{ background: '#f8fafc', color: '#0f172a', padding: '0.75rem 2.5rem', border: 'none', cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}
+              style={{ background: 'var(--ndl-text)', color: 'var(--ndl-bg)', padding: '0.75rem 2.5rem', border: 'none', cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}
             >
               Next Hand
             </button>

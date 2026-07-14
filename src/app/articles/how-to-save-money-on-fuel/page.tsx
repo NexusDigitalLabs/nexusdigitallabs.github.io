@@ -1,18 +1,25 @@
-import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'How to Save Money on Fuel Every Month — NexusDigitalLabs',
-  description: 'Practical, proven techniques to reduce your monthly fuel spend — from driving habits and tyre pressure to route planning and fuel price tracking.',
-  keywords: ['how to save money on fuel', 'reduce fuel costs', 'save petrol tips', 'fuel saving tips', 'how to improve fuel economy', 'reduce fuel consumption car'],
-  alternates: { canonical: 'https://nexusdigitallabs.dev/articles/how-to-save-money-on-fuel/' },
-  openGraph: {
-    title: 'How to Save Money on Fuel Every Month',
-    description: 'Driving habits, tyre pressure, route planning, and fuel price strategies that consistently cut monthly fuel spend.',
-    type: 'article',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
-  },
-};
+  description:
+    'Practical, proven techniques to reduce your monthly fuel spend — from driving habits and tyre pressure to route planning and fuel price tracking.',
+  path: '/articles/how-to-save-money-on-fuel/',
+  keywords: [
+    'how to save money on fuel',
+    'reduce fuel costs',
+    'save petrol tips',
+    'fuel saving tips',
+    'how to improve fuel economy',
+    'reduce fuel consumption car',
+  ],
+  absoluteTitle: true,
+  type: 'article',
+  ogTitle: 'How to Save Money on Fuel Every Month',
+  ogDescription:
+    'Driving habits, tyre pressure, route planning, and fuel price strategies that consistently cut monthly fuel spend.',
+});
 
 function H2({ children }: { children: React.ReactNode }) {
   return <h2 className="text-xl font-medium text-slate-100 tracking-tight mt-10 mb-3">{children}</h2>;

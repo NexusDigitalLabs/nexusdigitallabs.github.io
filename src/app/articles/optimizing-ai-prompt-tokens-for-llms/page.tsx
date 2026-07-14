@@ -1,30 +1,30 @@
-import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'Optimizing AI Prompt Tokens for LLMs',
   description:
     'A technical deep-dive into reducing LLM token costs by eliminating whitespace bloat, flattening nested structures, and building leaner prompts for Cursor, Gemini, and GPT-4 pipelines.',
+  path: '/articles/optimizing-ai-prompt-tokens-for-llms/',
   keywords: [
-    'LLM token optimization', 'prompt engineering', 'reduce token costs', 'GPT-4 tokens',
-    'tiktoken', 'prompt flattening', 'AI API cost', 'whitespace cleanup', 'Cursor IDE',
-    'token counter', 'prompt normalization', 'LLM pipeline',
+    'LLM token optimization',
+    'prompt engineering',
+    'reduce token costs',
+    'GPT-4 tokens',
+    'tiktoken',
+    'prompt flattening',
+    'AI API cost',
+    'whitespace cleanup',
+    'Cursor IDE',
+    'token counter',
+    'prompt normalization',
+    'LLM pipeline',
   ],
-  alternates: { canonical: 'https://nexusdigitallabs.dev/articles/optimizing-ai-prompt-tokens-for-llms/' },
-  openGraph: {
-    title: 'Optimizing AI Prompt Tokens for LLMs — NexusDigitalLabs',
-    description:
-      'How trailing whitespace, nested brackets, and unstructured blocks silently inflate your LLM API costs and corrupt output quality in modern IDE pipelines.',
-    type: 'article',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Optimizing AI Prompt Tokens for LLMs — NexusDigitalLabs',
-    description:
-      'How trailing whitespace, nested brackets, and unstructured blocks silently inflate your LLM API costs and corrupt output quality in modern IDE pipelines.',
-  },
-};
+  type: 'article',
+  ogTitle: 'Optimizing AI Prompt Tokens for LLMs — NexusDigitalLabs',
+  ogDescription:
+    'How trailing whitespace, nested brackets, and unstructured blocks silently inflate your LLM API costs and corrupt output quality in modern IDE pipelines.',
+});
 
 function Code({ children }: { children: string }) {
   return (

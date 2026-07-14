@@ -1,10 +1,11 @@
-import type { Metadata } from 'next';
 import DebtOptimizerClient from '@/components/tools/DebtOptimizerClient';
+import { pageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'Debt Settlement & Savings Planner — NexusDigitalLabs',
   description:
     'Compare Short, Medium, and Long debt payoff plans that also build savings. Enter income, expenses, and balances — no monthly payment required. Free, 100% client-side, with PDF export.',
+  path: '/tools/debt-optimizer/',
   keywords: [
     'debt payoff calculator',
     'debt free planner',
@@ -15,22 +16,10 @@ export const metadata: Metadata = {
     'snowball method',
     'NexusDigitalLabs',
   ],
-  alternates: { canonical: 'https://nexusdigitallabs.dev/tools/debt-optimizer/' },
-  openGraph: {
-    type: 'website',
-    url: 'https://nexusdigitallabs.dev/tools/debt-optimizer/',
-    title: 'Debt Settlement & Savings Planner — NexusDigitalLabs',
-    description:
-      'Short, Medium, and Long plans that clear debt while building savings. No monthly payment fields — just income, expenses, and balances.',
-    images: [{ url: 'https://nexusdigitallabs.dev/og-image.png' }],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Debt Settlement & Savings Planner — NexusDigitalLabs',
-    description: 'Compare Short, Medium, and Long plans to get debt-free while saving. Download as PDF.',
-    images: ['https://nexusdigitallabs.dev/og-image.png'],
-  },
-};
+  absoluteTitle: true,
+  ogDescription:
+    'Short, Medium, and Long plans that clear debt while building savings. No monthly payment fields — just income, expenses, and balances.',
+});
 
 const jsonLd = {
   '@context': 'https://schema.org',

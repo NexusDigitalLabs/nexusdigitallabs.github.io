@@ -1,18 +1,25 @@
-import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'ChatGPT Prompt Templates for Developers — Copy and Use Today — NexusDigitalLabs',
-  description: 'Practical, copy-ready ChatGPT prompt templates for software developers — code review, debugging, documentation, architecture decisions, and more.',
-  keywords: ['chatgpt prompts for developers', 'developer prompt templates', 'chatgpt code review prompt', 'LLM prompts for software engineering', 'AI prompts for debugging', 'chatgpt system prompts'],
-  alternates: { canonical: 'https://nexusdigitallabs.dev/articles/chatgpt-prompt-templates-for-developers/' },
-  openGraph: {
-    title: 'ChatGPT Prompt Templates for Developers — Copy and Use Today',
-    description: 'Copy-ready prompt templates for code review, debugging, documentation, architecture, and API integration.',
-    type: 'article',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
-  },
-};
+  description:
+    'Practical, copy-ready ChatGPT prompt templates for software developers — code review, debugging, documentation, architecture decisions, and more.',
+  path: '/articles/chatgpt-prompt-templates-for-developers/',
+  keywords: [
+    'chatgpt prompts for developers',
+    'developer prompt templates',
+    'chatgpt code review prompt',
+    'LLM prompts for software engineering',
+    'AI prompts for debugging',
+    'chatgpt system prompts',
+  ],
+  absoluteTitle: true,
+  type: 'article',
+  ogTitle: 'ChatGPT Prompt Templates for Developers — Copy and Use Today',
+  ogDescription:
+    'Copy-ready prompt templates for code review, debugging, documentation, architecture, and API integration.',
+});
 
 function H2({ children }: { children: React.ReactNode }) {
   return <h2 className="text-xl font-medium text-slate-100 tracking-tight mt-10 mb-3">{children}</h2>;

@@ -1,23 +1,28 @@
-import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'Browser Games You Can Play Right Now — No Download, No Login — NexusDigitalLabs',
   description:
     'The best lightweight browser games that run entirely in your browser with no install, no account, and no tracking. 2048, Snake, Blackjack, and more.',
+  path: '/articles/browser-games-no-download-no-login/',
   keywords: [
-    'browser games no download', 'free browser games no login', 'play games online instantly',
-    '2048 browser game', 'snake game browser', 'blackjack online free',
-    'no account games', 'lightweight browser games', 'developer games browser',
+    'browser games no download',
+    'free browser games no login',
+    'play games online instantly',
+    '2048 browser game',
+    'snake game browser',
+    'blackjack online free',
+    'no account games',
+    'lightweight browser games',
+    'developer games browser',
   ],
-  alternates: { canonical: 'https://nexusdigitallabs.dev/articles/browser-games-no-download-no-login/' },
-  openGraph: {
-    title: 'Browser Games You Can Play Right Now — No Download, No Login',
-    description: 'Lightweight browser games that run entirely in your browser — no install, no account, no tracking.',
-    type: 'article',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
-  },
-};
+  absoluteTitle: true,
+  type: 'article',
+  ogTitle: 'Browser Games You Can Play Right Now — No Download, No Login',
+  ogDescription:
+    'Lightweight browser games that run entirely in your browser — no install, no account, no tracking.',
+});
 
 function H2({ children }: { children: React.ReactNode }) {
   return <h2 className="text-xl font-medium text-slate-100 tracking-tight mt-10 mb-3">{children}</h2>;

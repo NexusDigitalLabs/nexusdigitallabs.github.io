@@ -1,18 +1,14 @@
-import type { Metadata } from 'next';
 import GameLoader from '@/components/games/GameLoader';
+import { pageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'Games — NexusDigitalLabs',
   description:
     'Browser-based mini-games built with zero-bloat React. Play 2048, Snake, and Blackjack — scores persist locally, no login required.',
-  alternates: { canonical: 'https://nexusdigitallabs.dev/games/' },
-  openGraph: {
-    title: 'Games — NexusDigitalLabs',
-    description: '2048, Snake, and Blackjack — built in-browser, no tracking.',
-    url: 'https://nexusdigitallabs.dev/games/',
-    images: [{ url: 'https://nexusdigitallabs.dev/og-image.png' }],
-  },
-};
+  path: '/games/',
+  absoluteTitle: true,
+  ogDescription: '2048, Snake, and Blackjack — built in-browser, no tracking.',
+});
 
 export default function GamesPage() {
   return <GameLoader game="lobby" />;

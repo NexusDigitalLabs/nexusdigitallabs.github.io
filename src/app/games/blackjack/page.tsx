@@ -1,11 +1,13 @@
-import type { Metadata } from 'next';
 import GameLoader from '@/components/games/GameLoader';
+import { pageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'Blackjack — NexusDigitalLabs Games',
-  description: 'Play Blackjack in your browser. Beat the dealer to 21. Dealer draws to 17. Classic casino rules, fully client-side.',
-  alternates: { canonical: 'https://nexusdigitallabs.dev/games/blackjack/' },
-};
+  description:
+    'Play Blackjack in your browser. Beat the dealer to 21. Dealer draws to 17. Classic casino rules, fully client-side.',
+  path: '/games/blackjack/',
+  absoluteTitle: true,
+});
 
 export default function GameBlackjackPage() {
   return (

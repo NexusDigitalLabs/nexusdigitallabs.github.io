@@ -1,18 +1,25 @@
-import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'OpenAI API Pricing Explained: What You Actually Pay — NexusDigitalLabs',
-  description: 'A plain-language breakdown of how OpenAI API pricing works — tokens, input vs output costs, model tiers, and real-world cost estimates for common use cases.',
-  keywords: ['openai api pricing', 'gpt-4o cost per token', 'openai api cost calculator', 'how much does chatgpt api cost', 'openai token pricing 2026', 'llm api cost comparison'],
-  alternates: { canonical: 'https://nexusdigitallabs.dev/articles/openai-api-pricing-explained/' },
-  openGraph: {
-    title: 'OpenAI API Pricing Explained: What You Actually Pay',
-    description: 'A clear breakdown of OpenAI API token pricing, model tiers, and real cost estimates for common applications.',
-    type: 'article',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
-  },
-};
+  description:
+    'A plain-language breakdown of how OpenAI API pricing works — tokens, input vs output costs, model tiers, and real-world cost estimates for common use cases.',
+  path: '/articles/openai-api-pricing-explained/',
+  keywords: [
+    'openai api pricing',
+    'gpt-4o cost per token',
+    'openai api cost calculator',
+    'how much does chatgpt api cost',
+    'openai token pricing 2026',
+    'llm api cost comparison',
+  ],
+  absoluteTitle: true,
+  type: 'article',
+  ogTitle: 'OpenAI API Pricing Explained: What You Actually Pay',
+  ogDescription:
+    'A clear breakdown of OpenAI API token pricing, model tiers, and real cost estimates for common applications.',
+});
 
 function H2({ children }: { children: React.ReactNode }) {
   return <h2 className="text-xl font-medium text-slate-100 tracking-tight mt-10 mb-3">{children}</h2>;

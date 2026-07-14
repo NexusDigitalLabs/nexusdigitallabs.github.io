@@ -1,15 +1,14 @@
-import type { Metadata } from 'next';
 import Link from 'next/link';
+import { pageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'Privacy Policy',
-  description: 'Privacy Policy for NexusDigitalLabs. Learn how we handle data, advertising, and analytics on our developer tools and software studio.',
-  alternates: { canonical: 'https://nexusdigitallabs.dev/privacy-policy/' },
-  openGraph: {
-    title: 'Privacy Policy — NexusDigitalLabs',
-    description: 'Privacy Policy for NexusDigitalLabs developer tools and software studio.',
-  },
-};
+  description:
+    'Privacy Policy for NexusDigitalLabs. Learn how we handle data, advertising, and analytics on our developer tools and software studio.',
+  path: '/privacy-policy/',
+  ogTitle: 'Privacy Policy — NexusDigitalLabs',
+  ogDescription: 'Privacy Policy for NexusDigitalLabs developer tools and software studio.',
+});
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (

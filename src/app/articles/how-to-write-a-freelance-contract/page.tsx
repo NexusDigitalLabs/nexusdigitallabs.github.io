@@ -1,18 +1,26 @@
-import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'How to Write a Freelance Contract That Protects You — NexusDigitalLabs',
-  description: 'The essential clauses every freelance contract must include — scope, payment terms, intellectual property, revision limits, and termination rights.',
-  keywords: ['freelance contract template', 'how to write a freelance contract', 'freelance agreement clauses', 'scope of work contract', 'freelance IP ownership', 'kill fee clause', 'freelance termination clause'],
-  alternates: { canonical: 'https://nexusdigitallabs.dev/articles/how-to-write-a-freelance-contract/' },
-  openGraph: {
-    title: 'How to Write a Freelance Contract That Protects You',
-    description: 'The essential clauses every freelance contract must include to get paid on time and avoid scope creep.',
-    type: 'article',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
-  },
-};
+  description:
+    'The essential clauses every freelance contract must include — scope, payment terms, intellectual property, revision limits, and termination rights.',
+  path: '/articles/how-to-write-a-freelance-contract/',
+  keywords: [
+    'freelance contract template',
+    'how to write a freelance contract',
+    'freelance agreement clauses',
+    'scope of work contract',
+    'freelance IP ownership',
+    'kill fee clause',
+    'freelance termination clause',
+  ],
+  absoluteTitle: true,
+  type: 'article',
+  ogTitle: 'How to Write a Freelance Contract That Protects You',
+  ogDescription:
+    'The essential clauses every freelance contract must include to get paid on time and avoid scope creep.',
+});
 
 function H2({ children }: { children: React.ReactNode }) {
   return <h2 className="text-xl font-medium text-slate-100 tracking-tight mt-10 mb-3">{children}</h2>;

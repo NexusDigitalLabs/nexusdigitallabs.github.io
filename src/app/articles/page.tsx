@@ -1,18 +1,17 @@
-import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 import { ARTICLES } from '@/data/articles';
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'Articles — NexusDigitalLabs',
   description:
     'Practical guides on AI prompt engineering, LLM cost reduction, freelance finance, debt payoff strategies, and developer productivity — written by NexusDigitalLabs.',
-  alternates: { canonical: 'https://nexusdigitallabs.dev/articles/' },
-  openGraph: {
-    title: 'Articles — NexusDigitalLabs',
-    description: 'Practical guides on prompt engineering, LLM cost reduction, freelance invoicing, debt strategy, and developer tools.',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
-  },
-};
+  path: '/articles/',
+  absoluteTitle: true,
+  type: 'website',
+  ogDescription:
+    'Practical guides on prompt engineering, LLM cost reduction, freelance invoicing, debt strategy, and developer tools.',
+});
 
 export default function ArticlesIndexPage() {
   return (

@@ -1,18 +1,25 @@
-import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'Blackjack Basic Strategy Explained Simply — NexusDigitalLabs',
-  description: 'A clear explanation of blackjack basic strategy — when to hit, stand, double down, and split — and why following it is the mathematically correct play.',
-  keywords: ['blackjack basic strategy', 'when to hit in blackjack', 'blackjack strategy guide', 'blackjack rules explained', 'how to play blackjack', 'blackjack hand chart'],
-  alternates: { canonical: 'https://nexusdigitallabs.dev/articles/blackjack-basic-strategy/' },
-  openGraph: {
-    title: 'Blackjack Basic Strategy Explained Simply',
-    description: 'When to hit, stand, double down, and split — the mathematically correct plays for every hand in blackjack.',
-    type: 'article',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
-  },
-};
+  description:
+    'A clear explanation of blackjack basic strategy — when to hit, stand, double down, and split — and why following it is the mathematically correct play.',
+  path: '/articles/blackjack-basic-strategy/',
+  keywords: [
+    'blackjack basic strategy',
+    'when to hit in blackjack',
+    'blackjack strategy guide',
+    'blackjack rules explained',
+    'how to play blackjack',
+    'blackjack hand chart',
+  ],
+  absoluteTitle: true,
+  type: 'article',
+  ogTitle: 'Blackjack Basic Strategy Explained Simply',
+  ogDescription:
+    'When to hit, stand, double down, and split — the mathematically correct plays for every hand in blackjack.',
+});
 
 function H2({ children }: { children: React.ReactNode }) {
   return <h2 className="text-xl font-medium text-slate-100 tracking-tight mt-10 mb-3">{children}</h2>;

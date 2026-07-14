@@ -30,9 +30,9 @@ const GAMES: {
     tag: 'Arcade',
     title: 'Snake',
     desc: 'Navigate the snake to eat food and grow. Avoid walls and your own tail.',
-    accent: '#4ade80',
-    accentBg: 'rgba(74,222,128,0.08)',
-    accentBorder: 'rgba(74,222,128,0.25)',
+    accent: '#16a34a',
+    accentBg: 'rgba(22,163,74,0.1)',
+    accentBorder: 'rgba(22,163,74,0.25)',
     symbol: '⟶',
     label: 'Canvas',
   },
@@ -42,24 +42,26 @@ const GAMES: {
     tag: 'Card Game',
     title: 'Blackjack',
     desc: 'Beat the dealer to 21 without going bust. Dealer draws to 17. Classic casino rules.',
-    accent: '#818cf8',
-    accentBg: 'rgba(129,140,248,0.08)',
-    accentBorder: 'rgba(129,140,248,0.25)',
+    accent: '#6366f1',
+    accentBg: 'rgba(99,102,241,0.1)',
+    accentBorder: 'rgba(99,102,241,0.25)',
     symbol: '♠ ♥',
     label: '52 cards',
   },
 ];
 
+const strong: React.CSSProperties = { color: 'var(--ndl-text)' };
+
 function HelpContent2048() {
   return (
     <>
-      <p style={{ marginBottom: '1rem' }}>Slide tiles using <strong style={{ color: '#f8fafc' }}>arrow keys</strong> or swipe. Matching tiles merge — reach <strong style={{ color: '#4ade80' }}>2048</strong> to win.</p>
-      <p style={{ fontWeight: 700, color: '#f8fafc', marginBottom: '0.4rem' }}>Controls</p>
+      <p style={{ marginBottom: '1rem' }}>Slide tiles using <strong style={strong}>arrow keys</strong> or swipe. Matching tiles merge — reach <strong style={{ color: '#16a34a' }}>2048</strong> to win.</p>
+      <p style={{ fontWeight: 700, color: 'var(--ndl-text)', marginBottom: '0.4rem' }}>Controls</p>
       <ul style={{ paddingLeft: '1.25rem', margin: '0 0 1rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-        <li><strong style={{ color: '#f8fafc' }}>Arrow keys / W A S D</strong> — move tiles</li>
-        <li><strong style={{ color: '#f8fafc' }}>Swipe</strong> — on touch screens</li>
+        <li><strong style={strong}>Arrow keys / W A S D</strong> — move tiles</li>
+        <li><strong style={strong}>Swipe</strong> — on touch screens</li>
       </ul>
-      <p style={{ fontWeight: 700, color: '#f8fafc', marginBottom: '0.4rem' }}>Tips</p>
+      <p style={{ fontWeight: 700, color: 'var(--ndl-text)', marginBottom: '0.4rem' }}>Tips</p>
       <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
         <li>Lock your highest tile in a corner</li>
         <li>Build a descending chain along one edge</li>
@@ -72,18 +74,18 @@ function HelpContent2048() {
 function HelpContentSnake() {
   return (
     <>
-      <p style={{ marginBottom: '1rem' }}>Guide the snake to eat food and grow. Hit a <strong style={{ color: '#f8fafc' }}>wall</strong> or your own <strong style={{ color: '#f8fafc' }}>tail</strong> and it's game over. Speed increases as you grow.</p>
-      <p style={{ fontWeight: 700, color: '#f8fafc', marginBottom: '0.4rem' }}>Controls</p>
+      <p style={{ marginBottom: '1rem' }}>Guide the snake to eat food and grow. Hit a <strong style={strong}>wall</strong> or your own <strong style={strong}>tail</strong> and it&apos;s game over. Speed increases as you grow.</p>
+      <p style={{ fontWeight: 700, color: 'var(--ndl-text)', marginBottom: '0.4rem' }}>Controls</p>
       <ul style={{ paddingLeft: '1.25rem', margin: '0 0 1rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-        <li><strong style={{ color: '#f8fafc' }}>Arrow keys / W A S D</strong> — change direction</li>
-        <li><strong style={{ color: '#f8fafc' }}>D-pad</strong> — on touch screens</li>
-        <li><strong style={{ color: '#f8fafc' }}>Swipe on canvas</strong> — also works on touch</li>
+        <li><strong style={strong}>Arrow keys / W A S D</strong> — change direction</li>
+        <li><strong style={strong}>D-pad</strong> — on touch screens</li>
+        <li><strong style={strong}>Swipe on canvas</strong> — also works on touch</li>
       </ul>
-      <p style={{ fontWeight: 700, color: '#f8fafc', marginBottom: '0.4rem' }}>Rules</p>
+      <p style={{ fontWeight: 700, color: 'var(--ndl-text)', marginBottom: '0.4rem' }}>Rules</p>
       <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
         <li>No instant 180° reversal</li>
         <li>Hitting a wall ends the game</li>
-        <li>Each food = <strong style={{ color: '#4ade80' }}>+1 point</strong> + growth</li>
+        <li>Each food = <strong style={{ color: '#16a34a' }}>+1 point</strong> + growth</li>
       </ul>
     </>
   );
@@ -92,20 +94,20 @@ function HelpContentSnake() {
 function HelpContentBlackjack() {
   return (
     <>
-      <p style={{ marginBottom: '1rem' }}>Get closer to <strong style={{ color: '#f8fafc' }}>21</strong> than the dealer without going over. You start with <strong style={{ color: '#f8fafc' }}>500 chips</strong>.</p>
-      <p style={{ fontWeight: 700, color: '#f8fafc', marginBottom: '0.4rem' }}>Card Values</p>
+      <p style={{ marginBottom: '1rem' }}>Get closer to <strong style={strong}>21</strong> than the dealer without going over. You start with <strong style={strong}>500 chips</strong>.</p>
+      <p style={{ fontWeight: 700, color: 'var(--ndl-text)', marginBottom: '0.4rem' }}>Card Values</p>
       <ul style={{ paddingLeft: '1.25rem', margin: '0 0 1rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
         <li>2–10 = face value · J/Q/K = 10 · Ace = 11 (or 1)</li>
       </ul>
-      <p style={{ fontWeight: 700, color: '#f8fafc', marginBottom: '0.4rem' }}>Actions</p>
+      <p style={{ fontWeight: 700, color: 'var(--ndl-text)', marginBottom: '0.4rem' }}>Actions</p>
       <ul style={{ paddingLeft: '1.25rem', margin: '0 0 1rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-        <li><strong style={{ color: '#f8fafc' }}>Hit</strong> — draw a card</li>
-        <li><strong style={{ color: '#f8fafc' }}>Stand</strong> — end your turn</li>
-        <li><strong style={{ color: '#f8fafc' }}>Double Down</strong> — double bet, one card, stand</li>
+        <li><strong style={strong}>Hit</strong> — draw a card</li>
+        <li><strong style={strong}>Stand</strong> — end your turn</li>
+        <li><strong style={strong}>Double Down</strong> — double bet, one card, stand</li>
       </ul>
-      <p style={{ fontWeight: 700, color: '#f8fafc', marginBottom: '0.4rem' }}>Payouts</p>
+      <p style={{ fontWeight: 700, color: 'var(--ndl-text)', marginBottom: '0.4rem' }}>Payouts</p>
       <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-        <li><strong style={{ color: '#4ade80' }}>Blackjack</strong> — 1.5× · <strong style={{ color: '#f8fafc' }}>Win</strong> — 1× · <strong style={{ color: '#f87171' }}>Bust</strong> — forfeit</li>
+        <li><strong style={{ color: '#16a34a' }}>Blackjack</strong> — 1.5× · <strong style={strong}>Win</strong> — 1× · <strong style={{ color: '#dc2626' }}>Bust</strong> — forfeit</li>
       </ul>
     </>
   );
@@ -127,8 +129,6 @@ export default function GamesLobbyClient() {
     const s: Record<string, number> = {};
     GAMES.forEach((g) => { s[g.id] = getHighScore(g.id); });
     setScores(s);
-  // getHighScore is now stable (useCallback) so listing it is safe,
-  // but we only need this effect to fire once when loaded becomes true.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaded]);
 
@@ -139,8 +139,7 @@ export default function GamesLobbyClient() {
   }
 
   return (
-    <div style={{ background: '#0b0f19', minHeight: '100vh' }}>
-      {/* Help modal — rendered at this level so it sits above game cards */}
+    <div style={{ background: 'var(--ndl-bg)', minHeight: '100vh' }}>
       <GameHelpModal
         isOpen={helpGame !== null}
         onClose={() => setHelpGame(null)}
@@ -149,15 +148,14 @@ export default function GamesLobbyClient() {
         {helpGame ? HELP_CONTENT[helpGame] : null}
       </GameHelpModal>
 
-      {/* ── Page header ─────────────────────────────────────────────────────── */}
-      <div style={{ borderBottom: '1px solid rgba(255,255,255,0.07)', padding: '2rem 0' }}>
+      <div style={{ borderBottom: '1px solid var(--ndl-border)', padding: '2rem 0' }}>
         <div style={{ maxWidth: '64rem', margin: '0 auto', padding: '0 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
-            <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#4ade80', marginBottom: '0.5rem' }}>
+            <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#16a34a', marginBottom: '0.5rem' }}>
               NexusDigitalLabs
             </p>
-            <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#f8fafc', margin: 0, letterSpacing: '-0.02em' }}>Games</h1>
-            <p style={{ fontSize: '0.8125rem', color: '#64748b', marginTop: '0.375rem', fontWeight: 400 }}>
+            <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--ndl-text)', margin: 0, letterSpacing: '-0.02em' }}>Games</h1>
+            <p style={{ fontSize: '0.8125rem', color: 'var(--ndl-faint)', marginTop: '0.375rem', fontWeight: 400 }}>
               Browser-based · Scores saved locally · No login needed
             </p>
           </div>
@@ -166,9 +164,9 @@ export default function GamesLobbyClient() {
             type="button"
             style={{
               display: 'flex', alignItems: 'center', gap: '0.5rem',
-              background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)',
+              background: 'var(--ndl-surface-2)', border: '1px solid var(--ndl-border)',
               padding: '0.375rem 0.875rem', cursor: 'pointer',
-              fontSize: '0.8125rem', color: '#94a3b8', fontWeight: 500,
+              fontSize: '0.8125rem', color: 'var(--ndl-muted)', fontWeight: 500,
             }}
           >
             <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -180,9 +178,8 @@ export default function GamesLobbyClient() {
         </div>
       </div>
 
-      {/* ── Game cards ──────────────────────────────────────────────────────── */}
       <div style={{ maxWidth: '64rem', margin: '0 auto', padding: '2.5rem 1.5rem' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1px', background: 'rgba(255,255,255,0.07)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1px', background: 'var(--ndl-border)' }}>
           {GAMES.map((g) => {
             const hs = scores[g.id] ?? 0;
             return (
@@ -192,25 +189,23 @@ export default function GamesLobbyClient() {
                 style={{
                   display: 'flex', flexDirection: 'column',
                   padding: '1.75rem',
-                  background: '#0d1117',
+                  background: 'var(--ndl-surface)',
                   textDecoration: 'none',
                   transition: 'background 0.15s',
                 }}
-                onMouseEnter={e => (e.currentTarget.style.background = '#111827')}
-                onMouseLeave={e => (e.currentTarget.style.background = '#0d1117')}
+                onMouseEnter={e => (e.currentTarget.style.background = 'var(--ndl-surface-2)')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'var(--ndl-surface)')}
               >
-                {/* Icon badge */}
                 <div style={{
                   display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                   width: '2.5rem', height: '2.5rem', marginBottom: '1.25rem',
                   background: g.accentBg, border: `1px solid ${g.accentBorder}`,
                   fontSize: '1rem', color: g.accent, fontWeight: 700,
-                  letterSpacing: '0.05em',
+                  letterSpacing: '0.05em', whiteSpace: 'pre-line', textAlign: 'center', lineHeight: 1.1,
                 }}>
                   {g.symbol}
                 </div>
 
-                {/* Tag */}
                 <p style={{
                   fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em',
                   textTransform: 'uppercase', color: g.accent, marginBottom: '0.5rem',
@@ -218,26 +213,25 @@ export default function GamesLobbyClient() {
                   {g.tag}
                 </p>
 
-                <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: '#f8fafc', marginBottom: '0.625rem' }}>
+                <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--ndl-text)', marginBottom: '0.625rem' }}>
                   {g.title}
                 </h2>
-                <p style={{ fontSize: '0.8125rem', color: '#64748b', lineHeight: 1.65, flexGrow: 1, marginBottom: '1rem' }}>
+                <p style={{ fontSize: '0.8125rem', color: 'var(--ndl-faint)', lineHeight: 1.65, flexGrow: 1, marginBottom: '1rem' }}>
                   {g.desc}
                 </p>
 
-                {/* How to Play trigger */}
                 <button
                   type="button"
                   onClick={(e) => { e.preventDefault(); setHelpGame(g.id); }}
                   style={{
                     display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
                     background: 'transparent', border: 'none', padding: 0,
-                    fontSize: '0.75rem', fontWeight: 600, color: '#475569',
+                    fontSize: '0.75rem', fontWeight: 600, color: 'var(--ndl-faint)',
                     cursor: 'pointer', marginBottom: '1.25rem',
                     letterSpacing: '0.03em',
                   }}
                   onMouseEnter={e => (e.currentTarget.style.color = g.accent)}
-                  onMouseLeave={e => (e.currentTarget.style.color = '#475569')}
+                  onMouseLeave={e => (e.currentTarget.style.color = 'var(--ndl-faint)')}
                 >
                   <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <circle cx="12" cy="12" r="10" strokeWidth="2"/>
@@ -246,21 +240,20 @@ export default function GamesLobbyClient() {
                   How to Play
                 </button>
 
-                {/* Footer row */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <span style={{
                     fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.06em',
                     textTransform: 'uppercase', padding: '0.25rem 0.625rem',
-                    background: hs > 0 ? 'rgba(74,222,128,0.1)' : 'rgba(255,255,255,0.04)',
-                    border: hs > 0 ? '1px solid rgba(74,222,128,0.3)' : '1px solid rgba(255,255,255,0.08)',
-                    color: hs > 0 ? '#4ade80' : '#475569',
+                    background: hs > 0 ? 'rgba(22,163,74,0.1)' : 'var(--ndl-surface-2)',
+                    border: hs > 0 ? '1px solid rgba(22,163,74,0.3)' : '1px solid var(--ndl-border)',
+                    color: hs > 0 ? '#16a34a' : 'var(--ndl-faint)',
                   }}>
                     Best: {hs > 0 ? hs.toLocaleString('en-US') : '—'}
                   </span>
                   <span style={{
                     display: 'flex', alignItems: 'center', gap: '0.375rem',
                     fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.06em',
-                    textTransform: 'uppercase', color: '#f8fafc',
+                    textTransform: 'uppercase', color: 'var(--ndl-text)',
                   }}>
                     Play
                     <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -273,14 +266,13 @@ export default function GamesLobbyClient() {
           })}
         </div>
 
-        {/* ── High scores ─────────────────────────────────────────────────── */}
-        <div style={{ marginTop: '1px', background: '#0d1117', border: '1px solid rgba(255,255,255,0.07)', borderTop: 'none' }}>
-          <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-            <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#475569', margin: 0 }}>
+        <div style={{ marginTop: '1px', background: 'var(--ndl-surface)', border: '1px solid var(--ndl-border)', borderTop: 'none' }}>
+          <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid var(--ndl-border-soft)' }}>
+            <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--ndl-faint)', margin: 0 }}>
               Your High Scores
             </p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)' }}>
             {GAMES.map((g, i) => {
               const hs = scores[g.id] ?? 0;
               return (
@@ -289,13 +281,13 @@ export default function GamesLobbyClient() {
                   style={{
                     padding: '1.25rem',
                     textAlign: 'center',
-                    borderRight: i < GAMES.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                    borderRight: i < GAMES.length - 1 ? '1px solid var(--ndl-border-soft)' : 'none',
                   }}
                 >
-                  <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#475569', marginBottom: '0.5rem' }}>
+                  <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ndl-faint)', marginBottom: '0.5rem' }}>
                     {g.title}
                   </p>
-                  <p style={{ fontSize: '1.5rem', fontWeight: 800, color: hs > 0 ? '#4ade80' : '#f8fafc', margin: 0 }}>
+                  <p style={{ fontSize: '1.5rem', fontWeight: 800, color: hs > 0 ? '#16a34a' : 'var(--ndl-text)', margin: 0 }}>
                     {hs > 0 ? hs.toLocaleString('en-US') : '0'}
                   </p>
                 </div>
@@ -304,7 +296,7 @@ export default function GamesLobbyClient() {
           </div>
         </div>
 
-        <p style={{ fontSize: '0.75rem', color: '#334155', textAlign: 'center', marginTop: '1.5rem' }}>
+        <p style={{ fontSize: '0.75rem', color: 'var(--ndl-faint)', textAlign: 'center', marginTop: '1.5rem' }}>
           All scores are stored in your browser&apos;s local storage — never sent anywhere.
         </p>
       </div>

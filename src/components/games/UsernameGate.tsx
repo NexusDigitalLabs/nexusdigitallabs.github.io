@@ -8,9 +8,6 @@ interface Props {
 
 /**
  * UsernameGate — renders as a full-height page section (NOT a fixed overlay).
- * A fixed overlay at z-100 can intercept pointer events from the sticky header
- * even when the header's z-index is higher, depending on browser stacking
- * context resolution. Rendering inline avoids this entirely.
  */
 export default function UsernameGate({ onSubmit }: Props) {
   const [name, setName] = useState('');
@@ -28,26 +25,26 @@ export default function UsernameGate({ onSubmit }: Props) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: '#0b0f19',
+        background: 'var(--ndl-bg)',
         padding: '2rem 1rem',
       }}
     >
       <div
         style={{
-          background: '#0d1117',
-          border: '1px solid rgba(255,255,255,0.08)',
+          background: 'var(--ndl-surface)',
+          border: '1px solid var(--ndl-border)',
           padding: '2.25rem',
           maxWidth: '360px',
           width: '100%',
         }}
       >
-        <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#4ade80', marginBottom: '0.5rem' }}>
+        <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#16a34a', marginBottom: '0.5rem' }}>
           NexusDigitalLabs Games
         </p>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#f8fafc', marginBottom: '0.375rem' }}>
+        <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--ndl-text)', marginBottom: '0.375rem' }}>
           Enter Your Name
         </h2>
-        <p style={{ fontSize: '0.8125rem', color: '#64748b', fontWeight: 400, marginBottom: '1.5rem', lineHeight: 1.6 }}>
+        <p style={{ fontSize: '0.8125rem', color: 'var(--ndl-faint)', fontWeight: 400, marginBottom: '1.5rem', lineHeight: 1.6 }}>
           Your high scores will be saved locally in your browser.
         </p>
         <form onSubmit={handleSubmit}>
@@ -60,19 +57,19 @@ export default function UsernameGate({ onSubmit }: Props) {
             maxLength={30}
             style={{
               display: 'block', width: '100%', boxSizing: 'border-box',
-              border: '1px solid rgba(255,255,255,0.1)',
-              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid var(--ndl-input-border)',
+              background: 'var(--ndl-input-bg)',
               outline: 'none', padding: '0.625rem 0.75rem',
-              fontSize: '0.875rem', color: '#f8fafc',
+              fontSize: '0.875rem', color: 'var(--ndl-text)',
               marginBottom: '1rem', borderRadius: 0,
             }}
-            onFocus={e => (e.currentTarget.style.borderColor = '#f8fafc')}
-            onBlur={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')}
+            onFocus={e => (e.currentTarget.style.borderColor = 'var(--ndl-accent)')}
+            onBlur={e => (e.currentTarget.style.borderColor = 'var(--ndl-input-border)')}
           />
           <button
             type="submit"
             style={{
-              width: '100%', background: '#f8fafc', color: '#0f172a',
+              width: '100%', background: 'var(--ndl-text)', color: 'var(--ndl-bg)',
               border: 'none', padding: '0.75rem',
               fontSize: '0.8125rem', fontWeight: 700,
               letterSpacing: '0.07em', textTransform: 'uppercase',

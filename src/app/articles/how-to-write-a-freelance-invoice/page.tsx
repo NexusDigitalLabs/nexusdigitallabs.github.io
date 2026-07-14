@@ -1,23 +1,28 @@
-import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'How to Write a Freelance Invoice: Complete Guide — NexusDigitalLabs',
   description:
     'Everything a freelancer needs to know about creating professional invoices — what to include, how to structure payment terms, and how to get paid on time and in full.',
+  path: '/articles/how-to-write-a-freelance-invoice/',
   keywords: [
-    'how to write a freelance invoice', 'freelance invoice template', 'invoice for freelancers',
-    'freelance payment terms', 'invoice number format', 'what to include on an invoice',
-    'net 30 invoice', 'freelance billing guide', 'professional invoice format',
+    'how to write a freelance invoice',
+    'freelance invoice template',
+    'invoice for freelancers',
+    'freelance payment terms',
+    'invoice number format',
+    'what to include on an invoice',
+    'net 30 invoice',
+    'freelance billing guide',
+    'professional invoice format',
   ],
-  alternates: { canonical: 'https://nexusdigitallabs.dev/articles/how-to-write-a-freelance-invoice/' },
-  openGraph: {
-    title: 'How to Write a Freelance Invoice: Complete Guide',
-    description: 'Everything a freelancer needs to know about creating professional invoices and getting paid on time.',
-    type: 'article',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
-  },
-};
+  absoluteTitle: true,
+  type: 'article',
+  ogTitle: 'How to Write a Freelance Invoice: Complete Guide',
+  ogDescription:
+    'Everything a freelancer needs to know about creating professional invoices and getting paid on time.',
+});
 
 function H2({ children }: { children: React.ReactNode }) {
   return <h2 className="text-xl font-medium text-slate-100 tracking-tight mt-10 mb-3">{children}</h2>;

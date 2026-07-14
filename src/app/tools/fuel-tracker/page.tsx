@@ -1,17 +1,17 @@
-import type { Metadata } from 'next';
 import FuelTrackerClient from '@/components/tools/FuelTrackerClient';
 import PWAInstallBanner from '@/components/PWAInstallBanner';
+import { pageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'Fuel Tracker — Track Mileage, Cost & Efficiency | Nexus Digital Labs',
   description:
     'Free browser-based fuel tracking tool. Log fill-ups, track L/100km efficiency, visualise spend over time, and sync data across devices — no account needed.',
-  openGraph: {
-    title: 'Fuel Tracker | Nexus Digital Labs',
-    description: 'Log fill-ups, track fuel efficiency and costs across your vehicles. Free, private, no sign-up.',
-    url: 'https://nexusdigitallabs.dev/tools/fuel-tracker/',
-  },
-};
+  path: '/tools/fuel-tracker/',
+  absoluteTitle: true,
+  ogTitle: 'Fuel Tracker | Nexus Digital Labs',
+  ogDescription:
+    'Log fill-ups, track fuel efficiency and costs across your vehicles. Free, private, no sign-up.',
+});
 
 export default function FuelTrackerPage() {
   return (

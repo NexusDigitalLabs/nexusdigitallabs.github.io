@@ -1,23 +1,30 @@
-import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'How to Reduce OpenAI API Costs: A Practical Guide — NexusDigitalLabs',
   description:
     'Six concrete techniques to cut your GPT-4o and Claude API spend without sacrificing output quality — covering token compression, model routing, caching, and batching.',
+  path: '/articles/how-to-reduce-openai-api-costs/',
   keywords: [
-    'reduce OpenAI API costs', 'GPT-4o cheaper', 'lower LLM API bills', 'token cost reduction',
-    'prompt optimization cost', 'AI API budget', 'Claude API cost', 'LLM cost savings',
-    'API batching', 'prompt caching', 'model routing',
+    'reduce OpenAI API costs',
+    'GPT-4o cheaper',
+    'lower LLM API bills',
+    'token cost reduction',
+    'prompt optimization cost',
+    'AI API budget',
+    'Claude API cost',
+    'LLM cost savings',
+    'API batching',
+    'prompt caching',
+    'model routing',
   ],
-  alternates: { canonical: 'https://nexusdigitallabs.dev/articles/how-to-reduce-openai-api-costs/' },
-  openGraph: {
-    title: 'How to Reduce OpenAI API Costs: A Practical Guide',
-    description: 'Six concrete techniques to cut your LLM API spend without sacrificing output quality.',
-    type: 'article',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
-  },
-};
+  absoluteTitle: true,
+  type: 'article',
+  ogTitle: 'How to Reduce OpenAI API Costs: A Practical Guide',
+  ogDescription:
+    'Six concrete techniques to cut your LLM API spend without sacrificing output quality.',
+});
 
 function H2({ children }: { children: React.ReactNode }) {
   return <h2 className="text-xl font-medium text-slate-100 tracking-tight mt-10 mb-3">{children}</h2>;

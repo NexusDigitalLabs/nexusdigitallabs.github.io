@@ -1,18 +1,25 @@
-import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'How to Calculate Your Real Hourly Rate as a Freelancer — NexusDigitalLabs',
-  description: 'Most freelancers undercharge because they set rates based on gut feel, not numbers. Here is the exact formula to calculate what you actually need to earn per billable hour.',
-  keywords: ['freelance hourly rate calculator', 'how to set freelance rates', 'freelance pricing formula', 'billable hours freelance', 'freelance income target', 'how to price freelance work'],
-  alternates: { canonical: 'https://nexusdigitallabs.dev/articles/how-to-calculate-your-real-hourly-rate/' },
-  openGraph: {
-    title: 'How to Calculate Your Real Hourly Rate as a Freelancer',
-    description: 'The exact formula to calculate your minimum viable hourly rate based on income targets, working hours, and non-billable time.',
-    type: 'article',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
-  },
-};
+  description:
+    'Most freelancers undercharge because they set rates based on gut feel, not numbers. Here is the exact formula to calculate what you actually need to earn per billable hour.',
+  path: '/articles/how-to-calculate-your-real-hourly-rate/',
+  keywords: [
+    'freelance hourly rate calculator',
+    'how to set freelance rates',
+    'freelance pricing formula',
+    'billable hours freelance',
+    'freelance income target',
+    'how to price freelance work',
+  ],
+  absoluteTitle: true,
+  type: 'article',
+  ogTitle: 'How to Calculate Your Real Hourly Rate as a Freelancer',
+  ogDescription:
+    'The exact formula to calculate your minimum viable hourly rate based on income targets, working hours, and non-billable time.',
+});
 
 function H2({ children }: { children: React.ReactNode }) {
   return <h2 className="text-xl font-medium text-slate-100 tracking-tight mt-10 mb-3">{children}</h2>;

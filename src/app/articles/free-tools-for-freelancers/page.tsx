@@ -1,18 +1,25 @@
-import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'Free Tools Every Freelancer Should Be Using in 2026 — NexusDigitalLabs',
-  description: 'A curated list of genuinely free tools for freelancers — invoicing, contracts, time tracking, project management, and productivity — with no hidden paywalls.',
-  keywords: ['free tools for freelancers', 'freelancer productivity tools', 'free invoicing tool', 'freelance project management free', 'tools for independent contractors', 'best free freelance tools 2026'],
-  alternates: { canonical: 'https://nexusdigitallabs.dev/articles/free-tools-for-freelancers/' },
-  openGraph: {
-    title: 'Free Tools Every Freelancer Should Be Using in 2026',
-    description: 'Genuinely free tools for invoicing, contracts, communication, time tracking, and productivity — no hidden fees.',
-    type: 'article',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
-  },
-};
+  description:
+    'A curated list of genuinely free tools for freelancers — invoicing, contracts, time tracking, project management, and productivity — with no hidden paywalls.',
+  path: '/articles/free-tools-for-freelancers/',
+  keywords: [
+    'free tools for freelancers',
+    'freelancer productivity tools',
+    'free invoicing tool',
+    'freelance project management free',
+    'tools for independent contractors',
+    'best free freelance tools 2026',
+  ],
+  absoluteTitle: true,
+  type: 'article',
+  ogTitle: 'Free Tools Every Freelancer Should Be Using in 2026',
+  ogDescription:
+    'Genuinely free tools for invoicing, contracts, communication, time tracking, and productivity — no hidden fees.',
+});
 
 function H2({ children }: { children: React.ReactNode }) {
   return <h2 className="text-xl font-medium text-slate-100 tracking-tight mt-10 mb-3">{children}</h2>;

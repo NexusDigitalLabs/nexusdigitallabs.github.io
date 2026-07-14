@@ -1,27 +1,21 @@
-import type { Metadata } from 'next';
 import PromptArchitectClient from '@/components/tools/PromptArchitectClient';
+import { pageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'Prompt Architect & Token Counter — Free AI Prompt Optimizer Tool',
   description:
     'Free browser-based AI prompt optimizer and GPT token counter. Remove whitespace, flatten prompts, estimate token costs for GPT-4o, Claude, and Gemini — 100% client-side. Zero data sent to any server.',
+  path: '/tools/prompt-architect/',
   keywords: [
     'prompt architect', 'token counter', 'ChatGPT token counter', 'GPT-4 token optimizer',
     'AI prompt engineering', 'reduce token usage', 'prompt optimization tool',
     'LLM prompt builder', 'tiktoken alternative', 'free token counter',
   ],
-  alternates: { canonical: 'https://nexusdigitallabs.dev/tools/prompt-architect/' },
-  openGraph: {
-    title: 'Prompt Architect & Token Counter — Free AI Prompt Optimizer',
-    description: 'Optimize AI prompts, count tokens, and estimate API costs instantly. 100% client-side — no data leaves your browser.',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary',
-    title: 'Prompt Architect & Token Counter',
-    description: 'Free browser-based AI prompt optimizer. Token counting, whitespace removal, and cost estimation — zero server calls.',
-  },
-};
+  absoluteTitle: true,
+  ogTitle: 'Prompt Architect & Token Counter — Free AI Prompt Optimizer',
+  ogDescription:
+    'Optimize AI prompts, count tokens, and estimate API costs instantly. 100% client-side — no data leaves your browser.',
+});
 
 export default function PromptArchitectPage() {
   return (

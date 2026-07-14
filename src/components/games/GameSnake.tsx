@@ -43,7 +43,7 @@ export default function GameSnake() {
   const [overlay, setOverlay] = useState<OverlayState>({
     title: 'Snake',
     sub: 'Arrow keys, WASD, or D-pad to move',
-    titleColor: '#0f172a',
+    titleColor: 'var(--ndl-text)',
     btnText: 'Start Game',
   });
 
@@ -270,15 +270,15 @@ export default function GameSnake() {
     <>
       <GameHelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} title="Snake">
         <p style={{ marginBottom: '1rem' }}>
-          Guide the snake to eat food and grow longer. The game ends if you hit a <strong style={{ color: '#f8fafc' }}>wall</strong> or your own <strong style={{ color: '#f8fafc' }}>tail</strong>. Speed increases as you grow.
+          Guide the snake to eat food and grow longer. The game ends if you hit a <strong style={{ color: 'var(--ndl-text)' }}>wall</strong> or your own <strong style={{ color: 'var(--ndl-text)' }}>tail</strong>. Speed increases as you grow.
         </p>
-        <p style={{ fontWeight: 700, color: '#f8fafc', marginBottom: '0.5rem' }}>Controls</p>
+        <p style={{ fontWeight: 700, color: 'var(--ndl-text)', marginBottom: '0.5rem' }}>Controls</p>
         <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem', marginBottom: '1rem' }}>
-          <li><strong style={{ color: '#f8fafc' }}>Arrow keys</strong> or <strong style={{ color: '#f8fafc' }}>W / A / S / D</strong> — change direction</li>
-          <li><strong style={{ color: '#f8fafc' }}>D-pad buttons</strong> — on touch screens (shown automatically)</li>
-          <li><strong style={{ color: '#f8fafc' }}>Swipe on the canvas</strong> — also works on touch</li>
+          <li><strong style={{ color: 'var(--ndl-text)' }}>Arrow keys</strong> or <strong style={{ color: 'var(--ndl-text)' }}>W / A / S / D</strong> — change direction</li>
+          <li><strong style={{ color: 'var(--ndl-text)' }}>D-pad buttons</strong> — on touch screens (shown automatically)</li>
+          <li><strong style={{ color: 'var(--ndl-text)' }}>Swipe on the canvas</strong> — also works on touch</li>
         </ul>
-        <p style={{ fontWeight: 700, color: '#f8fafc', marginBottom: '0.5rem' }}>Rules</p>
+        <p style={{ fontWeight: 700, color: 'var(--ndl-text)', marginBottom: '0.5rem' }}>Rules</p>
         <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
           <li>You cannot instantly reverse direction (180°)</li>
           <li>Hitting a wall ends the game — no wrapping</li>
@@ -286,25 +286,25 @@ export default function GameSnake() {
         </ul>
       </GameHelpModal>
 
-      <div style={{ borderBottom: '1px solid rgba(255,255,255,0.07)', background: '#0b0f19' }}>
+      <div style={{ borderBottom: '1px solid var(--ndl-border)', background: 'var(--ndl-bg)' }}>
         <div className="max-w-lg mx-auto px-6 py-5">
           <div className="flex items-center justify-between">
             <div>
               <Link href="/games/" style={{ fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#4ade80', textDecoration: 'none' }}>
                 ← Games
               </Link>
-              <h1 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#f8fafc', marginTop: '0.25rem' }}>Snake</h1>
+              <h1 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--ndl-text)', marginTop: '0.25rem' }}>Snake</h1>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <button
                 type="button"
                 onClick={() => setShowHelp(true)}
                 style={{
-                  background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)',
+                  background: 'var(--ndl-surface-2)', border: '1px solid var(--ndl-border)',
                   padding: '0 0.875rem', height: '36px', cursor: 'pointer',
                   display: 'flex', alignItems: 'center', gap: '0.375rem',
                   fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.07em',
-                  textTransform: 'uppercase', color: '#94a3b8', whiteSpace: 'nowrap',
+                  textTransform: 'uppercase', color: 'var(--ndl-muted)', whiteSpace: 'nowrap',
                 }}
               >
                 <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -314,9 +314,9 @@ export default function GameSnake() {
                 How to Play
               </button>
               {[{ label: 'Score', val: dispScore }, { label: 'Best', val: dispBest }].map(({ label, val }) => (
-                <div key={label} style={{ border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)', padding: '0.5rem 1rem', textAlign: 'center', minWidth: '76px' }}>
-                  <div style={{ fontSize: '0.5625rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#475569' }}>{label}</div>
-                  <div style={{ fontSize: '1.125rem', fontWeight: 800, color: '#f8fafc', lineHeight: 1.2 }}>{val}</div>
+                <div key={label} style={{ border: '1px solid var(--ndl-border)', background: 'var(--ndl-surface-2)', padding: '0.5rem 1rem', textAlign: 'center', minWidth: '76px' }}>
+                  <div style={{ fontSize: '0.5625rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ndl-faint)' }}>{label}</div>
+                  <div style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--ndl-text)', lineHeight: 1.2 }}>{val}</div>
                 </div>
               ))}
             </div>
@@ -324,19 +324,19 @@ export default function GameSnake() {
         </div>
       </div>
 
-      <div style={{ background: '#0b0f19', minHeight: 'calc(100vh - 64px - 80px)' }}>
+      <div style={{ background: 'var(--ndl-bg)', minHeight: 'calc(100vh - 64px - 80px)' }}>
       <div className="max-w-lg mx-auto px-6 py-8 flex flex-col items-center gap-6">
         {/* Canvas */}
         <div style={{ position: 'relative', display: 'inline-block', lineHeight: 0 }}>
-          <canvas ref={canvasRef} style={{ display: 'block', border: '1px solid rgba(255,255,255,0.1)', background: '#0d1117' }} />
+          <canvas ref={canvasRef} style={{ display: 'block', border: '1px solid var(--ndl-border)', background: 'var(--ndl-surface)' }} />
           {showOverlay && (
-            <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'rgba(7,9,15,0.88)', zIndex: 5 }}>
-              <p style={{ fontSize: '1.25rem', fontWeight: 800, color: overlay.titleColor || '#f8fafc', marginBottom: '0.375rem' }}>{overlay.title}</p>
-              <p style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '1.5rem' }}>{overlay.sub}</p>
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'color-mix(in srgb, var(--ndl-bg) 88%, transparent)', zIndex: 5 }}>
+              <p style={{ fontSize: '1.25rem', fontWeight: 800, color: overlay.titleColor || 'var(--ndl-text)', marginBottom: '0.375rem' }}>{overlay.title}</p>
+              <p style={{ fontSize: '0.875rem', color: 'var(--ndl-faint)', marginBottom: '1.5rem' }}>{overlay.sub}</p>
               <button
                 onClick={startGame}
                 type="button"
-                style={{ background: '#f8fafc', color: '#0f172a', padding: '0.625rem 1.75rem', border: 'none', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase' }}
+                style={{ background: 'var(--ndl-text)', color: 'var(--ndl-bg)', padding: '0.625rem 1.75rem', border: 'none', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase' }}
               >
                 {overlay.btnText || 'Start Game'}
               </button>
@@ -362,16 +362,16 @@ export default function GameSnake() {
 
         {/* Keyboard hint */}
         <div className="hidden sm:flex gap-3 items-center flex-wrap justify-center">
-          <span style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#475569' }}>Controls</span>
-          <span style={{ fontSize: '0.6875rem', fontWeight: 600, color: '#94a3b8', padding: '0.25rem 0.5rem', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)' }}>↑ ↓ ← →</span>
-          <span style={{ fontSize: '0.75rem', color: '#475569' }}>or</span>
-          <span style={{ fontSize: '0.6875rem', fontWeight: 600, color: '#94a3b8', padding: '0.25rem 0.5rem', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)' }}>W A S D</span>
+          <span style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--ndl-faint)' }}>Controls</span>
+          <span style={{ fontSize: '0.6875rem', fontWeight: 600, color: 'var(--ndl-muted)', padding: '0.25rem 0.5rem', border: '1px solid var(--ndl-border)', background: 'var(--ndl-surface-2)' }}>↑ ↓ ← →</span>
+          <span style={{ fontSize: '0.75rem', color: 'var(--ndl-faint)' }}>or</span>
+          <span style={{ fontSize: '0.6875rem', fontWeight: 600, color: 'var(--ndl-muted)', padding: '0.25rem 0.5rem', border: '1px solid var(--ndl-border)', background: 'var(--ndl-surface-2)' }}>W A S D</span>
         </div>
 
         <button
           onClick={startGame}
           type="button"
-          style={{ border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)', padding: '0.5rem 1.25rem', cursor: 'pointer', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: '#94a3b8' }}
+          style={{ border: '1px solid var(--ndl-border)', background: 'var(--ndl-surface-2)', padding: '0.5rem 1.25rem', cursor: 'pointer', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--ndl-muted)' }}
         >
           New Game
         </button>
@@ -393,7 +393,7 @@ function DpadBtn({ onClick, children }: { onClick: () => void; children: React.R
       onTouchStart={(e) => { e.preventDefault(); onClick(); }}
       onMouseDown={onClick}
       className="flex items-center justify-center text-xl cursor-pointer select-none"
-      style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#94a3b8', WebkitTapHighlightColor: 'transparent' }}
+      style={{ background: 'var(--ndl-surface-2)', border: '1px solid var(--ndl-border)', color: 'var(--ndl-muted)', WebkitTapHighlightColor: 'transparent' }}
     >
       {children}
     </button>

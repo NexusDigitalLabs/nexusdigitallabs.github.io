@@ -1,16 +1,16 @@
-import type { Metadata } from 'next';
 import Link from 'next/link';
 import ScrollReveal from '@/components/ScrollReveal';
+import { pageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'About',
-  description: 'NexusDigitalLabs is a software studio engineering minimalist web utilities, developer tools, and high-performance software built for speed, privacy, and utility.',
-  alternates: { canonical: 'https://nexusdigitallabs.dev/about/' },
-  openGraph: {
-    title: 'About — NexusDigitalLabs',
-    description: 'A software studio engineering minimalist web utilities and developer tools built for speed, privacy, and utility.',
-  },
-};
+  description:
+    'NexusDigitalLabs is a software studio engineering minimalist web utilities, developer tools, and high-performance software built for speed, privacy, and utility.',
+  path: '/about/',
+  ogTitle: 'About — NexusDigitalLabs',
+  ogDescription:
+    'A software studio engineering minimalist web utilities and developer tools built for speed, privacy, and utility.',
+});
 
 const PRINCIPLES = [
   {

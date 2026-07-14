@@ -1,10 +1,11 @@
-import type { Metadata } from 'next';
 import InvoiceGeneratorClient from '@/components/tools/InvoiceGeneratorClient';
+import { pageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'Freelancer Invoice Generator — NexusDigitalLabs',
   description:
     'Free browser-based freelancer invoice generator. Create professional PDF invoices with line items, tax calculation, and bank wire details — 100% client-side, zero data transmitted.',
+  path: '/tools/invoice-generator/',
   keywords: [
     'invoice generator',
     'freelancer invoice',
@@ -15,22 +16,10 @@ export const metadata: Metadata = {
     'tax invoice',
     'NexusDigitalLabs',
   ],
-  alternates: { canonical: 'https://nexusdigitallabs.dev/tools/invoice-generator/' },
-  openGraph: {
-    type: 'website',
-    url: 'https://nexusdigitallabs.dev/tools/invoice-generator/',
-    title: 'Freelancer Invoice Generator — NexusDigitalLabs',
-    description:
-      'Create professional A4 PDF invoices in seconds. Client details, line items, tax, bank wire info — free and fully client-side.',
-    images: [{ url: 'https://nexusdigitallabs.dev/og-image.png' }],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Freelancer Invoice Generator — NexusDigitalLabs',
-    description: 'Create professional A4 PDF invoices in seconds. Free and fully client-side.',
-    images: ['https://nexusdigitallabs.dev/og-image.png'],
-  },
-};
+  absoluteTitle: true,
+  ogDescription:
+    'Create professional A4 PDF invoices in seconds. Client details, line items, tax, bank wire info — free and fully client-side.',
+});
 
 const jsonLd = {
   '@context': 'https://schema.org',

@@ -126,7 +126,7 @@ export default function Game2048() {
   const [board, setBoard] = useState<Board>(Array(16).fill(0));
   const [score, setScore] = useState(0);
   const [best, setBest] = useState(0);
-  const [overlay, setOverlay] = useState<Overlay>({ title: '2048', sub: 'Merge tiles to reach 2048', titleColor: '#0f172a' });
+  const [overlay, setOverlay] = useState<Overlay>({ title: '2048', sub: 'Merge tiles to reach 2048', titleColor: 'var(--ndl-text)' });
   const [started, setStarted] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const gridRef = useRef<HTMLDivElement>(null);
@@ -219,16 +219,16 @@ export default function Game2048() {
     <>
       <GameHelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} title="2048">
         <p style={{ marginBottom: '1rem' }}>
-          Slide tiles on a <strong style={{ color: '#f8fafc' }}>4×4 grid</strong> using arrow keys or swipe gestures. When two tiles with the same number collide, they <strong style={{ color: '#f8fafc' }}>merge into one</strong>.
+          Slide tiles on a <strong style={{ color: 'var(--ndl-text)' }}>4×4 grid</strong> using arrow keys or swipe gestures. When two tiles with the same number collide, they <strong style={{ color: 'var(--ndl-text)' }}>merge into one</strong>.
         </p>
-        <p style={{ fontWeight: 700, color: '#f8fafc', marginBottom: '0.5rem' }}>Goal</p>
+        <p style={{ fontWeight: 700, color: 'var(--ndl-text)', marginBottom: '0.5rem' }}>Goal</p>
         <p style={{ marginBottom: '1rem' }}>Create a tile with the value <strong style={{ color: '#4ade80' }}>2048</strong> to win. Keep playing after winning to beat your high score.</p>
-        <p style={{ fontWeight: 700, color: '#f8fafc', marginBottom: '0.5rem' }}>Controls</p>
+        <p style={{ fontWeight: 700, color: 'var(--ndl-text)', marginBottom: '0.5rem' }}>Controls</p>
         <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-          <li><strong style={{ color: '#f8fafc' }}>Arrow keys</strong> or <strong style={{ color: '#f8fafc' }}>W / A / S / D</strong> — move all tiles</li>
-          <li><strong style={{ color: '#f8fafc' }}>Swipe</strong> — on touch screens</li>
+          <li><strong style={{ color: 'var(--ndl-text)' }}>Arrow keys</strong> or <strong style={{ color: 'var(--ndl-text)' }}>W / A / S / D</strong> — move all tiles</li>
+          <li><strong style={{ color: 'var(--ndl-text)' }}>Swipe</strong> — on touch screens</li>
         </ul>
-        <p style={{ marginTop: '1rem', marginBottom: '0.5rem', fontWeight: 700, color: '#f8fafc' }}>Strategy Tips</p>
+        <p style={{ marginTop: '1rem', marginBottom: '0.5rem', fontWeight: 700, color: 'var(--ndl-text)' }}>Strategy Tips</p>
         <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
           <li>Keep your highest tile locked in a corner</li>
           <li>Build a descending chain of tiles along one edge</li>
@@ -237,25 +237,25 @@ export default function Game2048() {
       </GameHelpModal>
 
       {/* Page header */}
-      <div style={{ borderBottom: '1px solid rgba(255,255,255,0.07)', background: '#0b0f19' }}>
+      <div style={{ borderBottom: '1px solid var(--ndl-border)', background: 'var(--ndl-bg)' }}>
         <div className="max-w-lg mx-auto px-6 py-5">
           <div className="flex items-center justify-between">
             <div>
               <Link href="/games/" style={{ fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#4ade80', textDecoration: 'none' }}>
                 ← Games
               </Link>
-              <h1 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#f8fafc', marginTop: '0.25rem' }}>2048</h1>
+              <h1 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--ndl-text)', marginTop: '0.25rem' }}>2048</h1>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <button
                 type="button"
                 onClick={() => setShowHelp(true)}
                 style={{
-                  background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)',
+                  background: 'var(--ndl-surface-2)', border: '1px solid var(--ndl-border)',
                   padding: '0 0.875rem', height: '36px', cursor: 'pointer',
                   display: 'flex', alignItems: 'center', gap: '0.375rem',
                   fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.07em',
-                  textTransform: 'uppercase', color: '#94a3b8', whiteSpace: 'nowrap',
+                  textTransform: 'uppercase', color: 'var(--ndl-muted)', whiteSpace: 'nowrap',
                 }}
               >
                 <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -265,9 +265,9 @@ export default function Game2048() {
                 How to Play
               </button>
               {[{ label: 'Score', val: score }, { label: 'Best', val: best }].map(({ label, val }) => (
-                <div key={label} style={{ border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)', padding: '0.5rem 1rem', textAlign: 'center', minWidth: '76px' }}>
-                  <div style={{ fontSize: '0.5625rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#475569' }}>{label}</div>
-                  <div style={{ fontSize: '1.125rem', fontWeight: 800, color: '#f8fafc', lineHeight: 1.2 }}>{val.toLocaleString('en-US')}</div>
+                <div key={label} style={{ border: '1px solid var(--ndl-border)', background: 'var(--ndl-surface-2)', padding: '0.5rem 1rem', textAlign: 'center', minWidth: '76px' }}>
+                  <div style={{ fontSize: '0.5625rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ndl-faint)' }}>{label}</div>
+                  <div style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--ndl-text)', lineHeight: 1.2 }}>{val.toLocaleString('en-US')}</div>
                 </div>
               ))}
             </div>
@@ -276,14 +276,14 @@ export default function Game2048() {
       </div>
 
       {/* Game */}
-      <div style={{ background: '#0b0f19', minHeight: 'calc(100vh - 64px - 80px)' }}>
+      <div style={{ background: 'var(--ndl-bg)', minHeight: 'calc(100vh - 64px - 80px)' }}>
       <div className="max-w-lg mx-auto px-6 py-8">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <p style={{ fontSize: '0.875rem', color: '#64748b', fontWeight: 400 }}>Merge tiles to reach <strong style={{ color: '#4ade80', fontWeight: 700 }}>2048</strong></p>
+          <p style={{ fontSize: '0.875rem', color: 'var(--ndl-faint)', fontWeight: 400 }}>Merge tiles to reach <strong style={{ color: '#4ade80', fontWeight: 700 }}>2048</strong></p>
           <button
             onClick={startGame}
             type="button"
-            style={{ border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)', padding: '0.5rem 1rem', cursor: 'pointer', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: '#94a3b8' }}
+            style={{ border: '1px solid var(--ndl-border)', background: 'var(--ndl-surface-2)', padding: '0.5rem 1rem', cursor: 'pointer', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--ndl-muted)' }}
           >
             New Game
           </button>
@@ -328,14 +328,14 @@ export default function Game2048() {
 
           {/* Overlay */}
           {overlay && (
-            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10, background: 'rgba(7,9,15,0.88)' }}>
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10, background: 'color-mix(in srgb, var(--ndl-bg) 88%, transparent)' }}>
               <div style={{ padding: '2rem', textAlign: 'center', minWidth: '200px' }}>
                 <div style={{ fontSize: '1.5rem', fontWeight: 800, color: overlay.titleColor, marginBottom: '0.5rem' }}>{overlay.title}</div>
-                <div style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '1.5rem' }}>{overlay.sub}</div>
+                <div style={{ fontSize: '0.875rem', color: 'var(--ndl-faint)', marginBottom: '1.5rem' }}>{overlay.sub}</div>
                 <button
                   onClick={startGame}
                   type="button"
-                  style={{ background: '#f8fafc', color: '#0f172a', padding: '0.625rem 1.75rem', border: 'none', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase' }}
+                  style={{ background: 'var(--ndl-text)', color: 'var(--ndl-bg)', padding: '0.625rem 1.75rem', border: 'none', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase' }}
                 >
                   {started ? 'Play Again' : 'Start Game'}
                 </button>
@@ -346,12 +346,12 @@ export default function Game2048() {
 
         {/* Controls */}
         <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
-          <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#475569', marginBottom: '0.75rem' }}>Controls</p>
+          <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--ndl-faint)', marginBottom: '0.75rem' }}>Controls</p>
           <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
             {[['↑ W', 'Up'], ['↓ S', 'Down'], ['← A', 'Left'], ['→ D', 'Right'], ['Swipe', 'Touch']].map(([key, label]) => (
               <div key={key} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem' }}>
-                <span style={{ fontSize: '0.6875rem', fontWeight: 600, color: '#94a3b8', padding: '0.25rem 0.5rem', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)' }}>{key}</span>
-                <span style={{ fontSize: '0.6875rem', color: '#475569' }}>{label}</span>
+                <span style={{ fontSize: '0.6875rem', fontWeight: 600, color: 'var(--ndl-muted)', padding: '0.25rem 0.5rem', border: '1px solid var(--ndl-border)', background: 'var(--ndl-surface-2)' }}>{key}</span>
+                <span style={{ fontSize: '0.6875rem', color: 'var(--ndl-faint)' }}>{label}</span>
               </div>
             ))}
           </div>

@@ -1,14 +1,16 @@
-import type { Metadata } from 'next';
 import Link from 'next/link';
 import ScrollReveal from '@/components/ScrollReveal';
 import SiteStatsClient from '@/components/SiteStatsClient';
 import { FEATURED_ARTICLES } from '@/data/articles';
+import { pageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'NexusDigitalLabs — Software Studio',
-  description: 'Engineering minimalist web utilities, developer tools, and high-performance software built for speed, privacy, and utility.',
-  alternates: { canonical: 'https://nexusdigitallabs.dev/' },
-};
+  description:
+    'Engineering minimalist web utilities, developer tools, and high-performance software built for speed, privacy, and utility.',
+  path: '/',
+  absoluteTitle: true,
+});
 
 // ── Tool cards ────────────────────────────────────────────────────────────────
 const TOOLS = [

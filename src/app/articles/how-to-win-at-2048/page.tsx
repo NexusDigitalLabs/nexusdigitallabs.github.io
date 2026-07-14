@@ -1,18 +1,26 @@
-import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'How to Win at 2048 — Strategy Guide and Best Moves — NexusDigitalLabs',
-  description: 'The proven strategy for reaching 2048 and beyond — corner anchoring, directional priority, merge patterns, and how to recover from a bad board state.',
-  keywords: ['how to win 2048', '2048 strategy guide', '2048 tips and tricks', 'best 2048 strategy', '2048 corner strategy', 'how to get 2048 tile', 'play 2048 online'],
-  alternates: { canonical: 'https://nexusdigitallabs.dev/articles/how-to-win-at-2048/' },
-  openGraph: {
-    title: 'How to Win at 2048 — Strategy Guide and Best Moves',
-    description: 'The corner anchoring strategy, directional priority rules, and recovery techniques that consistently reach the 2048 tile.',
-    type: 'article',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
-  },
-};
+  description:
+    'The proven strategy for reaching 2048 and beyond — corner anchoring, directional priority, merge patterns, and how to recover from a bad board state.',
+  path: '/articles/how-to-win-at-2048/',
+  keywords: [
+    'how to win 2048',
+    '2048 strategy guide',
+    '2048 tips and tricks',
+    'best 2048 strategy',
+    '2048 corner strategy',
+    'how to get 2048 tile',
+    'play 2048 online',
+  ],
+  absoluteTitle: true,
+  type: 'article',
+  ogTitle: 'How to Win at 2048 — Strategy Guide and Best Moves',
+  ogDescription:
+    'The corner anchoring strategy, directional priority rules, and recovery techniques that consistently reach the 2048 tile.',
+});
 
 function H2({ children }: { children: React.ReactNode }) {
   return <h2 className="text-xl font-medium text-slate-100 tracking-tight mt-10 mb-3">{children}</h2>;

@@ -1,18 +1,25 @@
-import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'How to Budget on an Irregular Income — NexusDigitalLabs',
-  description: 'A practical budgeting system for freelancers, contractors, and anyone with variable monthly income — covering baseline expenses, income flooring, and debt management.',
-  keywords: ['budget irregular income', 'freelance budgeting', 'variable income budget', 'how to budget as freelancer', 'irregular income debt payoff', 'freelance personal finance'],
-  alternates: { canonical: 'https://nexusdigitallabs.dev/articles/how-to-budget-irregular-income/' },
-  openGraph: {
-    title: 'How to Budget on an Irregular Income',
-    description: 'A budgeting system built for variable income — covering expense floors, income smoothing, and debt payoff on unpredictable cash flow.',
-    type: 'article',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
-  },
-};
+  description:
+    'A practical budgeting system for freelancers, contractors, and anyone with variable monthly income — covering baseline expenses, income flooring, and debt management.',
+  path: '/articles/how-to-budget-irregular-income/',
+  keywords: [
+    'budget irregular income',
+    'freelance budgeting',
+    'variable income budget',
+    'how to budget as freelancer',
+    'irregular income debt payoff',
+    'freelance personal finance',
+  ],
+  absoluteTitle: true,
+  type: 'article',
+  ogTitle: 'How to Budget on an Irregular Income',
+  ogDescription:
+    'A budgeting system built for variable income — covering expense floors, income smoothing, and debt payoff on unpredictable cash flow.',
+});
 
 function H2({ children }: { children: React.ReactNode }) {
   return <h2 className="text-xl font-medium text-slate-100 tracking-tight mt-10 mb-3">{children}</h2>;

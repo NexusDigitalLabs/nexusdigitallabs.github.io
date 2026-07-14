@@ -1,18 +1,25 @@
-import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: '5 Invoice Mistakes Freelancers Make That Delay Payment — NexusDigitalLabs',
-  description: 'The most common freelance invoicing errors that slow down payment — and exactly how to fix each one to get paid faster and more reliably.',
-  keywords: ['freelance invoice mistakes', 'why invoices dont get paid', 'invoice late payment', 'freelance billing errors', 'invoice best practices', 'get paid faster freelance'],
-  alternates: { canonical: 'https://nexusdigitallabs.dev/articles/freelance-invoice-mistakes/' },
-  openGraph: {
-    title: '5 Invoice Mistakes Freelancers Make That Delay Payment',
-    description: 'Fix these common invoicing errors to get paid faster and reduce disputes with clients.',
-    type: 'article',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
-  },
-};
+  description:
+    'The most common freelance invoicing errors that slow down payment — and exactly how to fix each one to get paid faster and more reliably.',
+  path: '/articles/freelance-invoice-mistakes/',
+  keywords: [
+    'freelance invoice mistakes',
+    'why invoices dont get paid',
+    'invoice late payment',
+    'freelance billing errors',
+    'invoice best practices',
+    'get paid faster freelance',
+  ],
+  absoluteTitle: true,
+  type: 'article',
+  ogTitle: '5 Invoice Mistakes Freelancers Make That Delay Payment',
+  ogDescription:
+    'Fix these common invoicing errors to get paid faster and reduce disputes with clients.',
+});
 
 function H2({ children }: { children: React.ReactNode }) {
   return <h2 className="text-xl font-medium text-slate-100 tracking-tight mt-10 mb-3">{children}</h2>;

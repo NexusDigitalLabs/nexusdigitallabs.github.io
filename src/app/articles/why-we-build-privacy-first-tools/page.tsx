@@ -1,18 +1,25 @@
-import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'Why We Build Privacy-First Tools — NexusDigitalLabs',
-  description: 'The philosophy behind NexusDigitalLabs — why we chose client-side architecture, what privacy-first actually means in practice, and why we think the web deserves better tools.',
-  keywords: ['privacy first tools', 'client side web tools', 'no account tools', 'browser based utilities', 'nexusdigitallabs about', 'privacy web apps'],
-  alternates: { canonical: 'https://nexusdigitallabs.dev/articles/why-we-build-privacy-first-tools/' },
-  openGraph: {
-    title: 'Why We Build Privacy-First Tools',
-    description: 'The philosophy behind NexusDigitalLabs and what privacy-first actually means in practice.',
-    type: 'article',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
-  },
-};
+  description:
+    'The philosophy behind NexusDigitalLabs — why we chose client-side architecture, what privacy-first actually means in practice, and why we think the web deserves better tools.',
+  path: '/articles/why-we-build-privacy-first-tools/',
+  keywords: [
+    'privacy first tools',
+    'client side web tools',
+    'no account tools',
+    'browser based utilities',
+    'nexusdigitallabs about',
+    'privacy web apps',
+  ],
+  absoluteTitle: true,
+  type: 'article',
+  ogTitle: 'Why We Build Privacy-First Tools',
+  ogDescription:
+    'The philosophy behind NexusDigitalLabs and what privacy-first actually means in practice.',
+});
 
 function H2({ children }: { children: React.ReactNode }) {
   return <h2 className="text-xl font-medium text-slate-100 tracking-tight mt-10 mb-3">{children}</h2>;

@@ -1,23 +1,28 @@
-import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'Avalanche vs Snowball: Which Debt Payoff Method Saves More? — NexusDigitalLabs',
   description:
     'A clear comparison of the two most effective debt elimination strategies — with worked examples showing exactly how much each method saves in time and total interest paid.',
+  path: '/articles/avalanche-vs-snowball-debt-payoff/',
   keywords: [
-    'avalanche vs snowball debt payoff', 'debt avalanche method', 'debt snowball method',
-    'pay off debt faster', 'debt payoff strategy', 'which debt to pay first',
-    'debt elimination plan', 'personal finance debt', 'credit card payoff order',
+    'avalanche vs snowball debt payoff',
+    'debt avalanche method',
+    'debt snowball method',
+    'pay off debt faster',
+    'debt payoff strategy',
+    'which debt to pay first',
+    'debt elimination plan',
+    'personal finance debt',
+    'credit card payoff order',
   ],
-  alternates: { canonical: 'https://nexusdigitallabs.dev/articles/avalanche-vs-snowball-debt-payoff/' },
-  openGraph: {
-    title: 'Avalanche vs Snowball: Which Debt Payoff Method Saves More?',
-    description: 'A clear comparison of the two most effective debt elimination strategies with worked examples.',
-    type: 'article',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
-  },
-};
+  absoluteTitle: true,
+  type: 'article',
+  ogTitle: 'Avalanche vs Snowball: Which Debt Payoff Method Saves More?',
+  ogDescription:
+    'A clear comparison of the two most effective debt elimination strategies with worked examples.',
+});
 
 function H2({ children }: { children: React.ReactNode }) {
   return <h2 className="text-xl font-medium text-slate-100 tracking-tight mt-10 mb-3">{children}</h2>;

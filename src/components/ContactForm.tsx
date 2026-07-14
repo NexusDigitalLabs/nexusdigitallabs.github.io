@@ -11,11 +11,15 @@ export default function ContactForm() {
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState<{ type: StatusType; text: string } | null>(null);
 
-  const inputBase = 'w-full rounded-xl px-4 py-3 text-sm text-slate-200 outline-none transition-all duration-200 placeholder:text-slate-600';
-  const inputStyle = {
-    background: 'rgba(15,23,42,0.6)',
-    border: '1px solid rgba(51,65,85,0.7)',
+  const inputBase =
+    'w-full rounded-xl px-4 py-3 text-sm outline-none transition-all duration-200 placeholder:opacity-60';
+  const inputStyle: React.CSSProperties = {
+    background: 'var(--ndl-input-bg)',
+    border: '1px solid var(--ndl-input-border)',
+    color: 'var(--ndl-text)',
   };
+  const focusBorder = '1px solid var(--ndl-accent)';
+  const blurBorder = '1px solid var(--ndl-input-border)';
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -44,7 +48,7 @@ export default function ContactForm() {
     <form onSubmit={handleSubmit} className="space-y-5" noValidate>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div>
-          <label className="block text-xs font-medium text-slate-400 mb-1.5 tracking-wide" htmlFor="cf-name">Name</label>
+          <label className="block text-xs font-medium mb-1.5 tracking-wide" style={{ color: 'var(--ndl-muted)' }} htmlFor="cf-name">Name</label>
           <input
             id="cf-name"
             type="text"
@@ -54,12 +58,12 @@ export default function ContactForm() {
             autoComplete="name"
             className={inputBase}
             style={inputStyle}
-            onFocus={(e) => { e.currentTarget.style.border = '1px solid rgba(59,130,246,0.5)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.1)'; }}
-            onBlur={(e) => { e.currentTarget.style.border = '1px solid rgba(51,65,85,0.7)'; e.currentTarget.style.boxShadow = ''; }}
+            onFocus={(e) => { e.currentTarget.style.border = focusBorder; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.15)'; }}
+            onBlur={(e) => { e.currentTarget.style.border = blurBorder; e.currentTarget.style.boxShadow = ''; }}
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-400 mb-1.5 tracking-wide" htmlFor="cf-email">Email</label>
+          <label className="block text-xs font-medium mb-1.5 tracking-wide" style={{ color: 'var(--ndl-muted)' }} htmlFor="cf-email">Email</label>
           <input
             id="cf-email"
             type="email"
@@ -69,14 +73,14 @@ export default function ContactForm() {
             autoComplete="email"
             className={inputBase}
             style={inputStyle}
-            onFocus={(e) => { e.currentTarget.style.border = '1px solid rgba(59,130,246,0.5)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.1)'; }}
-            onBlur={(e) => { e.currentTarget.style.border = '1px solid rgba(51,65,85,0.7)'; e.currentTarget.style.boxShadow = ''; }}
+            onFocus={(e) => { e.currentTarget.style.border = focusBorder; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.15)'; }}
+            onBlur={(e) => { e.currentTarget.style.border = blurBorder; e.currentTarget.style.boxShadow = ''; }}
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-xs font-medium text-slate-400 mb-1.5 tracking-wide" htmlFor="cf-subject">Subject</label>
+        <label className="block text-xs font-medium mb-1.5 tracking-wide" style={{ color: 'var(--ndl-muted)' }} htmlFor="cf-subject">Subject</label>
         <input
           id="cf-subject"
           type="text"
@@ -85,13 +89,13 @@ export default function ContactForm() {
           placeholder="Feature idea, bug report, partnership…"
           className={inputBase}
           style={inputStyle}
-          onFocus={(e) => { e.currentTarget.style.border = '1px solid rgba(59,130,246,0.5)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.1)'; }}
-          onBlur={(e) => { e.currentTarget.style.border = '1px solid rgba(51,65,85,0.7)'; e.currentTarget.style.boxShadow = ''; }}
+          onFocus={(e) => { e.currentTarget.style.border = focusBorder; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.15)'; }}
+          onBlur={(e) => { e.currentTarget.style.border = blurBorder; e.currentTarget.style.boxShadow = ''; }}
         />
       </div>
 
       <div>
-        <label className="block text-xs font-medium text-slate-400 mb-1.5 tracking-wide" htmlFor="cf-message">Message</label>
+        <label className="block text-xs font-medium mb-1.5 tracking-wide" style={{ color: 'var(--ndl-muted)' }} htmlFor="cf-message">Message</label>
         <textarea
           id="cf-message"
           rows={5}
@@ -100,8 +104,8 @@ export default function ContactForm() {
           placeholder="Tell us what's on your mind…"
           className={`${inputBase} resize-y`}
           style={{ ...inputStyle, minHeight: '120px' }}
-          onFocus={(e) => { e.currentTarget.style.border = '1px solid rgba(59,130,246,0.5)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.1)'; }}
-          onBlur={(e) => { e.currentTarget.style.border = '1px solid rgba(51,65,85,0.7)'; e.currentTarget.style.boxShadow = ''; }}
+          onFocus={(e) => { e.currentTarget.style.border = focusBorder; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.15)'; }}
+          onBlur={(e) => { e.currentTarget.style.border = blurBorder; e.currentTarget.style.boxShadow = ''; }}
         />
       </div>
 
@@ -117,11 +121,14 @@ export default function ContactForm() {
       </button>
 
       {status && (
-        <div className={`text-sm rounded-xl px-4 py-3 border ${
-          status.type === 'success'
-            ? 'text-emerald-400 bg-emerald-950/40 border-emerald-900/50'
-            : 'text-red-400 bg-red-950/40 border-red-900/50'
-        }`}>
+        <div
+          className="text-sm rounded-xl px-4 py-3 border"
+          style={
+            status.type === 'success'
+              ? { color: '#059669', background: 'rgba(16,185,129,0.1)', borderColor: 'rgba(16,185,129,0.25)' }
+              : { color: '#dc2626', background: 'rgba(239,68,68,0.08)', borderColor: 'rgba(239,68,68,0.25)' }
+          }
+        >
           {status.text}
         </div>
       )}
