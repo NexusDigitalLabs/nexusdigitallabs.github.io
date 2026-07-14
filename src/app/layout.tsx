@@ -53,6 +53,12 @@ export const metadata: Metadata = {
     icon: '/favicon.png',
     apple: '/favicon.png',
   },
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Fuel Tracker',
+  },
 };
 
 // ── Root layout ────────────────────────────────────────────────────────────

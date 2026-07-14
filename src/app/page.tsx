@@ -107,10 +107,13 @@ export default function HomePage() {
 
           {/* LEFT: Text */}
           <div className="relative z-10">
-            <div className="ndl-anim-1 inline-flex items-center gap-2 text-xs font-medium text-blue-400 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-1.5 mb-7">
+            <Link
+              href="/contact/"
+              className="ndl-anim-1 inline-flex items-center gap-2 text-xs font-medium text-blue-400 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-1.5 mb-7 no-underline hover:bg-blue-500/20 hover:border-blue-500/40 transition-all duration-200"
+            >
               <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" />
               Software Studio — Open to new projects
-            </div>
+            </Link>
             <h1 className="ndl-anim-2 text-5xl sm:text-6xl lg:text-[3.8rem] xl:text-[4.2rem] font-light tracking-tight leading-[1.12] mb-6">
               Minimalist tools<br />
               built for the<br />

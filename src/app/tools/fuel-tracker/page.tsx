@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import FuelTrackerClient from '@/components/tools/FuelTrackerClient';
+import PWAInstallBanner from '@/components/PWAInstallBanner';
 
 export const metadata: Metadata = {
   title: 'Fuel Tracker — Track Mileage, Cost & Efficiency | Nexus Digital Labs',
@@ -36,6 +37,9 @@ export default function FuelTrackerPage() {
 
       {/* ── Interactive Tool ─────────────────────────────────────────── */}
       <FuelTrackerClient />
+
+      {/* ── PWA install prompt (mobile only, client-side) ─────────────── */}
+      <PWAInstallBanner />
 
       {/* ── SEO Content Block ─────────────────────────────────────────── */}
       <section style={{ background: '#090d15', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '4rem 1.5rem' }}>

@@ -1,0 +1,27 @@
+{
+  "name": "Fuel Tracker — NexusDigitalLabs",
+  "short_name": "Fuel Tracker",
+  "description": "Track fuel fill-ups, efficiency and costs across your vehicles. No account needed.",
+  "start_url": "/tools/fuel-tracker/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0b0f19",
+  "theme_color": "#f59e0b",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/og-image.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["utilities", "productivity"],
+  "lang": "en"
+}
