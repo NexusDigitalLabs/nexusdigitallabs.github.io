@@ -105,8 +105,13 @@ function LineChart({ points, color, yLabel }: {
 }) {
   if (points.length < 2) {
     return (
-      <div style={{ height: '180px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <p style={{ fontSize: '0.8125rem', color: '#475569' }}>Add at least 2 full fill-ups to see the chart</p>
+      <div style={{ height: '180px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.375rem' }}>
+        <p style={{ fontSize: '0.8125rem', color: '#475569', textAlign: 'center' }}>Not enough data yet</p>
+        <p style={{ fontSize: '0.6875rem', color: '#334155', textAlign: 'center' }}>
+          {yLabel === 'L/100km'
+            ? 'Log a 3rd fill-up to unlock the efficiency chart'
+            : 'Log your first fill-up to see spending over time'}
+        </p>
       </div>
     );
   }
@@ -690,8 +695,58 @@ export default function FuelTrackerClient() {
   // ─────────────────────────────────────────────────────────────────────────
   if (step === 'loading') {
     return (
-      <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <p style={{ color: '#475569', fontSize: '0.875rem' }}>Loading your garage…</p>
+      <div style={{ background: '#0b0f19', minHeight: '100vh' }}>
+        {/* Top bar skeleton */}
+        <div style={{ borderBottom: '1px solid rgba(255,255,255,0.07)', padding: '1rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+            <div className="ndl-skeleton" style={{ width: '100px', height: '10px' }} />
+            <div className="ndl-skeleton" style={{ width: '140px', height: '20px' }} />
+          </div>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <div className="ndl-skeleton" style={{ width: '60px', height: '32px' }} />
+            <div className="ndl-skeleton" style={{ width: '90px', height: '32px' }} />
+          </div>
+        </div>
+        <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '1.5rem' }}>
+          {/* Vehicle tabs skeleton */}
+          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
+            <div className="ndl-skeleton" style={{ width: '140px', height: '36px', borderRadius: '6px' }} />
+            <div className="ndl-skeleton" style={{ width: '110px', height: '36px', borderRadius: '6px' }} />
+          </div>
+          {/* Subtitle skeleton */}
+          <div className="ndl-skeleton" style={{ width: '220px', height: '12px', marginBottom: '1.5rem' }} />
+          {/* Stats grid skeleton */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1px', background: 'rgba(255,255,255,0.06)', marginBottom: '1.5rem' }}>
+            {[...Array(4)].map((_, i) => (
+              <div key={i} style={{ background: '#0d1117', padding: '1.25rem' }}>
+                <div className="ndl-skeleton" style={{ width: '70px', height: '10px', marginBottom: '0.5rem' }} />
+                <div className="ndl-skeleton" style={{ width: '90px', height: '28px' }} />
+              </div>
+            ))}
+          </div>
+          {/* Chart skeleton */}
+          <div style={{ background: '#0d1117', border: '1px solid rgba(255,255,255,0.07)', padding: '1rem', marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <div className="ndl-skeleton" style={{ width: '80px', height: '12px' }} />
+              <div style={{ display: 'flex', gap: '1px' }}>
+                <div className="ndl-skeleton" style={{ width: '70px', height: '24px' }} />
+                <div className="ndl-skeleton" style={{ width: '80px', height: '24px' }} />
+              </div>
+            </div>
+            <div className="ndl-skeleton" style={{ width: '100%', height: '180px', borderRadius: '4px' }} />
+          </div>
+          {/* Fills table skeleton */}
+          {[...Array(3)].map((_, i) => (
+            <div key={i} style={{ background: '#0d1117', border: '1px solid rgba(255,255,255,0.07)', padding: '1rem', marginBottom: '1px', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+                <div className="ndl-skeleton" style={{ width: '80px', height: '10px' }} />
+                <div className="ndl-skeleton" style={{ width: '140px', height: '14px' }} />
+              </div>
+              <div className="ndl-skeleton" style={{ width: '60px', height: '14px' }} />
+              <div className="ndl-skeleton" style={{ width: '60px', height: '14px' }} />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -997,6 +1052,26 @@ export default function FuelTrackerClient() {
           ))}
         </div>
 
+        {/* ── Data loading skeleton ─────────────────────────────────────── */}
+        {dataLoading && fills.length === 0 && (
+          <>
+            <div style={{ background: '#0d1117', border: '1px solid rgba(255,255,255,0.07)', padding: '1.25rem', marginBottom: '1px' }}>
+              <div className="ndl-skeleton" style={{ width: '60px', height: '10px', marginBottom: '1rem' }} />
+              <div className="ndl-skeleton" style={{ width: '100%', height: '180px', borderRadius: '4px' }} />
+            </div>
+            {[...Array(3)].map((_, i) => (
+              <div key={i} style={{ background: '#0d1117', border: '1px solid rgba(255,255,255,0.07)', padding: '1rem', marginBottom: '1px', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+                  <div className="ndl-skeleton" style={{ width: '80px', height: '10px' }} />
+                  <div className="ndl-skeleton" style={{ width: '150px', height: '14px' }} />
+                </div>
+                <div className="ndl-skeleton" style={{ width: '55px', height: '14px' }} />
+                <div className="ndl-skeleton" style={{ width: '55px', height: '14px' }} />
+              </div>
+            ))}
+          </>
+        )}
+
         {/* ── Chart section ─────────────────────────────────────────────── */}
         {fills.length > 0 && (
           <div style={{ ...S.card, marginBottom: '1px', padding: '1.25rem' }}>
@@ -1016,9 +1091,12 @@ export default function FuelTrackerClient() {
                 ))}
               </div>
             </div>
-            {activeChart === 'efficiency'
-              ? <LineChart points={efficiencyPoints} color="#f59e0b" yLabel="L/100km" />
-              : <LineChart points={spendPoints} color="#4ade80" yLabel={currency.code} />
+            {/* Auto-fall back to spend chart when efficiency has insufficient data */}
+            {(activeChart === 'efficiency' && efficiencyPoints.length < 2)
+              ? <LineChart points={spendPoints} color="#4ade80" yLabel={currency.code} />
+              : activeChart === 'efficiency'
+                ? <LineChart points={efficiencyPoints} color="#f59e0b" yLabel="L/100km" />
+                : <LineChart points={spendPoints} color="#4ade80" yLabel={currency.code} />
             }
           </div>
         )}

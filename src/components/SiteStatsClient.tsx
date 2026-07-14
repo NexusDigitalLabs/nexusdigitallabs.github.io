@@ -56,7 +56,7 @@ function AnimatedStat({
     <div>
       <p className="text-xl font-bold text-white tabular-nums">
         {isLoading ? (
-          <span className="inline-block w-14 h-5 rounded bg-slate-800 animate-pulse align-middle" />
+          <span className="ndl-skeleton inline-block w-14 h-5 rounded align-middle" />
         ) : (
           `${prefix}${count.toLocaleString()}${suffix}`
         )}

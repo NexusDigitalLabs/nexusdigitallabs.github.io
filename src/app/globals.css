@@ -131,6 +131,18 @@ body {
   pointer-events: auto;
 }
 
+/* ── Skeleton shimmer ─────────────────────────────────────────────────────── */
+.ndl-skeleton {
+  background: linear-gradient(90deg, #1a2234 25%, #243050 50%, #1a2234 75%);
+  background-size: 200% 100%;
+  animation: ndlSkeletonShimmer 1.5s ease-in-out infinite;
+  border-radius: 4px;
+}
+@keyframes ndlSkeletonShimmer {
+  0%   { background-position:  200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 /* ── Tool / article card hover ────────────────────────────────────────────── */
 .ndl-card {
   transition: border-color 0.25s ease, background-color 0.25s ease, transform 0.2s ease;
