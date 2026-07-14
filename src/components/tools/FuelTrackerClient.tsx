@@ -233,6 +233,10 @@ function SelectField({ label, children, ...props }: { label: string } & React.Se
 // ── Sync code display card ────────────────────────────────────────────────────
 function SyncCodeCard({ userCode }: { userCode: string | null }) {
   const [copied, setCopied] = useState(false);
+  // Start collapsed on mobile (< 680px), expanded on desktop
+  const [expanded, setExpanded] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth >= 680 : true
+  );
 
   function copy() {
     if (!userCode) return;
@@ -246,77 +250,105 @@ function SyncCodeCard({ userCode }: { userCode: string | null }) {
     <div style={{
       background: 'linear-gradient(135deg, rgba(245,158,11,0.06) 0%, rgba(245,158,11,0.02) 100%)',
       border: '1px solid rgba(245,158,11,0.25)',
-      padding: '2rem',
+      overflow: 'hidden',
     }}>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
-        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#f59e0b', animation: 'pulse 2s infinite' }} />
-        <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#f59e0b', margin: 0 }}>
-          Your Sync Code
-        </p>
-      </div>
-
-      {/* Big code */}
-      <div style={{ marginBottom: '1.5rem' }}>
-        <code style={{
-          display: 'block',
-          fontSize: 'clamp(1.4rem, 4vw, 2.25rem)',
-          fontWeight: 800,
-          color: '#f8fafc',
-          letterSpacing: '0.06em',
-          wordBreak: 'break-all',
-          lineHeight: 1.2,
-        }}>
-          {userCode ?? '—'}
-        </code>
-      </div>
-
-      {/* Copy button */}
-      <button type="button" onClick={copy} style={{
-        display: 'flex', alignItems: 'center', gap: '0.5rem',
-        background: copied ? 'rgba(74,222,128,0.12)' : 'rgba(245,158,11,0.12)',
-        border: `1px solid ${copied ? 'rgba(74,222,128,0.35)' : 'rgba(245,158,11,0.35)'}`,
-        color: copied ? '#4ade80' : '#f59e0b',
-        padding: '0.625rem 1rem', cursor: 'pointer', width: '100%',
-        justifyContent: 'center', borderRadius: 0,
-        fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
-        transition: 'all 0.2s',
-      }}>
-        {copied ? (
-          <>
-            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-            </svg>
-            Copied!
-          </>
-        ) : (
-          <>
-            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3" />
-            </svg>
-            Copy Code
-          </>
-        )}
+      {/* ── Toggle header — always visible ─────────────────────────── */}
+      <button
+        type="button"
+        onClick={() => setExpanded(e => !e)}
+        style={{
+          width: '100%', display: 'flex', alignItems: 'center',
+          justifyContent: 'space-between', padding: '1rem 1.25rem',
+          background: 'none', border: 'none', cursor: 'pointer',
+          gap: '0.75rem',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+          <div style={{ width: '8px', height: '8px', flexShrink: 0, borderRadius: '50%', background: '#f59e0b' }} />
+          <span style={{ fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#f59e0b' }}>
+            Your Sync Code
+          </span>
+          {/* Show truncated code in header when collapsed */}
+          {!expanded && userCode && (
+            <code style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8', letterSpacing: '0.04em' }}>
+              {userCode.length > 14 ? `${userCode.slice(0, 14)}…` : userCode}
+            </code>
+          )}
+        </div>
+        {/* Chevron */}
+        <svg
+          width="14" height="14" fill="none" stroke="#64748b" viewBox="0 0 24 24"
+          style={{ flexShrink: 0, transition: 'transform 0.2s', transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
       </button>
 
-      {/* Instructions */}
-      <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(245,158,11,0.12)' }}>
-        <p style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8', marginBottom: '0.75rem', letterSpacing: '0.05em' }}>
-          How cross-device sync works
-        </p>
-        {[
-          'Save this code somewhere safe — Notes app, password manager, or screenshot it.',
-          'On any other device, open Fuel Tracker and choose "I Have a Code".',
-          'Enter this code to instantly load all your vehicles and fill history.',
-        ].map((tip, i) => (
-          <div key={i} style={{ display: 'flex', gap: '0.75rem', marginBottom: '0.625rem', alignItems: 'flex-start' }}>
-            <span style={{ fontSize: '0.6rem', fontWeight: 700, color: '#f59e0b', minWidth: '16px', marginTop: '0.1rem' }}>
-              {i + 1}.
-            </span>
-            <p style={{ fontSize: '0.75rem', color: '#64748b', margin: 0, lineHeight: 1.6 }}>{tip}</p>
+      {/* ── Expandable body ─────────────────────────────────────────── */}
+      {expanded && (
+        <div style={{ padding: '0 1.25rem 1.5rem' }}>
+          {/* Big code */}
+          <code style={{
+            display: 'block',
+            fontSize: 'clamp(1.25rem, 5vw, 2rem)',
+            fontWeight: 800,
+            color: '#f8fafc',
+            letterSpacing: '0.06em',
+            wordBreak: 'break-all',
+            lineHeight: 1.25,
+            marginBottom: '1.25rem',
+          }}>
+            {userCode ?? '—'}
+          </code>
+
+          {/* Copy button */}
+          <button type="button" onClick={copy} style={{
+            display: 'flex', alignItems: 'center', gap: '0.5rem',
+            background: copied ? 'rgba(74,222,128,0.12)' : 'rgba(245,158,11,0.12)',
+            border: `1px solid ${copied ? 'rgba(74,222,128,0.35)' : 'rgba(245,158,11,0.35)'}`,
+            color: copied ? '#4ade80' : '#f59e0b',
+            padding: '0.625rem 1rem', cursor: 'pointer', width: '100%',
+            justifyContent: 'center', borderRadius: 0,
+            fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em',
+            textTransform: 'uppercase', transition: 'all 0.2s',
+          }}>
+            {copied ? (
+              <>
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                </svg>
+                Copied!
+              </>
+            ) : (
+              <>
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3" />
+                </svg>
+                Copy Code
+              </>
+            )}
+          </button>
+
+          {/* How it works */}
+          <div style={{ marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px solid rgba(245,158,11,0.12)' }}>
+            <p style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#64748b', marginBottom: '0.75rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+              How to use on another device
+            </p>
+            {[
+              'Save this code in your Notes app, or take a screenshot.',
+              'Open Fuel Tracker on your other device.',
+              'Choose "I Have a Code" and enter it to load your data.',
+            ].map((tip, i) => (
+              <div key={i} style={{ display: 'flex', gap: '0.625rem', marginBottom: '0.5rem', alignItems: 'flex-start' }}>
+                <span style={{ fontSize: '0.6rem', fontWeight: 700, color: '#f59e0b', minWidth: '14px', marginTop: '0.15rem' }}>
+                  {i + 1}.
+                </span>
+                <p style={{ fontSize: '0.75rem', color: '#64748b', margin: 0, lineHeight: 1.6 }}>{tip}</p>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
