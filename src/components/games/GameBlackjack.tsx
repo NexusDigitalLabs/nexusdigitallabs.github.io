@@ -1,8 +1,15 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
-import Link from 'next/link';
 import { useGameState } from '@/hooks/useGameState';
+import {
+  GameChipButton,
+  GameHeader,
+  GamePageBody,
+  GamePanel,
+  GamePrimaryButton,
+  GameSecondaryButton,
+} from './game-ui';
 import UsernameGate from './UsernameGate';
 import GameHelpModal from './GameHelpModal';
 
@@ -48,16 +55,23 @@ function isBlackjack(hand: Card[]): boolean {
 // ── Card visual components ─────────────────────────────────────────────────────
 function CardBack() {
   return (
-    <div style={{
-      width: '68px', height: '100px', border: '1px solid #e2e8f0',
-      background: '#0f172a', flexShrink: 0, boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
-      position: 'relative', overflow: 'hidden',
-    }}>
-      <div style={{
-        position: 'absolute', inset: '5px',
+    <div
+      className="rounded-xl shrink-0 relative overflow-hidden"
+      style={{
+        width: '68px',
+        height: '100px',
         border: '1px solid var(--ndl-border)',
-        background: 'repeating-linear-gradient(45deg,rgba(255,255,255,0.03) 0px,rgba(255,255,255,0.03) 2px,transparent 2px,transparent 8px)',
-      }} />
+        background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+      }}
+    >
+      <div
+        className="absolute inset-1.5 rounded-lg"
+        style={{
+          border: '1px solid rgba(255,255,255,0.12)',
+          background: 'repeating-linear-gradient(45deg,rgba(255,255,255,0.04) 0px,rgba(255,255,255,0.04) 2px,transparent 2px,transparent 8px)',
+        }}
+      />
     </div>
   );
 }
@@ -66,13 +80,17 @@ function CardFace({ card }: { card: Card }) {
   const isRed = RED_SUITS.has(card.suit);
   const color = isRed ? '#ef4444' : '#0f172a';
   return (
-    <div style={{
-      width: '68px', height: '100px', border: '1px solid #e2e8f0', background: '#fff',
-      borderRadius: 0, display: 'flex', flexDirection: 'column',
-      justifyContent: 'space-between', padding: '6px', flexShrink: 0,
-      boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
-      animation: 'cardDeal 0.18s ease-out',
-    }}>
+    <div
+      className="rounded-xl flex flex-col justify-between p-1.5 shrink-0"
+      style={{
+        width: '68px',
+        height: '100px',
+        border: '1px solid var(--ndl-border)',
+        background: '#fff',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+        animation: 'cardDeal 0.18s ease-out',
+      }}
+    >
       <div>
         <span style={{ fontSize: '1rem', fontWeight: 800, lineHeight: 1, color }}>{card.face}</span>
         <span style={{ fontSize: '0.75rem', color }}>{card.suit}</span>
@@ -277,8 +295,6 @@ export default function GameBlackjack() {
   if (!loaded) return null;
   if (!username) return <UsernameGate onSubmit={setUsername} />;
 
-  const slbl = 'text-[0.6875rem] font-bold tracking-[0.1em] uppercase text-slate-400';
-
   const playerScore = player.length ? calcHand(player) : null;
   const dealerScore = dealer.length ? calcHand(dealer) : null;
 
@@ -326,162 +342,118 @@ export default function GameBlackjack() {
         </ul>
       </GameHelpModal>
 
-      <div style={{ borderBottom: '1px solid var(--ndl-border)', background: 'var(--ndl-bg)' }}>
-        <div className="max-w-lg mx-auto px-6 py-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <Link href="/games/" style={{ fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#4ade80', textDecoration: 'none' }}>
-                ← Games
-              </Link>
-              <h1 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--ndl-text)', marginTop: '0.25rem' }}>Blackjack</h1>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <button
-                type="button"
-                onClick={() => setShowHelp(true)}
-                style={{
-                  background: 'var(--ndl-surface-2)', border: '1px solid var(--ndl-border)',
-                  padding: '0 0.875rem', height: '36px', cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', gap: '0.375rem',
-                  fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.07em',
-                  textTransform: 'uppercase', color: 'var(--ndl-muted)', whiteSpace: 'nowrap',
-                }}
-              >
-                <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <circle cx="12" cy="12" r="10" strokeWidth="2"/>
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 16v-4m0-4h.01"/>
-                </svg>
-                How to Play
-              </button>
-              {[{ label: 'Chips', val: chips.toLocaleString('en-US') }, { label: 'Best', val: best.toString() }].map(({ label, val }) => (
-                <div key={label} style={{ border: '1px solid var(--ndl-border)', background: 'var(--ndl-surface-2)', padding: '0.5rem 1rem', textAlign: 'center', minWidth: '76px' }}>
-                  <div style={{ fontSize: '0.5625rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ndl-faint)' }}>{label}</div>
-                  <div style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--ndl-text)', lineHeight: 1.2 }}>{val}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
+      <GameHeader
+        title="Blackjack"
+        onHelp={() => setShowHelp(true)}
+        stats={[
+          { label: 'Chips', value: chips.toLocaleString('en-US') },
+          { label: 'Best', value: best.toLocaleString('en-US') },
+        ]}
+      />
 
-      <div style={{ background: 'var(--ndl-bg)', minHeight: 'calc(100vh - 64px - 80px)' }}>
-      <div className="max-w-lg mx-auto px-6 py-8 space-y-4">
+      <GamePageBody>
+      <div className="space-y-4">
 
-        {/* Dealer hand */}
-        <div style={{ background: 'var(--ndl-surface)', border: '1px solid var(--ndl-border)', padding: '1.25rem' }}>
-          <div className="flex items-center justify-between mb-3">
-            <span style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--ndl-faint)' }}>Dealer</span>
-            <span style={{ fontSize: '1.5rem', fontWeight: 800, color: dealerRevealed && dealerScore !== null ? (dealerScore > 21 ? '#ef4444' : dealerScore === 21 ? '#4ade80' : 'var(--ndl-text)') : 'var(--ndl-text)' }}>
+        <GamePanel
+          title="Dealer"
+          trailing={
+            <span
+              className="text-2xl font-extrabold tabular-nums"
+              style={{
+                color: dealerRevealed && dealerScore !== null
+                  ? (dealerScore > 21 ? '#ef4444' : dealerScore === 21 ? '#4ade80' : 'var(--ndl-text)')
+                  : 'var(--ndl-text)',
+              }}
+            >
               {dealerRevealed && dealerScore !== null ? dealerScore : dealer.length ? '?' : '—'}
             </span>
-          </div>
+          }
+        >
           <div className="flex gap-2 flex-wrap min-h-[104px] items-end">
             {dealer.map((c, i) =>
               i === 0 && !dealerRevealed ? <CardBack key={i} /> : <CardFace key={i} card={c} />
             )}
           </div>
-        </div>
+        </GamePanel>
 
-        {/* Result banner */}
         {result && (
-          <div style={{
-            border: `1px solid ${resultMeta[result.outcome].cls === 'win' ? 'rgba(74,222,128,0.35)' : resultMeta[result.outcome].cls === 'lose' ? 'rgba(239,68,68,0.35)' : 'var(--ndl-border)'}`,
-            background: resultMeta[result.outcome].cls === 'win' ? 'rgba(74,222,128,0.08)' : resultMeta[result.outcome].cls === 'lose' ? 'rgba(239,68,68,0.08)' : 'var(--ndl-surface-2)',
-            padding: '1rem 1.5rem', textAlign: 'center',
-          }}>
-            <div style={{ fontSize: '1.25rem', fontWeight: 800, color: resultMeta[result.outcome].cls === 'win' ? '#4ade80' : resultMeta[result.outcome].cls === 'lose' ? '#ef4444' : 'var(--ndl-text)' }}>{resultMeta[result.outcome].title}</div>
-            <div style={{ fontSize: '0.8125rem', color: 'var(--ndl-faint)', marginTop: '0.25rem' }}>
+          <div
+            className="rounded-2xl px-5 py-4 text-center"
+            style={{
+              border: `1px solid ${resultMeta[result.outcome].cls === 'win' ? 'rgba(74,222,128,0.35)' : resultMeta[result.outcome].cls === 'lose' ? 'rgba(239,68,68,0.35)' : 'var(--ndl-border)'}`,
+              background: resultMeta[result.outcome].cls === 'win' ? 'rgba(74,222,128,0.08)' : resultMeta[result.outcome].cls === 'lose' ? 'rgba(239,68,68,0.08)' : 'var(--ndl-surface-2)',
+            }}
+          >
+            <div
+              className="text-xl font-extrabold"
+              style={{ color: resultMeta[result.outcome].cls === 'win' ? '#4ade80' : resultMeta[result.outcome].cls === 'lose' ? '#ef4444' : 'var(--ndl-text)' }}
+            >
+              {resultMeta[result.outcome].title}
+            </div>
+            <div className="text-sm mt-1" style={{ color: 'var(--ndl-faint)' }}>
               Your hand: {playerScore} · Dealer: {dealerScore} · Chips: {chips.toLocaleString('en-US')}
             </div>
           </div>
         )}
 
-        {/* Player hand */}
-        <div style={{ background: 'var(--ndl-surface)', border: '1px solid var(--ndl-border)', padding: '1.25rem' }}>
-          <div className="flex items-center justify-between mb-3">
-            <span style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--ndl-faint)' }}>You</span>
-            <span style={{ fontSize: '1.5rem', fontWeight: 800, color: playerScore !== null ? (playerScore > 21 ? '#ef4444' : playerScore === 21 ? '#4ade80' : 'var(--ndl-text)') : 'var(--ndl-text)' }}>
+        <GamePanel
+          title="You"
+          trailing={
+            <span
+              className="text-2xl font-extrabold tabular-nums"
+              style={{
+                color: playerScore !== null
+                  ? (playerScore > 21 ? '#ef4444' : playerScore === 21 ? '#4ade80' : 'var(--ndl-text)')
+                  : 'var(--ndl-text)',
+              }}
+            >
               {playerScore ?? '—'}
             </span>
-          </div>
+          }
+        >
           <div className="flex gap-2 flex-wrap min-h-[104px] items-end">
             {player.map((c, i) => <CardFace key={i} card={c} />)}
           </div>
-        </div>
+        </GamePanel>
 
-        {/* Bet controls (idle phase) */}
         {phase === 'idle' && (
-          <div style={{ border: '1px solid var(--ndl-border)', background: 'var(--ndl-surface)', padding: '1.25rem' }}>
-            <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--ndl-faint)', marginBottom: '0.75rem' }}>Place Your Bet</p>
-            <div className="flex gap-2 mb-4 flex-wrap">
+          <GamePanel title="Place your bet">
+            <div className="flex gap-2 mb-4 flex-wrap items-center">
               {[5, 10, 25, 50, 100].map((v) => (
-                <button
-                  key={v}
-                  type="button"
-                  onClick={() => addBet(v)}
-                  style={{ width: '44px', height: '44px', borderRadius: '50%', border: '2px dashed var(--ndl-border)', background: 'transparent', color: 'var(--ndl-muted)', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}
-                >
-                  {v}
-                </button>
+                <GameChipButton key={v} value={v} onClick={() => addBet(v)} />
               ))}
-              <button
-                type="button"
-                onClick={clearBet}
-                style={{ border: '1px solid var(--ndl-border)', background: 'transparent', padding: '0 0.75rem', height: '44px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--ndl-faint)' }}
-              >
-                Clear
-              </button>
+              <GameSecondaryButton onClick={clearBet}>Clear</GameSecondaryButton>
             </div>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between gap-4">
               <div>
-                <p style={{ fontSize: '0.75rem', color: 'var(--ndl-faint)', fontWeight: 400, marginBottom: '0.125rem' }}>Current bet</p>
-                <p style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--ndl-text)' }}>{bet}</p>
+                <p className="text-xs mb-0.5" style={{ color: 'var(--ndl-faint)' }}>Current bet</p>
+                <p className="text-2xl font-extrabold tabular-nums m-0" style={{ color: 'var(--ndl-text)' }}>{bet}</p>
               </div>
-              <button
-                type="button"
-                onClick={deal}
-                disabled={bet === 0}
-                style={{ background: 'var(--ndl-text)', color: 'var(--ndl-bg)', padding: '0.75rem 2.5rem', border: 'none', cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', opacity: bet === 0 ? 0.35 : 1 }}
-              >
+              <GamePrimaryButton onClick={deal} disabled={bet === 0}>
                 Deal
-              </button>
+              </GamePrimaryButton>
             </div>
-          </div>
+          </GamePanel>
         )}
 
-        {/* Action buttons (player phase) */}
         {phase === 'player' && (
           <div className="flex gap-2">
-            <button type="button" onClick={hit}
-              style={{ flex: 1, padding: '0.75rem', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', background: 'var(--ndl-text)', color: 'var(--ndl-bg)', border: 'none', cursor: 'pointer' }}>
-              Hit
-            </button>
-            <button type="button" onClick={stand}
-              style={{ flex: 1, padding: '0.75rem', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', background: 'transparent', color: 'var(--ndl-muted)', border: '1px solid var(--ndl-border)', cursor: 'pointer' }}>
-              Stand
-            </button>
-            <button type="button" onClick={doubleDown} disabled={bet > chips}
-              style={{ flex: 1, padding: '0.75rem', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', background: 'transparent', color: 'var(--ndl-muted)', border: '1px solid var(--ndl-border)', cursor: 'pointer', opacity: bet > chips ? 0.35 : 1 }}>
-              Double
-            </button>
+            <div className="flex-1">
+              <GamePrimaryButton onClick={hit} fullWidth>Hit</GamePrimaryButton>
+            </div>
+            <GameSecondaryButton onClick={stand}>Stand</GameSecondaryButton>
+            <GameSecondaryButton onClick={doubleDown} disabled={bet > chips}>Double</GameSecondaryButton>
           </div>
         )}
 
-        {/* Next hand button (result phase) */}
         {phase === 'result' && (
           <div className="text-center">
-            <button
-              type="button"
-              onClick={resetRound}
-              style={{ background: 'var(--ndl-text)', color: 'var(--ndl-bg)', padding: '0.75rem 2.5rem', border: 'none', cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}
-            >
-              Next Hand
-            </button>
+            <GamePrimaryButton onClick={resetRound}>Next Hand</GamePrimaryButton>
           </div>
         )}
 
       </div>
-      </div>
+      </GamePageBody>
     </>
   );
 }

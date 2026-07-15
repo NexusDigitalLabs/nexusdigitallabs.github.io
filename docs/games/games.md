@@ -94,13 +94,15 @@ Displayed as a centered modal overlay when `username` is `null`. Input is option
 
 **File:** `src/components/games/GameSnake.tsx`
 
-- Canvas size: 280×280px (14×14 grid, 20px cells).
-- Game loop uses `requestAnimationFrame`. Each frame's elapsed time is compared against a tick interval (150ms) to advance state without fixed `setInterval`.
-- **All mutable game state** (snake segments, direction, food position, score, alive flag) is stored in `useRef` to avoid stale closures inside the `rAF` callback.
+- Canvas size: scales to fit viewport (20px cells).
+- Game loop uses `requestAnimationFrame`. Tick interval is driven by **level** (see `src/lib/snake-levels.ts`).
+- **Levels:** Level 1 at start; every **5 points** advances a level and increases snake speed.
+- **All mutable game state** (snake segments, direction, food position, score, level, alive flag) is stored in `useRef` to avoid stale closures inside the `rAF` callback.
 - Food is placed randomly in a cell not occupied by the snake.
-- Collision detection: wall bounds + self-intersection.
-- Controls: keyboard arrow / WASD keys, and an on-screen D-pad (visible on touch devices via CSS `@media (pointer: coarse)`).
+- Walls wrap (exit right → enter left, and so on). Collision detection is self-intersection only.
+- Controls: keyboard arrow / WASD keys, on-screen D-pad (touch), and canvas swipe.
 - High score persisted via `useGameState`.
+- Shared game chrome: `src/components/games/game-ui.tsx`.
 
 **Accent:** Emerald snake body and food. Red for game over overlay.
 
@@ -125,17 +127,19 @@ Displayed as a centered modal overlay when `username` is `null`. Input is option
 
 ## Design System
 
-Consistent with the project's minimalist Swedish aesthetic:
+Shared UI primitives live in `src/components/games/game-ui.tsx` (header, stat chips, board frame, primary/secondary buttons, panels).
+
+Consistent with the project's minimalist aesthetic:
 
 | Token | Value |
 |---|---|
-| Page background | `#F9FAFB` |
-| Card / panel background | `#FFFFFF` |
-| Primary text | `slate-900` |
-| Sharp edges | `border-radius: 0` on all game elements |
+| Page background | `var(--ndl-bg)` |
+| Card / panel background | `var(--ndl-surface)` |
+| Primary text | `var(--ndl-text)` |
+| Rounded panels | `border-radius: 1rem` on game boards and cards |
 | Win / high score accent | Emerald `#4ADE80` |
 | Game over / bust accent | `#ef4444` red |
-| Button focus | Crisp `1px solid #000` border |
+| Primary CTA | Blue gradient (`#2563eb` → `#4f46e5`) |
 
 ---
 
