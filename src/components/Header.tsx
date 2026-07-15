@@ -26,8 +26,13 @@ const NAV_LINKS = [
 // ── Page-context badges ───────────────────────────────────────────────────────
 const BADGES: Record<string, Badge> = {
   '/tools/prompt-architect/':  { label: 'Prompt Architect',  color: 'violet'  },
+  '/tools/json-engine/':       { label: 'JSON Engine',       color: 'blue'    },
+  '/tools/svg-studio/':        { label: 'SVG Studio',        color: 'emerald' },
+  '/tools/env-formatter/':     { label: 'Env Formatter',     color: 'slate'   },
+  '/tools/prompt-packager/':   { label: 'Prompt Packager',   color: 'violet'  },
   '/tools/invoice-generator/': { label: 'Invoice Generator', color: 'emerald' },
   '/tools/debt-optimizer/':    { label: 'Debt Optimizer',    color: 'sky'     },
+  '/tools/fuel-tracker/':      { label: 'Fuel Tracker',      color: 'amber'   },
   '/games/2048/':              { label: '2048',              color: 'amber'   },
   '/games/snake/':             { label: 'Snake',             color: 'amber'   },
   '/games/blackjack/':         { label: 'Blackjack',         color: 'amber'   },

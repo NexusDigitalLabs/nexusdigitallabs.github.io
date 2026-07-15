@@ -10,6 +10,10 @@ const COMPANY_LINKS = [
 
 const TOOL_LINKS = [
   { href: '/tools/prompt-architect/',  label: 'Prompt Architect'  },
+  { href: '/tools/json-engine/',       label: 'JSON Engine'       },
+  { href: '/tools/svg-studio/',        label: 'SVG Studio'        },
+  { href: '/tools/env-formatter/',     label: 'Env Formatter'     },
+  { href: '/tools/prompt-packager/',   label: 'Prompt Packager'   },
   { href: '/tools/invoice-generator/', label: 'Invoice Generator' },
   { href: '/tools/debt-optimizer/',    label: 'Debt Optimizer'    },
   { href: '/tools/fuel-tracker/',      label: 'Fuel Tracker'      },

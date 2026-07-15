@@ -22,6 +22,34 @@ const TOOLS = [
     desc: 'Advanced system prompt flattener with live token counting and API cost estimation for LLM workspaces.',
   },
   {
+    href: '/tools/json-engine/',
+    accent: 'blue',
+    iconPath: 'M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',
+    title: 'JSON Engine',
+    desc: 'Turn JSON into TypeScript interfaces, Zod schemas, and JSONPath queries — entirely in the browser.',
+  },
+  {
+    href: '/tools/svg-studio/',
+    accent: 'emerald',
+    iconPath: 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z',
+    title: 'SVG Studio',
+    desc: 'Optimize SVGs, preview on a checkerboard, and export React or Vue components without leaving your machine.',
+  },
+  {
+    href: '/tools/env-formatter/',
+    accent: 'slate',
+    iconPath: 'M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4',
+    title: 'Env Formatter',
+    desc: 'Sort, deduplicate, and validate .env files locally with sharp, minimalist output — secrets never leave the tab.',
+  },
+  {
+    href: '/tools/prompt-packager/',
+    accent: 'violet',
+    iconPath: 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10',
+    title: 'Prompt Packager',
+    desc: 'Flatten multi-file context into one LLM-ready block with character and token estimates for Cursor and Claude.',
+  },
+  {
     href: '/tools/invoice-generator/',
     accent: 'emerald',
     iconPath: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
@@ -89,6 +117,8 @@ const ACCENT_CLASSES: Record<string, { icon: string; border: string; hover: stri
   emerald: { icon: 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400', border: '', hover: 'group-hover:bg-emerald-500/15', text: 'text-blue-400' },
   sky:     { icon: 'bg-sky-500/10 border border-sky-500/20 text-sky-400', border: '', hover: 'group-hover:bg-sky-500/15', text: 'text-blue-400' },
   amber:   { icon: 'bg-amber-500/10 border border-amber-500/20 text-amber-400', border: '', hover: 'group-hover:bg-amber-500/15', text: 'text-amber-400' },
+  blue:    { icon: 'bg-blue-500/10 border border-blue-500/20 text-blue-400', border: '', hover: 'group-hover:bg-blue-500/15', text: 'text-blue-400' },
+  slate:   { icon: 'bg-slate-500/10 border border-slate-500/20 text-slate-300', border: '', hover: 'group-hover:bg-slate-500/15', text: 'text-blue-400' },
 };
 
 export default function HomePage() {
