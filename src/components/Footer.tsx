@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import MetricCounter from './MetricCounter';
+import { GAMES, TOOLS } from '@/data/catalog';
 
 const COMPANY_LINKS = [
   { href: '/about/',          label: 'About'          },
@@ -8,22 +9,11 @@ const COMPANY_LINKS = [
   { href: '/terms/',          label: 'Terms of Use'   },
 ];
 
-const TOOL_LINKS = [
-  { href: '/tools/prompt-architect/',  label: 'Prompt Architect'  },
-  { href: '/tools/json-engine/',       label: 'JSON Engine'       },
-  { href: '/tools/svg-studio/',        label: 'SVG Studio'        },
-  { href: '/tools/env-formatter/',     label: 'Env Formatter'     },
-  { href: '/tools/prompt-packager/',   label: 'Prompt Packager'   },
-  { href: '/tools/invoice-generator/', label: 'Invoice Generator' },
-  { href: '/tools/debt-optimizer/',    label: 'Debt Optimizer'    },
-  { href: '/tools/fuel-tracker/',      label: 'Fuel Tracker'      },
-];
+const TOOL_LINKS = TOOLS.map((t) => ({ href: t.href, label: t.title }));
 
 const GAME_LINKS = [
-  { href: '/games/',           label: 'All Games'  },
-  { href: '/games/2048/',      label: '2048'       },
-  { href: '/games/snake/',     label: 'Snake'      },
-  { href: '/games/blackjack/', label: 'Blackjack'  },
+  { href: '/games/', label: 'All Games' },
+  ...GAMES.map((g) => ({ href: g.href, label: g.title })),
 ];
 
 function FooterColumn({ heading, links }: { heading: string; links: { href: string; label: string; external?: boolean }[] }) {
