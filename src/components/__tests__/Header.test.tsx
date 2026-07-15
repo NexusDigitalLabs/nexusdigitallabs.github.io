@@ -41,11 +41,11 @@ describe('Header — structure', () => {
     expect(screen.getByText('NexusDigitalLabs')).toBeInTheDocument();
   });
 
-  it('renders all 5 nav links', () => {
+  it('renders all 5 nav items', () => {
     renderHeader();
-    expect(screen.getAllByRole('link', { name: /tools/i }).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByRole('link', { name: /articles/i }).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByRole('link', { name: /games/i }).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByRole('button', { name: /^tools$/i }).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByRole('button', { name: /^articles$/i }).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByRole('button', { name: /^games$/i }).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByRole('link', { name: /about/i }).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByRole('link', { name: /contact/i }).length).toBeGreaterThanOrEqual(1);
   });
@@ -106,11 +106,10 @@ describe('Header — mobile menu', () => {
     expect(screen.getByRole('button', { name: /close menu/i })).toBeInTheDocument();
   });
 
-  it('shows nav links in mobile drawer after opening', () => {
+  it('shows nav items in mobile drawer after opening', () => {
     renderHeader();
     fireEvent.click(screen.getByRole('button', { name: /open menu/i }));
-    const allGameLinks = screen.getAllByRole('link', { name: /games/i });
-    expect(allGameLinks.length).toBeGreaterThan(1);
+    expect(screen.getAllByRole('button', { name: /^games$/i }).length).toBeGreaterThan(1);
   });
 
   it('shows theme section in mobile drawer', () => {

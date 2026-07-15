@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
 import AuthMenu, { AuthMenuMobile } from '@/components/AuthMenu';
+import { scrollToSectionId, setHomeHash, setHomeSectionIntent, setHomeTopIntent } from '@/lib/scroll';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type BadgeColor = 'violet' | 'emerald' | 'sky' | 'amber' | 'blue' | 'slate';
@@ -14,13 +15,17 @@ interface Badge {
   color: BadgeColor;
 }
 
+type NavLink =
+  | { kind: 'section'; sectionId: string; label: string }
+  | { kind: 'page'; href: string; label: string };
+
 // ── Nav links ─────────────────────────────────────────────────────────────────
-const NAV_LINKS = [
-  { href: '/#tools',    label: 'Tools'    },
-  { href: '/#articles', label: 'Articles' },
-  { href: '/games/',    label: 'Games'    },
-  { href: '/about/',    label: 'About'    },
-  { href: '/contact/',  label: 'Contact'  },
+const NAV_LINKS: NavLink[] = [
+  { kind: 'section', sectionId: 'tools', label: 'Tools' },
+  { kind: 'section', sectionId: 'articles', label: 'Articles' },
+  { kind: 'section', sectionId: 'games', label: 'Games' },
+  { kind: 'page', href: '/about/', label: 'About' },
+  { kind: 'page', href: '/contact/', label: 'Contact' },
 ];
 
 // ── Page-context badges ───────────────────────────────────────────────────────
@@ -61,16 +66,18 @@ function detectBadge(pathname: string): Badge | null {
   return null;
 }
 
-function isActive(href: string, pathname: string): boolean {
-  if (href === '/#tools')    return pathname.startsWith('/tools/');
-  if (href === '/#articles') return pathname.startsWith('/articles/');
-  if (href === '/games/')    return pathname.startsWith('/games/');
-  if (href === '/about/')    return pathname === '/about' || pathname === '/about/';
-  if (href === '/contact/')  return pathname === '/contact' || pathname === '/contact/';
+function isActive(link: NavLink, pathname: string): boolean {
+  if (link.kind === 'section') {
+    if (link.sectionId === 'tools') return pathname.startsWith('/tools/');
+    if (link.sectionId === 'articles') return pathname.startsWith('/articles/');
+    if (link.sectionId === 'games') return pathname.startsWith('/games/');
+    return false;
+  }
+  if (link.href === '/about/') return pathname === '/about' || pathname === '/about/';
+  if (link.href === '/contact/') return pathname === '/contact' || pathname === '/contact/';
   return false;
 }
 
-// ── SVG icons ─────────────────────────────────────────────────────────────────
 function MenuIcon() {
   return (
     <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -87,11 +94,44 @@ function CloseIcon() {
   );
 }
 
+function navKey(link: NavLink): string {
+  return link.kind === 'section' ? `section-${link.sectionId}` : link.href;
+}
+
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
   const badge = detectBadge(pathname);
+
+  function goHomeSection(sectionId: string) {
+    setMobileOpen(false);
+    const onHome = pathname === '/' || pathname === '';
+    if (onHome) {
+      setHomeHash(sectionId, 'replace');
+      window.requestAnimationFrame(() => {
+        scrollToSectionId(sectionId, 'smooth');
+      });
+      return;
+    }
+    // App Router often restores a stale `/#tools` (or drops the hash) on soft
+    // navigations — park the intent, then go to `/` and let ScrollToTop apply it.
+    setHomeSectionIntent(sectionId);
+    router.push('/', { scroll: false });
+  }
+
+  function goHome() {
+    setMobileOpen(false);
+    if (pathname === '/' || pathname === '') {
+      setHomeHash('', 'replace');
+      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+      return;
+    }
+    // Clear any stale `/#tools` Next might restore when returning to `/`.
+    setHomeTopIntent();
+    router.push('/', { scroll: false });
+  }
 
   return (
     <header
@@ -103,11 +143,16 @@ export default function Header() {
         WebkitBackdropFilter: 'blur(14px)',
       }}
     >
-      {/* ── Desktop bar ── */}
       <div className="max-w-7xl mx-auto px-6 sm:px-10 h-16 flex items-center gap-6">
 
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5 no-underline flex-shrink-0">
+        <Link
+          href="/"
+          className="flex items-center gap-2.5 no-underline flex-shrink-0"
+          onClick={(e) => {
+            e.preventDefault();
+            goHome();
+          }}
+        >
           <div
             className="w-8 h-8 rounded-lg flex items-center justify-center font-bold ndl-on-accent text-sm"
             style={{ background: 'linear-gradient(135deg,#2563eb,#6366f1)', boxShadow: '0 4px 14px rgba(37,99,235,0.28)' }}
@@ -119,18 +164,40 @@ export default function Header() {
           </span>
         </Link>
 
-        {/* Centered nav links (hidden on mobile) */}
         <nav className="flex-1 hidden md:flex items-center justify-center gap-9">
-          {NAV_LINKS.map(({ href, label }) => {
-            const active = isActive(href, pathname);
+          {NAV_LINKS.map((link) => {
+            const active = isActive(link, pathname);
+            const className = 'text-sm transition-colors duration-200 no-underline relative group cursor-pointer bg-transparent border-0 p-0';
+            const style = { color: active ? 'var(--ndl-text)' : 'var(--ndl-muted)' } as const;
+
+            if (link.kind === 'section') {
+              return (
+                <button
+                  key={navKey(link)}
+                  type="button"
+                  className={className}
+                  style={style}
+                  onClick={() => goHomeSection(link.sectionId)}
+                >
+                  {link.label}
+                  <span
+                    className={`absolute -bottom-0.5 left-0 h-px bg-blue-500 transition-all duration-300 ${
+                      active ? 'w-full' : 'w-0 group-hover:w-full'
+                    }`}
+                  />
+                </button>
+              );
+            }
+
             return (
               <Link
-                key={href}
-                href={href}
-                className="text-sm transition-colors duration-200 no-underline relative group"
-                style={{ color: active ? 'var(--ndl-text)' : 'var(--ndl-muted)' }}
+                key={navKey(link)}
+                href={link.href}
+                className={className}
+                style={style}
+                onClick={() => setMobileOpen(false)}
               >
-                {label}
+                {link.label}
                 <span
                   className={`absolute -bottom-0.5 left-0 h-px bg-blue-500 transition-all duration-300 ${
                     active ? 'w-full' : 'w-0 group-hover:w-full'
@@ -141,7 +208,6 @@ export default function Header() {
           })}
         </nav>
 
-        {/* Right: badge + theme + hamburger */}
         <div className="ml-auto flex items-center gap-3 flex-shrink-0">
           {badge && (
             <span className={`hidden md:inline-flex items-center text-xs font-medium px-3 py-1.5 rounded-lg whitespace-nowrap ${BADGE_CLASSES[badge.color]}`}>
@@ -150,7 +216,6 @@ export default function Header() {
           )}
 
           <ThemeToggle />
-
           <AuthMenu />
 
           <button
@@ -164,24 +229,35 @@ export default function Header() {
         </div>
       </div>
 
-      {/* ── Mobile drawer ── */}
       {mobileOpen && (
         <div
           className="md:hidden border-t"
           style={{ background: 'var(--ndl-surface)', borderColor: 'var(--ndl-border)' }}
         >
           <nav className="max-w-7xl mx-auto px-6 py-5 flex flex-col gap-4">
-            {NAV_LINKS.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                className="text-sm transition-colors no-underline"
-                style={{ color: 'var(--ndl-text-secondary)' }}
-                onClick={() => setMobileOpen(false)}
-              >
-                {label}
-              </Link>
-            ))}
+            {NAV_LINKS.map((link) =>
+              link.kind === 'section' ? (
+                <button
+                  key={navKey(link)}
+                  type="button"
+                  className="text-sm text-left transition-colors no-underline cursor-pointer bg-transparent border-0 p-0"
+                  style={{ color: 'var(--ndl-text-secondary)' }}
+                  onClick={() => goHomeSection(link.sectionId)}
+                >
+                  {link.label}
+                </button>
+              ) : (
+                <Link
+                  key={navKey(link)}
+                  href={link.href}
+                  className="text-sm transition-colors no-underline"
+                  style={{ color: 'var(--ndl-text-secondary)' }}
+                  onClick={() => setMobileOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              )
+            )}
             <div className="pt-2" style={{ borderTop: '1px solid var(--ndl-border)' }}>
               <p className="text-[0.65rem] font-semibold tracking-widest uppercase mb-2.5" style={{ color: 'var(--ndl-faint)' }}>
                 Account

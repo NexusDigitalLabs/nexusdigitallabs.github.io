@@ -67,7 +67,7 @@ nexusdigitallabs.github.io/
 │   │   ├── Footer.tsx                          # Footer with link columns and MetricCounter
 │   │   ├── MetricCounter.tsx                   # Client-side page-view display ("// Views: X")
 │   │   ├── ScrollReveal.tsx                    # IntersectionObserver fade-up animation wrapper
-│   │   ├── ContactForm.tsx                     # Client-side mailto contact form
+│   │   ├── ContactForm.tsx                     # Contact form (posts to /api/contact via Resend)
 │   │   │
 │   │   ├── tools/
 │   │   │   ├── PromptArchitectClient.tsx       # Token counter + prompt optimizer UI
