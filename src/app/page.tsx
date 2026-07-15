@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import ScrollReveal from '@/components/ScrollReveal';
 import SiteStatsClient from '@/components/SiteStatsClient';
-import { FEATURED_ARTICLES } from '@/data/articles';
+import HomeSectionLink from '@/components/HomeSectionLink';
+import { ARTICLES, FEATURED_ARTICLES } from '@/data/articles';
 import { GAMES, TOOLS } from '@/data/catalog';
 import { pageMetadata } from '@/lib/seo';
 
@@ -73,19 +74,19 @@ export default function HomePage() {
               Practical tools built for everyone — fast, private, and simple. Most tools work without an account and collect no personal data.
             </p>
             <div className="ndl-anim-4 flex flex-col sm:flex-row items-start gap-3">
-              <Link
-                href="/#tools"
-                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 ndl-on-accent text-sm font-semibold px-7 py-3.5 rounded-xl transition-all duration-200 no-underline"
+              <HomeSectionLink
+                sectionId="tools"
+                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 ndl-on-accent text-sm font-semibold px-7 py-3.5 rounded-xl transition-all duration-200 cursor-pointer"
                 style={{ boxShadow: '0 4px 20px rgba(37,99,235,0.4)' }}
               >
                 Explore Tools <ArrowRight className="w-4 h-4" />
-              </Link>
-              <Link
-                href="/#articles"
-                className="inline-flex items-center gap-2 text-slate-300 hover:text-white border border-slate-700 hover:border-slate-500 text-sm font-medium px-7 py-3.5 rounded-xl transition-all duration-200 no-underline"
+              </HomeSectionLink>
+              <HomeSectionLink
+                sectionId="articles"
+                className="inline-flex items-center gap-2 text-slate-300 hover:text-white border border-slate-700 hover:border-slate-500 text-sm font-medium px-7 py-3.5 rounded-xl transition-all duration-200 cursor-pointer bg-transparent"
               >
                 Read Articles
-              </Link>
+              </HomeSectionLink>
             </div>
             {/* Live metrics strip */}
             <div className="ndl-anim-5">
@@ -266,7 +267,7 @@ export default function HomePage() {
               href="/articles/"
               className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-400 hover:text-white transition-colors no-underline shrink-0"
             >
-              View all 17 articles
+              View all {ARTICLES.length} articles
               <ArrowRight />
             </Link>
           </ScrollReveal>
@@ -308,7 +309,7 @@ export default function HomePage() {
               href="/articles/"
               className="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-white border border-slate-700/50 hover:border-slate-500 px-5 py-2.5 rounded-lg transition-colors no-underline"
             >
-              Browse all 17 articles <ArrowRight />
+              Browse all {ARTICLES.length} articles <ArrowRight />
             </Link>
           </ScrollReveal>
         </div>

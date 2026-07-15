@@ -50,13 +50,13 @@ export function fmtDate(d: string): string {
 export function friendlyError(raw: string): string {
   const r = raw.toLowerCase();
   if (r.includes('invalid api key') || r.includes('invalid_key') || r.includes('apikey')) {
-    return 'API key error — check that SUPABASE_SERVICE_ROLE_KEY is correctly set in your Vercel environment variables.';
+    return 'Could not reach the data service. Please try again in a moment.';
   }
   if (r.includes('does not exist') || r.includes('42p01') || r.includes('relation')) {
-    return 'Database tables not found. Run the SQL migration from docs/tools/fuel-tracker.md in your Supabase SQL editor first.';
+    return 'Data service is temporarily unavailable. Please try again later.';
   }
   if (r.includes('jwt') || r.includes('unauthorized') || r.includes('401')) {
-    return 'Authentication failed — the Supabase service role key may be expired or incorrect.';
+    return 'Authentication failed. Please sign in again and retry.';
   }
   return raw;
 }

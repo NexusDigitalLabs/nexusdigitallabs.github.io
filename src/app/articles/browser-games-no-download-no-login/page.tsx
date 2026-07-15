@@ -184,13 +184,13 @@ export default function BrowserGamesPage() {
               Your high scores for 2048, Snake, and Blackjack are stored in your browser&apos;s <code className="font-mono text-xs bg-slate-800/80 text-blue-300 px-1.5 py-0.5 rounded border border-slate-700/50">localStorage</code>. This means:
             </P>
             <UL items={[
-              'Scores persist across sessions on the same device and browser',
-              'Clearing your browser data or switching browsers resets your scores',
-              'Scores are never sent to any server — they cannot be seen by anyone but you',
-              'There is no leaderboard, because a leaderboard requires a server storing your data',
+              'Scores persist across sessions on the same device and browser by default',
+              'Clearing your browser data or switching browsers resets local scores',
+              'If you sign in, your best scores can also sync to your account across devices',
+              'There is no public global leaderboard — cloud scores stay private to your account',
             ]} />
             <P>
-              This is an intentional design choice. A server-side leaderboard would require storing usernames, tracking sessions, and managing a database — all of which create privacy exposure and infrastructure costs that would eventually need to be paid for. Local storage scores are simpler, faster, and more private.
+              Local scores stay private to your browser when you play signed out. Optional sign-in sync exists so your personal bests travel with you — see the Privacy Policy for details.
             </P>
           </div>
 
@@ -199,7 +199,7 @@ export default function BrowserGamesPage() {
             <p className="text-xs font-semibold tracking-widest text-emerald-400 uppercase mb-3">Play now</p>
             <h3 className="text-base font-semibold text-white mb-2">NexusDigitalLabs Games</h3>
             <p className="text-sm text-slate-400 font-light leading-relaxed mb-4">
-              2048, Snake, and Blackjack — free, no login, no tracking. High scores saved in your browser.
+              2048, Snake, and Blackjack — free to play. Local scores by default; optional sign-in syncs your personal bests.
             </p>
             <Link
               href="/games/"

@@ -12,7 +12,7 @@
 
 ## Overview
 
-A 100% client-side invoice generator for freelancers and small studios. Fill in your issuer details, client info, line items, tax, discount, and bank wire details — see a live A4 paper preview update in real time, then download a vector-quality PDF. No account, no backend, no data ever leaves your browser.
+A browser-based invoice generator for freelancers and small studios. Fill in your issuer details, client info, line items, tax, discount, and bank wire details — see a live A4 paper preview update in real time, then download a vector-quality PDF. Default is local-only; signed-in users can optionally enable a cloud draft.
 
 ---
 
@@ -125,8 +125,8 @@ Total Due = Subtotal − Discount + Tax
 ## Privacy
 
 - Zero cookies, zero `localStorage` writes.
-- All invoice data (issuer details, client info, line items) exists only in React `useState` during the browser session — never transmitted anywhere.
-- Compliant with GDPR/CCPA without requiring a cookie banner.
+- By default, invoice fields live in React state for the session. Optional signed-in cloud draft stores form JSON under the user account (see `docs/auth.md`).
+- Sitewide privacy (auth cookies, analytics) is covered by the Privacy Policy.
 
 ---
 

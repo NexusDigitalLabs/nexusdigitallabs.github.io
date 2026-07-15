@@ -84,7 +84,7 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
 const inputCls =
   'block w-full rounded-[7px] px-[11px] py-[7px] text-[12.5px] outline-none transition-colors font-[Inter,sans-serif] ndl-invoice-input';
 
-// ── Subcomponent: Invoice preview (rendered as JSX, captured by html2pdf) ──────
+// ── Invoice preview (A4 sheet — captured by html2pdf) ───────────────────────
 interface InvoicePreviewProps {
   num: string;
   currency: string;
@@ -113,6 +113,42 @@ interface InvoicePreviewProps {
   innerRef: React.RefObject<HTMLDivElement | null>;
 }
 
+const INK = '#0c0c0c';
+const MUTED = '#6b7280';
+const FAINT = '#9ca3af';
+const LINE = '#ececec';
+const ACCENT = '#2563eb';
+
+function MetaChip({ label, value }: { label: string; value: string }) {
+  return (
+    <div style={{ minWidth: '108px' }}>
+      <p style={{ margin: 0, fontSize: '8px', fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: FAINT }}>
+        {label}
+      </p>
+      <p style={{ margin: '4px 0 0', fontSize: '11.5px', fontWeight: 500, color: INK }}>{value}</p>
+    </div>
+  );
+}
+
+function PartyBlock({ title, name, lines }: { title: string; name: string; lines: string[] }) {
+  const visible = lines.filter(Boolean);
+  return (
+    <div style={{ flex: 1, minWidth: 0 }}>
+      <p style={{ margin: '0 0 10px', fontSize: '8px', fontWeight: 600, letterSpacing: '0.16em', textTransform: 'uppercase', color: FAINT }}>
+        {title}
+      </p>
+      <p style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: 600, color: INK, letterSpacing: '-0.02em', lineHeight: 1.25 }}>
+        {name || '—'}
+      </p>
+      {visible.map((line) => (
+        <p key={line} style={{ margin: '0 0 3px', fontSize: '11px', color: MUTED, lineHeight: 1.55, whiteSpace: 'pre-line' }}>
+          {line}
+        </p>
+      ))}
+    </div>
+  );
+}
+
 function InvoicePreview({
   num, currency, date, due,
   issName, issEmail, issAddr, issWeb,
@@ -121,147 +157,207 @@ function InvoicePreview({
   bankName, bankAcctName, bankAcctNum, bankSwift, bankIban,
   notes, items, sym, totals, innerRef,
 }: InvoicePreviewProps) {
-  const showBank = bankName || bankAcctNum || bankSwift;
+  const showBank = bankName || bankAcctNum || bankSwift || bankIban;
+  const issuerLines = [issEmail, issAddr, issWeb].filter(Boolean);
+  const clientLines = [cliContact, cliEmail, cliAddr].filter(Boolean);
 
   return (
     <div
       ref={innerRef}
       style={{
-        fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+        fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system, sans-serif',
         background: '#ffffff',
-        color: '#111827',
+        color: INK,
         boxSizing: 'border-box',
         width: '794px',
-        padding: '52px 48px 56px',
+        minHeight: '1123px',
+        padding: '0',
         position: 'relative',
       }}
     >
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
-        <div>
-          <div style={{ width: '34px', height: '34px', borderRadius: '8px', background: 'linear-gradient(135deg,#2563eb,#6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>
-            <span style={{ fontSize: '15px', fontWeight: 700, color: '#fff' }}>N</span>
+      {/* Accent rail */}
+      <div style={{ height: '4px', background: `linear-gradient(90deg, ${ACCENT} 0%, #6366f1 55%, #818cf8 100%)` }} />
+
+      <div style={{ padding: '48px 52px 52px' }}>
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '32px', marginBottom: '36px' }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ margin: '0 0 6px', fontSize: '9px', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', color: ACCENT }}>
+              Invoice
+            </p>
+            <p style={{ margin: 0, fontSize: '28px', fontWeight: 300, letterSpacing: '-0.04em', color: INK, lineHeight: 1.1 }}>
+              {num || 'INV-001'}
+            </p>
           </div>
-          <p style={{ fontSize: '15px', fontWeight: 600, color: '#111827', margin: '0 0 3px' }}>{issName || 'Issuer'}</p>
-          {issEmail && <p style={{ fontSize: '11px', color: '#6b7280', margin: '0 0 2px' }}>{issEmail}</p>}
-          {issAddr && <p style={{ fontSize: '11px', color: '#6b7280', margin: '0 0 2px', whiteSpace: 'pre-line' }}>{issAddr}</p>}
-          {issWeb && <p style={{ fontSize: '11px', color: '#2563eb', margin: '0' }}>{issWeb}</p>}
+          <div style={{ display: 'flex', gap: '28px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+            <MetaChip label="Issued" value={fmtDate(date)} />
+            <MetaChip label="Due" value={fmtDate(due)} />
+            <MetaChip label="Currency" value={currency} />
+          </div>
         </div>
-        <div style={{ textAlign: 'right' }}>
-          <p style={{ fontSize: '30px', fontWeight: 200, color: '#111827', letterSpacing: '-0.03em', margin: '0 0 10px' }}>INVOICE</p>
-          <p style={{ fontSize: '13px', fontWeight: 700, color: '#111827', margin: '0 0 5px' }}>{num || 'INV-001'}</p>
-          <p style={{ fontSize: '11px', color: '#6b7280', margin: '0 0 2px' }}>Date&ensp;{fmtDate(date)}</p>
-          <p style={{ fontSize: '11px', color: '#6b7280', margin: '0 0 6px' }}>Due&ensp;&ensp;{fmtDate(due)}</p>
-          <span style={{ fontSize: '10px', fontWeight: 600, color: '#374151', background: '#f3f4f6', padding: '3px 8px', borderRadius: '4px' }}>{currency}</span>
+
+        {/* Parties */}
+        <div style={{ display: 'flex', gap: '40px', marginBottom: '36px', paddingBottom: '28px', borderBottom: `1px solid ${LINE}` }}>
+          <PartyBlock title="From" name={issName || 'Issuer'} lines={issuerLines.length ? issuerLines : ['—']} />
+          <div style={{ width: '1px', background: LINE, alignSelf: 'stretch', flexShrink: 0 }} aria-hidden="true" />
+          <PartyBlock title="Bill to" name={cliName || 'Client'} lines={clientLines.length ? clientLines : ['—']} />
         </div>
-      </div>
 
-      {/* Divider */}
-      <div style={{ height: '1px', background: '#e5e7eb', marginBottom: '26px' }} />
-
-      {/* Bill To */}
-      <div style={{ marginBottom: '28px' }}>
-        <p style={{ fontSize: '8.5px', fontWeight: 600, letterSpacing: '0.10em', textTransform: 'uppercase', color: '#9ca3af', marginBottom: '8px' }}>Bill To</p>
-        <p style={{ fontSize: '14px', fontWeight: 600, color: '#111827', margin: '0 0 3px' }}>{cliName || 'Client'}</p>
-        {cliContact && <p style={{ fontSize: '11px', color: '#374151', margin: '0 0 2px' }}>{cliContact}</p>}
-        {cliEmail && <p style={{ fontSize: '11px', color: '#6b7280', margin: '0 0 2px' }}>{cliEmail}</p>}
-        {cliAddr && <p style={{ fontSize: '11px', color: '#6b7280', margin: '0', whiteSpace: 'pre-line' }}>{cliAddr}</p>}
-      </div>
-
-      {/* Line items table */}
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr>
-            {[['Description','55%','left'],['Qty','12%','right'],['Rate','16%','right'],['Amount','17%','right']].map(([h, w, align]) => (
-              <th key={h} style={{ fontSize: '8.5px', fontWeight: 600, letterSpacing: '0.09em', textTransform: 'uppercase', color: '#6b7280', padding: '9px 10px', textAlign: align as 'left'|'right', borderBottom: '1.5px solid #e5e7eb', width: w }}>
+        {/* Line items */}
+        <div style={{ marginBottom: '8px' }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 64px 88px 96px',
+              gap: '12px',
+              padding: '0 0 10px',
+              borderBottom: `1px solid ${INK}`,
+            }}
+          >
+            {['Description', 'Qty', 'Rate', 'Amount'].map((h, i) => (
+              <p
+                key={h}
+                style={{
+                  margin: 0,
+                  fontSize: '8px',
+                  fontWeight: 600,
+                  letterSpacing: '0.14em',
+                  textTransform: 'uppercase',
+                  color: FAINT,
+                  textAlign: i === 0 ? 'left' : 'right',
+                }}
+              >
                 {h}
-              </th>
+              </p>
             ))}
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((item) => {
+          </div>
+
+          {items.map((item, idx) => {
             const amt = (item.qty || 0) * (item.rate || 0);
+            const isLast = idx === items.length - 1;
             return (
-              <tr key={item.id} style={{ pageBreakInside: 'avoid' }}>
-                <td style={{ fontSize: '12px', color: '#1f2937', padding: '10px', borderBottom: '1px solid #f3f4f6' }}>{item.desc || '—'}</td>
-                <td style={{ fontSize: '12px', color: '#374151', padding: '10px', borderBottom: '1px solid #f3f4f6', textAlign: 'right' }}>{item.qty}</td>
-                <td style={{ fontSize: '12px', color: '#374151', padding: '10px', borderBottom: '1px solid #f3f4f6', textAlign: 'right' }}>{fmtMoney(item.rate, sym)}</td>
-                <td style={{ fontSize: '12px', fontWeight: 500, color: '#111827', padding: '10px', borderBottom: '1px solid #f3f4f6', textAlign: 'right' }}>{fmtMoney(amt, sym)}</td>
-              </tr>
+              <div
+                key={item.id}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 64px 88px 96px',
+                  gap: '12px',
+                  padding: '14px 0',
+                  borderBottom: isLast ? 'none' : `1px solid ${LINE}`,
+                  pageBreakInside: 'avoid',
+                }}
+              >
+                <p style={{ margin: 0, fontSize: '12.5px', color: INK, lineHeight: 1.45 }}>{item.desc || '—'}</p>
+                <p style={{ margin: 0, fontSize: '12px', color: MUTED, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{item.qty}</p>
+                <p style={{ margin: 0, fontSize: '12px', color: MUTED, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{fmtMoney(item.rate, sym)}</p>
+                <p style={{ margin: 0, fontSize: '12.5px', fontWeight: 600, color: INK, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{fmtMoney(amt, sym)}</p>
+              </div>
             );
           })}
-        </tbody>
-      </table>
+        </div>
 
-      {/* Totals */}
-      <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '4px' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <tbody>
-            <tr>
-              <td colSpan={3} style={{ fontSize: '11.5px', color: '#6b7280', padding: '7px 10px', textAlign: 'right' }}>Subtotal</td>
-              <td style={{ fontSize: '11.5px', color: '#374151', padding: '7px 10px', textAlign: 'right', minWidth: '110px' }}>{fmtMoney(totals.sub, sym)}</td>
-            </tr>
+        {/* Totals */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px', marginBottom: '32px' }}>
+          <div style={{ width: '280px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', fontSize: '11.5px', color: MUTED }}>
+              <span>Subtotal</span>
+              <span style={{ fontVariantNumeric: 'tabular-nums', color: INK }}>{fmtMoney(totals.sub, sym)}</span>
+            </div>
             {discPct > 0 && (
-              <tr>
-                <td colSpan={3} style={{ fontSize: '11px', color: '#9ca3af', padding: '5px 10px', textAlign: 'right' }}>Discount ({discPct}%)</td>
-                <td style={{ fontSize: '11px', color: '#ef4444', padding: '5px 10px', textAlign: 'right' }}>−{fmtMoney(totals.discAmt, sym)}</td>
-              </tr>
-            )}
-            {taxPct > 0 && (
-              <tr>
-                <td colSpan={3} style={{ fontSize: '11px', color: '#9ca3af', padding: '5px 10px', textAlign: 'right' }}>{taxLabel} ({taxPct}%)</td>
-                <td style={{ fontSize: '11px', color: '#374151', padding: '5px 10px', textAlign: 'right' }}>{fmtMoney(totals.taxAmt, sym)}</td>
-              </tr>
-            )}
-            <tr>
-              <td colSpan={3} style={{ fontSize: '13.5px', fontWeight: 700, color: '#111827', padding: '11px 10px', textAlign: 'right', borderTop: '2px solid #111827' }}>Total Due</td>
-              <td style={{ fontSize: '13.5px', fontWeight: 700, color: '#111827', padding: '11px 10px', textAlign: 'right', borderTop: '2px solid #111827' }}>{fmtMoney(totals.total, sym)}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      {/* Bank details */}
-      {showBank && (
-        <div style={{ marginTop: '24px', padding: '14px 16px', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '7px', pageBreakInside: 'avoid' }}>
-          <p style={{ fontSize: '8.5px', fontWeight: 600, letterSpacing: '0.10em', textTransform: 'uppercase', color: '#9ca3af', marginBottom: '8px' }}>Bank Transfer Details</p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 24px' }}>
-            {bankName && <BankCell label="Bank" value={bankName} />}
-            {bankAcctName && <BankCell label="Account Name" value={bankAcctName} />}
-            {bankAcctNum && <BankCell label="Account Number" value={bankAcctNum} mono />}
-            {bankSwift && <BankCell label="SWIFT / BIC" value={bankSwift} mono />}
-            {bankIban && (
-              <div style={{ gridColumn: 'span 2' }}>
-                <BankCell label="IBAN" value={bankIban} mono />
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', fontSize: '11px', color: FAINT }}>
+                <span>Discount ({discPct}%)</span>
+                <span style={{ fontVariantNumeric: 'tabular-nums', color: '#dc2626' }}>−{fmtMoney(totals.discAmt, sym)}</span>
               </div>
             )}
+            {taxPct > 0 && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', fontSize: '11px', color: FAINT }}>
+                <span>{taxLabel} ({taxPct}%)</span>
+                <span style={{ fontVariantNumeric: 'tabular-nums', color: INK }}>{fmtMoney(totals.taxAmt, sym)}</span>
+              </div>
+            )}
+            <div
+              style={{
+                marginTop: '12px',
+                padding: '16px 18px',
+                borderRadius: '10px',
+                background: '#f8fafc',
+                border: `1px solid ${LINE}`,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'baseline',
+              }}
+            >
+              <span style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: MUTED }}>
+                Total due
+              </span>
+              <span style={{ fontSize: '22px', fontWeight: 600, letterSpacing: '-0.03em', color: INK, fontVariantNumeric: 'tabular-nums' }}>
+                {fmtMoney(totals.total, sym)}
+              </span>
+            </div>
           </div>
         </div>
-      )}
 
-      {/* Notes */}
-      {notes && (
-        <div style={{ marginTop: '20px', pageBreakInside: 'avoid' }}>
-          <p style={{ fontSize: '8.5px', fontWeight: 600, letterSpacing: '0.10em', textTransform: 'uppercase', color: '#9ca3af', marginBottom: '8px' }}>Notes</p>
-          <p style={{ fontSize: '11px', color: '#6b7280', lineHeight: '1.7', whiteSpace: 'pre-line' }}>{notes}</p>
+        {/* Bank + notes */}
+        <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap', pageBreakInside: 'avoid' }}>
+          {showBank && (
+            <div style={{ flex: '1 1 280px', minWidth: '240px' }}>
+              <p style={{ margin: '0 0 12px', fontSize: '8px', fontWeight: 600, letterSpacing: '0.16em', textTransform: 'uppercase', color: FAINT }}>
+                Payment details
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {bankName && <BankRow label="Bank" value={bankName} />}
+                {bankAcctName && <BankRow label="Account name" value={bankAcctName} />}
+                {bankAcctNum && <BankRow label="Account no." value={bankAcctNum} mono />}
+                {bankSwift && <BankRow label="SWIFT / BIC" value={bankSwift} mono />}
+                {bankIban && <BankRow label="IBAN" value={bankIban} mono />}
+              </div>
+            </div>
+          )}
+          {notes && (
+            <div style={{ flex: '1 1 220px', minWidth: '200px' }}>
+              <p style={{ margin: '0 0 12px', fontSize: '8px', fontWeight: 600, letterSpacing: '0.16em', textTransform: 'uppercase', color: FAINT }}>
+                Notes
+              </p>
+              <p style={{ margin: 0, fontSize: '11px', color: MUTED, lineHeight: 1.75, whiteSpace: 'pre-line' }}>{notes}</p>
+            </div>
+          )}
         </div>
-      )}
 
-      {/* Footer */}
-      <div style={{ marginTop: '44px', paddingTop: '14px', borderTop: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <p style={{ fontSize: '9.5px', color: '#d1d5db', margin: '0' }}>{issName}</p>
-        <p style={{ fontSize: '9.5px', color: '#d1d5db', margin: '0' }}>{num || 'INV'}</p>
+        {/* Footer */}
+        <div
+          style={{
+            marginTop: '48px',
+            paddingTop: '16px',
+            borderTop: `1px solid ${LINE}`,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: '16px',
+          }}
+        >
+          <p style={{ margin: 0, fontSize: '10px', color: FAINT }}>{issName}</p>
+          <p style={{ margin: 0, fontSize: '10px', color: FAINT, letterSpacing: '0.06em' }}>{num || 'INV'}</p>
+        </div>
       </div>
     </div>
   );
 }
 
-function BankCell({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
+function BankRow({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
   return (
-    <div>
-      <p style={{ fontSize: '8.5px', color: '#9ca3af', margin: '0 0 3px', textTransform: 'uppercase', letterSpacing: '0.07em', fontWeight: 600 }}>{label}</p>
-      <p style={{ fontSize: '12px', color: '#111827', margin: '0', fontFamily: mono ? 'monospace' : undefined }}>{value}</p>
+    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '16px', alignItems: 'baseline' }}>
+      <span style={{ fontSize: '10px', color: FAINT, flexShrink: 0 }}>{label}</span>
+      <span
+        style={{
+          fontSize: '11.5px',
+          color: INK,
+          textAlign: 'right',
+          fontFamily: mono ? 'ui-monospace, SFMono-Regular, Menlo, monospace' : undefined,
+          letterSpacing: mono ? '0.02em' : undefined,
+        }}
+      >
+        {value}
+      </span>
     </div>
   );
 }
@@ -682,45 +778,49 @@ export default function InvoiceGeneratorClient() {
         <div
           ref={previewPaneRef}
           className="flex-1 overflow-y-auto flex flex-col items-center"
-          style={{ background: 'var(--ndl-surface-2)', padding: '24px 24px 40px' }}
+          style={{
+            background: 'linear-gradient(180deg, var(--ndl-surface-2) 0%, var(--ndl-bg) 100%)',
+            padding: '28px 24px 48px',
+          }}
         >
-          {/* Action bar */}
-          <div className="w-full flex items-center justify-between mb-[18px] shrink-0" style={{ maxWidth: '794px' }}>
-            <div className="flex items-center gap-[8px]">
+          <div className="w-full flex items-center justify-between mb-5 shrink-0" style={{ maxWidth: '794px' }}>
+            <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={handleDownload}
                 disabled={isDownloading}
-                className="inline-flex items-center gap-[7px] text-[13px] font-semibold ndl-on-accent px-[18px] py-[9px] rounded-[10px] border-none cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                style={{ background: '#2563eb', boxShadow: '0 4px 20px rgba(37,99,235,0.35)' }}
+                className="inline-flex items-center gap-2 text-[13px] font-semibold ndl-on-accent px-5 py-2.5 rounded-xl border-none cursor-pointer transition-all disabled:opacity-60 disabled:cursor-not-allowed hover:-translate-y-0.5"
+                style={{ background: '#2563eb', boxShadow: '0 8px 24px rgba(37,99,235,0.28)' }}
               >
                 {isDownloading ? (
-                  <svg className="w-[15px] h-[15px] animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
                 ) : (
-                  <svg className="w-[15px] h-[15px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 )}
                 {isDownloading ? 'Generating…' : 'Download PDF'}
               </button>
-              <span style={{ fontSize: '11px', color: 'var(--ndl-faint)' }}>A4 · Portrait · Vector-quality</span>
+              <span style={{ fontSize: '11px', color: 'var(--ndl-faint)' }}>A4 · Minimal layout</span>
             </div>
-            <span style={{ fontSize: '11px', color: 'var(--ndl-muted)', fontStyle: 'italic' }}>Live preview</span>
+            <span style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ndl-muted)' }}>
+              Live preview
+            </span>
           </div>
 
-          {/* Invoice paper — scaled to fit pane */}
           <div
             ref={invoiceOuterRef}
             style={{
-              boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
-              borderRadius: '2px',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.04), 0 12px 40px rgba(0,0,0,0.12)',
+              borderRadius: '6px',
               flexShrink: 0,
               overflow: 'hidden',
               width: `${Math.round(794 * scale)}px`,
               height: 'auto',
               transformOrigin: 'top left',
+              border: '1px solid rgba(0,0,0,0.06)',
             }}
           >
             <div style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>

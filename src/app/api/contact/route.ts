@@ -3,6 +3,11 @@ import { Resend } from 'resend';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/** Soft in-memory rate limit (per serverless instance). */
+const RATE_WINDOW_MS = 60_000;
+const RATE_MAX = 5;
+const hits = new Map<string, number[]>();
+
 type ContactBody = {
   name?: unknown;
   email?: unknown;
@@ -16,12 +21,39 @@ function trimStr(value: unknown, max: number): string {
   return value.trim().slice(0, max);
 }
 
+function clientKey(request: NextRequest): string {
+  return (
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    'unknown'
+  );
+}
+
+function rateLimited(key: string): boolean {
+  const now = Date.now();
+  const recent = (hits.get(key) ?? []).filter((t) => now - t < RATE_WINDOW_MS);
+  if (recent.length >= RATE_MAX) {
+    hits.set(key, recent);
+    return true;
+  }
+  recent.push(now);
+  hits.set(key, recent);
+  return false;
+}
+
 /**
  * POST /api/contact
  * Sends a contact enquiry via Resend. Does not expose CONTACT_TO_EMAIL to the client.
  */
 export async function POST(request: NextRequest) {
   try {
+    if (rateLimited(clientKey(request))) {
+      return NextResponse.json(
+        { error: 'Too many messages. Please wait a minute and try again.' },
+        { status: 429 }
+      );
+    }
+
     const apiKey = process.env.RESEND_API_KEY;
     const toEmail = process.env.CONTACT_TO_EMAIL;
     const fromEmail =

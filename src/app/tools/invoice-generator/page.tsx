@@ -4,7 +4,7 @@ import { pageMetadata } from '@/lib/seo';
 export const metadata = pageMetadata({
   title: 'Freelancer Invoice Generator — NexusDigitalLabs',
   description:
-    'Free browser-based freelancer invoice generator. Create professional PDF invoices with line items, tax calculation, and bank wire details — 100% client-side, zero data transmitted.',
+    'Free browser-based freelancer invoice generator. Create professional PDF invoices with line items, tax calculation, and bank wire details — runs in your browser, with an optional signed-in cloud draft.',
   path: '/tools/invoice-generator/',
   keywords: [
     'invoice generator',
@@ -55,7 +55,7 @@ export default function InvoiceGeneratorPage() {
             <p className="text-xs font-semibold tracking-widest text-emerald-400 uppercase mb-4">About this tool</p>
             <h2 className="text-2xl font-light text-white tracking-tight mb-4">What is the Invoice Generator?</h2>
             <p className="text-slate-400 font-light leading-relaxed text-sm sm:text-base mb-3">
-              The NexusDigitalLabs Invoice Generator is a free, browser-based tool that lets freelancers and independent contractors create professional PDF invoices in under two minutes. No account is required, no data is uploaded to any server, and the generated PDF is created entirely within your browser using client-side rendering.
+              The NexusDigitalLabs Invoice Generator is a free, browser-based tool that lets freelancers and independent contractors create professional PDF invoices in under two minutes. By default everything stays in your browser session. If you sign in, you can optionally enable a cloud draft so you can resume on another device — that copy is stored only for your account and can be turned off anytime.
             </p>
             <p className="text-slate-400 font-light leading-relaxed text-sm sm:text-base">
               It supports dynamic line items, custom payment terms, bank transfer details, optional tax and discount lines, and a live preview that updates as you type. Once complete, a single click generates and downloads a print-ready PDF.
@@ -91,7 +91,7 @@ export default function InvoiceGeneratorPage() {
             <div className="space-y-6">
               {[
                 { q: 'Is the invoice legally valid?', a: 'The tool generates a professional document with all the fields required for a valid freelance invoice in most jurisdictions — invoice number, dates, itemised services, and totals. Whether an invoice is legally enforceable depends on your local laws and whether you have a signed contract with your client. Consult a local accountant for jurisdiction-specific advice.' },
-                { q: 'Does my data get saved anywhere?', a: 'No. All data is processed and stored only in your browser\'s memory during the session. When you close the tab, the data is gone. Nothing is transmitted to any server. If you need to save your progress, download the PDF and keep a copy.' },
+                { q: 'Does my data get saved anywhere?', a: 'By default, invoice fields stay in your browser session and the PDF is generated locally. If you sign in and enable Cloud draft, a copy of the form JSON is stored under your account so you can resume later — you can disable that anytime. See the Privacy Policy for details.' },
                 { q: 'Can I customise the invoice branding?', a: 'You can enter your business name, contact details, and payment information. The tool uses a clean, professional layout that works for most freelance contexts. Custom logos and full brand theming are not currently supported.' },
                 { q: 'What payment terms should I set?', a: 'Net 14 (14 days from invoice date) is a practical default for independent contractors. Net 30 is standard for corporate clients. For new clients or projects over $500, consider requesting a 50% deposit upfront with the remainder due on delivery.' },
                 { q: 'Can I use this tool for VAT invoices?', a: 'Yes. The tax field allows you to enter a percentage (e.g. 20% for UK standard VAT). The tool calculates and displays the tax amount and total including tax. You will need to manually add your VAT registration number to the notes or description fields.' },

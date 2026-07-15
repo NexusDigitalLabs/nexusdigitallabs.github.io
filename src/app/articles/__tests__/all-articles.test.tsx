@@ -1,5 +1,10 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+
+vi.mock('next/navigation', () => ({
+  usePathname: () => '/articles/test/',
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
+}));
 
 // ── Dynamic imports of all 17 article pages ────────────────────────────────────
 import FuelEfficiencyPage from '../how-to-track-car-fuel-efficiency/page';
@@ -32,12 +37,13 @@ function expectArticleStructure(heading: RegExp, ctaHrefPattern: RegExp) {
   // Next.js Link may strip trailing slashes in jsdom — match either form
   expect(backLink.getAttribute('href')).toMatch(/\/articles\/?$/);
 
-  // CTA link to the relevant tool or page exists
+  // CTA: either a matching link, or a home-section button (Browse tools)
   const ctaLinks = screen.getAllByRole('link').filter((el) => {
     const href = el.getAttribute('href') ?? '';
     return ctaHrefPattern.test(href);
   });
-  expect(ctaLinks.length).toBeGreaterThanOrEqual(1);
+  const sectionButtons = screen.queryAllByRole('button', { name: /browse .*tools/i });
+  expect(ctaLinks.length + sectionButtons.length).toBeGreaterThanOrEqual(1);
 }
 
 // ── Individual article tests ───────────────────────────────────────────────────

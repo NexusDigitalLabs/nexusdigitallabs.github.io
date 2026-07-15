@@ -68,9 +68,9 @@ function detectBadge(pathname: string): Badge | null {
 
 function isActive(link: NavLink, pathname: string): boolean {
   if (link.kind === 'section') {
-    if (link.sectionId === 'tools') return pathname.startsWith('/tools/');
-    if (link.sectionId === 'articles') return pathname.startsWith('/articles/');
-    if (link.sectionId === 'games') return pathname.startsWith('/games/');
+    if (link.sectionId === 'tools') return pathname.startsWith('/tools');
+    if (link.sectionId === 'articles') return pathname.startsWith('/articles');
+    if (link.sectionId === 'games') return pathname.startsWith('/games');
     return false;
   }
   if (link.href === '/about/') return pathname === '/about' || pathname === '/about/';

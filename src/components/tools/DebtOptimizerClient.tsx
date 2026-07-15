@@ -985,7 +985,7 @@ function PdfContent({
 
       <div style={{ marginTop: '32px', paddingTop: '12px', borderTop: '1px solid #e2e8f0', fontSize: '9px', color: '#94a3b8' }}>
         This plan is generated for informational purposes only and does not account for interest accrual.
-        Actual payoff timelines may vary. All data is processed locally in your browser — no information is transmitted or stored.
+        Actual payoff timelines may vary. Planning runs in your browser by default. Optional cloud draft (if enabled while signed in) is covered in our Privacy Policy.
       </div>
     </div>
   );

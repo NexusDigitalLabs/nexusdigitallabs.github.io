@@ -280,7 +280,7 @@ All games share a common architecture built around two core patterns:
 | Snake | `/games/snake/` | HTML5 Canvas, `requestAnimationFrame` loop, D-pad for touch | `GameSnake.tsx` |
 | Blackjack | `/games/blackjack/` | 52-card deck, dealer AI draws to 17, chip betting, double down | `GameBlackjack.tsx` |
 
-All high scores are stored in `localStorage` — never transmitted. The Blackjack game displays an entertainment-only disclaimer banner (no real money, no gambling).
+All high scores are stored in `localStorage` by default. When signed in, personal bests can also sync to your account.
 
 ---
 
@@ -335,21 +335,24 @@ The `MetricCounter` component fires a `POST /api/counters` on mount to upsert th
 | Database | Supabase (PostgreSQL) | — | Page-view counter; free tier |
 | Analytics | Umami Cloud | — | Cookie-free, GDPR/CCPA compliant |
 | PDF export | `html2pdf.js` | CDN | Client-side A4 PDF generation (Invoice + Debt tools) |
-| Game state | `localStorage` | — | Username + high scores, never transmitted |
+| Game state | `localStorage` (+ optional cloud) | — | Local username/scores; signed-in bests may sync |
 
 ---
 
 ## Environment Variables
 
-Copy `.env.local.example` to `.env.local` and fill in your Supabase credentials:
+Copy `.env.local.example` to `.env.local` and fill in credentials:
 
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=https://xxxxxxxxxxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key_here
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
+RESEND_API_KEY=re_xxxxxxxx
+CONTACT_FROM_EMAIL=NexusDigitalLabs <hello@nexusdigitallabs.dev>
+CONTACT_TO_EMAIL=you@example.com
 ```
 
-> ⚠️ **Never commit `.env.local`** — it is in `.gitignore`. The `SUPABASE_SERVICE_ROLE_KEY` grants full database access and must remain server-side only. It is only used inside the Next.js Route Handler at `src/app/api/counters/route.ts`.
+> ⚠️ **Never commit `.env.local`** — it is in `.gitignore`. `SUPABASE_SERVICE_ROLE_KEY` and `RESEND_API_KEY` are server-only (used in `/api/counters`, `/api/fuel`, and `/api/contact`). Never prefix them with `NEXT_PUBLIC_`.
 
 **Supabase table setup:**
 
@@ -360,6 +363,7 @@ create table page_views (
 );
 ```
 
+Also apply Auth / Fuel / drafts migrations under `supabase/migrations/` as documented in `docs/auth.md`.
 ---
 
 ## Local Development

@@ -871,11 +871,12 @@ export default function FuelTrackerClient() {
   // ── Delete fill ───────────────────────────────────────────────────────────
   async function handleDeleteFill(id: string) {
     if (!confirm('Delete this fill-up?')) return;
+    if (!userCode) return;
     try {
       await fetch('/api/fuel', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ resource: 'fill', id }),
+        body: JSON.stringify({ resource: 'fill', id, code: userCode }),
       });
       setFills(prev => prev.filter(f => f.id !== id));
     } catch { /* ignore */ }

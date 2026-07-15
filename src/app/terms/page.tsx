@@ -123,8 +123,9 @@ export default function TermsOfUsePage() {
 
         <Section title="Third-party services">
           <P>
-            The Service may rely on third parties (for example Supabase for auth and data, Umami for analytics,
-            and Google AdSense for advertising). Their terms and privacy practices apply to their processing.
+            The Service may rely on third parties (for example Supabase for auth and data, Resend for
+            transactional email such as the contact form, Umami for analytics, and Google AdSense for
+            advertising). Their terms and privacy practices apply to their processing.
           </P>
         </Section>
 

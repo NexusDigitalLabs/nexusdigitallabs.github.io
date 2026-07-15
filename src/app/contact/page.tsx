@@ -5,11 +5,11 @@ import { pageMetadata } from '@/lib/seo';
 export const metadata = pageMetadata({
   title: 'Contact',
   description:
-    "Get in touch with NexusDigitalLabs. We're open to partnerships, feature requests, bug reports, and open-source contributions.",
+    'Get in touch with NexusDigitalLabs. Send suggestions, feedback, bug reports, or feature ideas anytime.',
   path: '/contact/',
   ogTitle: 'Contact — NexusDigitalLabs',
   ogDescription:
-    'Get in touch with NexusDigitalLabs. Partnerships, feature ideas, and open-source contributions welcome.',
+    'Suggestions, feedback, bug reports, and feature ideas welcome. Reach out to NexusDigitalLabs anytime.',
 });
 
 export default function ContactPage() {
@@ -24,14 +24,14 @@ export default function ContactPage() {
         <div className="relative max-w-4xl mx-auto px-6 sm:px-10">
           <div className="ndl-anim-1 inline-flex items-center gap-2 text-xs font-medium text-blue-400 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-1.5 mb-7">
             <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" />
-            Open to new projects &amp; collaborations
+            Feedback &amp; feature ideas welcome
           </div>
           <h1 className="ndl-anim-2 text-4xl sm:text-5xl lg:text-6xl font-light tracking-tight leading-[1.12] mb-6">
-            Let&apos;s build<br />
-            <span className="ndl-gradient-text">something useful.</span>
+            Got something<br />
+            <span className="ndl-gradient-text">to share?</span>
           </h1>
           <p className="ndl-anim-3 text-slate-400 font-light max-w-lg leading-relaxed text-base sm:text-lg">
-            Whether it&apos;s a feature idea, a bug report, a collaboration, or just a message — we read everything.
+            Whether it&apos;s a feature idea, a bug report, a suggestion, or just a message — we read everything.
           </p>
         </div>
       </section>
@@ -91,7 +91,7 @@ export default function ContactPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                     </svg>
                     <p className="text-xs leading-relaxed" style={{ color: '#047857' }}>
-                      Your message is emailed to us so we can reply. We don&apos;t store contact form submissions in a database.
+                      Your message is emailed to us via our email provider so we can reply. We don&apos;t keep a separate contact-form database on our servers.
                     </p>
                   </div>
                 </div>

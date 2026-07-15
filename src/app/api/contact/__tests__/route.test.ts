@@ -10,10 +10,13 @@ vi.mock('resend', () => ({
   },
 }));
 
-function makeReq(body: unknown) {
+function makeReq(body: unknown, ip = '127.0.0.1') {
   return new NextRequest('http://localhost/api/contact', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'x-forwarded-for': ip,
+    },
     body: JSON.stringify(body),
   });
 }
@@ -22,7 +25,6 @@ describe('POST /api/contact', () => {
   const env = process.env;
 
   beforeEach(() => {
-    vi.resetModules();
     process.env = {
       ...env,
       RESEND_API_KEY: 're_test',
@@ -39,18 +41,18 @@ describe('POST /api/contact', () => {
 
   it('returns 503 when env is missing', async () => {
     delete process.env.RESEND_API_KEY;
-    const res = await POST(makeReq({ name: 'A', email: 'a@b.co', message: 'Hi' }));
+    const res = await POST(makeReq({ name: 'A', email: 'a@b.co', message: 'Hi' }, '10.0.0.1'));
     expect(res.status).toBe(503);
   });
 
   it('returns 400 when fields are missing', async () => {
-    const res = await POST(makeReq({ name: '', email: 'a@b.co', message: 'Hi' }));
+    const res = await POST(makeReq({ name: '', email: 'a@b.co', message: 'Hi' }, '10.0.0.2'));
     expect(res.status).toBe(400);
   });
 
   it('returns ok and skips send when honeypot is filled', async () => {
     const res = await POST(
-      makeReq({ name: 'Bot', email: 'bot@b.co', message: 'spam', website: 'http://spam' })
+      makeReq({ name: 'Bot', email: 'bot@b.co', message: 'spam', website: 'http://spam' }, '10.0.0.3')
     );
     expect(res.status).toBe(200);
     expect(sendMock).not.toHaveBeenCalled();
@@ -58,12 +60,15 @@ describe('POST /api/contact', () => {
 
   it('sends via Resend with replyTo set to the visitor', async () => {
     const res = await POST(
-      makeReq({
-        name: 'Dilan',
-        email: 'visitor@example.com',
-        subject: 'Hello',
-        message: 'Need a tool',
-      })
+      makeReq(
+        {
+          name: 'Dilan',
+          email: 'visitor@example.com',
+          subject: 'Hello',
+          message: 'Need a tool',
+        },
+        '10.0.0.4'
+      )
     );
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ ok: true });
@@ -79,8 +84,22 @@ describe('POST /api/contact', () => {
   it('returns 502 when Resend fails', async () => {
     sendMock.mockResolvedValue({ data: null, error: { message: 'boom' } });
     const res = await POST(
-      makeReq({ name: 'Dilan', email: 'visitor@example.com', message: 'Need a tool' })
+      makeReq({ name: 'Dilan', email: 'visitor@example.com', message: 'Need a tool' }, '10.0.0.5')
     );
     expect(res.status).toBe(502);
+  });
+
+  it('returns 429 when rate limit is exceeded', async () => {
+    const body = {
+      name: 'Dilan',
+      email: 'visitor@example.com',
+      message: 'Need a tool',
+    };
+    let lastStatus = 0;
+    for (let i = 0; i < 6; i += 1) {
+      const res = await POST(makeReq(body, '10.0.0.99'));
+      lastStatus = res.status;
+    }
+    expect(lastStatus).toBe(429);
   });
 });
