@@ -203,7 +203,13 @@ export default function HomePage() {
       </section>
 
       {/* ── VALUE PROPS STRIP ─────────────────────────────────────────────── */}
-      <div className="border-y border-slate-800/50" style={{ background: 'rgba(15,20,32,0.3)', backdropFilter: 'blur(4px)' }}>
+      <div
+        className="border-y"
+        style={{
+          background: 'var(--ndl-surface-2)',
+          borderColor: 'var(--ndl-border)',
+        }}
+      >
         <div className="max-w-7xl mx-auto px-6 sm:px-10 py-5">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
             {[
@@ -214,8 +220,15 @@ export default function HomePage() {
             ].map(([label, val], i) => (
               <ScrollReveal key={label} delay={i * 120}>
                 <div className="space-y-1">
-                  <p className="text-[10px] font-semibold tracking-widest text-slate-500 uppercase">{label}</p>
-                  <p className="text-sm font-semibold text-slate-200">{val}</p>
+                  <p
+                    className="text-[10px] font-semibold tracking-widest uppercase"
+                    style={{ color: 'var(--ndl-faint)' }}
+                  >
+                    {label}
+                  </p>
+                  <p className="text-sm font-semibold" style={{ color: 'var(--ndl-text)' }}>
+                    {val}
+                  </p>
                 </div>
               </ScrollReveal>
             ))}
