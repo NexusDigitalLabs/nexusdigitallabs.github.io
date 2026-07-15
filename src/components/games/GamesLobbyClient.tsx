@@ -3,52 +3,58 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useGameState } from '@/hooks/useGameState';
+import { GAMES as CATALOG_GAMES } from '@/data/catalog';
 import UsernameGate from './UsernameGate';
 import GameHelpModal from './GameHelpModal';
 
 type GameId = '2048' | 'snake' | 'blackjack';
 
-const GAMES: {
-  id: GameId; href: string; tag: string; title: string; desc: string;
-  accent: string; accentBg: string; accentBorder: string; symbol: string; label: string;
-}[] = [
+const LOBBY_META: Record<
+  string,
   {
+    id: GameId;
+    tag: string;
+    accent: string;
+    accentBg: string;
+    accentBorder: string;
+    symbol: string;
+    label: string;
+  }
+> = {
+  '/games/2048/': {
     id: '2048',
-    href: '/games/2048/',
     tag: 'Strategy',
-    title: '2048',
-    desc: 'Slide tiles on a 4×4 grid to merge matching numbers. Reach the 2048 tile to win.',
     accent: '#f59e0b',
     accentBg: 'rgba(245,158,11,0.1)',
     accentBorder: 'rgba(245,158,11,0.25)',
     symbol: '◼◼\n◼◼',
     label: '4×4',
   },
-  {
+  '/games/snake/': {
     id: 'snake',
-    href: '/games/snake/',
     tag: 'Arcade',
-    title: 'Snake',
-    desc: 'Navigate the snake to eat food and grow. Avoid walls and your own tail.',
     accent: '#16a34a',
     accentBg: 'rgba(22,163,74,0.1)',
     accentBorder: 'rgba(22,163,74,0.25)',
     symbol: '⟶',
     label: 'Canvas',
   },
-  {
+  '/games/blackjack/': {
     id: 'blackjack',
-    href: '/games/blackjack/',
     tag: 'Card Game',
-    title: 'Blackjack',
-    desc: 'Beat the dealer to 21 without going bust. Dealer draws to 17. Classic casino rules.',
     accent: '#6366f1',
     accentBg: 'rgba(99,102,241,0.1)',
     accentBorder: 'rgba(99,102,241,0.25)',
     symbol: '♠ ♥',
     label: '52 cards',
   },
-];
+};
+
+const GAMES = CATALOG_GAMES.map((g) => {
+  const meta = LOBBY_META[g.href];
+  if (!meta) throw new Error(`Missing lobby meta for ${g.href}`);
+  return { ...g, ...meta };
+});
 
 const strong: React.CSSProperties = { color: 'var(--ndl-text)' };
 

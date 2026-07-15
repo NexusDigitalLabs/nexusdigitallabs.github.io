@@ -95,10 +95,10 @@ describe('GET /api/fuel', () => {
     const json = await res.json();
     expect(json).toMatchObject({
       claimed: true,
-      owner_id: 'user-1',
       is_owner: true,
       signed_in: true,
     });
+    expect(json).not.toHaveProperty('owner_id');
   });
 
   it('returns 401 for resource=account when signed out', async () => {
@@ -275,20 +275,52 @@ describe('DELETE /api/fuel', () => {
     expect(res.status).toBe(400);
   });
 
-  it('deletes a fill and returns success', async () => {
-    const c = chainResolve({ data: null, error: null });
-    // delete().eq() should resolve as promise — eq is self; need eq to return promise for delete path
-    c.eq = vi.fn(() => Promise.resolve({ error: null }));
-    mockFrom.mockImplementation(() => c);
-
+  it('rejects fill delete without sync code', async () => {
     const req = new NextRequest('http://localhost/api/fuel', {
       method: 'DELETE',
       body: JSON.stringify({ resource: 'fill', id: 'f1' }),
     });
     const res = await DELETE(req);
+    expect(res.status).toBe(400);
+  });
+
+  it('deletes a fill only when it belongs to the sync code', async () => {
+    const ownership = chainResolve({ data: { id: 'f1' }, error: null });
+    const del = chainResolve({ data: null, error: null });
+    del.eq = vi.fn(() => del);
+    // Terminal delete: last .eq should resolve
+    let eqCount = 0;
+    del.eq = vi.fn(() => {
+      eqCount += 1;
+      if (eqCount >= 2) return Promise.resolve({ error: null });
+      return del;
+    });
+
+    let call = 0;
+    mockFrom.mockImplementation(() => {
+      call += 1;
+      return call === 1 ? ownership : del;
+    });
+
+    const req = new NextRequest('http://localhost/api/fuel', {
+      method: 'DELETE',
+      body: JSON.stringify({ resource: 'fill', id: 'f1', code: 'test-abc1' }),
+    });
+    const res = await DELETE(req);
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.success).toBe(true);
+  });
+
+  it('returns 404 when fill does not belong to sync code', async () => {
+    mockFrom.mockImplementation(() => chainResolve({ data: null, error: null }));
+
+    const req = new NextRequest('http://localhost/api/fuel', {
+      method: 'DELETE',
+      body: JSON.stringify({ resource: 'fill', id: 'f1', code: 'test-abc1' }),
+    });
+    const res = await DELETE(req);
+    expect(res.status).toBe(404);
   });
 
   it('deletes all user data by code and returns success', async () => {

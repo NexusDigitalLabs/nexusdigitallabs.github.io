@@ -28,7 +28,7 @@ export default function FuelTrackerPage() {
             operatingSystem: 'Web',
             url: 'https://nexusdigitallabs.dev/tools/fuel-tracker/',
             description:
-              'A free, client-side fuel tracking tool. Log fill-ups, track L/100km efficiency, visualise spending and mileage across multiple vehicles with cross-device sync.',
+              'A free fuel tracking tool with cross-device sync via a personal code, and optional account linking for restore-on-login.',
             author: { '@type': 'Organization', name: 'Nexus Digital Labs' },
             offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
           }),

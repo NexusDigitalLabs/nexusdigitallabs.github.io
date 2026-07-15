@@ -2,6 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
 import { createServerSupabaseAuthClient } from '@/lib/supabase/server';
 
+type SupabaseAdmin = ReturnType<typeof createServerSupabaseClient>;
+
+function jsonError(message: string, status: number) {
+  return NextResponse.json({ error: message }, { status });
+}
+
+function serverError(err: unknown, label: string) {
+  console.error(`[${label}]`, err);
+  return jsonError('Something went wrong. Please try again.', 500);
+}
+
 async function getSignedInUserId(): Promise<string | null> {
   try {
     const auth = await createServerSupabaseAuthClient();
@@ -15,10 +26,7 @@ async function getSignedInUserId(): Promise<string | null> {
 }
 
 /** If this sync code was already claimed, return that user_id so new rows inherit it. */
-async function ownerIdForCode(
-  supabase: ReturnType<typeof createServerSupabaseClient>,
-  code: string
-): Promise<string | null> {
+async function ownerIdForCode(supabase: SupabaseAdmin, code: string): Promise<string | null> {
   const { data } = await supabase
     .from('fuel_vehicles')
     .select('user_id')
@@ -27,6 +35,36 @@ async function ownerIdForCode(
     .limit(1)
     .maybeSingle();
   return (data?.user_id as string | undefined) ?? null;
+}
+
+async function vehicleBelongsToCode(
+  supabase: SupabaseAdmin,
+  vehicleId: string,
+  code: string
+): Promise<boolean> {
+  const { data, error } = await supabase
+    .from('fuel_vehicles')
+    .select('id')
+    .eq('id', vehicleId)
+    .eq('user_code', code)
+    .maybeSingle();
+  if (error) throw error;
+  return Boolean(data?.id);
+}
+
+async function fillBelongsToCode(
+  supabase: SupabaseAdmin,
+  fillId: string,
+  code: string
+): Promise<boolean> {
+  const { data, error } = await supabase
+    .from('fuel_fills')
+    .select('id')
+    .eq('id', fillId)
+    .eq('user_code', code)
+    .maybeSingle();
+  if (error) throw error;
+  return Boolean(data?.id);
 }
 
 // ── GET — fetch vehicles, fills, claim status, or account garage ─────────────
@@ -42,9 +80,7 @@ export async function GET(req: NextRequest) {
     // Restore garage for the signed-in account (no sync code required).
     if (resource === 'account') {
       const userId = await getSignedInUserId();
-      if (!userId) {
-        return NextResponse.json({ error: 'Sign in required' }, { status: 401 });
-      }
+      if (!userId) return jsonError('Sign in required', 401);
 
       const { data, error } = await supabase
         .from('fuel_vehicles')
@@ -52,14 +88,13 @@ export async function GET(req: NextRequest) {
         .eq('user_id', userId)
         .order('created_at', { ascending: true });
 
-      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+      if (error) return serverError(error, '/api/fuel GET account');
 
       const rows = data ?? [];
       if (rows.length === 0) {
         return NextResponse.json({ data: [], code: null });
       }
 
-      // Prefer the garage (user_code) that has the most vehicles; tie-break earliest.
       const byCode = new Map<string, typeof rows>();
       for (const row of rows) {
         const c = row.user_code as string;
@@ -82,7 +117,7 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    if (!code) return NextResponse.json({ error: 'Missing code' }, { status: 400 });
+    if (!code) return jsonError('Missing code', 400);
 
     if (resource === 'vehicles') {
       const { data, error } = await supabase
@@ -91,19 +126,24 @@ export async function GET(req: NextRequest) {
         .eq('user_code', code)
         .order('created_at', { ascending: true });
 
-      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+      if (error) return serverError(error, '/api/fuel GET vehicles');
       return NextResponse.json({ data });
     }
 
-    if (resource === 'fills' && vehicleId) {
+    if (resource === 'fills') {
+      if (!vehicleId) return jsonError('Missing vehicleId', 400);
+      const ok = await vehicleBelongsToCode(supabase, vehicleId, code);
+      if (!ok) return jsonError('Vehicle not found for this sync code', 404);
+
       const { data, error } = await supabase
         .from('fuel_fills')
         .select('*')
         .eq('vehicle_id', vehicleId)
+        .eq('user_code', code)
         .order('fill_date', { ascending: true })
         .order('odometer', { ascending: true });
 
-      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+      if (error) return serverError(error, '/api/fuel GET fills');
       return NextResponse.json({ data });
     }
 
@@ -116,40 +156,43 @@ export async function GET(req: NextRequest) {
         .limit(1)
         .maybeSingle();
 
-      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+      if (error) return serverError(error, '/api/fuel GET claim_status');
 
       const ownerId = (data?.user_id as string | undefined) ?? null;
       const signedInId = await getSignedInUserId();
 
+      // Do not expose owner UUID to clients — only claim relationship flags.
       return NextResponse.json({
         claimed: Boolean(ownerId),
-        owner_id: ownerId,
         is_owner: Boolean(ownerId && signedInId && ownerId === signedInId),
         signed_in: Boolean(signedInId),
       });
     }
 
-    return NextResponse.json({ error: 'Invalid resource' }, { status: 400 });
+    return jsonError('Invalid resource', 400);
   } catch (e) {
-    return NextResponse.json({ error: String(e) }, { status: 500 });
+    return serverError(e, '/api/fuel GET');
   }
 }
 
 // ── POST — create vehicle / fill, or claim garage ────────────────────────────
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const { resource, code } = body;
+  let body: Record<string, unknown>;
+  try {
+    body = (await req.json()) as Record<string, unknown>;
+  } catch {
+    return jsonError('Invalid JSON body', 400);
+  }
+
+  const resource = body.resource as string | undefined;
+  const code = typeof body.code === 'string' ? body.code : undefined;
 
   try {
     if (resource === 'claim') {
-      if (!code || typeof code !== 'string') {
-        return NextResponse.json({ error: 'Missing code' }, { status: 400 });
-      }
+      if (!code) return jsonError('Missing code', 400);
 
       const userId = await getSignedInUserId();
-      if (!userId) {
-        return NextResponse.json({ error: 'Sign in required to claim a garage' }, { status: 401 });
-      }
+      if (!userId) return jsonError('Sign in required to claim a garage', 401);
 
       const supabase = createServerSupabaseClient();
       const { data, error } = await supabase.rpc('claim_fuel_garage', {
@@ -157,9 +200,7 @@ export async function POST(req: NextRequest) {
         p_user_id: userId,
       });
 
-      if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
-      }
+      if (error) return serverError(error, '/api/fuel POST claim');
 
       const result = data as {
         ok?: boolean;
@@ -170,15 +211,9 @@ export async function POST(req: NextRequest) {
 
       if (!result?.ok) {
         if (result?.error === 'already_claimed') {
-          return NextResponse.json(
-            { error: 'This sync code is already linked to another account' },
-            { status: 409 }
-          );
+          return jsonError('This sync code is already linked to another account', 409);
         }
-        return NextResponse.json(
-          { error: result?.error ?? 'Claim failed' },
-          { status: 400 }
-        );
+        return jsonError(result?.error ?? 'Claim failed', 400);
       }
 
       if (result.pending || result.vehicles_updated === 0) {
@@ -198,14 +233,10 @@ export async function POST(req: NextRequest) {
     }
 
     if (resource === 'unlink') {
-      if (!code || typeof code !== 'string') {
-        return NextResponse.json({ error: 'Missing code' }, { status: 400 });
-      }
+      if (!code) return jsonError('Missing code', 400);
 
       const userId = await getSignedInUserId();
-      if (!userId) {
-        return NextResponse.json({ error: 'Sign in required to unlink a garage' }, { status: 401 });
-      }
+      if (!userId) return jsonError('Sign in required to unlink a garage', 401);
 
       const supabase = createServerSupabaseClient();
       const { data, error } = await supabase.rpc('unlink_fuel_garage', {
@@ -213,9 +244,7 @@ export async function POST(req: NextRequest) {
         p_user_id: userId,
       });
 
-      if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
-      }
+      if (error) return serverError(error, '/api/fuel POST unlink');
 
       const result = data as {
         ok?: boolean;
@@ -226,15 +255,9 @@ export async function POST(req: NextRequest) {
 
       if (!result?.ok) {
         if (result?.error === 'not_owner') {
-          return NextResponse.json(
-            { error: 'Only the linked account can unlink this garage' },
-            { status: 403 }
-          );
+          return jsonError('Only the linked account can unlink this garage', 403);
         }
-        return NextResponse.json(
-          { error: result?.error ?? 'Unlink failed' },
-          { status: 400 }
-        );
+        return jsonError(result?.error ?? 'Unlink failed', 400);
       }
 
       return NextResponse.json({
@@ -244,90 +267,140 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    if (!code) return NextResponse.json({ error: 'Missing code' }, { status: 400 });
+    if (!code) return jsonError('Missing code', 400);
 
     const supabase = createServerSupabaseClient();
 
     if (resource === 'vehicle') {
-      const { make, model, year, fuelType, nickname } = body;
+      const make = typeof body.make === 'string' ? body.make.trim() : '';
+      const model = typeof body.model === 'string' ? body.model.trim() : '';
+      if (!make || !model) return jsonError('Make and model are required', 400);
+
+      const yearRaw = body.year;
+      const year =
+        yearRaw === null || yearRaw === undefined || yearRaw === ''
+          ? null
+          : Number(yearRaw);
+      if (year !== null && !Number.isFinite(year)) {
+        return jsonError('Invalid year', 400);
+      }
+
       const ownerId = await ownerIdForCode(supabase, code);
       const { data, error } = await supabase
         .from('fuel_vehicles')
         .insert({
           user_code: code,
           user_id: ownerId,
-          make: make?.trim(),
-          model: model?.trim(),
-          year: year ? Number(year) : null,
-          fuel_type: fuelType || 'petrol',
-          nickname: nickname?.trim() || null,
+          make,
+          model,
+          year,
+          fuel_type: (typeof body.fuelType === 'string' && body.fuelType) || 'petrol',
+          nickname:
+            typeof body.nickname === 'string' && body.nickname.trim()
+              ? body.nickname.trim()
+              : null,
         })
         .select()
         .single();
 
-      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+      if (error) return serverError(error, '/api/fuel POST vehicle');
       return NextResponse.json({ data });
     }
 
     if (resource === 'fill') {
-      const { vehicleId, fillDate, odometer, litres, pricePerLitre, isPartial, notes } = body;
+      const vehicleId = typeof body.vehicleId === 'string' ? body.vehicleId : '';
+      if (!vehicleId) return jsonError('Missing vehicleId', 400);
+
+      const ok = await vehicleBelongsToCode(supabase, vehicleId, code);
+      if (!ok) return jsonError('Vehicle not found for this sync code', 404);
+
+      const odometer = Number(body.odometer);
+      const litres = Number(body.litres);
+      const pricePerLitre = Number(body.pricePerLitre);
+      if (![odometer, litres, pricePerLitre].every(Number.isFinite)) {
+        return jsonError('Odometer, litres, and price must be valid numbers', 400);
+      }
+
       const { data, error } = await supabase
         .from('fuel_fills')
         .insert({
           vehicle_id: vehicleId,
           user_code: code,
-          fill_date: fillDate,
-          odometer: Number(odometer),
-          litres: Number(litres),
-          price_per_litre: Number(pricePerLitre),
-          is_partial: isPartial || false,
-          notes: notes?.trim() || null,
+          fill_date: body.fillDate,
+          odometer,
+          litres,
+          price_per_litre: pricePerLitre,
+          is_partial: Boolean(body.isPartial),
+          notes:
+            typeof body.notes === 'string' && body.notes.trim() ? body.notes.trim() : null,
         })
         .select()
         .single();
 
-      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+      if (error) return serverError(error, '/api/fuel POST fill');
       return NextResponse.json({ data });
     }
 
-    return NextResponse.json({ error: 'Invalid resource' }, { status: 400 });
+    return jsonError('Invalid resource', 400);
   } catch (e) {
-    return NextResponse.json({ error: String(e) }, { status: 500 });
+    return serverError(e, '/api/fuel POST');
   }
 }
 
 // ── DELETE — remove fill, vehicle, or all user data ──────────────────────────
 export async function DELETE(req: NextRequest) {
-  const body = await req.json();
-  const { resource, id, code } = body;
+  let body: Record<string, unknown>;
+  try {
+    body = (await req.json()) as Record<string, unknown>;
+  } catch {
+    return jsonError('Invalid JSON body', 400);
+  }
+
+  const resource = body.resource as string | undefined;
+  const id = typeof body.id === 'string' ? body.id : undefined;
+  const code = typeof body.code === 'string' ? body.code : undefined;
 
   try {
     const supabase = createServerSupabaseClient();
 
-    if (resource === 'fill' && id) {
-      const { error } = await supabase.from('fuel_fills').delete().eq('id', id);
-      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (resource === 'fill') {
+      if (!id || !code) return jsonError('Missing id or code', 400);
+      const ok = await fillBelongsToCode(supabase, id, code);
+      if (!ok) return jsonError('Fill not found for this sync code', 404);
+
+      const { error } = await supabase
+        .from('fuel_fills')
+        .delete()
+        .eq('id', id)
+        .eq('user_code', code);
+      if (error) return serverError(error, '/api/fuel DELETE fill');
       return NextResponse.json({ success: true });
     }
 
-    if (resource === 'vehicle' && id) {
-      const { error } = await supabase.from('fuel_vehicles').delete().eq('id', id);
-      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-      return NextResponse.json({ success: true });
-    }
+    if (resource === 'vehicle') {
+      if (!id || !code) return jsonError('Missing id or code', 400);
+      const ok = await vehicleBelongsToCode(supabase, id, code);
+      if (!ok) return jsonError('Vehicle not found for this sync code', 404);
 
-    if (resource === 'user' && code) {
-      // Cascades to fuel_fills via FK constraint
       const { error } = await supabase
         .from('fuel_vehicles')
         .delete()
+        .eq('id', id)
         .eq('user_code', code);
-      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+      if (error) return serverError(error, '/api/fuel DELETE vehicle');
       return NextResponse.json({ success: true });
     }
 
-    return NextResponse.json({ error: 'Invalid resource' }, { status: 400 });
+    if (resource === 'user') {
+      if (!code) return jsonError('Missing code', 400);
+      // Cascades to fuel_fills via FK constraint
+      const { error } = await supabase.from('fuel_vehicles').delete().eq('user_code', code);
+      if (error) return serverError(error, '/api/fuel DELETE user');
+      return NextResponse.json({ success: true });
+    }
+
+    return jsonError('Invalid resource', 400);
   } catch (e) {
-    return NextResponse.json({ error: String(e) }, { status: 500 });
+    return serverError(e, '/api/fuel DELETE');
   }
 }

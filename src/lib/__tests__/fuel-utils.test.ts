@@ -97,17 +97,17 @@ describe('fmtDate', () => {
 describe('friendlyError', () => {
   it('translates invalid API key errors', () => {
     const msg = friendlyError('invalid api key provided');
-    expect(msg).toContain('SUPABASE_SERVICE_ROLE_KEY');
+    expect(msg).toMatch(/data service|try again/i);
   });
 
   it('translates missing table errors', () => {
     const msg = friendlyError('relation "fuel_vehicles" does not exist');
-    expect(msg).toContain('SQL migration');
+    expect(msg).toMatch(/unavailable|try again/i);
   });
 
   it('translates JWT / auth errors', () => {
     const msg = friendlyError('jwt expired');
-    expect(msg).toContain('service role key');
+    expect(msg).toMatch(/sign in|Authentication failed/i);
   });
 
   it('returns the original message for unknown errors', () => {

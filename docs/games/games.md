@@ -141,7 +141,5 @@ Consistent with the project's minimalist Swedish aesthetic:
 
 ## Privacy
 
-- Only `localStorage` is used — for username and high scores.
-- No data is transmitted to any server.
-- No cookies written.
-- GDPR/CCPA compliant without a cookie banner.
+- Scores default to `localStorage`. When signed in, personal bests sync to Supabase (`game_scores`).
+- See the Privacy Policy for accounts, analytics, and advertising.

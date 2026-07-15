@@ -1,5 +1,6 @@
 import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
+import HomeSectionLink from '@/components/HomeSectionLink';
 
 export const metadata = pageMetadata({
   title: 'Why We Build Privacy-First Tools — NexusDigitalLabs',
@@ -61,8 +62,8 @@ export default function PrivacyFirstPage() {
             <P>The email collection is not for your benefit. It is for the product&apos;s lead generation funnel. You exchange personal data for temporary access to a tool that, with modern browser APIs, could run entirely on your device without ever touching a server.</P>
 
             <H2>What Privacy-First Actually Means</H2>
-            <P>Privacy-first is not a marketing term for us — it is an architectural decision. For tools where data does not need to leave your device, it does not. The Prompt Architect token counter, the Invoice Generator, and the Debt Optimizer all run entirely in your browser. Your prompts, financial figures, and debt balances are never transmitted to any server. You can verify this with your browser&apos;s network inspector — no outbound requests are made when you use those tools.</P>
-            <P>For tools where cross-device sync is genuinely useful — like the Fuel Tracker — we use anonymous identifiers rather than accounts. Your sync code is a random string you create. We have no way to link it to you. No email, no name, no profile. The data is associated with a code, not a person.</P>
+            <P>Privacy-first is not a marketing term for us — it is an architectural decision. Tools that do not need a network stay local by default: Prompt Architect processes prompts only in your browser. Invoice Generator and Debt Optimizer also stay local unless you sign in and explicitly enable an optional cloud draft to resume on another device.</P>
+            <P>For tools where sync is useful — like Fuel Tracker — data is stored under a sync code you choose. That code is not an email by default. Optionally, you can link a garage to a signed-in account so it restores when you log in on another device. We disclose those paths in the Privacy Policy.</P>
 
             <H2>Why Not Just Build a SaaS?</H2>
             <P>We could. A SaaS model with accounts, subscriptions, and a user database would be more financially scalable. But it would also mean:</P>
@@ -75,7 +76,7 @@ export default function PrivacyFirstPage() {
 
             <H2>What Privacy-First Does Not Mean</H2>
             <P>It does not mean we collect zero data. We track aggregate page views to understand which tools are useful — this is a page path and a count integer, nothing more. We use Umami Analytics, which stores no personal data, sets no cookies, and has no user profiles. We also use Google Tag Manager for future analytics integration, with the same privacy-conscious approach.</P>
-            <P>It does not mean we will never have accounts or paid features. We may introduce optional accounts for features that genuinely benefit from them. If we do, those accounts will be opt-in, the free tier will remain accessible, and we will be explicit about what data is collected and why.</P>
+            <P>It does not mean we will never have accounts or paid features. Optional accounts already unlock Fuel garage linking, game score sync, and Invoice/Debt cloud drafts. Those features remain opt-in; free local tools stay usable without an account, and we document what is stored and why.</P>
 
             <H2>The Goal</H2>
             <P>Build tools that are useful, fast, and honest. No dark patterns. No data collection disguised as personalisation. No email gates in front of tools that have no reason to know your email address.</P>
@@ -86,10 +87,10 @@ export default function PrivacyFirstPage() {
             <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-3">Our tools</p>
             <h3 className="text-base font-semibold text-white mb-2">Browse NexusDigitalLabs Tools</h3>
             <p className="text-sm text-slate-400 font-light leading-relaxed mb-4">Invoice Generator, Debt Optimizer, Fuel Tracker, and Prompt Architect — all free, all private, no account needed for core features.</p>
-            <Link href="/#tools" className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 ndl-on-accent text-sm font-semibold px-6 py-2.5 rounded-xl transition-all duration-200 hover:-translate-y-0.5 no-underline">
+            <HomeSectionLink sectionId="tools" className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 ndl-on-accent text-sm font-semibold px-6 py-2.5 rounded-xl transition-all duration-200 hover:-translate-y-0.5 cursor-pointer">
               Browse tools
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-            </Link>
+            </HomeSectionLink>
           </div>
         </article>
       </div>

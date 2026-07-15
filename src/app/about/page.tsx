@@ -57,7 +57,7 @@ const VALUES = [
     iconClass: 'bg-violet-500/10 border-violet-500/20 text-violet-400',
     iconPath: 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z',
     title: 'Privacy as architecture',
-    desc: "Privacy isn't bolted on — it's the foundation. Client-side execution means zero exposure by design.",
+    desc: "Privacy isn't bolted on — it's the foundation. Most tools process your inputs in the browser; optional cloud features are opt-in and documented.",
     delay: 120,
   },
   {
@@ -106,7 +106,7 @@ export default function AboutPage() {
             <span className="ndl-gradient-text">engineers trust.</span>
           </h1>
           <p className="ndl-anim-3 text-slate-400 font-light max-w-xl leading-relaxed text-base sm:text-lg">
-            NexusDigitalLabs is a software studio focused on engineering minimalist, privacy-first utilities. No framework bloat. No tracking. No compromises.
+            NexusDigitalLabs is a software studio focused on engineering minimalist, privacy-first utilities. No framework bloat. Optional accounts only when they add clear value. No compromises on the tools that stay local.
           </p>
         </div>
       </section>
@@ -122,7 +122,7 @@ export default function AboutPage() {
                 The web doesn&apos;t need more bloated SaaS platforms. It needs sharp, single-purpose tools that do exactly what they say — fast, privately, and without unnecessary friction.
               </p>
               <p className="text-slate-400 font-light leading-relaxed text-sm sm:text-base mt-4">
-                Most tools run entirely in your browser — nothing leaves your device. Fuel Tracker can sync via an anonymous code with no account. Sign-in is optional: link a garage to your account if you want restore-on-login.
+                Most tools run entirely in your browser. Fuel Tracker can sync via an anonymous code with no account. Sign-in is optional: link a garage, sync game scores, or enable Invoice/Debt cloud drafts when you want restore-across-devices.
               </p>
             </ScrollReveal>
             <ScrollReveal delay={120}>
@@ -201,7 +201,7 @@ export default function AboutPage() {
             {[
               { q: 'Who built NexusDigitalLabs?', a: 'NexusDigitalLabs is an independent software studio. The tools, articles, and games on this site are built and maintained by a small team of developers focused on building useful things without unnecessary complexity.' },
               { q: 'Are the tools free to use?', a: 'Yes — core tools are free to use with no account required. Optional sign-in unlocks extras such as linking a Fuel Tracker garage to your account. We may introduce premium features later, but core functionality stays free.' },
-              { q: 'Do you collect any user data?', a: 'Most tools process everything in your browser. Fuel Tracker stores vehicles and fill-ups under a sync code you choose (no email required). If you sign in, we store account profile data (email, display name, avatar) via Supabase Auth, and optional garage linking associates that code with your account. Analytics (Umami) and our page counters are aggregate only. See the Privacy Policy for details.' },
+              { q: 'Do you collect any user data?', a: 'Most tools process everything in your browser. Fuel Tracker stores vehicles and fill-ups under a sync code you choose (no email required). If you sign in, we store account profile data (email, display name, avatar) via Supabase Auth, optional garage linking, optional game high-score sync, and optional Invoice/Debt cloud drafts you explicitly enable. Contact form messages are emailed to us via our provider. Analytics (Umami), page counters, and ads (where shown) are disclosed in the Privacy Policy.' },
               { q: 'Can I suggest a tool or feature?', a: 'Yes. Use the Contact page to send a suggestion. We build what we find genuinely useful, so real-world requests from real users carry a lot of weight in what gets prioritised next.' },
               { q: 'How do I report a bug or request a feature?', a: 'Use the Contact page to send us a message. We review every submission and prioritise based on real-world impact and frequency of request.' },
               { q: 'Why not use a popular framework like WordPress or Webflow?', a: "WordPress and Webflow solve the wrong problem for what we're building. Managed CMSs add complexity, cookies, plugin dependencies, and performance overhead that are simply unnecessary for a site built around lightweight, client-side tools. Next.js and React give us full control with zero compromise on speed or privacy." },
@@ -221,9 +221,9 @@ export default function AboutPage() {
       <section className="py-20 border-t border-slate-800/50">
         <div className="max-w-4xl mx-auto px-6 sm:px-10 text-center">
           <ScrollReveal>
-            <h2 className="text-2xl sm:text-3xl font-light text-white tracking-tight mb-4">Want to collaborate or give feedback?</h2>
+            <h2 className="text-2xl sm:text-3xl font-light text-white tracking-tight mb-4">Got feedback or a feature idea?</h2>
             <p className="text-slate-400 text-sm font-light mb-8 max-w-md mx-auto">
-              We&apos;re open to partnerships, feature ideas, and open-source contributions. Reach out anytime.
+              Suggestions, bug reports, and feature ideas are always welcome. Reach out anytime.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link

@@ -36,7 +36,7 @@ src/lib/debt-engine.ts                          ← Multi-plan calculation engin
 
 ## Core Calculation Engine
 
-All logic runs client-side in pure TypeScript (`src/lib/debt-engine.ts`). No data ever leaves the browser.
+All planning math runs client-side in pure TypeScript (`src/lib/debt-engine.ts`). Default is local-only; optional signed-in cloud draft is documented in `docs/auth.md`.
 
 ### Inputs
 
@@ -165,7 +165,8 @@ Matches the dark site shell:
 
 - Zero cookies / `localStorage` for financial data.
 - All figures exist only in React state for the session.
-- GDPR/CCPA friendly without a cookie banner for this tool.
+- Default planning stays in the browser; optional cloud draft when signed in.
+- Sitewide privacy (auth cookies, analytics) is covered by the Privacy Policy.
 
 ---
 
