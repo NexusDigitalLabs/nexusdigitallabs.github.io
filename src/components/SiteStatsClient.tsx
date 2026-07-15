@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { ARTICLES } from '@/data/articles';
+import { GAME_COUNT, TOOL_COUNT } from '@/data/catalog';
 
 // ── Smooth count-up hook ──────────────────────────────────────────────────────
 function useCountUp(target: number, duration = 1600, startDelay = 0) {
@@ -66,6 +68,8 @@ function AnimatedStat({
   );
 }
 
+const ARTICLE_COUNT = ARTICLES.length;
+
 // ── Main component ────────────────────────────────────────────────────────────
 export default function SiteStatsClient() {
   const [totalViews, setTotalViews] = useState(0);
@@ -84,10 +88,10 @@ export default function SiteStatsClient() {
   }, []);
 
   const STATS = [
-    { value: totalViews, label: 'People helped',  suffix: '',  isLoading: loading, delay: 0   },
-    { value: 4,          label: 'Free tools',      suffix: '',  isLoading: false,   delay: 120 },
-    { value: 5,          label: 'Articles',        suffix: '',  isLoading: false,   delay: 240 },
-    { value: 3,          label: 'Browser games',   suffix: '',  isLoading: false,   delay: 360 },
+    { value: totalViews, label: 'People helped', suffix: '', isLoading: loading, delay: 0 },
+    { value: TOOL_COUNT, label: 'Free tools', suffix: '', isLoading: false, delay: 120 },
+    { value: ARTICLE_COUNT, label: 'Articles', suffix: '', isLoading: false, delay: 240 },
+    { value: GAME_COUNT, label: 'Browser games', suffix: '', isLoading: false, delay: 360 },
   ] as const;
 
   return (
