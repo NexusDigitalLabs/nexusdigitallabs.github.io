@@ -91,6 +91,30 @@ exports[`Footer — snapshot > matches snapshot 1`] = `
           </a>
           <a
             class="ndl-footer-link block text-sm transition-colors no-underline"
+            href="/tools/json-engine"
+          >
+            JSON Engine
+          </a>
+          <a
+            class="ndl-footer-link block text-sm transition-colors no-underline"
+            href="/tools/svg-studio"
+          >
+            SVG Studio
+          </a>
+          <a
+            class="ndl-footer-link block text-sm transition-colors no-underline"
+            href="/tools/env-formatter"
+          >
+            Env Formatter
+          </a>
+          <a
+            class="ndl-footer-link block text-sm transition-colors no-underline"
+            href="/tools/prompt-packager"
+          >
+            Prompt Packager
+          </a>
+          <a
+            class="ndl-footer-link block text-sm transition-colors no-underline"
             href="/tools/invoice-generator"
           >
             Invoice Generator

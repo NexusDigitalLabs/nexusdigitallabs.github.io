@@ -25,9 +25,13 @@ describe('Footer — structure', () => {
     expect(screen.getByRole('link', { name: /terms of use/i })).toBeInTheDocument();
   });
 
-  it('renders the "Tools" column with all 4 tools', () => {
+  it('renders the "Tools" column with core and new developer tools', () => {
     render(<Footer />);
     expect(screen.getByRole('link', { name: /prompt architect/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /json engine/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /svg studio/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /env formatter/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /prompt packager/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /invoice generator/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /debt optimizer/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /fuel tracker/i })).toBeInTheDocument();
