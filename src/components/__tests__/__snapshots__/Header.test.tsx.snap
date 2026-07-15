@@ -28,38 +28,38 @@ exports[`Header — snapshot > matches snapshot on homepage 1`] = `
     <nav
       class="flex-1 hidden md:flex items-center justify-center gap-9"
     >
-      <a
-        class="text-sm transition-colors duration-200 no-underline relative group"
-        href="/#tools"
+      <button
+        class="text-sm transition-colors duration-200 no-underline relative group cursor-pointer bg-transparent border-0 p-0"
         style="color: var(--ndl-muted);"
+        type="button"
       >
         Tools
         <span
           class="absolute -bottom-0.5 left-0 h-px bg-blue-500 transition-all duration-300 w-0 group-hover:w-full"
         />
-      </a>
-      <a
-        class="text-sm transition-colors duration-200 no-underline relative group"
-        href="/#articles"
+      </button>
+      <button
+        class="text-sm transition-colors duration-200 no-underline relative group cursor-pointer bg-transparent border-0 p-0"
         style="color: var(--ndl-muted);"
+        type="button"
       >
         Articles
         <span
           class="absolute -bottom-0.5 left-0 h-px bg-blue-500 transition-all duration-300 w-0 group-hover:w-full"
         />
-      </a>
-      <a
-        class="text-sm transition-colors duration-200 no-underline relative group"
-        href="/games"
+      </button>
+      <button
+        class="text-sm transition-colors duration-200 no-underline relative group cursor-pointer bg-transparent border-0 p-0"
         style="color: var(--ndl-muted);"
+        type="button"
       >
         Games
         <span
           class="absolute -bottom-0.5 left-0 h-px bg-blue-500 transition-all duration-300 w-0 group-hover:w-full"
         />
-      </a>
+      </button>
       <a
-        class="text-sm transition-colors duration-200 no-underline relative group"
+        class="text-sm transition-colors duration-200 no-underline relative group cursor-pointer bg-transparent border-0 p-0"
         href="/about"
         style="color: var(--ndl-muted);"
       >
@@ -69,7 +69,7 @@ exports[`Header — snapshot > matches snapshot on homepage 1`] = `
         />
       </a>
       <a
-        class="text-sm transition-colors duration-200 no-underline relative group"
+        class="text-sm transition-colors duration-200 no-underline relative group cursor-pointer bg-transparent border-0 p-0"
         href="/contact"
         style="color: var(--ndl-muted);"
       >

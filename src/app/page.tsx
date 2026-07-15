@@ -74,14 +74,14 @@ export default function HomePage() {
             </p>
             <div className="ndl-anim-4 flex flex-col sm:flex-row items-start gap-3">
               <Link
-                href="#tools"
+                href="/#tools"
                 className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 ndl-on-accent text-sm font-semibold px-7 py-3.5 rounded-xl transition-all duration-200 no-underline"
                 style={{ boxShadow: '0 4px 20px rgba(37,99,235,0.4)' }}
               >
                 Explore Tools <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
-                href="#articles"
+                href="/#articles"
                 className="inline-flex items-center gap-2 text-slate-300 hover:text-white border border-slate-700 hover:border-slate-500 text-sm font-medium px-7 py-3.5 rounded-xl transition-all duration-200 no-underline"
               >
                 Read Articles
@@ -94,7 +94,7 @@ export default function HomePage() {
           </div>
 
           {/* RIGHT: Animated floating UI cluster */}
-          <div className="ndl-anim-visual hidden lg:block relative h-[520px] w-full select-none" aria-hidden="true">
+          <div className="ndl-anim-visual ndl-on-dark hidden lg:block relative h-[520px] w-full select-none" aria-hidden="true">
 
             {/* Glow disc */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -159,7 +159,7 @@ export default function HomePage() {
                 </div>
                 <span className="font-bold uppercase" style={{ fontSize: '9px', color: '#c4b5fd', letterSpacing: '0.1em' }}>Tokens</span>
               </div>
-              <p className="text-3xl font-bold text-white tabular-nums leading-none mb-1.5">1,204</p>
+              <p className="text-3xl font-bold tabular-nums leading-none mb-1.5" style={{ color: '#ffffff' }}>1,204</p>
               <p className="text-xs font-medium" style={{ color: '#34d399' }}>↓ 1,643 saved</p>
             </div>
 
@@ -172,7 +172,7 @@ export default function HomePage() {
                 </svg>
               </div>
               <p className="font-bold uppercase mb-1.5" style={{ fontSize: '9px', color: '#6ee7b7', letterSpacing: '0.1em' }}>Est. Cost</p>
-              <p className="text-3xl font-bold text-white tabular-nums leading-none mb-1">$0.04</p>
+              <p className="text-3xl font-bold tabular-nums leading-none mb-1" style={{ color: '#ffffff' }}>$0.04</p>
               <p className="text-xs" style={{ color: '#94a3b8' }}>per API call</p>
             </div>
 
@@ -223,7 +223,7 @@ export default function HomePage() {
       </div>
 
       {/* ── TOOLS SECTION ────────────────────────────────────────────────── */}
-      <section id="tools" className="py-20 sm:py-28">
+      <section id="tools" className="scroll-mt-20 py-20 sm:py-28">
         <div className="max-w-7xl mx-auto px-6 sm:px-10">
           <ScrollReveal className="mb-14">
             <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-3">Free Tools</p>
@@ -255,7 +255,7 @@ export default function HomePage() {
       </section>
 
       {/* ── ARTICLES SECTION ─────────────────────────────────────────────── */}
-      <section id="articles" className="py-20 sm:py-28 border-t border-slate-800/50">
+      <section id="articles" className="scroll-mt-20 py-20 sm:py-28 border-t border-slate-800/50">
         <div className="max-w-7xl mx-auto px-6 sm:px-10">
           <ScrollReveal className="mb-14 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
             <div>
@@ -315,7 +315,7 @@ export default function HomePage() {
       </section>
 
       {/* ── GAMES SECTION ────────────────────────────────────────────────── */}
-      <section id="games" className="py-20 sm:py-28 border-t border-slate-800/50">
+      <section id="games" className="scroll-mt-20 py-20 sm:py-28 border-t border-slate-800/50">
         <div className="max-w-7xl mx-auto px-6 sm:px-10">
           <ScrollReveal className="mb-14">
             <p className="text-xs font-semibold tracking-widest text-amber-400 uppercase mb-3">Mini Games</p>

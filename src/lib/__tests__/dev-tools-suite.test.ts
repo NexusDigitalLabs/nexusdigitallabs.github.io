@@ -1,11 +1,20 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import {
   parseJsonSafe,
   jsonToTypeScript,
   jsonToZod,
   jsonToJsonPaths,
 } from '@/lib/json-engine';
-import { optimizeSvg, svgToReactComponent, svgToVueComponent } from '@/lib/svg-studio';
+import {
+  applySvgColorMap,
+  colorToPickerHex,
+  downloadSvgFile,
+  extractSvgColors,
+  optimizeSvg,
+  svgForPreview,
+  svgToReactComponent,
+  svgToVueComponent,
+} from '@/lib/svg-studio';
 import { formatEnv } from '@/lib/env-formatter';
 import {
   buildPromptPackage,
@@ -72,6 +81,52 @@ describe('svg-studio', () => {
     expect(svgToReactComponent(svg, 'logo.svg')).toContain('{...props}');
     expect(svgToVueComponent(svg, 'logo.svg')).toContain('defineOptions');
     expect(svgToVueComponent(svg, 'logo.svg')).toContain('<template>');
+  });
+
+  it('adds concrete size for viewBox-only preview SVGs', () => {
+    const svg =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#2563eb"/><text x="50" y="66" fill="#fff">N</text></svg>';
+    const preview = svgForPreview(svg, 160);
+    expect(preview).toContain('width="160"');
+    expect(preview).toContain('height="160"');
+    expect(preview).toContain('>N</text>');
+  });
+
+  it('extracts and remaps fill colors including short hex', () => {
+    const svg =
+      '<svg viewBox="0 0 100 100"><rect fill="#2563eb"/><text fill="#fff">N</text></svg>';
+    expect(colorToPickerHex('#fff')).toBe('#ffffff');
+    const swatches = extractSvgColors(svg);
+    expect(swatches.map((s) => s.hex).sort()).toEqual(['#2563eb', '#ffffff']);
+    const remapped = applySvgColorMap(
+      svg,
+      { '#2563eb': '#ef4444', '#ffffff': '#111111' },
+      swatches
+    );
+    expect(remapped).toContain('fill="#ef4444"');
+    expect(remapped).toContain('fill="#111111"');
+    expect(remapped).not.toContain('#2563eb');
+  });
+
+  it('downloadSvgFile creates an object URL download (jsdom smoke)', () => {
+    const createObjectURL = vi.fn(() => 'blob:mock');
+    const revokeObjectURL = vi.fn();
+    const click = vi.fn();
+    Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: createObjectURL });
+    Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: revokeObjectURL });
+    const originalCreate = document.createElement.bind(document);
+    vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {
+      const el = originalCreate(tag);
+      if (tag === 'a') {
+        Object.defineProperty(el, 'click', { value: click });
+      }
+      return el;
+    });
+
+    downloadSvgFile('<svg xmlns="http://www.w3.org/2000/svg"/>', 'mark');
+    expect(createObjectURL).toHaveBeenCalled();
+    expect(click).toHaveBeenCalled();
+    expect(revokeObjectURL).toHaveBeenCalled();
   });
 });
 

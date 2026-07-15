@@ -97,7 +97,8 @@ export default function PrivacyPolicyPage() {
           </P>
           <P>
             <strong className="text-slate-300 font-medium">Contact form.</strong>{' '}
-            If you contact us, we receive the information you voluntarily submit (such as name, email, and message) solely to respond to your enquiry.
+            If you contact us, we receive the information you voluntarily submit (such as name, email, and message) by email solely to respond to your enquiry.
+            Submissions are delivered through our email provider; we do not keep a separate contact-form database.
           </P>
         </Section>
 
@@ -134,7 +135,7 @@ export default function PrivacyPolicyPage() {
 
         <Section title="Service Providers">
           <P>
-            We use infrastructure and auth providers to run the site, including Vercel (hosting), Supabase (database and authentication), Umami (analytics), and Google (OAuth sign-in and AdSense where applicable).
+            We use infrastructure and auth providers to run the site, including Vercel (hosting), Supabase (database and authentication), Resend (transactional email for the contact form and account emails where configured), Umami (analytics), and Google (OAuth sign-in and AdSense where applicable).
             These providers process data under their own terms and only as needed for the services described above.
           </P>
         </Section>

@@ -239,6 +239,13 @@ body {
 .ndl-on-accent {
   color: #ffffff !important;
 }
+/* Dark mock / glass cards (e.g. homepage hero floats): keep designed light text. */
+[data-theme="light"] .ndl-on-dark .text-white,
+[data-theme="light"] .ndl-on-dark .text-slate-50,
+[data-theme="light"] .ndl-on-dark .text-slate-100,
+[data-theme="light"] .ndl-on-dark .text-slate-200 {
+  color: #ffffff !important;
+}
 [data-theme="light"] .ndl-on-accent,
 [data-theme="light"] .ndl-on-accent.text-white,
 [data-theme="light"] .bg-blue-600.text-white,

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState } from 'react';
 
 // ── Token estimation engine (BPE approximation, ~95-98% accuracy vs tiktoken) ─
 function estimateTokens(text: string): number {
@@ -69,20 +69,14 @@ export default function PromptArchitectClient() {
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [copied, setCopied] = useState(false);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const inStats = computeStats(input);
   const outStats = output !== '' ? computeStats(output) : null;
   const tokensSaved = outStats ? inStats.tokens - outStats.tokens : null;
+  // Cost estimate prefers optimized output when present so the grid matches what you would paste into an API.
+  const costTokens = outStats ? outStats.tokens : inStats.tokens;
 
-  // Debounced live stats (already reactive in React, but we guard rapid keystrokes)
-  const handleInput = useCallback((val: string) => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => setInput(val), 60);
-  }, []);
-
-  useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current); }, []);
-
+  /** Transforms only write to Optimized Output — Input Prompt stays untouched. */
   function applyTransform(fn: (t: string) => string) {
     if (!input.trim()) return;
     setOutput(fn(input));
@@ -146,7 +140,7 @@ export default function PromptArchitectClient() {
           <textarea
             id="promptInput"
             value={input}
-            onChange={(e) => { setInput(e.target.value); handleInput(e.target.value); }}
+            onChange={(e) => setInput(e.target.value)}
             placeholder="Paste or type your system prompt here…"
             className="flex-1 w-full min-h-[280px] lg:min-h-0 lg:h-80 rounded-xl resize-none border border-zinc-800 bg-zinc-900/70 text-zinc-100 text-sm leading-relaxed px-4 py-3.5 placeholder:text-zinc-700 focus:outline-none focus:border-violet-500/60 focus:ring-1 focus:ring-violet-500/20 font-mono"
             spellCheck={false}
@@ -238,12 +232,15 @@ export default function PromptArchitectClient() {
       {/* ── API Cost estimator ── */}
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 mb-10">
         <h2 className="text-sm font-semibold text-zinc-200 mb-1">API Cost Estimator</h2>
-        <p className="text-xs text-zinc-500 mb-5">Input token cost projection across major LLM providers. Rates: USD per 1M input tokens.</p>
+        <p className="text-xs text-zinc-500 mb-5">
+          Token cost projection across major LLM providers
+          {outStats ? ' (using Optimized Output)' : ' (using Input Prompt)'}. Rates: USD per 1M input tokens.
+        </p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {MODELS.map((m) => (
             <div key={m.id} className="rounded-xl bg-zinc-900/60 border border-zinc-800/60 p-4">
               <p className="text-[10px] font-semibold tracking-widest text-zinc-600 uppercase mb-2">{m.label}</p>
-              <p className="text-lg font-bold text-zinc-100 tabular-nums">{formatCost(inStats.tokens, m.rate)}</p>
+              <p className="text-lg font-bold text-zinc-100 tabular-nums">{formatCost(costTokens, m.rate)}</p>
               <p className="text-[10px] text-zinc-600 mt-1">per API call</p>
             </div>
           ))}
@@ -270,7 +267,7 @@ export default function PromptArchitectClient() {
               },
               {
                 q: 'What does "Remove Extra Whitespace" preserve vs. remove?',
-                a: 'Removes: leading/trailing whitespace per line, 2+ consecutive spaces, and 3+ consecutive blank lines (reduced to two). Preserves: single blank lines for paragraph breaks, single newlines between list items, and all meaningful text characters.',
+                a: 'Removes: leading/trailing whitespace per line, 2+ consecutive spaces, and 3+ consecutive newlines (collapsed to a single blank line). Preserves: one blank line for paragraph breaks, single newlines between list items, and all meaningful text characters. The Input Prompt is never modified — results go only to Optimized Output.',
               },
               {
                 q: 'Does this work for Claude, Gemini, and other LLMs?',

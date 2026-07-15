@@ -71,3 +71,15 @@ Run [`006_tool_drafts.sql`](../supabase/migrations/006_tool_drafts.sql). Default
 ## Deferred
 
 - Custom SMTP for magic-link email branding (Resend / DNS).
+
+## Contact form
+
+The contact page posts to `POST /api/contact`, which sends mail with **Resend** (server-only).
+
+| Variable | Purpose |
+|----------|---------|
+| `RESEND_API_KEY` | Resend API key |
+| `CONTACT_FROM_EMAIL` | Public From (e.g. `NexusDigitalLabs <hello@nexusdigitallabs.dev>`) |
+| `CONTACT_TO_EMAIL` | Private inbox (e.g. `dilanfdo.dev@gmail.com`) — never exposed to the client |
+
+Set the same vars on Vercel. Domain sending must be verified in Resend. `Reply-To` is the visitor’s address.
