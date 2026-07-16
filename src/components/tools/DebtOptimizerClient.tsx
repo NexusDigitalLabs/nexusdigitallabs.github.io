@@ -6,7 +6,7 @@ import {
 import Script from 'next/script';
 import {
   type Expense, type Debt, type MultiPlanResult, type PlanResult, type PlanHorizon,
-  runEngine, fmtC, fmtMo, fmtPct,
+  runEngine, fmtC, fmtMo, fmtPct, totalDebtRemaining,
 } from '@/lib/debt-engine';
 import CloudDraftBar from '@/components/CloudDraftBar';
 import { useCloudToolDraft } from '@/hooks/useCloudToolDraft';
@@ -154,6 +154,8 @@ export default function DebtOptimizerClient() {
   const [selectedHorizon, setSelectedHorizon] = useState<PlanHorizon>('medium');
   const [isCalc, setIsCalc] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [paymentDrafts, setPaymentDrafts] = useState<Record<string, number>>({});
+  const [baselineDebt, setBaselineDebt] = useState<number | null>(null);
 
   type DebtDraft = {
     currency: string;
@@ -201,6 +203,8 @@ export default function DebtOptimizerClient() {
   const sym = CURRENCY_MAP[currency]?.symbol ?? '$';
   const totalExp = expenses.reduce((s, e) => s + e.amount, 0);
   const fcf = income - totalExp;
+  const totalPaidSoFar = debts.reduce((s, d) => s + (d.totalPaid ?? 0), 0);
+  const remainingDebt = totalDebtRemaining(debts);
 
   const selectedPlan: PlanResult | null = useMemo(() => {
     if (!result?.isViable) return null;
@@ -225,18 +229,43 @@ export default function DebtOptimizerClient() {
   const updateDebt = (id: string, field: keyof Debt, value: string | number) =>
     setDebts((prev) => prev.map((d) => d.id === id ? { ...d, [field]: value } : d));
 
+  const recordPayment = useCallback((debtId: string) => {
+    const amount = paymentDrafts[debtId] ?? 0;
+    if (amount <= 0) return;
+
+    setDebts((prev) => prev.map((d) => {
+      if (d.id !== debtId) return d;
+      const pay = Math.min(amount, d.outstanding);
+      if (pay <= 0) return d;
+      return {
+        ...d,
+        outstanding: d.outstanding - pay,
+        totalPaid: (d.totalPaid ?? 0) + pay,
+      };
+    }));
+    setPaymentDrafts((prev) => ({ ...prev, [debtId]: 0 }));
+  }, [paymentDrafts]);
+
   const calculate = useCallback(() => {
     setIsCalc(true);
     setTimeout(() => {
       const r = runEngine(income, expenses, debts, sym);
       setResult(r);
-      // Prefer medium if viable, else first viable plan
+      setBaselineDebt(totalDebtRemaining(debts));
       const preferred = r.plans.find((p) => p.horizon === 'medium' && p.isViable)
         ?? r.plans.find((p) => p.isViable);
       if (preferred) setSelectedHorizon(preferred.horizon);
       setIsCalc(false);
     }, 20);
   }, [income, expenses, debts, sym]);
+
+  // Re-run plan when balances change after an initial calculation (e.g. recorded payments).
+  useEffect(() => {
+    if (!result?.isViable || isCalc) return;
+    const r = runEngine(income, expenses, debts, sym);
+    setResult(r);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debts, income, expenses]);
 
   const pdfRef = useRef<HTMLDivElement>(null);
 
@@ -481,7 +510,43 @@ export default function DebtOptimizerClient() {
                         <div className="mt-2.5 h-[3px] overflow-hidden" style={{ background: D.sep }}>
                           <div className="h-[3px] transition-all" style={{ width: `${pct.toFixed(1)}%`, background: D.textFaint }} />
                         </div>
-                        <p className="text-[10px] mt-1" style={{ color: D.textFaint }}>{Math.round(pct)}% outstanding</p>
+                        <p className="text-[10px] mt-1" style={{ color: D.textFaint }}>
+                          {Math.round(pct)}% outstanding
+                          {(debt.totalPaid ?? 0) > 0 && (
+                            <> · {fmtC(debt.totalPaid ?? 0, sym)} paid so far</>
+                          )}
+                        </p>
+                        {debt.outstanding > 0 && (
+                          <div className="mt-2.5 pt-2.5" style={{ borderTop: `1px solid ${D.sep}` }}>
+                            <label className={lblBase}>Record payment / settlement</label>
+                            <div className="flex items-center gap-2">
+                              <AmountInput
+                                value={paymentDrafts[debt.id] ?? 0}
+                                onChange={(n) => setPaymentDrafts((prev) => ({ ...prev, [debt.id]: n }))}
+                                prefix={sym}
+                                placeholder="0"
+                                style={{ flex: 1 }}
+                              />
+                              <button
+                                type="button"
+                                onClick={() => recordPayment(debt.id)}
+                                disabled={(paymentDrafts[debt.id] ?? 0) <= 0}
+                                className="shrink-0 px-2.5 py-2 text-[10px] font-bold tracking-[0.06em] uppercase cursor-pointer border-none transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                style={{ background: D.accent, color: '#fff', borderRadius: 0 }}
+                              >
+                                Apply
+                              </button>
+                            </div>
+                            <p className="text-[10px] mt-1 font-light" style={{ color: D.textFaint }}>
+                              Remaining after payment: {fmtC(debt.outstanding, sym)}
+                            </p>
+                          </div>
+                        )}
+                        {debt.outstanding <= 0 && (debt.totalPaid ?? 0) > 0 && (
+                          <p className="text-[10px] mt-2 font-semibold" style={{ color: D.green }}>
+                            Settled · {fmtC(debt.totalPaid ?? 0, sym)} paid
+                          </p>
+                        )}
                       </div>
                     );
                   })}
@@ -552,12 +617,64 @@ export default function DebtOptimizerClient() {
               </div>
             ) : selectedPlan ? (
               <div>
+                {/* Settlement progress */}
+                <div className="mb-6 p-4" style={{ border: `1px solid ${D.cardBorder}`, background: D.cardBg }}>
+                    <p className="text-[0.6875rem] font-bold tracking-[0.1em] uppercase mb-3" style={{ color: D.textFaint }}>
+                      Settlement progress · {selectedPlan.label} plan
+                    </p>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      {[
+                        {
+                          label: 'Remaining to settle',
+                          value: fmtC(remainingDebt, sym),
+                          sub: baselineDebt !== null && baselineDebt > remainingDebt
+                            ? `${fmtC(baselineDebt - remainingDebt, sym)} paid down`
+                            : 'Current balances',
+                          green: remainingDebt === 0,
+                        },
+                        {
+                          label: 'Paid so far',
+                          value: fmtC(totalPaidSoFar, sym),
+                          sub: 'Logged settlements',
+                        },
+                        {
+                          label: 'Debt-free in',
+                          value: remainingDebt > 0 ? fmtMo(selectedPlan.debtFreeMonth) : 'Now',
+                          sub: `${selectedPlan.label} · ${fmtPct(selectedPlan.debtPct)} to debt`,
+                          green: true,
+                        },
+                        {
+                          label: 'Monthly to debt',
+                          value: fmtC(selectedPlan.monthlyDebtBudget, sym),
+                          sub: `${fmtMo(selectedPlan.debtFreeMonth)} at this pace`,
+                        },
+                      ].map(({ label, value, sub, green }) => (
+                        <div key={label}>
+                          <p className="text-[10px] font-semibold tracking-wide uppercase mb-1" style={{ color: D.textFaint }}>{label}</p>
+                          <p className="text-lg font-semibold leading-none mb-1" style={{ color: green ? D.green : D.textPrimary }}>{value}</p>
+                          <p className="text-[10px] font-light" style={{ color: D.textMuted }}>{sub}</p>
+                        </div>
+                      ))}
+                    </div>
+                    {baselineDebt !== null && baselineDebt > 0 && (
+                      <div className="mt-3 h-[4px] overflow-hidden" style={{ background: D.sep }}>
+                        <div
+                          className="h-[4px] transition-all"
+                          style={{
+                            width: `${Math.min(100, ((baselineDebt - remainingDebt) / baselineDebt) * 100).toFixed(1)}%`,
+                            background: D.green,
+                          }}
+                        />
+                      </div>
+                    )}
+                  </div>
+
                 {/* Overview strip */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
                   {[
                     { label: 'Free Cash Flow', value: fmtC(result.freeCashFlow, sym), sub: 'Income − expenses' },
-                    { label: 'Total to Repay', value: fmtC(result.totalInitialDebt, sym), sub: 'Outstanding balances' },
-                    { label: 'Debt-Free In', value: fmtMo(selectedPlan.debtFreeMonth), sub: `${selectedPlan.label} plan`, green: true },
+                    { label: 'Remaining to settle', value: fmtC(remainingDebt, sym), sub: totalPaidSoFar > 0 ? `${fmtC(totalPaidSoFar, sym)} paid so far` : 'Outstanding balances' },
+                    { label: 'Debt-Free In', value: remainingDebt > 0 ? fmtMo(selectedPlan.debtFreeMonth) : 'Now', sub: `${selectedPlan.label} plan`, green: true },
                   ].map(({ label, value, sub, green }) => (
                     <div key={label} style={{ border: `1px solid ${D.cardBorder}`, background: D.cardBg, padding: '1rem 1.25rem' }}>
                       <p className="text-[0.6875rem] font-bold tracking-[0.1em] uppercase mb-2" style={{ color: D.textFaint }}>{label}</p>

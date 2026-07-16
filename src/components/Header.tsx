@@ -213,7 +213,7 @@ export default function Header() {
           })}
         </nav>
 
-        <div className="ml-auto flex items-center gap-3 flex-shrink-0">
+        <div className="ml-auto flex items-center gap-2 sm:gap-3 flex-shrink-0">
           {badge && (
             <span className={`hidden md:inline-flex items-center text-xs font-medium px-3 py-1.5 rounded-lg whitespace-nowrap ${BADGE_CLASSES[badge.color]}`}>
               {badge.label}

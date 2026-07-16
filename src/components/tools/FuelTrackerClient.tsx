@@ -588,16 +588,44 @@ export default function FuelTrackerClient() {
     }
   }, []);
 
-  // ── Init — local sync code, else signed-in account garage, else onboarding ─
+  // ── Init — signed-in account garage first, else local sync code, else onboarding ─
   useEffect(() => {
     if (authLoading) return;
 
     let cancelled = false;
 
+    async function tryAccountGarage(): Promise<boolean> {
+      if (!user) return false;
+      const res = await fetch('/api/fuel?resource=account');
+      if (!res.ok || cancelled) return false;
+      const json = await res.json();
+      if (!json.data?.length || !json.code) return false;
+
+      const accountCode = normaliseCode(json.code);
+      try {
+        localStorage.setItem(FUEL_CODE_KEY, accountCode);
+        markGarageAuthLock(accountCode);
+      } catch { /* ignore */ }
+
+      if (!cancelled) {
+        setUserCode(accountCode);
+        setVehicles(json.data);
+        setActiveVehicleId(json.data[0].id);
+        setStep('main');
+      }
+      return true;
+    }
+
     async function init() {
       try {
         const cur = localStorage.getItem(FUEL_CURRENCY_KEY);
         if (cur && !cancelled) setCurrencyCode(normalizeCurrencyCode(cur));
+
+        // Signed-in users: prefer account-linked garage over stale anonymous codes.
+        if (user) {
+          const restored = await tryAccountGarage();
+          if (restored || cancelled) return;
+        }
 
         const stored = localStorage.getItem(FUEL_CODE_KEY);
         const code = stored ? normaliseCode(stored) : null;
@@ -605,7 +633,6 @@ export default function FuelTrackerClient() {
         if (code) {
           if (!cancelled) {
             setUserCode(code);
-            // Linked / previously signed-in garage: don't load data until signed in.
             if (!user && isGarageAuthLocked(code)) {
               setStep('main');
               return;
@@ -615,26 +642,6 @@ export default function FuelTrackerClient() {
           return;
         }
 
-        if (user) {
-          const res = await fetch('/api/fuel?resource=account');
-          if (cancelled) return;
-          if (res.ok) {
-            const json = await res.json();
-            if (json.data && json.data.length > 0 && json.code) {
-              const accountCode = normaliseCode(json.code);
-              try {
-                localStorage.setItem(FUEL_CODE_KEY, accountCode);
-                markGarageAuthLock(accountCode);
-              } catch { /* ignore */ }
-              setUserCode(accountCode);
-              setVehicles(json.data);
-              setActiveVehicleId(json.data[0].id);
-              setStep('main');
-              return;
-            }
-          }
-        }
-
         if (!cancelled) setStep('onboarding');
       } catch {
         if (!cancelled) setStep('onboarding');
@@ -642,6 +649,55 @@ export default function FuelTrackerClient() {
     }
 
     void init();
+    return () => {
+      cancelled = true;
+    };
+  }, [authLoading, user?.id, fetchVehicles]);
+
+  // Refresh garage data when user signs in mid-session (e.g. after OAuth redirect).
+  const prevUserIdRef = useRef<string | null | undefined>(undefined);
+  useEffect(() => {
+    if (authLoading) return;
+    const prev = prevUserIdRef.current;
+    const next = user?.id ?? null;
+
+    if (prev === undefined) {
+      prevUserIdRef.current = next;
+      return;
+    }
+
+    prevUserIdRef.current = next;
+    if (!next || prev === next || prev !== null) return;
+
+    let cancelled = false;
+
+    async function refreshSignedIn() {
+      const res = await fetch('/api/fuel?resource=account');
+      if (cancelled) return;
+      if (res.ok) {
+        const json = await res.json();
+        if (json.data?.length > 0 && json.code) {
+          const accountCode = normaliseCode(json.code);
+          try {
+            localStorage.setItem(FUEL_CODE_KEY, accountCode);
+            markGarageAuthLock(accountCode);
+          } catch { /* ignore */ }
+          setUserCode(accountCode);
+          setVehicles(json.data);
+          setActiveVehicleId(json.data[0].id);
+          setStep('main');
+          return;
+        }
+      }
+
+      const stored = localStorage.getItem(FUEL_CODE_KEY);
+      const code = stored ? normaliseCode(stored) : null;
+      if (code) {
+        await fetchVehicles(code, true);
+      }
+    }
+
+    void refreshSignedIn();
     return () => {
       cancelled = true;
     };

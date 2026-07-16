@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   runEngine, fmtNum, fmtC, fmtMo, fmtPct, PLAN_SPLITS,
+  totalDebtRemaining,
   type Expense, type Debt,
 } from '../debt-engine';
 
@@ -76,6 +77,17 @@ const baseDebts: Debt[] = [
 // short:  debt 3600 / save 400
 // medium: debt 2800 / save 1200
 // long:   debt 2000 / save 2000
+
+// ── totalDebtRemaining ────────────────────────────────────────────────────────
+describe('totalDebtRemaining', () => {
+  it('sums outstanding balances for active debts', () => {
+    expect(totalDebtRemaining(baseDebts)).toBe(4800);
+    expect(totalDebtRemaining([
+      ...baseDebts,
+      { id: 'd3', name: 'Cleared', totalAmt: 1000, outstanding: 0, totalPaid: 500 },
+    ])).toBe(4800);
+  });
+});
 
 // ── runEngine — error states ───────────────────────────────────────────────────
 describe('runEngine — error states', () => {

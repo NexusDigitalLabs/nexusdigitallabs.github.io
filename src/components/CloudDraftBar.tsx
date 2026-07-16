@@ -41,6 +41,14 @@ export default function CloudDraftBar({
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          {signedIn && (
+            <span
+              className="text-[10px] font-semibold tracking-wide uppercase px-2 py-1"
+              style={{ color: '#4ade80', border: '1px solid rgba(74,222,128,0.35)', background: 'rgba(74,222,128,0.08)' }}
+            >
+              Signed in
+            </span>
+          )}
           {!signedIn && (
             <a
               href={loginHref}

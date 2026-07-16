@@ -80,7 +80,7 @@ exports[`Header — snapshot > matches snapshot on homepage 1`] = `
       </a>
     </nav>
     <div
-      class="ml-auto flex items-center gap-3 flex-shrink-0"
+      class="ml-auto flex items-center gap-2 sm:gap-3 flex-shrink-0"
     >
       <div
         aria-label="Color theme"
@@ -165,7 +165,7 @@ exports[`Header — snapshot > matches snapshot on homepage 1`] = `
         </button>
       </div>
       <a
-        class="hidden sm:inline-flex items-center text-xs font-semibold px-3 py-1.5 rounded-lg no-underline transition-colors"
+        class="inline-flex items-center text-[11px] sm:text-xs font-semibold px-2 sm:px-3 py-1.5 rounded-lg no-underline transition-colors shrink-0"
         href="/login"
         style="color: var(--ndl-text); border: 1px solid var(--ndl-border); background: var(--ndl-surface-2);"
       >

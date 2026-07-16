@@ -10,7 +10,19 @@ export interface Debt {
   id: string;
   name: string;
   totalAmt: number;
+  /** Current balance still owed. */
   outstanding: number;
+  /** Cumulative payments logged against this debt (for progress tracking). */
+  totalPaid?: number;
+}
+
+/** Remaining balance after logged payments (outstanding is kept in sync when recording). */
+export function debtRemaining(d: Debt): number {
+  return Math.max(0, d.outstanding);
+}
+
+export function totalDebtRemaining(debts: Debt[]): number {
+  return debts.filter((d) => d.outstanding > 0).reduce((s, d) => s + debtRemaining(d), 0);
 }
 
 export type PlanHorizon = 'short' | 'medium' | 'long';
