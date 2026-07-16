@@ -65,6 +65,13 @@ describe('Footer — structure', () => {
     expect(invoiceLink.getAttribute('href')).toMatch(/\/tools\/invoice-generator\/?$/);
   });
 
+  it('renders a Ko-fi tip link', () => {
+    render(<Footer />);
+    const tip = screen.getByRole('link', { name: /tip on ko-fi/i });
+    expect(tip).toBeInTheDocument();
+    expect(tip.getAttribute('href')).toBe('https://ko-fi.com/nexusdigitallabs');
+  });
+
   it('no GitHub links are present', () => {
     render(<Footer />);
     const links = screen.getAllByRole('link');

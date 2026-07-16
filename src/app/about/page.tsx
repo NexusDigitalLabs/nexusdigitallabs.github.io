@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import ScrollReveal from '@/components/ScrollReveal';
+import KofiTipLink from '@/components/KofiTipLink';
 import { pageMetadata } from '@/lib/seo';
 
 export const metadata = pageMetadata({
@@ -236,6 +237,7 @@ export default function AboutPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
               </Link>
+              <KofiTipLink />
             </div>
           </ScrollReveal>
         </div>
