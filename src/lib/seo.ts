@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 
 export const SITE_URL = 'https://nexusdigitallabs.dev';
 export const SITE_NAME = 'NexusDigitalLabs';
+export const KOFI_URL = 'https://ko-fi.com/nexusdigitallabs';
 export const DEFAULT_OG_IMAGE = '/og-image.png';
 /** Actual pixel size of public/og-image.png */
 export const DEFAULT_OG_IMAGE_SIZE = { width: 1024, height: 540 } as const;

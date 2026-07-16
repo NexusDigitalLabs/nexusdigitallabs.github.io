@@ -1,5 +1,6 @@
 import ScrollReveal from '@/components/ScrollReveal';
 import ContactForm from '@/components/ContactForm';
+import KofiTipLink from '@/components/KofiTipLink';
 import { pageMetadata } from '@/lib/seo';
 
 export const metadata = pageMetadata({
@@ -73,6 +74,8 @@ export default function ContactPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                     </svg>
                   </a>
+
+                  <KofiTipLink variant="card" />
 
                   <div
                     className="p-4 rounded-xl"

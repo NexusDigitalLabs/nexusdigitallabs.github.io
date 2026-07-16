@@ -36,6 +36,25 @@ exports[`Footer — snapshot > matches snapshot 1`] = `
         >
           Minimalist web utilities and developer tools built for speed, privacy, and utility.
         </p>
+        <a
+          class="inline-flex items-center justify-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-xl no-underline transition-all duration-200 hover:-translate-y-0.5 "
+          href="https://ko-fi.com/nexusdigitallabs"
+          rel="noopener noreferrer"
+          style="color: rgb(255, 255, 255); background: rgb(255, 94, 91); box-shadow: 0 4px 16px rgba(255,94,91,0.28);"
+          target="_blank"
+        >
+          <svg
+            aria-hidden="true"
+            class="w-4 h-4"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M18.5 3H5a1 1 0 00-1 1v7.5A4.5 4.5 0 008.5 16H11v1.5A2.5 2.5 0 0013.5 20h1A2.5 2.5 0 0017 17.5V16h.5A4.5 4.5 0 0022 11.5V8a1 1 0 00-1-1h-2.5V4a1 1 0 00-1-1zm1.5 8.5a2.5 2.5 0 01-2.5 2.5H17v-5h3v2.5zM7 5h10v9H8.5A2.5 2.5 0 016 11.5V5z"
+            />
+          </svg>
+          Tip on Ko-fi
+        </a>
       </div>
       <div>
         <p
