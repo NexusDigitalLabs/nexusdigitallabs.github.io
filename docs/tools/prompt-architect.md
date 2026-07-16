@@ -16,6 +16,8 @@
 
 Built for use with **OpenAI GPT-4o**, **Anthropic Claude 3.5**, **Google Gemini 1.5 Pro**, and any other transformer-based LLM API.
 
+Global support CTA: the root layout includes the lightweight `KofiTipLink` floating button on this and all future tool pages. Do not add Ko-fi widget scripts; see [`docs/support.md`](../support.md).
+
 ---
 
 ## Route

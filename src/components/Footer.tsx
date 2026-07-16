@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import MetricCounter from './MetricCounter';
-import KofiTipLink from './KofiTipLink';
 import { GAMES, TOOLS } from '@/data/catalog';
 
 const COMPANY_LINKS = [
@@ -78,7 +77,6 @@ export default function Footer() {
             <p className="text-xs font-light leading-relaxed max-w-[200px]" style={{ color: 'var(--ndl-faint)' }}>
               Minimalist web utilities and developer tools built for speed, privacy, and utility.
             </p>
-            <KofiTipLink compact />
           </div>
 
           <FooterColumn heading="Company" links={COMPANY_LINKS} />

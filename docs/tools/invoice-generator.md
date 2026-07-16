@@ -74,6 +74,8 @@ src/components/tools/InvoiceGeneratorClient.tsx    ← Interactive client compon
 └──────────────────────────────┴──────────────────────────────────────────┘
 ```
 
+Global support CTA: the root layout includes the lightweight `KofiTipLink` floating button on this and all future tool pages. Do not add Ko-fi widget scripts; see [`docs/support.md`](../support.md).
+
 ---
 
 ## PDF Generation

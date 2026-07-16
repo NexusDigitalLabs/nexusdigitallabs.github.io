@@ -44,8 +44,8 @@ export default function HomePage() {
     <>
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
       <section
-        className="relative overflow-hidden ndl-dot-grid"
-        style={{ minHeight: 'calc(100vh - 4rem)', display: 'flex', alignItems: 'center' }}
+        className="relative overflow-hidden ndl-dot-grid flex items-start lg:items-center"
+        style={{ minHeight: 'calc(100dvh - 4rem)' }}
       >
         {/* Ambient orbs */}
         <div className="pointer-events-none absolute inset-0" aria-hidden="true">
@@ -54,23 +54,23 @@ export default function HomePage() {
           <div className="ndl-orb ndl-orb-3" />
         </div>
 
-        <div className="relative w-full max-w-7xl mx-auto px-6 sm:px-10 py-20 lg:py-0 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div className="relative w-full max-w-7xl mx-auto px-6 sm:px-10 py-12 sm:py-16 lg:py-0 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
 
           {/* LEFT: Text */}
           <div className="relative z-10">
             <Link
               href="/contact/"
-              className="ndl-anim-1 inline-flex items-center gap-2 text-xs font-medium text-blue-400 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-1.5 mb-7 no-underline hover:bg-blue-500/20 hover:border-blue-500/40 transition-all duration-200"
+              className="ndl-anim-1 inline-flex items-center gap-2 text-xs font-medium text-blue-400 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-1.5 mb-5 sm:mb-7 no-underline hover:bg-blue-500/20 hover:border-blue-500/40 transition-all duration-200"
             >
               <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" />
               Software Studio — Open to new projects
             </Link>
-            <h1 className="ndl-anim-2 text-5xl sm:text-6xl lg:text-[3.8rem] xl:text-[4.2rem] font-light tracking-tight leading-[1.12] mb-6">
+            <h1 className="ndl-anim-2 text-4xl sm:text-5xl lg:text-[3.8rem] xl:text-[4.2rem] font-light tracking-tight leading-[1.12] mb-5 sm:mb-6">
               Free tools that<br />
               make everyday<br />
               <span className="ndl-gradient-text">tasks effortless.</span>
             </h1>
-            <p className="ndl-anim-3 text-slate-400 font-light max-w-md leading-relaxed text-base sm:text-lg mb-10">
+            <p className="ndl-anim-3 text-slate-400 font-light max-w-md leading-relaxed text-base sm:text-lg mb-8 sm:mb-10">
               Practical tools built for everyone — fast, private, and simple. Most tools work without an account and collect no personal data.
             </p>
             <div className="ndl-anim-4 flex flex-col sm:flex-row items-start gap-3">

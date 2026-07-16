@@ -13,3 +13,5 @@ Shared clipboard helper: `src/hooks/useCopyToClipboard.ts`.
 Unit tests: `src/lib/__tests__/dev-tools-suite.test.ts`.
 
 Paid cloud layers can wrap these later; free paths never call authenticated APIs with user payload.
+
+Global support CTA: the root layout includes the lightweight `KofiTipLink` floating button on all current and future developer tool pages. Do not add Ko-fi widget scripts; see [`docs/support.md`](../support.md).
