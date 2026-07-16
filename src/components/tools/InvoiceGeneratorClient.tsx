@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import Script from 'next/script';
 import CloudDraftBar from '@/components/CloudDraftBar';
 import { useCloudToolDraft } from '@/hooks/useCloudToolDraft';
+import { loginUrl } from '@/lib/auth-redirect';
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 const SYM: Record<string, string> = {
@@ -470,6 +471,7 @@ export default function InvoiceGeneratorClient() {
   });
 
   useEffect(() => {
+    if (!cloudDraft.bootstrapped) return;
     cloudDraft.scheduleSave();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- autosave when form fields change
   }, [
@@ -479,7 +481,7 @@ export default function InvoiceGeneratorClient() {
     taxLabel, taxRate, discount,
     bankName, bankAcctName, bankAcctNum, bankSwift, bankIban,
     notes, items, nextId,
-    cloudDraft.optIn, cloudDraft.scheduleSave,
+    cloudDraft.optIn, cloudDraft.bootstrapped, cloudDraft.scheduleSave,
   ]);
 
   const sym = SYM[currency] || '$';
@@ -586,7 +588,7 @@ export default function InvoiceGeneratorClient() {
               optIn={cloudDraft.optIn}
               status={cloudDraft.status}
               message={cloudDraft.message}
-              loginHref="/login/?next=/tools/invoice-generator/"
+              loginHref={loginUrl('/tools/invoice-generator/')}
               onEnable={() => { void cloudDraft.enable(); }}
               onDisable={(del) => { void cloudDraft.disable(del); }}
               onSaveNow={() => { void cloudDraft.saveNow(); }}

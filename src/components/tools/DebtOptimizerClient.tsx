@@ -8,6 +8,7 @@ import {
   type Expense, type Debt, type MultiPlanResult, type PlanResult, type PlanHorizon,
   runEngine, fmtC, fmtMo, fmtPct, totalDebtRemaining,
 } from '@/lib/debt-engine';
+import { loginUrl } from '@/lib/auth-redirect';
 import CloudDraftBar from '@/components/CloudDraftBar';
 import { useCloudToolDraft } from '@/hooks/useCloudToolDraft';
 
@@ -167,15 +168,24 @@ export default function DebtOptimizerClient() {
     selectedHorizon: PlanHorizon;
   };
 
-  const getDebtPayload = useCallback((): DebtDraft => ({
-    currency,
-    income,
-    expenses,
-    debts,
-    expUid,
-    debtUid,
-    selectedHorizon,
-  }), [currency, income, expenses, debts, expUid, debtUid, selectedHorizon]);
+  const runPlanFromInputs = useCallback((
+    draftIncome: number,
+    draftExpenses: Expense[],
+    draftDebts: Debt[],
+    draftCurrency: string,
+    horizon?: PlanHorizon,
+  ) => {
+    const draftSym = CURRENCY_MAP[draftCurrency]?.symbol ?? '$';
+    const r = runEngine(draftIncome, draftExpenses, draftDebts, draftSym);
+    setResult(r);
+    setBaselineDebt(totalDebtRemaining(draftDebts));
+    const pick = (horizon
+      ? r.plans.find((p) => p.horizon === horizon && p.isViable)
+      : null)
+      ?? r.plans.find((p) => p.horizon === 'medium' && p.isViable)
+      ?? r.plans.find((p) => p.isViable);
+    if (pick) setSelectedHorizon(pick.horizon);
+  }, []);
 
   const applyDebtPayload = useCallback((payload: DebtDraft) => {
     if (typeof payload.currency === 'string') setCurrencyCode(payload.currency);
@@ -189,16 +199,38 @@ export default function DebtOptimizerClient() {
     }
   }, []);
 
+  const onDebtDraftRestored = useCallback((payload: DebtDraft) => {
+    runPlanFromInputs(
+      payload.income,
+      payload.expenses as Expense[],
+      payload.debts as Debt[],
+      payload.currency,
+      payload.selectedHorizon,
+    );
+  }, [runPlanFromInputs]);
+
+  const getDebtPayload = useCallback((): DebtDraft => ({
+    currency,
+    income,
+    expenses,
+    debts,
+    expUid,
+    debtUid,
+    selectedHorizon,
+  }), [currency, income, expenses, debts, expUid, debtUid, selectedHorizon]);
+
   const cloudDraft = useCloudToolDraft({
     toolKey: 'debt-optimizer',
     getPayload: getDebtPayload,
     applyPayload: applyDebtPayload,
+    onRestored: onDebtDraftRestored,
   });
 
   useEffect(() => {
+    if (!cloudDraft.bootstrapped) return;
     cloudDraft.scheduleSave();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currency, income, expenses, debts, expUid, debtUid, selectedHorizon, cloudDraft.optIn, cloudDraft.scheduleSave]);
+  }, [currency, income, expenses, debts, expUid, debtUid, selectedHorizon, cloudDraft.optIn, cloudDraft.bootstrapped, cloudDraft.scheduleSave]);
 
   const sym = CURRENCY_MAP[currency]?.symbol ?? '$';
   const totalExp = expenses.reduce((s, e) => s + e.amount, 0);
@@ -249,15 +281,10 @@ export default function DebtOptimizerClient() {
   const calculate = useCallback(() => {
     setIsCalc(true);
     setTimeout(() => {
-      const r = runEngine(income, expenses, debts, sym);
-      setResult(r);
-      setBaselineDebt(totalDebtRemaining(debts));
-      const preferred = r.plans.find((p) => p.horizon === 'medium' && p.isViable)
-        ?? r.plans.find((p) => p.isViable);
-      if (preferred) setSelectedHorizon(preferred.horizon);
+      runPlanFromInputs(income, expenses, debts, currency, selectedHorizon);
       setIsCalc(false);
     }, 20);
-  }, [income, expenses, debts, sym]);
+  }, [income, expenses, debts, currency, selectedHorizon, runPlanFromInputs]);
 
   // Re-run plan when balances change after an initial calculation (e.g. recorded payments).
   useEffect(() => {
@@ -336,7 +363,7 @@ export default function DebtOptimizerClient() {
           optIn={cloudDraft.optIn}
           status={cloudDraft.status}
           message={cloudDraft.message}
-          loginHref="/login/?next=/tools/debt-optimizer/"
+          loginHref={loginUrl('/tools/debt-optimizer/')}
           onEnable={() => { void cloudDraft.enable(); }}
           onDisable={(del) => { void cloudDraft.disable(del); }}
           onSaveNow={() => { void cloudDraft.saveNow(); }}

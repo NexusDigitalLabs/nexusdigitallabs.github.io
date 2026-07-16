@@ -1,8 +1,9 @@
 'use client';
 
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
+import { safeNextPath, stashAuthNext } from '@/lib/auth-redirect';
 
 type Status =
   | { kind: 'idle' }
@@ -10,17 +11,23 @@ type Status =
   | { kind: 'magic-sent'; email: string }
   | { kind: 'error'; message: string };
 
-function safeNext(raw: string | null): string {
-  if (!raw) return '/';
-  if (raw.startsWith('/') && !raw.startsWith('//')) return raw;
-  return '/';
+function friendlyReturnLabel(path: string): string | null {
+  if (path === '/' || path === '/login/') return null;
+  if (path.startsWith('/tools/debt-optimizer')) return 'Debt Settlement & Savings Planner';
+  if (path.startsWith('/tools/invoice-generator')) return 'Invoice Generator';
+  if (path.startsWith('/tools/fuel-tracker')) return 'Fuel Tracker';
+  if (path.startsWith('/tools/prompt-architect')) return 'Prompt Architect';
+  if (path.startsWith('/games/')) return 'Games';
+  if (path.startsWith('/account')) return 'Account';
+  return path.replace(/\/$/, '');
 }
 
 export default function LoginForm() {
   const searchParams = useSearchParams();
-  const next = useMemo(() => safeNext(searchParams.get('next')), [searchParams]);
+  const next = useMemo(() => safeNextPath(searchParams.get('next')), [searchParams]);
   const urlError = searchParams.get('error');
   const urlMessage = searchParams.get('message');
+  const returnLabel = friendlyReturnLabel(next);
 
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<Status>(
@@ -34,6 +41,12 @@ export default function LoginForm() {
       : { kind: 'idle' }
   );
 
+  // Stash return path so OAuth / magic-link still lands on the same page
+  // even if the provider strips ?next= from the callback URL.
+  useEffect(() => {
+    if (next && next !== '/') stashAuthNext(next);
+  }, [next]);
+
   const redirectTo =
     typeof window !== 'undefined'
       ? `${window.location.origin}/auth/callback/?next=${encodeURIComponent(next)}`
@@ -41,6 +54,7 @@ export default function LoginForm() {
 
   async function signInWithGoogle() {
     setStatus({ kind: 'loading' });
+    stashAuthNext(next);
     try {
       const supabase = createBrowserSupabaseClient();
       const { error } = await supabase.auth.signInWithOAuth({
@@ -70,6 +84,7 @@ export default function LoginForm() {
     }
 
     setStatus({ kind: 'loading' });
+    stashAuthNext(next);
     try {
       const supabase = createBrowserSupabaseClient();
       const { error } = await supabase.auth.signInWithOtp({
@@ -96,6 +111,21 @@ export default function LoginForm() {
 
   return (
     <div className="w-full max-w-md mx-auto space-y-6">
+      {returnLabel && (
+        <p
+          className="text-xs sm:text-sm rounded-xl px-4 py-3 leading-relaxed"
+          style={{
+            background: 'rgba(37,99,235,0.08)',
+            border: '1px solid rgba(37,99,235,0.22)',
+            color: 'var(--ndl-muted)',
+          }}
+        >
+          After you sign in, you&apos;ll return to{' '}
+          <strong style={{ color: 'var(--ndl-text)' }}>{returnLabel}</strong>
+          {' '}with your data restored.
+        </p>
+      )}
+
       <button
         type="button"
         onClick={signInWithGoogle}
@@ -132,7 +162,7 @@ export default function LoginForm() {
           }}
         >
           Magic link sent to <strong style={{ color: 'var(--ndl-text)' }}>{status.email}</strong>.
-          Check your inbox and open the link to finish signing in.
+          Check your inbox and open the link to finish signing in — you&apos;ll return to the same page.
         </div>
       ) : (
         <form onSubmit={sendMagicLink} className="space-y-4" noValidate>

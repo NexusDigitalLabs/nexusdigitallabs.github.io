@@ -7,6 +7,7 @@ import {
 } from '@/lib/fuel-utils';
 import { useAuth } from '@/components/AuthProvider';
 import AuthGate from '@/components/AuthGate';
+import { loginUrl } from '@/lib/auth-redirect';
 import {
   CURRENCIES,
   currencyByCode,
@@ -398,7 +399,7 @@ function SyncCodeCard({
                     Sign in to link this garage to your account (optional — sync code still works alone).
                   </p>
                   <a
-                    href="/login/?next=/tools/fuel-tracker/"
+                    href={loginUrl('/tools/fuel-tracker/')}
                     style={{
                       display: 'block',
                       textAlign: 'center',
@@ -504,6 +505,8 @@ export default function FuelTrackerClient() {
   const [claimState, setClaimState] = useState<ClaimUiState>('idle');
   const [claimMessage, setClaimMessage] = useState<string | null>(null);
   const [claimBusy, setClaimBusy] = useState(false);
+  const [accountChecking, setAccountChecking] = useState(false);
+  const [garageInitDone, setGarageInitDone] = useState(false);
 
   // chart
   const [activeChart, setActiveChart] = useState<'efficiency' | 'spend'>('efficiency');
@@ -588,43 +591,63 @@ export default function FuelTrackerClient() {
     }
   }, []);
 
+  const applyGarageFromAccount = useCallback((accountCode: string, vehicleRows: Vehicle[]) => {
+    try {
+      localStorage.setItem(FUEL_CODE_KEY, accountCode);
+      markGarageAuthLock(accountCode);
+    } catch { /* ignore */ }
+    setUserCode(accountCode);
+    setVehicles(vehicleRows);
+    setActiveVehicleId(vehicleRows[0].id);
+    setStep('main');
+  }, []);
+
+  const fetchAccountGarage = useCallback(async (retries = 4): Promise<{ code: string; vehicles: Vehicle[] } | null> => {
+    for (let attempt = 0; attempt < retries; attempt++) {
+      try {
+        const res = await fetch('/api/fuel?resource=account', {
+          credentials: 'same-origin',
+          cache: 'no-store',
+        });
+        if (res.status === 401 && attempt < retries - 1) {
+          await new Promise((r) => setTimeout(r, 400 * (attempt + 1)));
+          continue;
+        }
+        if (!res.ok) return null;
+        const json = await res.json();
+        if (json.data?.length > 0 && json.code) {
+          return { code: normaliseCode(json.code), vehicles: json.data as Vehicle[] };
+        }
+        return null;
+      } catch {
+        if (attempt < retries - 1) {
+          await new Promise((r) => setTimeout(r, 400 * (attempt + 1)));
+          continue;
+        }
+      }
+    }
+    return null;
+  }, []);
+
   // ── Init — signed-in account garage first, else local sync code, else onboarding ─
   useEffect(() => {
     if (authLoading) return;
 
     let cancelled = false;
 
-    async function tryAccountGarage(): Promise<boolean> {
-      if (!user) return false;
-      const res = await fetch('/api/fuel?resource=account');
-      if (!res.ok || cancelled) return false;
-      const json = await res.json();
-      if (!json.data?.length || !json.code) return false;
-
-      const accountCode = normaliseCode(json.code);
-      try {
-        localStorage.setItem(FUEL_CODE_KEY, accountCode);
-        markGarageAuthLock(accountCode);
-      } catch { /* ignore */ }
-
-      if (!cancelled) {
-        setUserCode(accountCode);
-        setVehicles(json.data);
-        setActiveVehicleId(json.data[0].id);
-        setStep('main');
-      }
-      return true;
-    }
-
     async function init() {
+      setAccountChecking(Boolean(user));
       try {
         const cur = localStorage.getItem(FUEL_CURRENCY_KEY);
         if (cur && !cancelled) setCurrencyCode(normalizeCurrencyCode(cur));
 
-        // Signed-in users: prefer account-linked garage over stale anonymous codes.
         if (user) {
-          const restored = await tryAccountGarage();
-          if (restored || cancelled) return;
+          const account = await fetchAccountGarage();
+          if (cancelled) return;
+          if (account) {
+            applyGarageFromAccount(account.code, account.vehicles);
+            return;
+          }
         }
 
         const stored = localStorage.getItem(FUEL_CODE_KEY);
@@ -645,6 +668,11 @@ export default function FuelTrackerClient() {
         if (!cancelled) setStep('onboarding');
       } catch {
         if (!cancelled) setStep('onboarding');
+      } finally {
+        if (!cancelled) {
+          setAccountChecking(false);
+          setGarageInitDone(true);
+        }
       }
     }
 
@@ -652,7 +680,7 @@ export default function FuelTrackerClient() {
     return () => {
       cancelled = true;
     };
-  }, [authLoading, user?.id, fetchVehicles]);
+  }, [authLoading, user?.id, fetchVehicles, fetchAccountGarage, applyGarageFromAccount]);
 
   // Refresh garage data when user signs in mid-session (e.g. after OAuth redirect).
   const prevUserIdRef = useRef<string | null | undefined>(undefined);
@@ -672,28 +700,22 @@ export default function FuelTrackerClient() {
     let cancelled = false;
 
     async function refreshSignedIn() {
-      const res = await fetch('/api/fuel?resource=account');
-      if (cancelled) return;
-      if (res.ok) {
-        const json = await res.json();
-        if (json.data?.length > 0 && json.code) {
-          const accountCode = normaliseCode(json.code);
-          try {
-            localStorage.setItem(FUEL_CODE_KEY, accountCode);
-            markGarageAuthLock(accountCode);
-          } catch { /* ignore */ }
-          setUserCode(accountCode);
-          setVehicles(json.data);
-          setActiveVehicleId(json.data[0].id);
-          setStep('main');
+      setAccountChecking(true);
+      try {
+        const account = await fetchAccountGarage();
+        if (cancelled) return;
+        if (account) {
+          applyGarageFromAccount(account.code, account.vehicles);
           return;
         }
-      }
 
-      const stored = localStorage.getItem(FUEL_CODE_KEY);
-      const code = stored ? normaliseCode(stored) : null;
-      if (code) {
-        await fetchVehicles(code, true);
+        const stored = localStorage.getItem(FUEL_CODE_KEY);
+        const code = stored ? normaliseCode(stored) : null;
+        if (code) {
+          await fetchVehicles(code, true);
+        }
+      } finally {
+        if (!cancelled) setAccountChecking(false);
       }
     }
 
@@ -701,7 +723,37 @@ export default function FuelTrackerClient() {
     return () => {
       cancelled = true;
     };
-  }, [authLoading, user?.id, fetchVehicles]);
+  }, [authLoading, user?.id, fetchVehicles, fetchAccountGarage, applyGarageFromAccount]);
+
+  // Signed-in on onboarding: one extra account restore (session cookies may land after first paint).
+  const onboardingAccountRetryRef = useRef(false);
+  useEffect(() => {
+    if (!user?.id) {
+      onboardingAccountRetryRef.current = false;
+      return;
+    }
+    if (authLoading || step !== 'onboarding') return;
+    if (onboardingAccountRetryRef.current) return;
+    onboardingAccountRetryRef.current = true;
+
+    let cancelled = false;
+
+    async function retryAccount() {
+      setAccountChecking(true);
+      try {
+        const account = await fetchAccountGarage(3);
+        if (cancelled || !account) return;
+        applyGarageFromAccount(account.code, account.vehicles);
+      } finally {
+        if (!cancelled) setAccountChecking(false);
+      }
+    }
+
+    void retryAccount();
+    return () => {
+      cancelled = true;
+    };
+  }, [authLoading, user?.id, step, fetchAccountGarage, applyGarageFromAccount]);
 
   // ── Fetch fills when active vehicle changes ───────────────────────────────
   const fetchFills = useCallback(async (vehicleId: string, code: string) => {
@@ -1049,7 +1101,7 @@ export default function FuelTrackerClient() {
   // ─────────────────────────────────────────────────────────────────────────
   // RENDER: Loading
   // ─────────────────────────────────────────────────────────────────────────
-  if (step === 'loading') {
+  if (step === 'loading' || (user && !garageInitDone) || (user && accountChecking && step === 'onboarding')) {
     return (
       <div style={{ background: 'var(--ndl-bg)', minHeight: '100vh' }}>
         {/* Top bar skeleton */}
@@ -1124,6 +1176,18 @@ export default function FuelTrackerClient() {
           <p style={{ fontSize: '0.8125rem', color: 'var(--ndl-faint)', marginBottom: '2rem', lineHeight: 1.6 }}>
             Track fuel costs, efficiency, and mileage across all your vehicles. Data syncs via a personal code — account optional for restore-on-login.
           </p>
+
+          {user && accountChecking && (
+            <p style={{ fontSize: '0.8125rem', color: '#f59e0b', marginBottom: '1.25rem', lineHeight: 1.6 }}>
+              Checking your account for a linked garage…
+            </p>
+          )}
+
+          {user && !accountChecking && (
+            <p style={{ fontSize: '0.8125rem', color: 'var(--ndl-muted)', marginBottom: '1.25rem', lineHeight: 1.6 }}>
+              No linked garage found on this account. Use your sync code below, or link a garage from Settings after loading it.
+            </p>
+          )}
 
           {/* Toggle */}
           <div style={{ display: 'flex', gap: '1px', background: 'rgba(255,255,255,0.07)', marginBottom: '1.5rem' }}>
@@ -1370,7 +1434,7 @@ export default function FuelTrackerClient() {
               )}
               {claimState === 'unclaimed' && !user && (
                 <a
-                  href="/login/?next=/tools/fuel-tracker/"
+                  href={loginUrl('/tools/fuel-tracker/')}
                   style={{
                     ...S.btn('#6366f1'),
                     marginTop: '0.75rem',
