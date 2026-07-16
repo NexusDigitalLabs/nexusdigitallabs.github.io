@@ -1,5 +1,4 @@
 import FuelTrackerClient from '@/components/tools/FuelTrackerClient';
-import PWAInstallBanner from '@/components/PWAInstallBanner';
 import { pageMetadata } from '@/lib/seo';
 
 export const metadata = pageMetadata({
@@ -37,9 +36,6 @@ export default function FuelTrackerPage() {
 
       {/* ── Interactive Tool ─────────────────────────────────────────── */}
       <FuelTrackerClient />
-
-      {/* ── PWA install prompt (mobile only, client-side) ─────────────── */}
-      <PWAInstallBanner />
 
       {/* ── SEO Content Block ─────────────────────────────────────────── */}
       <section style={{ background: 'var(--ndl-bg)', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '4rem 1.5rem' }}>

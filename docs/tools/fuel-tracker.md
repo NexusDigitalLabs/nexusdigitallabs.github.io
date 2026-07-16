@@ -14,6 +14,8 @@ Browser-based fuel tracking for fill-ups, real-world efficiency (L/100km and km/
 
 Global support CTA: the root layout includes the lightweight `KofiTipLink` floating button on this and all future tool pages. Do not add Ko-fi widget scripts; see [`docs/support.md`](../support.md).
 
+Install prompt: the mobile PWA install banner is now global (root layout), not tool-specific — see [`docs/pwa.md`](../pwa.md). The old page-level `PWAInstallBanner` on this route has been removed.
+
 ---
 
 ## Features

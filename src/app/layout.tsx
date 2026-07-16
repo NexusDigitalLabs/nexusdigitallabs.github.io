@@ -4,6 +4,7 @@ import Script from 'next/script';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import KofiTipLink from '@/components/KofiTipLink';
+import PWAInstallBanner from '@/components/PWAInstallBanner';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { AuthProvider } from '@/components/AuthProvider';
 import ScrollToTop from '@/components/ScrollToTop';
@@ -28,6 +29,10 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#f8fafc' },
+    { media: '(prefers-color-scheme: dark)', color: '#0b0f19' },
+  ],
 };
 
 // ── Root metadata ──────────────────────────────────────────────────────────
@@ -61,15 +66,15 @@ export const metadata: Metadata = {
       'Engineering minimalist web utilities, developer tools, and high-performance software built for speed, privacy, and utility.',
     images: [DEFAULT_OG_IMAGE],
   },
-  icons: {
-    icon: '/favicon.png',
-    apple: '/favicon.png',
-  },
+  applicationName: SITE_NAME,
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'Fuel Tracker',
+    title: SITE_NAME,
+  },
+  formatDetection: {
+    telephone: false,
   },
 };
 
@@ -119,6 +124,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
             <Footer />
             <KofiTipLink variant="floating" href={KOFI_URL} />
+            <PWAInstallBanner />
           </AuthProvider>
         </ThemeProvider>
 

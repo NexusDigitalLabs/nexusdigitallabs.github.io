@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 
-// Extend Window to include the non-standard iOS standalone property
 declare global {
   interface Navigator {
     standalone?: boolean;
@@ -14,39 +13,44 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
+const DISMISS_KEY = 'ndl_pwa_dismissed';
+
+/**
+ * Mobile-only install prompt for the whole-site PWA.
+ * Android/Chrome: uses beforeinstallprompt. iOS: Share → Add to Home Screen tips.
+ */
 export default function PWAInstallBanner() {
-  const [show, setShow]                   = useState(false);
-  const [isIOS, setIsIOS]                 = useState(false);
-  const [installing, setInstalling]       = useState(false);
+  const [show, setShow] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
+  const [installing, setInstalling] = useState(false);
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
 
   useEffect(() => {
-    // Already running as installed PWA — hide banner
     const isStandalone =
       window.matchMedia('(display-mode: standalone)').matches ||
       navigator.standalone === true;
     if (isStandalone) return;
 
-    // User previously dismissed — respect that
     try {
-      if (localStorage.getItem('ndl_pwa_dismissed')) return;
-    } catch { /* ignore */ }
+      if (localStorage.getItem(DISMISS_KEY)) return;
+    } catch {
+      /* ignore */
+    }
 
     const ua = navigator.userAgent;
-    const onIOS = /iPad|iPhone|iPod/.test(ua) && !(window as Window & { MSStream?: unknown }).MSStream;
+    const onIOS =
+      /iPad|iPhone|iPod/.test(ua) &&
+      !(window as Window & { MSStream?: unknown }).MSStream;
     const onMobile = onIOS || /Android/i.test(ua) || window.innerWidth < 768;
-
     if (!onMobile) return;
 
     if (onIOS) {
-      // iOS Safari doesn't fire beforeinstallprompt — show manual instructions
       setIsIOS(true);
       setShow(true);
       return;
     }
 
-    // Android / Chrome — capture the native install prompt
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
@@ -61,102 +65,104 @@ export default function PWAInstallBanner() {
     setInstalling(true);
     await deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      setShow(false);
-    }
+    if (outcome === 'accepted') setShow(false);
     setInstalling(false);
     setDeferredPrompt(null);
   }
 
   function dismiss() {
-    try { localStorage.setItem('ndl_pwa_dismissed', '1'); } catch { /* ignore */ }
+    try {
+      localStorage.setItem(DISMISS_KEY, '1');
+    } catch {
+      /* ignore */
+    }
     setShow(false);
   }
 
   if (!show) return null;
 
   return (
-    <div style={{
-      position: 'fixed',
-      bottom: '1rem',
-      left: '50%',
-      transform: 'translateX(-50%)',
-      zIndex: 9999,
-      width: 'calc(100% - 2rem)',
-      maxWidth: '420px',
-      background: 'var(--ndl-surface)',
-      border: '1px solid rgba(245,158,11,0.35)',
-      boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-      padding: '1rem 1.25rem',
-      display: 'flex',
-      alignItems: 'flex-start',
-      gap: '0.875rem',
-    }}>
-      {/* Fuel icon */}
-      <div style={{
-        width: '40px', height: '40px', flexShrink: 0,
-        background: 'rgba(245,158,11,0.12)',
-        border: '1px solid rgba(245,158,11,0.25)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-      }}>
-        <span style={{ fontSize: '1.25rem' }}>⛽</span>
-      </div>
+    <div
+      role="dialog"
+      aria-label="Install NexusDigitalLabs"
+      className="fixed z-[60] left-1/2 -translate-x-1/2 w-[calc(100%-1.5rem)] max-w-sm"
+      style={{
+        bottom: 'max(5.5rem, calc(env(safe-area-inset-bottom, 0px) + 4.75rem))',
+        background: 'var(--ndl-surface)',
+        border: '1px solid color-mix(in srgb, var(--ndl-accent) 35%, var(--ndl-border))',
+        boxShadow: '0 8px 32px color-mix(in srgb, var(--ndl-accent) 18%, transparent)',
+        borderRadius: 12,
+        padding: '0.875rem 1rem',
+      }}
+    >
+      <div className="flex items-start gap-3">
+        <div
+          className="w-10 h-10 shrink-0 flex items-center justify-center text-sm font-bold ndl-on-accent"
+          style={{
+            background: 'linear-gradient(135deg,#2563eb,#6366f1)',
+            borderRadius: 10,
+          }}
+          aria-hidden="true"
+        >
+          N
+        </div>
 
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--ndl-text)', margin: '0 0 0.25rem' }}>
-          Add Fuel Tracker to your home screen
-        </p>
-
-        {isIOS ? (
-          <p style={{ fontSize: '0.75rem', color: 'var(--ndl-muted)', margin: '0 0 0.75rem', lineHeight: 1.6 }}>
-            Tap{' '}
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem', color: '#f59e0b', fontWeight: 600 }}>
-              {/* iOS Share icon */}
-              <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4m0 0L8 6m4-4v13" />
-              </svg>
-              Share
-            </span>
-            {' '}then{' '}
-            <strong style={{ color: 'var(--ndl-text)' }}>Add to Home Screen</strong>
-            {' '}to use Fuel Tracker like a native app.
+        <div className="flex-1 min-w-0">
+          <p className="text-[0.8125rem] font-bold m-0 mb-1" style={{ color: 'var(--ndl-text)' }}>
+            Install NexusDigitalLabs
           </p>
-        ) : (
-          <p style={{ fontSize: '0.75rem', color: 'var(--ndl-muted)', margin: '0 0 0.75rem', lineHeight: 1.6 }}>
-            Install as an app — works offline, opens instantly, no browser chrome.
-          </p>
-        )}
 
-        {!isIOS && (
-          <button
-            type="button"
-            onClick={handleInstall}
-            disabled={installing}
-            style={{
-              background: '#f59e0b', border: 'none', color: '#0f172a',
-              padding: '0.5rem 1rem', cursor: installing ? 'not-allowed' : 'pointer',
-              fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.06em',
-              textTransform: 'uppercase', opacity: installing ? 0.7 : 1,
-            }}
-          >
-            {installing ? 'Installing…' : '+ Add to Home Screen'}
-          </button>
-        )}
+          {isIOS ? (
+            <p className="text-xs m-0 leading-relaxed" style={{ color: 'var(--ndl-muted)' }}>
+              Tap{' '}
+              <span className="inline-flex items-center gap-1 font-semibold" style={{ color: 'var(--ndl-accent)' }}>
+                <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4m0 0L8 6m4-4v13"
+                  />
+                </svg>
+                Share
+              </span>{' '}
+              then <strong style={{ color: 'var(--ndl-text)' }}>Add to Home Screen</strong> for a full-screen app
+              experience.
+            </p>
+          ) : (
+            <p className="text-xs m-0 mb-3 leading-relaxed" style={{ color: 'var(--ndl-muted)' }}>
+              Install as an app — opens instantly, no browser chrome.
+            </p>
+          )}
+
+          {!isIOS && (
+            <button
+              type="button"
+              onClick={handleInstall}
+              disabled={installing}
+              className="mt-2 text-xs font-bold uppercase tracking-wide px-3 py-2 cursor-pointer disabled:opacity-70"
+              style={{
+                background: 'var(--ndl-accent)',
+                border: 'none',
+                color: '#fff',
+                borderRadius: 8,
+              }}
+            >
+              {installing ? 'Installing…' : '+ Add to Home Screen'}
+            </button>
+          )}
+        </div>
+
+        <button
+          type="button"
+          onClick={dismiss}
+          aria-label="Dismiss install prompt"
+          className="shrink-0 leading-none text-base cursor-pointer p-0 bg-transparent border-none"
+          style={{ color: 'var(--ndl-faint)' }}
+        >
+          ✕
+        </button>
       </div>
-
-      {/* Dismiss */}
-      <button
-        type="button"
-        onClick={dismiss}
-        aria-label="Dismiss"
-        style={{
-          background: 'none', border: 'none', color: 'var(--ndl-faint)',
-          cursor: 'pointer', fontSize: '1rem', padding: '0',
-          flexShrink: 0, lineHeight: 1,
-        }}
-      >
-        ✕
-      </button>
     </div>
   );
 }
