@@ -20,6 +20,13 @@ const withPWA = withPWAInit({
 const nextConfig: NextConfig = {
   // Pin the tracing root — multiple lockfiles exist above this project.
   outputFileTracingRoot: projectRoot,
+  // next-pwa injects a webpack plugin; also pin turbopack.root so a parent
+  // lockfile (e.g. ~/pnpm-lock.yaml) doesn't make Turbopack resolve modules
+  // from the wrong workspace and break the React Client Manifest (Safari error
+  // about global-error.js).
+  turbopack: {
+    root: projectRoot,
+  },
 };
 
 export default withPWA(nextConfig);

@@ -4,8 +4,15 @@ NexusDigitalLabs uses a lightweight Ko-fi link for voluntary support — not a t
 
 ## Global placement
 
-- The floating tip jar lives in `src/app/layout.tsx` via `KofiTipLink variant="floating" href={KOFI_URL}`.
-- Because it is in the root layout, it appears on all existing and future pages: tools, articles, games, legal pages, About, Contact, and account pages.
+- Temporarily disabled until the support/tip page is fully ready.
+- The root-layout mount in `src/app/layout.tsx` is intentionally commented out with a TODO:
+
+```tsx
+{/* TODO: Re-enable once the support/tip page is fully ready.
+<KofiTipLink variant="floating" href={KOFI_URL} />
+*/}
+```
+
 - Do not add Ko-fi widget scripts or third-party embeds. Keep support UI as a simple external link to preserve Lighthouse/Core Web Vitals.
 
 ## Design rules
@@ -29,8 +36,8 @@ Client component (`"use client"`). Accepts `href` for the Ko-fi destination.
 <KofiTipLink variant="card" />
 ```
 
-Do not re-add the button in the footer brand column — the floating CTA already covers every page.
+Do not re-add the button in the footer brand column while the global floating CTA is paused.
 
 ## Future pages
 
-Future App Router pages should rely on the root-layout floating tip jar by default. Add an inline `KofiTipLink` only when it improves local page context and does not duplicate a nearby support CTA.
+Future App Router pages should not add new floating support CTAs while the support/tip page is still being finalized. Re-enable the root-layout mount once the destination is ready.

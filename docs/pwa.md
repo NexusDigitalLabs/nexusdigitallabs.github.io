@@ -18,18 +18,25 @@ caching of previously visited routes.
 ## Build requirement (Next.js 16)
 
 `next-pwa` injects a **webpack** plugin to emit the service worker. Next.js 16
-defaults to **Turbopack** for `next build`, which skips webpack plugins and
-therefore does **not** generate `sw.js`.
+defaults to **Turbopack** for `next build` / `next dev`, which skips webpack
+plugins and therefore does **not** generate `sw.js` during a plain Turbopack build.
 
-For this reason the build script uses the webpack builder:
+For this reason the production build script uses the webpack builder:
 
 ```jsonc
 // package.json
 "build": "next build --webpack"
 ```
 
-Do not change this back to plain `next build` or the service worker will stop
-being generated (the app still works, but is no longer installable/offline).
+`next.config.ts` also sets `turbopack.root` to this project directory so a
+parent lockfile (e.g. `~/pnpm-lock.yaml`) cannot make Turbopack resolve
+modules from the wrong workspace. Without that, Safari/dev can throw a
+React Client Manifest error about `global-error.js`. Do not remove
+`turbopack.root` or the empty webpack/turbopack coexistence will regress.
+
+Do not change the build script back to plain `next build` or the service worker
+will stop being generated (the app still works, but is no longer
+installable/offline).
 
 The service worker is disabled in development (`disable: NODE_ENV === 'development'`),
 so `next dev` is unaffected. To test the installable build locally:
