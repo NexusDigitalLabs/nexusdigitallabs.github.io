@@ -470,6 +470,7 @@ export default function InvoiceGeneratorClient() {
   });
 
   useEffect(() => {
+    if (!cloudDraft.bootstrapped) return;
     cloudDraft.scheduleSave();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- autosave when form fields change
   }, [
@@ -479,7 +480,7 @@ export default function InvoiceGeneratorClient() {
     taxLabel, taxRate, discount,
     bankName, bankAcctName, bankAcctNum, bankSwift, bankIban,
     notes, items, nextId,
-    cloudDraft.optIn, cloudDraft.scheduleSave,
+    cloudDraft.optIn, cloudDraft.bootstrapped, cloudDraft.scheduleSave,
   ]);
 
   const sym = SYM[currency] || '$';
