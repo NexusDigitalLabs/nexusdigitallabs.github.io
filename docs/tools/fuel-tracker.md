@@ -12,6 +12,8 @@
 
 Browser-based fuel tracking for fill-ups, real-world efficiency (L/100km and km/L), and spend across one or more vehicles. Cross-device sync works via a personal **sync code** (no account required). Optionally, signed-in users can **link** a garage to their account so it restores automatically on new devices.
 
+Global support CTA: the root layout includes the lightweight `KofiTipLink` floating button on this and all future tool pages. Do not add Ko-fi widget scripts; see [`docs/support.md`](../support.md).
+
 ---
 
 ## Features

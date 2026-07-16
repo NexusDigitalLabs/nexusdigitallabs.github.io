@@ -63,8 +63,9 @@ describe('Header — structure', () => {
     expect(screen.getByRole('button', { name: /open menu/i })).toBeInTheDocument();
   });
 
-  it('renders the color theme radiogroup', () => {
+  it('renders the color theme radiogroup inside the mobile menu', () => {
     renderHeader();
+    fireEvent.click(screen.getByRole('button', { name: /open menu/i }));
     expect(screen.getByRole('radiogroup', { name: /color theme/i })).toBeInTheDocument();
   });
 
@@ -76,8 +77,9 @@ describe('Header — structure', () => {
 });
 
 describe('Header — theme toggle', () => {
-  it('exposes Light, Dark, and System options', () => {
+  it('exposes Light, Dark, and System options in the mobile menu', () => {
     renderHeader();
+    fireEvent.click(screen.getByRole('button', { name: /open menu/i }));
     expect(screen.getByRole('radio', { name: /light/i })).toBeInTheDocument();
     expect(screen.getByRole('radio', { name: /dark/i })).toBeInTheDocument();
     expect(screen.getByRole('radio', { name: /system/i })).toBeInTheDocument();
@@ -85,6 +87,7 @@ describe('Header — theme toggle', () => {
 
   it('switches to light theme when Light is clicked', () => {
     renderHeader();
+    fireEvent.click(screen.getByRole('button', { name: /open menu/i }));
     fireEvent.click(screen.getByRole('radio', { name: /^light$/i }));
     expect(screen.getByRole('radio', { name: /^light$/i })).toHaveAttribute('aria-checked', 'true');
     expect(document.documentElement.getAttribute('data-theme')).toBe('light');
@@ -92,6 +95,7 @@ describe('Header — theme toggle', () => {
 
   it('switches to dark theme when Dark is clicked', () => {
     renderHeader();
+    fireEvent.click(screen.getByRole('button', { name: /open menu/i }));
     fireEvent.click(screen.getByRole('radio', { name: /^dark$/i }));
     expect(screen.getByRole('radio', { name: /^dark$/i })).toHaveAttribute('aria-checked', 'true');
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark');

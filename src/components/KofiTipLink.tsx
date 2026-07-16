@@ -1,86 +1,174 @@
+'use client';
+
+import { type CSSProperties } from 'react';
 import { KOFI_URL } from '@/lib/seo';
 
-type Variant = 'button' | 'link' | 'card';
+type Variant = 'button' | 'link' | 'card' | 'floating';
 
-type Props = {
+export type KofiTipLinkProps = {
+  /** Destination URL (defaults to the platform Ko-fi page). */
+  href?: string;
   variant?: Variant;
   className?: string;
-  /** Shorter label for tight layouts */
+  /** @deprecated Unused — kept for call-site compatibility. */
   compact?: boolean;
 };
 
-function CupIcon({ className = 'w-4 h-4' }: { className?: string }) {
+const LABEL = 'Buy me a coffee?';
+
+const accentFill: CSSProperties = {
+  color: '#fff',
+  background: 'var(--ndl-accent)',
+  border: '1px solid var(--ndl-accent)',
+  borderRadius: 12,
+  boxShadow: '0 8px 24px color-mix(in srgb, var(--ndl-accent) 28%, transparent)',
+};
+
+function InlineButton({
+  href,
+  className,
+}: {
+  href: string;
+  className: string;
+}) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M18.5 3H5a1 1 0 00-1 1v7.5A4.5 4.5 0 008.5 16H11v1.5A2.5 2.5 0 0013.5 20h1A2.5 2.5 0 0017 17.5V16h.5A4.5 4.5 0 0022 11.5V8a1 1 0 00-1-1h-2.5V4a1 1 0 00-1-1zm1.5 8.5a2.5 2.5 0 01-2.5 2.5H17v-5h3v2.5zM7 5h10v9H8.5A2.5 2.5 0 016 11.5V5z" />
-    </svg>
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`inline-flex items-center justify-center gap-2.5 text-sm font-semibold tracking-tight px-5 py-2.5 no-underline transition-all duration-200 ease-in-out hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--ndl-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--ndl-bg)] ${className}`}
+      style={accentFill}
+    >
+      <span className="text-2xl leading-none" aria-hidden="true">
+        ☕
+      </span>
+      <span>{LABEL}</span>
+    </a>
+  );
+}
+
+function InlineLink({
+  href,
+  className,
+}: {
+  href: string;
+  className: string;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`ndl-footer-link inline-flex items-center gap-2 text-sm transition-all duration-200 ease-in-out no-underline ${className}`}
+    >
+      <span className="text-2xl leading-none" aria-hidden="true">
+        ☕
+      </span>
+      <span>{LABEL}</span>
+    </a>
+  );
+}
+
+function InlineCard({
+  href,
+  className,
+}: {
+  href: string;
+  className: string;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`flex items-center gap-4 p-4 no-underline transition-all duration-200 ease-in-out hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--ndl-accent)] ${className}`}
+      style={{
+        background: 'var(--ndl-card-bg)',
+        border: '1px solid var(--ndl-border)',
+        borderRadius: 12,
+      }}
+    >
+      <div
+        className="w-14 h-14 flex items-center justify-center shrink-0 text-3xl leading-none"
+        style={{
+          background: 'color-mix(in srgb, var(--ndl-accent) 12%, transparent)',
+          border: '1px solid color-mix(in srgb, var(--ndl-accent) 28%, transparent)',
+          borderRadius: 12,
+        }}
+        aria-hidden="true"
+      >
+        ☕
+      </div>
+      <div className="min-w-0">
+        <p className="text-sm font-medium tracking-tight" style={{ color: 'var(--ndl-text)' }}>
+          {LABEL}
+        </p>
+        <p className="text-xs font-light mt-0.5" style={{ color: 'var(--ndl-faint)' }}>
+          Support free tools — optional, one-time tip
+        </p>
+      </div>
+      <svg
+        className="w-4 h-4 ml-auto shrink-0"
+        style={{ color: 'var(--ndl-faint)' }}
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+      </svg>
+    </a>
+  );
+}
+
+function FloatingTipJar({
+  href,
+  className,
+}: {
+  href: string;
+  className: string;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Buy me a coffee?"
+      className={`fixed z-50 inline-flex items-center justify-center gap-2.5 no-underline transition-all duration-200 ease-in-out hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--ndl-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--ndl-bg)]
+        right-4 sm:right-6
+        px-3.5 py-2.5 sm:px-4 sm:py-2.5
+        text-xs sm:text-sm font-semibold tracking-tight
+        ${className}`}
+      style={{
+        ...accentFill,
+        bottom: 'max(1rem, env(safe-area-inset-bottom, 0px))',
+      }}
+    >
+      <span className="text-2xl sm:text-3xl leading-none" aria-hidden="true">
+        ☕
+      </span>
+      <span>{LABEL}</span>
+    </a>
   );
 }
 
 /**
- * Lightweight Ko-fi tip link (no widget script — keeps Lighthouse clean).
+ * Lightweight support CTA (external Ko-fi link only — no third-party widgets).
+ * Floating variant is persistent (non-dismissible) and theme-token aligned.
  */
-export default function KofiTipLink({ variant = 'button', className = '', compact = false }: Props) {
-  const label = compact ? 'Tip on Ko-fi' : 'Support on Ko-fi';
-
+export default function KofiTipLink({
+  href = KOFI_URL,
+  variant = 'button',
+  className = '',
+}: KofiTipLinkProps) {
+  if (variant === 'floating') {
+    return <FloatingTipJar href={href} className={className} />;
+  }
   if (variant === 'link') {
-    return (
-      <a
-        href={KOFI_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={`ndl-footer-link inline-flex items-center gap-1.5 text-sm transition-colors no-underline ${className}`}
-      >
-        <CupIcon className="w-3.5 h-3.5" />
-        {label}
-      </a>
-    );
+    return <InlineLink href={href} className={className} />;
   }
-
   if (variant === 'card') {
-    return (
-      <a
-        href={KOFI_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={`flex items-center gap-4 p-4 rounded-xl no-underline transition-all duration-250 hover:-translate-y-0.5 ${className}`}
-        style={{ background: 'var(--ndl-card-bg)', border: '1px solid var(--ndl-border)' }}
-      >
-        <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-          style={{ background: 'rgba(255,94,91,0.12)', border: '1px solid rgba(255,94,91,0.28)', color: '#FF5E5B' }}
-        >
-          <CupIcon className="w-5 h-5" />
-        </div>
-        <div className="min-w-0">
-          <p className="text-sm font-medium" style={{ color: 'var(--ndl-text)' }}>
-            Tip on Ko-fi
-          </p>
-          <p className="text-xs" style={{ color: 'var(--ndl-faint)' }}>
-            Support free tools — optional, one-time tip
-          </p>
-        </div>
-        <svg className="w-4 h-4 ml-auto shrink-0" style={{ color: 'var(--ndl-faint)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-        </svg>
-      </a>
-    );
+    return <InlineCard href={href} className={className} />;
   }
-
-  return (
-    <a
-      href={KOFI_URL}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={`inline-flex items-center justify-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-xl no-underline transition-all duration-200 hover:-translate-y-0.5 ${className}`}
-      style={{
-        color: '#fff',
-        background: '#FF5E5B',
-        boxShadow: '0 4px 16px rgba(255,94,91,0.28)',
-      }}
-    >
-      <CupIcon />
-      {label}
-    </a>
-  );
+  return <InlineButton href={href} className={className} />;
 }

@@ -55,6 +55,8 @@ Brain games share: explicit `idle | playing | paused | gameover` lifecycle, diff
 
 Cloud sync keys: `2048`, `snake`, `blackjack`, `sudoku`, `gridlock`, `sumoku`, `cryptic-paths`, `semantic-shift`.
 
+Global support CTA: the root layout includes the lightweight `KofiTipLink` floating button on the games lobby, every game route, and all future game pages. Do not add Ko-fi widget scripts; see [`docs/support.md`](../support.md).
+
 ---
 
 ## Brain games (summary)

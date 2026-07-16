@@ -1,12 +1,13 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import Script from 'next/script';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import KofiTipLink from '@/components/KofiTipLink';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { AuthProvider } from '@/components/AuthProvider';
 import ScrollToTop from '@/components/ScrollToTop';
-import { DEFAULT_OG_IMAGE, SITE_NAME } from '@/lib/seo';
+import { DEFAULT_OG_IMAGE, KOFI_URL, SITE_NAME } from '@/lib/seo';
 import { THEME_BOOT_SCRIPT } from '@/lib/theme';
 import './globals.css';
 
@@ -22,6 +23,12 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
   display: 'swap',
 });
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+};
 
 // ── Root metadata ──────────────────────────────────────────────────────────
 export const metadata: Metadata = {
@@ -111,6 +118,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </main>
 
             <Footer />
+            <KofiTipLink variant="floating" href={KOFI_URL} />
           </AuthProvider>
         </ThemeProvider>
 

@@ -85,3 +85,7 @@ The contact page posts to `POST /api/contact`, which sends mail with **Resend** 
 | `CONTACT_TO_EMAIL` | Private inbox (e.g. `dilanfdo.dev@gmail.com`) — never exposed to the client |
 
 Set the same vars on Vercel. Domain sending must be verified in Resend. `Reply-To` is the visitor’s address.
+
+## Support CTA
+
+The Ko-fi support CTA is a lightweight external link (`KofiTipLink`) rendered globally from the root layout. It does not affect auth state, user data, or Supabase. Do not add Ko-fi scripts or embeds; see [`docs/support.md`](support.md).

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -106,9 +106,18 @@ function navKey(link: NavLink): string {
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const badge = detectBadge(pathname);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px)');
+    const sync = () => setIsDesktop(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
 
   function goHomeSection(sectionId: string) {
     setMobileOpen(false);
@@ -148,23 +157,23 @@ export default function Header() {
         WebkitBackdropFilter: 'blur(14px)',
       }}
     >
-      <div className="max-w-7xl mx-auto px-6 sm:px-10 h-16 flex items-center gap-6">
+      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 md:px-10 h-16 flex items-center gap-3 sm:gap-6 min-w-0">
 
         <Link
           href="/"
-          className="flex items-center gap-2.5 no-underline flex-shrink-0"
+          className="flex items-center gap-2 sm:gap-2.5 no-underline flex-shrink-0 min-w-0"
           onClick={(e) => {
             e.preventDefault();
             goHome();
           }}
         >
           <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center font-bold ndl-on-accent text-sm"
+            className="w-8 h-8 rounded-lg flex items-center justify-center font-bold ndl-on-accent text-sm shrink-0"
             style={{ background: 'linear-gradient(135deg,#2563eb,#6366f1)', boxShadow: '0 4px 14px rgba(37,99,235,0.28)' }}
           >
             N
           </div>
-          <span className="text-sm font-semibold tracking-tight" style={{ color: 'var(--ndl-text)' }}>
+          <span className="text-sm font-semibold tracking-tight truncate" style={{ color: 'var(--ndl-text)' }}>
             NexusDigitalLabs
           </span>
         </Link>
@@ -213,18 +222,19 @@ export default function Header() {
           })}
         </nav>
 
-        <div className="ml-auto flex items-center gap-2 sm:gap-3 flex-shrink-0">
+        <div className="ml-auto flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
           {badge && (
             <span className={`hidden md:inline-flex items-center text-xs font-medium px-3 py-1.5 rounded-lg whitespace-nowrap ${BADGE_CLASSES[badge.color]}`}>
               {badge.label}
             </span>
           )}
 
-          <ThemeToggle />
+          {/* Desktop only — mobile uses Theme section inside the hamburger drawer */}
+          {isDesktop && <ThemeToggle />}
           <AuthMenu />
 
           <button
-            className="md:hidden p-2 transition-colors"
+            className="md:hidden p-2 -mr-1 transition-colors shrink-0"
             style={{ color: 'var(--ndl-muted)' }}
             aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
             onClick={() => setMobileOpen((v) => !v)}
