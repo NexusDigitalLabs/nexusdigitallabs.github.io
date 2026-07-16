@@ -8,6 +8,7 @@ import {
   type Expense, type Debt, type MultiPlanResult, type PlanResult, type PlanHorizon,
   runEngine, fmtC, fmtMo, fmtPct, totalDebtRemaining,
 } from '@/lib/debt-engine';
+import { loginUrl } from '@/lib/auth-redirect';
 import CloudDraftBar from '@/components/CloudDraftBar';
 import { useCloudToolDraft } from '@/hooks/useCloudToolDraft';
 
@@ -362,7 +363,7 @@ export default function DebtOptimizerClient() {
           optIn={cloudDraft.optIn}
           status={cloudDraft.status}
           message={cloudDraft.message}
-          loginHref="/login/?next=/tools/debt-optimizer/"
+          loginHref={loginUrl('/tools/debt-optimizer/')}
           onEnable={() => { void cloudDraft.enable(); }}
           onDisable={(del) => { void cloudDraft.disable(del); }}
           onSaveNow={() => { void cloudDraft.saveNow(); }}

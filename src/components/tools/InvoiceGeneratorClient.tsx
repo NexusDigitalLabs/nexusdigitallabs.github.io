@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import Script from 'next/script';
 import CloudDraftBar from '@/components/CloudDraftBar';
 import { useCloudToolDraft } from '@/hooks/useCloudToolDraft';
+import { loginUrl } from '@/lib/auth-redirect';
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 const SYM: Record<string, string> = {
@@ -587,7 +588,7 @@ export default function InvoiceGeneratorClient() {
               optIn={cloudDraft.optIn}
               status={cloudDraft.status}
               message={cloudDraft.message}
-              loginHref="/login/?next=/tools/invoice-generator/"
+              loginHref={loginUrl('/tools/invoice-generator/')}
               onEnable={() => { void cloudDraft.enable(); }}
               onDisable={(del) => { void cloudDraft.disable(del); }}
               onSaveNow={() => { void cloudDraft.saveNow(); }}

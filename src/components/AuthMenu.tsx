@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { User } from '@supabase/supabase-js';
 import { useAuth } from '@/components/AuthProvider';
+import { loginUrl } from '@/lib/auth-redirect';
 
 function initialsFromUser(email?: string | null, name?: string | null): string {
   if (name?.trim()) {
@@ -122,13 +123,9 @@ export default function AuthMenu() {
   }
 
   if (!user) {
-    const next =
-      pathname && pathname !== '/' && pathname !== '/login' && pathname !== '/login/'
-        ? `?next=${encodeURIComponent(pathname.endsWith('/') ? pathname : `${pathname}/`)}`
-        : '';
     return (
       <Link
-        href={next ? `/login/${next}` : '/login/'}
+        href={loginUrl(pathname || '/')}
         className="inline-flex items-center text-[11px] sm:text-xs font-semibold px-2 sm:px-3 py-1.5 rounded-lg no-underline transition-colors shrink-0"
         style={{
           color: 'var(--ndl-text)',
@@ -228,13 +225,9 @@ export function AuthMenuMobile({ onNavigate }: { onNavigate?: () => void }) {
   if (loading) return null;
 
   if (!user) {
-    const next =
-      pathname && pathname !== '/' && pathname !== '/login' && pathname !== '/login/'
-        ? `?next=${encodeURIComponent(pathname.endsWith('/') ? pathname : `${pathname}/`)}`
-        : '';
     return (
       <Link
-        href={next ? `/login/${next}` : '/login/'}
+        href={loginUrl(pathname || '/')}
         className="text-sm font-semibold no-underline"
         style={{ color: 'var(--ndl-text)' }}
         onClick={onNavigate}

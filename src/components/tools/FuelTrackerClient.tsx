@@ -7,6 +7,7 @@ import {
 } from '@/lib/fuel-utils';
 import { useAuth } from '@/components/AuthProvider';
 import AuthGate from '@/components/AuthGate';
+import { loginUrl } from '@/lib/auth-redirect';
 import {
   CURRENCIES,
   currencyByCode,
@@ -398,7 +399,7 @@ function SyncCodeCard({
                     Sign in to link this garage to your account (optional — sync code still works alone).
                   </p>
                   <a
-                    href="/login/?next=/tools/fuel-tracker/"
+                    href={loginUrl('/tools/fuel-tracker/')}
                     style={{
                       display: 'block',
                       textAlign: 'center',
@@ -727,7 +728,11 @@ export default function FuelTrackerClient() {
   // Signed-in on onboarding: one extra account restore (session cookies may land after first paint).
   const onboardingAccountRetryRef = useRef(false);
   useEffect(() => {
-    if (authLoading || !user?.id || step !== 'onboarding') return;
+    if (!user?.id) {
+      onboardingAccountRetryRef.current = false;
+      return;
+    }
+    if (authLoading || step !== 'onboarding') return;
     if (onboardingAccountRetryRef.current) return;
     onboardingAccountRetryRef.current = true;
 
@@ -1429,7 +1434,7 @@ export default function FuelTrackerClient() {
               )}
               {claimState === 'unclaimed' && !user && (
                 <a
-                  href="/login/?next=/tools/fuel-tracker/"
+                  href={loginUrl('/tools/fuel-tracker/')}
                   style={{
                     ...S.btn('#6366f1'),
                     marginTop: '0.75rem',

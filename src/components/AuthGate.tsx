@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
+import { loginUrl } from '@/lib/auth-redirect';
 
 type AuthGateProps = {
   children: ReactNode;
@@ -14,12 +15,6 @@ type AuthGateProps = {
   /** Full-viewport gate vs compact card (default). */
   variant?: 'card' | 'page';
 };
-
-function loginHref(next: string): string {
-  const path = next.startsWith('/') && !next.startsWith('//') ? next : '/';
-  const normalized = path.endsWith('/') || path === '/' ? path : `${path}/`;
-  return `/login/?next=${encodeURIComponent(normalized)}`;
-}
 
 function LockMark() {
   return (
@@ -86,7 +81,7 @@ function GateDialog({
         {description}
       </p>
       <Link
-        href={loginHref(nextPath)}
+        href={loginUrl(nextPath)}
         className="group inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3.5 text-sm font-semibold no-underline ndl-on-accent transition-transform duration-200 hover:scale-[1.01] active:scale-[0.99]"
         style={{
           background: 'linear-gradient(135deg,#2563eb 0%,#3b82f6 55%,#0ea5e9 100%)',
