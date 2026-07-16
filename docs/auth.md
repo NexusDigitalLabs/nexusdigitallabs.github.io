@@ -64,6 +64,8 @@ Run [`004_unlink_fuel_garage.sql`](../supabase/migrations/004_unlink_fuel_garage
 
 Run [`005_game_scores.sql`](../supabase/migrations/005_game_scores.sql). Signed-in players merge local ↔ cloud best scores via `useGameState` + `src/lib/game-scores.ts` (RLS: own rows).
 
+Then run [`007_game_scores_brain.sql`](../supabase/migrations/007_game_scores_brain.sql) to allow brain-suite keys (`sudoku`, `gridlock`, `sumoku`, `cryptic-paths`, `semantic-shift`).
+
 ## Opt-in tool drafts (Invoice / Debt)
 
 Run [`006_tool_drafts.sql`](../supabase/migrations/006_tool_drafts.sql). Default remains local-only. Users can enable **Cloud draft** while signed in (`tool_drafts` table, RLS own row only).

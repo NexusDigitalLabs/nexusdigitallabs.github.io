@@ -7,7 +7,7 @@ describe('site catalog counts', () => {
     expect(TOOL_COUNT).toBe(TOOLS.length);
     expect(GAME_COUNT).toBe(GAMES.length);
     expect(TOOL_COUNT).toBeGreaterThanOrEqual(8);
-    expect(GAME_COUNT).toBe(3);
+    expect(GAME_COUNT).toBe(8);
   });
 
   it('keeps article list non-empty for homepage stats', () => {

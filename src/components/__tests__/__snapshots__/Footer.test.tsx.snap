@@ -167,6 +167,36 @@ exports[`Footer — snapshot > matches snapshot 1`] = `
           >
             Blackjack
           </a>
+          <a
+            class="ndl-footer-link block text-sm transition-colors no-underline"
+            href="/games/sudoku"
+          >
+            Nexus Sudoku
+          </a>
+          <a
+            class="ndl-footer-link block text-sm transition-colors no-underline"
+            href="/games/gridlock"
+          >
+            Gridlock
+          </a>
+          <a
+            class="ndl-footer-link block text-sm transition-colors no-underline"
+            href="/games/sumoku"
+          >
+            Sumoku
+          </a>
+          <a
+            class="ndl-footer-link block text-sm transition-colors no-underline"
+            href="/games/cryptic-paths"
+          >
+            Cryptic Paths
+          </a>
+          <a
+            class="ndl-footer-link block text-sm transition-colors no-underline"
+            href="/games/semantic-shift"
+          >
+            Semantic Shift
+          </a>
         </div>
       </div>
     </div>

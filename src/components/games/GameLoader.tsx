@@ -11,11 +11,27 @@
 import dynamic from 'next/dynamic';
 
 const GamesLobbyClient = dynamic(() => import('./GamesLobbyClient'), { ssr: false, loading: () => null });
-const Game2048         = dynamic(() => import('./Game2048'),          { ssr: false, loading: () => null });
-const GameSnake        = dynamic(() => import('./GameSnake'),         { ssr: false, loading: () => null });
-const GameBlackjack    = dynamic(() => import('./GameBlackjack'),     { ssr: false, loading: () => null });
+const Game2048 = dynamic(() => import('./Game2048'), { ssr: false, loading: () => null });
+const GameSnake = dynamic(() => import('./GameSnake'), { ssr: false, loading: () => null });
+const GameBlackjack = dynamic(() => import('./GameBlackjack'), { ssr: false, loading: () => null });
+const GameSudoku = dynamic(() => import('./GameSudoku'), { ssr: false, loading: () => null });
+const GameGridlock = dynamic(() => import('./GameGridlock'), { ssr: false, loading: () => null });
+const GameSumoku = dynamic(() => import('./GameSumoku'), { ssr: false, loading: () => null });
+const GameCrypticPaths = dynamic(() => import('./GameCrypticPaths'), { ssr: false, loading: () => null });
+const GameSemanticShift = dynamic(() => import('./GameSemanticShift'), { ssr: false, loading: () => null });
 
-const COMPONENTS = { lobby: GamesLobbyClient, '2048': Game2048, snake: GameSnake, blackjack: GameBlackjack } as const;
+const COMPONENTS = {
+  lobby: GamesLobbyClient,
+  '2048': Game2048,
+  snake: GameSnake,
+  blackjack: GameBlackjack,
+  sudoku: GameSudoku,
+  gridlock: GameGridlock,
+  sumoku: GameSumoku,
+  'cryptic-paths': GameCrypticPaths,
+  'semantic-shift': GameSemanticShift,
+} as const;
+
 type GameKey = keyof typeof COMPONENTS;
 
 export default function GameLoader({ game }: { game: GameKey }) {
