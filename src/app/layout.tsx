@@ -3,11 +3,11 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import Script from 'next/script';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import KofiTipLink from '@/components/KofiTipLink';
+import PWAInstallBanner from '@/components/PWAInstallBanner';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { AuthProvider } from '@/components/AuthProvider';
 import ScrollToTop from '@/components/ScrollToTop';
-import { DEFAULT_OG_IMAGE, KOFI_URL, SITE_NAME } from '@/lib/seo';
+import { DEFAULT_OG_IMAGE, SITE_NAME } from '@/lib/seo';
 import { THEME_BOOT_SCRIPT } from '@/lib/theme';
 import './globals.css';
 
@@ -28,6 +28,10 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#f8fafc' },
+    { media: '(prefers-color-scheme: dark)', color: '#0b0f19' },
+  ],
 };
 
 // ── Root metadata ──────────────────────────────────────────────────────────
@@ -61,15 +65,15 @@ export const metadata: Metadata = {
       'Engineering minimalist web utilities, developer tools, and high-performance software built for speed, privacy, and utility.',
     images: [DEFAULT_OG_IMAGE],
   },
-  icons: {
-    icon: '/favicon.png',
-    apple: '/favicon.png',
-  },
+  applicationName: SITE_NAME,
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'Fuel Tracker',
+    title: SITE_NAME,
+  },
+  formatDetection: {
+    telephone: false,
   },
 };
 
@@ -118,7 +122,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </main>
 
             <Footer />
+            {/* TODO: Re-enable once the support/tip page is fully ready.
             <KofiTipLink variant="floating" href={KOFI_URL} />
+            */}
+            <PWAInstallBanner />
           </AuthProvider>
         </ThemeProvider>
 
