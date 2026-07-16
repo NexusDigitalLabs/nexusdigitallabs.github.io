@@ -1,10 +1,22 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
 import { useGameState } from '@/hooks/useGameState';
+import {
+  GameBoardFrame,
+  GameControlsRow,
+  GameHeader,
+  GameOverlay,
+  GamePageBody,
+  GameSecondaryButton,
+} from './game-ui';
 import UsernameGate from './UsernameGate';
 import GameHelpModal from './GameHelpModal';
+import {
+  SNAKE_POINTS_PER_LEVEL,
+  snakeLevelFromScore,
+  snakeTickMsForScore,
+} from '@/lib/snake-levels';
 
 const CELL = 20;
 
@@ -18,16 +30,30 @@ interface OverlayState {
   btnText: string;
 }
 
+function readCanvasColors() {
+  if (typeof document === 'undefined') {
+    return { bg: '#ffffff', grid: '#f1f5f9', head: '#0f172a' };
+  }
+  const s = getComputedStyle(document.documentElement);
+  const surface = s.getPropertyValue('--ndl-surface').trim() || '#ffffff';
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  return {
+    bg: surface,
+    grid: isDark ? 'rgba(148,163,184,0.12)' : '#f1f5f9',
+    head: isDark ? '#f8fafc' : '#0f172a',
+  };
+}
+
 export default function GameSnake() {
   const { username, setUsername, getHighScore, saveScore, loaded } = useGameState();
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Game loop refs (avoid stale closures in RAF)
   const snakeRef   = useRef<Point[]>([]);
   const dirRef     = useRef<Dir>({ x: 1, y: 0 });
   const nextDirRef = useRef<Dir>({ x: 1, y: 0 });
   const foodRef    = useRef<Point>({ x: 0, y: 0 });
   const scoreRef   = useRef(0);
+  const levelRef   = useRef(1);
   const bestRef    = useRef(0);
   const aliveRef   = useRef(false);
   const runningRef = useRef(false);
@@ -36,18 +62,19 @@ export default function GameSnake() {
   const colsRef    = useRef(0);
   const rowsRef    = useRef(0);
 
-  // UI state
   const [dispScore, setDispScore] = useState(0);
+  const [dispLevel, setDispLevel] = useState(1);
   const [dispBest,  setDispBest]  = useState(0);
   const [showHelp, setShowHelp] = useState(false);
+  const [playing, setPlaying] = useState(false);
+  const [levelPulse, setLevelPulse] = useState(false);
   const [overlay, setOverlay] = useState<OverlayState>({
     title: 'Snake',
-    sub: 'Arrow keys, WASD, or D-pad to move',
+    sub: 'Eat food, level up, and wrap through walls. Speed rises each level.',
     titleColor: 'var(--ndl-text)',
     btnText: 'Start Game',
   });
 
-  // Init canvas size and best score
   useEffect(() => {
     if (!loaded || !username) return;
     const hs = getHighScore('snake');
@@ -65,12 +92,11 @@ export default function GameSnake() {
     colsRef.current = size / CELL;
     rowsRef.current = size / CELL;
 
-    // Draw initial white canvas
     const ctx = canvas.getContext('2d');
-    if (ctx) { ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, size, size); }
+    const { bg } = readCanvasColors();
+    if (ctx) { ctx.fillStyle = bg; ctx.fillRect(0, 0, size, size); }
   }, [loaded, username, getHighScore]);
 
-  // ── Render ─────────────────────────────────────────────────────────────────
   const render = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -78,41 +104,50 @@ export default function GameSnake() {
     if (!ctx) return;
     const W = canvas.width, H = canvas.height;
     const COLS = colsRef.current, ROWS = rowsRef.current;
+    const { bg, grid, head } = readCanvasColors();
 
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = bg;
     ctx.fillRect(0, 0, W, H);
 
-    // Grid lines
-    ctx.strokeStyle = '#f1f5f9';
+    ctx.strokeStyle = grid;
     ctx.lineWidth = 0.5;
     for (let x = 0; x <= COLS; x++) { ctx.beginPath(); ctx.moveTo(x*CELL,0); ctx.lineTo(x*CELL,H); ctx.stroke(); }
     for (let y = 0; y <= ROWS; y++) { ctx.beginPath(); ctx.moveTo(0,y*CELL); ctx.lineTo(W,y*CELL); ctx.stroke(); }
 
-    // Food
     const f = foodRef.current;
     ctx.fillStyle = '#4ade80';
-    ctx.fillRect(f.x*CELL+2, f.y*CELL+2, CELL-4, CELL-4);
+    ctx.beginPath();
+    ctx.arc(f.x * CELL + CELL / 2, f.y * CELL + CELL / 2, CELL / 2 - 3, 0, Math.PI * 2);
+    ctx.fill();
     ctx.fillStyle = '#86efac';
-    ctx.fillRect(f.x*CELL+5, f.y*CELL+5, CELL-10, CELL-10);
+    ctx.beginPath();
+    ctx.arc(f.x * CELL + CELL / 2, f.y * CELL + CELL / 2, CELL / 2 - 6, 0, Math.PI * 2);
+    ctx.fill();
 
-    // Snake
     const snake = snakeRef.current;
     const dir   = dirRef.current;
     for (let i = snake.length - 1; i >= 0; i--) {
       const seg = snake[i];
       const isHead = i === 0;
-      const t = 1 - (i / snake.length) * 0.35;
+      const t = 1 - (i / Math.max(snake.length, 1)) * 0.4;
       if (isHead) {
-        ctx.fillStyle = '#0f172a';
+        ctx.fillStyle = head;
       } else {
-        const v = Math.round(30 + (1-t)*60);
-        ctx.fillStyle = `rgba(${v},${Math.round(41+(1-t)*60)},${Math.round(59+(1-t)*60)},1)`;
+        const g = Math.round(74 + (1 - t) * 40);
+        ctx.fillStyle = `rgb(${g}, ${Math.round(222 - t * 60)}, ${Math.round(128 - t * 30)})`;
       }
       const pad = isHead ? 1 : 2;
-      ctx.fillRect(seg.x*CELL+pad, seg.y*CELL+pad, CELL-pad*2, CELL-pad*2);
+      const r = isHead ? 4 : 3;
+      const x = seg.x * CELL + pad;
+      const y = seg.y * CELL + pad;
+      const w = CELL - pad * 2;
+      const h = CELL - pad * 2;
+      ctx.beginPath();
+      ctx.roundRect(x, y, w, h, r);
+      ctx.fill();
 
       if (isHead) {
-        ctx.fillStyle = '#fff';
+        ctx.fillStyle = head === '#0f172a' ? '#fff' : '#0f172a';
         const ex = seg.x*CELL, ey = seg.y*CELL;
         if (dir.x === 1)  { ctx.fillRect(ex+CELL-5,ey+3,3,3); ctx.fillRect(ex+CELL-5,ey+CELL-6,3,3); }
         if (dir.x === -1) { ctx.fillRect(ex+2,ey+3,3,3);       ctx.fillRect(ex+2,ey+CELL-6,3,3); }
@@ -122,7 +157,6 @@ export default function GameSnake() {
     }
   };
 
-  // ── Place food ────────────────────────────────────────────────────────────
   const placeFood = () => {
     const snake = snakeRef.current;
     const COLS = colsRef.current, ROWS = rowsRef.current;
@@ -136,17 +170,26 @@ export default function GameSnake() {
     foodRef.current = candidates[Math.floor(Math.random() * candidates.length)];
   };
 
-  // ── Tick interval ─────────────────────────────────────────────────────────
-  const tickInterval = () => Math.max(70, 150 - Math.floor(scoreRef.current / 5) * 8);
+  const bumpLevelIfNeeded = (score: number) => {
+    const nextLevel = snakeLevelFromScore(score);
+    if (nextLevel > levelRef.current) {
+      levelRef.current = nextLevel;
+      setDispLevel(nextLevel);
+      setLevelPulse(true);
+      window.setTimeout(() => setLevelPulse(false), 600);
+    }
+  };
 
-  // ── Update (called once per tick) ─────────────────────────────────────────
   const update = () => {
     dirRef.current = { ...nextDirRef.current };
     const head = snakeRef.current[0];
-    const next: Point = { x: head.x + dirRef.current.x, y: head.y + dirRef.current.y };
     const COLS = colsRef.current, ROWS = rowsRef.current;
+    // Wrap through walls: leave one side, appear on the opposite.
+    const next: Point = {
+      x: (head.x + dirRef.current.x + COLS) % COLS,
+      y: (head.y + dirRef.current.y + ROWS) % ROWS,
+    };
 
-    if (next.x < 0 || next.x >= COLS || next.y < 0 || next.y >= ROWS) { killSnake(); return; }
     const snake = snakeRef.current;
     for (let i = 0; i < snake.length - 1; i++) {
       if (snake[i].x === next.x && snake[i].y === next.y) { killSnake(); return; }
@@ -162,6 +205,7 @@ export default function GameSnake() {
         setDispBest(bestRef.current);
       }
       setDispScore(scoreRef.current);
+      bumpLevelIfNeeded(scoreRef.current);
       placeFood();
     } else {
       newSnake.pop();
@@ -170,10 +214,9 @@ export default function GameSnake() {
     snakeRef.current = newSnake;
   };
 
-  // ── RAF loop ──────────────────────────────────────────────────────────────
   const loop = (ts: number) => {
     if (!runningRef.current) return;
-    if (ts - lastTickRef.current >= tickInterval()) {
+    if (ts - lastTickRef.current >= snakeTickMsForScore(scoreRef.current)) {
       lastTickRef.current = ts;
       update();
       if (!aliveRef.current) return;
@@ -182,20 +225,19 @@ export default function GameSnake() {
     rafRef.current = requestAnimationFrame(loop);
   };
 
-  // ── Kill snake ────────────────────────────────────────────────────────────
   const killSnake = () => {
     aliveRef.current = false;
     runningRef.current = false;
+    setPlaying(false);
     render();
     setOverlay({
       title: 'Game Over',
-      sub: `Score: ${scoreRef.current} · Best: ${bestRef.current}`,
+      sub: `Score ${scoreRef.current} · Level ${levelRef.current} · Best ${bestRef.current}`,
       titleColor: '#ef4444',
       btnText: 'Play Again',
     });
   };
 
-  // ── Start game ────────────────────────────────────────────────────────────
   const startGame = () => {
     if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
     const COLS = colsRef.current, ROWS = rowsRef.current;
@@ -204,25 +246,27 @@ export default function GameSnake() {
     dirRef.current     = { x: 1, y: 0 };
     nextDirRef.current = { x: 1, y: 0 };
     scoreRef.current   = 0;
+    levelRef.current   = 1;
     aliveRef.current   = true;
     runningRef.current = true;
+    setPlaying(true);
     lastTickRef.current= 0;
     setDispScore(0);
+    setDispLevel(1);
+    setLevelPulse(false);
     setOverlay({ title: '', sub: '', titleColor: '', btnText: '' });
     placeFood();
     rafRef.current = requestAnimationFrame(loop);
   };
 
-  // ── Cleanup RAF on unmount ────────────────────────────────────────────────
   useEffect(() => {
     return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
   }, []);
 
-  // ── Keyboard + D-pad input ────────────────────────────────────────────────
   const applyDir = (d: Dir) => {
     if (!aliveRef.current || !runningRef.current) return;
     const cur = dirRef.current;
-    if (d.x === -cur.x && d.y === -cur.y) return; // prevent 180°
+    if (d.x === -cur.x && d.y === -cur.y) return;
     nextDirRef.current = d;
   };
 
@@ -242,7 +286,6 @@ export default function GameSnake() {
     return () => window.removeEventListener('keydown', handler);
   }, [loaded, username]);
 
-  // ── Touch swipe on canvas ─────────────────────────────────────────────────
   useEffect(() => {
     if (!loaded || !username) return;
     const canvas = canvasRef.current;
@@ -260,123 +303,95 @@ export default function GameSnake() {
     return () => { canvas.removeEventListener('touchstart', onStart); canvas.removeEventListener('touchend', onEnd); };
   }, [loaded, username]);
 
+  useEffect(() => {
+    const onTheme = () => { if (canvasRef.current) render(); };
+    const obs = new MutationObserver(onTheme);
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => obs.disconnect();
+  }, []);
+
   if (!loaded) return null;
   if (!username) return <UsernameGate onSubmit={setUsername} />;
 
-  const slbl = 'text-[0.6875rem] font-bold tracking-[0.1em] uppercase text-slate-400';
   const showOverlay = overlay.title !== '';
 
   return (
     <>
       <GameHelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} title="Snake">
         <p style={{ marginBottom: '1rem' }}>
-          Guide the snake to eat food and grow longer. The game ends if you hit a <strong style={{ color: 'var(--ndl-text)' }}>wall</strong> or your own <strong style={{ color: 'var(--ndl-text)' }}>tail</strong>. Speed increases as you grow.
+          Guide the snake to eat food and grow. Each <strong style={{ color: 'var(--ndl-text)' }}>{SNAKE_POINTS_PER_LEVEL} points</strong> advances you to the next <strong style={{ color: '#4ade80' }}>level</strong>, and the snake moves faster. Walls wrap — leave one side and you appear on the opposite.
         </p>
         <p style={{ fontWeight: 700, color: 'var(--ndl-text)', marginBottom: '0.5rem' }}>Controls</p>
         <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem', marginBottom: '1rem' }}>
           <li><strong style={{ color: 'var(--ndl-text)' }}>Arrow keys</strong> or <strong style={{ color: 'var(--ndl-text)' }}>W / A / S / D</strong> — change direction</li>
-          <li><strong style={{ color: 'var(--ndl-text)' }}>D-pad buttons</strong> — on touch screens (shown automatically)</li>
+          <li><strong style={{ color: 'var(--ndl-text)' }}>D-pad buttons</strong> — on touch screens</li>
           <li><strong style={{ color: 'var(--ndl-text)' }}>Swipe on the canvas</strong> — also works on touch</li>
         </ul>
         <p style={{ fontWeight: 700, color: 'var(--ndl-text)', marginBottom: '0.5rem' }}>Rules</p>
         <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
           <li>You cannot instantly reverse direction (180°)</li>
-          <li>Hitting a wall ends the game — no wrapping</li>
-          <li>Each food eaten = <strong style={{ color: '#4ade80' }}>+1 point</strong> and snake grows by one segment</li>
+          <li>Edges wrap: right ↔ left, top ↔ bottom</li>
+          <li>Hitting your own <strong style={{ color: 'var(--ndl-text)' }}>tail</strong> ends the game</li>
+          <li>Each food eaten = <strong style={{ color: '#4ade80' }}>+1 point</strong></li>
         </ul>
       </GameHelpModal>
 
-      <div style={{ borderBottom: '1px solid var(--ndl-border)', background: 'var(--ndl-bg)' }}>
-        <div className="max-w-lg mx-auto px-6 py-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <Link href="/games/" style={{ fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#4ade80', textDecoration: 'none' }}>
-                ← Games
-              </Link>
-              <h1 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--ndl-text)', marginTop: '0.25rem' }}>Snake</h1>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <button
-                type="button"
-                onClick={() => setShowHelp(true)}
-                style={{
-                  background: 'var(--ndl-surface-2)', border: '1px solid var(--ndl-border)',
-                  padding: '0 0.875rem', height: '36px', cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', gap: '0.375rem',
-                  fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.07em',
-                  textTransform: 'uppercase', color: 'var(--ndl-muted)', whiteSpace: 'nowrap',
-                }}
-              >
-                <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <circle cx="12" cy="12" r="10" strokeWidth="2"/>
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 16v-4m0-4h.01"/>
-                </svg>
-                How to Play
-              </button>
-              {[{ label: 'Score', val: dispScore }, { label: 'Best', val: dispBest }].map(({ label, val }) => (
-                <div key={label} style={{ border: '1px solid var(--ndl-border)', background: 'var(--ndl-surface-2)', padding: '0.5rem 1rem', textAlign: 'center', minWidth: '76px' }}>
-                  <div style={{ fontSize: '0.5625rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ndl-faint)' }}>{label}</div>
-                  <div style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--ndl-text)', lineHeight: 1.2 }}>{val}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
+      <GameHeader
+        title="Snake"
+        onHelp={() => setShowHelp(true)}
+        stats={[
+          { label: 'Score', value: dispScore },
+          { label: 'Level', value: dispLevel, highlight: levelPulse },
+          { label: 'Best', value: dispBest },
+        ]}
+      />
 
-      <div style={{ background: 'var(--ndl-bg)', minHeight: 'calc(100vh - 64px - 80px)' }}>
-      <div className="max-w-lg mx-auto px-6 py-8 flex flex-col items-center gap-6">
-        {/* Canvas */}
-        <div style={{ position: 'relative', display: 'inline-block', lineHeight: 0 }}>
-          <canvas ref={canvasRef} style={{ display: 'block', border: '1px solid var(--ndl-border)', background: 'var(--ndl-surface)' }} />
-          {showOverlay && (
-            <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'color-mix(in srgb, var(--ndl-bg) 88%, transparent)', zIndex: 5 }}>
-              <p style={{ fontSize: '1.25rem', fontWeight: 800, color: overlay.titleColor || 'var(--ndl-text)', marginBottom: '0.375rem' }}>{overlay.title}</p>
-              <p style={{ fontSize: '0.875rem', color: 'var(--ndl-faint)', marginBottom: '1.5rem' }}>{overlay.sub}</p>
-              <button
-                onClick={startGame}
-                type="button"
-                style={{ background: 'var(--ndl-text)', color: 'var(--ndl-bg)', padding: '0.625rem 1.75rem', border: 'none', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase' }}
-              >
-                {overlay.btnText || 'Start Game'}
-              </button>
-            </div>
+      <GamePageBody>
+        <div className="flex flex-col items-center gap-5 sm:gap-6">
+          <GameBoardFrame className="relative inline-block leading-none">
+            <canvas ref={canvasRef} className="block w-full" style={{ background: 'var(--ndl-surface)' }} />
+            {showOverlay && (
+              <GameOverlay
+                title={overlay.title}
+                sub={overlay.sub}
+                titleColor={overlay.titleColor}
+                btnText={overlay.btnText}
+                onAction={startGame}
+              />
+            )}
+          </GameBoardFrame>
+
+          {!showOverlay && playing && (
+            <p className="text-xs font-medium tabular-nums" style={{ color: 'var(--ndl-faint)' }}>
+              Level {dispLevel} · next level at {dispLevel * SNAKE_POINTS_PER_LEVEL} pts
+            </p>
           )}
-        </div>
 
-        {/* D-pad (touch devices) */}
-        <div
-          style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 52px)', gridTemplateRows: 'repeat(3, 52px)', gap: '4px' }}
-          className="dpad-grid"
-        >
-          <div />
-          <DpadBtn onClick={() => applyDir({ x: 0, y: -1 })}>↑</DpadBtn>
-          <div />
-          <DpadBtn onClick={() => applyDir({ x: -1, y: 0 })}>←</DpadBtn>
-          <div />
-          <DpadBtn onClick={() => applyDir({ x: 1, y: 0 })}>→</DpadBtn>
-          <div />
-          <DpadBtn onClick={() => applyDir({ x: 0, y: 1 })}>↓</DpadBtn>
-          <div />
-        </div>
+          <div
+            className="dpad-grid"
+            style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 52px)', gridTemplateRows: 'repeat(3, 52px)', gap: '6px' }}
+          >
+            <div />
+            <DpadBtn onClick={() => applyDir({ x: 0, y: -1 })}>↑</DpadBtn>
+            <div />
+            <DpadBtn onClick={() => applyDir({ x: -1, y: 0 })}>←</DpadBtn>
+            <div />
+            <DpadBtn onClick={() => applyDir({ x: 1, y: 0 })}>→</DpadBtn>
+            <div />
+            <DpadBtn onClick={() => applyDir({ x: 0, y: 1 })}>↓</DpadBtn>
+            <div />
+          </div>
 
-        {/* Keyboard hint */}
-        <div className="hidden sm:flex gap-3 items-center flex-wrap justify-center">
-          <span style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--ndl-faint)' }}>Controls</span>
-          <span style={{ fontSize: '0.6875rem', fontWeight: 600, color: 'var(--ndl-muted)', padding: '0.25rem 0.5rem', border: '1px solid var(--ndl-border)', background: 'var(--ndl-surface-2)' }}>↑ ↓ ← →</span>
-          <span style={{ fontSize: '0.75rem', color: 'var(--ndl-faint)' }}>or</span>
-          <span style={{ fontSize: '0.6875rem', fontWeight: 600, color: 'var(--ndl-muted)', padding: '0.25rem 0.5rem', border: '1px solid var(--ndl-border)', background: 'var(--ndl-surface-2)' }}>W A S D</span>
-        </div>
+          <GameControlsRow
+            items={[
+              { key: '↑ ↓ ← →', label: 'Arrows' },
+              { key: 'W A S D', label: 'Keys' },
+            ]}
+          />
 
-        <button
-          onClick={startGame}
-          type="button"
-          style={{ border: '1px solid var(--ndl-border)', background: 'var(--ndl-surface-2)', padding: '0.5rem 1.25rem', cursor: 'pointer', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--ndl-muted)' }}
-        >
-          New Game
-        </button>
-      </div>
-      </div>
+          <GameSecondaryButton onClick={startGame}>New Game</GameSecondaryButton>
+        </div>
+      </GamePageBody>
 
       <style>{`
         @media (pointer: coarse) { .dpad-grid { display: grid !important; } }
@@ -392,8 +407,13 @@ function DpadBtn({ onClick, children }: { onClick: () => void; children: React.R
       type="button"
       onTouchStart={(e) => { e.preventDefault(); onClick(); }}
       onMouseDown={onClick}
-      className="flex items-center justify-center text-xl cursor-pointer select-none"
-      style={{ background: 'var(--ndl-surface-2)', border: '1px solid var(--ndl-border)', color: 'var(--ndl-muted)', WebkitTapHighlightColor: 'transparent' }}
+      className="flex items-center justify-center text-xl cursor-pointer select-none rounded-xl transition-colors hover:opacity-90"
+      style={{
+        background: 'var(--ndl-surface-2)',
+        border: '1px solid var(--ndl-border)',
+        color: 'var(--ndl-muted)',
+        WebkitTapHighlightColor: 'transparent',
+      }}
     >
       {children}
     </button>

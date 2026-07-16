@@ -41,6 +41,11 @@ const BADGES: Record<string, Badge> = {
   '/games/2048/':              { label: '2048',              color: 'amber'   },
   '/games/snake/':             { label: 'Snake',             color: 'amber'   },
   '/games/blackjack/':         { label: 'Blackjack',         color: 'amber'   },
+  '/games/sudoku/':            { label: 'Sudoku',            color: 'violet'  },
+  '/games/gridlock/':          { label: 'Gridlock',          color: 'sky'     },
+  '/games/sumoku/':            { label: 'Sumoku',            color: 'emerald' },
+  '/games/cryptic-paths/':     { label: 'Cryptic Paths',     color: 'violet'  },
+  '/games/semantic-shift/':    { label: 'Semantic Shift',    color: 'amber'   },
   '/games/':                   { label: 'Games',             color: 'amber'   },
   '/articles/':                { label: 'Article',           color: 'blue'    },
   '/about/':                   { label: 'About',             color: 'slate'   },
@@ -208,7 +213,7 @@ export default function Header() {
           })}
         </nav>
 
-        <div className="ml-auto flex items-center gap-3 flex-shrink-0">
+        <div className="ml-auto flex items-center gap-2 sm:gap-3 flex-shrink-0">
           {badge && (
             <span className={`hidden md:inline-flex items-center text-xs font-medium px-3 py-1.5 rounded-lg whitespace-nowrap ${BADGE_CLASSES[badge.color]}`}>
               {badge.label}

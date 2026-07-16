@@ -1,6 +1,15 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-export const GAME_KEYS = ['2048', 'snake', 'blackjack'] as const;
+export const GAME_KEYS = [
+  '2048',
+  'snake',
+  'blackjack',
+  'sudoku',
+  'gridlock',
+  'sumoku',
+  'cryptic-paths',
+  'semantic-shift',
+] as const;
 export type GameKey = (typeof GAME_KEYS)[number];
 
 export function isGameKey(value: string): value is GameKey {

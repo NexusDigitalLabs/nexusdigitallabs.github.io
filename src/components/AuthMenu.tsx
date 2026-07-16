@@ -115,7 +115,7 @@ export default function AuthMenu() {
   if (loading) {
     return (
       <div
-        className="hidden sm:block w-8 h-8 rounded-lg ndl-skeleton"
+        className="w-8 h-8 rounded-lg ndl-skeleton shrink-0"
         aria-hidden="true"
       />
     );
@@ -129,7 +129,7 @@ export default function AuthMenu() {
     return (
       <Link
         href={next ? `/login/${next}` : '/login/'}
-        className="hidden sm:inline-flex items-center text-xs font-semibold px-3 py-1.5 rounded-lg no-underline transition-colors"
+        className="inline-flex items-center text-[11px] sm:text-xs font-semibold px-2 sm:px-3 py-1.5 rounded-lg no-underline transition-colors shrink-0"
         style={{
           color: 'var(--ndl-text)',
           border: '1px solid var(--ndl-border)',
@@ -154,18 +154,18 @@ export default function AuthMenu() {
   const label = name || email || 'Account';
 
   return (
-    <div className="relative hidden sm:block" ref={rootRef}>
+    <div className="relative shrink-0" ref={rootRef}>
       <button
         type="button"
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label="Account menu"
+        aria-label={`Account menu — ${label}`}
         onClick={() => setOpen((v) => !v)}
         className="flex items-center gap-2 rounded-lg px-1.5 py-1 transition-colors"
         style={{ border: '1px solid var(--ndl-border)', background: 'var(--ndl-surface-2)' }}
       >
         <UserAvatar avatarUrl={avatar} email={email} name={name} />
-        <span className="max-w-[110px] truncate text-xs font-medium pr-1" style={{ color: 'var(--ndl-text)' }}>
+        <span className="hidden sm:inline max-w-[110px] truncate text-xs font-medium pr-1" style={{ color: 'var(--ndl-text)' }}>
           {label}
         </span>
       </button>

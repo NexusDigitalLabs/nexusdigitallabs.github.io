@@ -46,6 +46,13 @@ export function useCloudToolDraft<T extends Record<string, unknown>>({
     setOptIn(isCloudDraftOptedIn(toolKey));
   }, [toolKey]);
 
+  // Allow restore again after sign-out → sign-in
+  useEffect(() => {
+    if (!user?.id) {
+      restoredRef.current = false;
+    }
+  }, [user?.id]);
+
   // Restore once when signed in + opted in
   useEffect(() => {
     if (!user?.id || !optIn || restoredRef.current) return;

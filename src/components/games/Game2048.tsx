@@ -1,14 +1,22 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import Link from 'next/link';
 import { useGameState } from '@/hooks/useGameState';
+import {
+  GameBoardFrame,
+  GameControlsRow,
+  GameHeader,
+  GameOverlay,
+  GamePageBody,
+  GameSecondaryButton,
+  GameTip,
+} from './game-ui';
 import UsernameGate from './UsernameGate';
 import GameHelpModal from './GameHelpModal';
 
 // ── Tile colour palette ────────────────────────────────────────────────────────
 const TILE_STYLE: Record<number, { bg: string; fg: string }> = {
-  0:    { bg: '#e9ecef', fg: 'transparent'  },
+  0:    { bg: 'var(--ndl-surface-2)', fg: 'transparent' },
   2:    { bg: '#ffffff', fg: '#0f172a'       },
   4:    { bg: '#f8fafc', fg: '#0f172a'       },
   8:    { bg: '#0f172a', fg: '#ffffff'       },
@@ -213,8 +221,6 @@ export default function Game2048() {
   if (!loaded) return null;
   if (!username) return <UsernameGate onSubmit={setUsername} />;
 
-  const slbl = 'text-[0.6875rem] font-bold tracking-[0.1em] uppercase text-slate-400';
-
   return (
     <>
       <GameHelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} title="2048">
@@ -236,128 +242,80 @@ export default function Game2048() {
         </ul>
       </GameHelpModal>
 
-      {/* Page header */}
-      <div style={{ borderBottom: '1px solid var(--ndl-border)', background: 'var(--ndl-bg)' }}>
-        <div className="max-w-lg mx-auto px-6 py-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <Link href="/games/" style={{ fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#4ade80', textDecoration: 'none' }}>
-                ← Games
-              </Link>
-              <h1 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--ndl-text)', marginTop: '0.25rem' }}>2048</h1>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <button
-                type="button"
-                onClick={() => setShowHelp(true)}
-                style={{
-                  background: 'var(--ndl-surface-2)', border: '1px solid var(--ndl-border)',
-                  padding: '0 0.875rem', height: '36px', cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', gap: '0.375rem',
-                  fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.07em',
-                  textTransform: 'uppercase', color: 'var(--ndl-muted)', whiteSpace: 'nowrap',
-                }}
-              >
-                <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <circle cx="12" cy="12" r="10" strokeWidth="2"/>
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 16v-4m0-4h.01"/>
-                </svg>
-                How to Play
-              </button>
-              {[{ label: 'Score', val: score }, { label: 'Best', val: best }].map(({ label, val }) => (
-                <div key={label} style={{ border: '1px solid var(--ndl-border)', background: 'var(--ndl-surface-2)', padding: '0.5rem 1rem', textAlign: 'center', minWidth: '76px' }}>
-                  <div style={{ fontSize: '0.5625rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ndl-faint)' }}>{label}</div>
-                  <div style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--ndl-text)', lineHeight: 1.2 }}>{val.toLocaleString('en-US')}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
+      <GameHeader
+        title="2048"
+        onHelp={() => setShowHelp(true)}
+        stats={[
+          { label: 'Score', value: score.toLocaleString('en-US') },
+          { label: 'Best', value: best.toLocaleString('en-US') },
+        ]}
+      />
 
-      {/* Game */}
-      <div style={{ background: 'var(--ndl-bg)', minHeight: 'calc(100vh - 64px - 80px)' }}>
-      <div className="max-w-lg mx-auto px-6 py-8">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <p style={{ fontSize: '0.875rem', color: 'var(--ndl-faint)', fontWeight: 400 }}>Merge tiles to reach <strong style={{ color: '#4ade80', fontWeight: 700 }}>2048</strong></p>
-          <button
-            onClick={startGame}
-            type="button"
-            style={{ border: '1px solid var(--ndl-border)', background: 'var(--ndl-surface-2)', padding: '0.5rem 1rem', cursor: 'pointer', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--ndl-muted)' }}
-          >
-            New Game
-          </button>
+      <GamePageBody>
+        <div className="flex justify-between items-center gap-3 mb-4">
+          <GameTip>
+            Merge tiles to reach <strong style={{ color: '#4ade80', fontWeight: 700 }}>2048</strong>
+          </GameTip>
+          <GameSecondaryButton onClick={startGame}>New Game</GameSecondaryButton>
         </div>
 
-        {/* Grid wrapper */}
-        <div ref={gridRef} style={{ position: 'relative', display: 'inline-block', width: 'min(360px, calc(100vw - 2.5rem))' }}>
-          {/* Grid */}
+        <GameBoardFrame className="inline-block w-full max-w-[360px]">
           <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
-              gap: '6px',
-              background: '#d1d5db',
-              padding: '6px',
-              width: 'min(360px, calc(100vw - 2.5rem))',
-              aspectRatio: '1',
-              userSelect: 'none',
-              touchAction: 'none',
-            }}
+            ref={gridRef}
+            className="relative w-full"
+            style={{ aspectRatio: '1', userSelect: 'none', touchAction: 'none' }}
           >
-            {board.map((v, i) => {
-              const st = getTileStyle(v);
-              return (
-                <div
-                  key={i}
-                  style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontWeight: 800,
-                    fontSize: v >= 1024 ? '0.875rem' : v >= 128 ? '1rem' : v >= 8 ? '1.125rem' : '1.25rem',
-                    background: st.bg,
-                    color: st.fg,
-                    aspectRatio: '1',
-                    transition: 'background-color 0.08s, color 0.08s',
-                  }}
-                >
-                  {v > 0 ? v.toLocaleString('en-US') : ''}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Overlay */}
-          {overlay && (
-            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10, background: 'color-mix(in srgb, var(--ndl-bg) 88%, transparent)' }}>
-              <div style={{ padding: '2rem', textAlign: 'center', minWidth: '200px' }}>
-                <div style={{ fontSize: '1.5rem', fontWeight: 800, color: overlay.titleColor, marginBottom: '0.5rem' }}>{overlay.title}</div>
-                <div style={{ fontSize: '0.875rem', color: 'var(--ndl-faint)', marginBottom: '1.5rem' }}>{overlay.sub}</div>
-                <button
-                  onClick={startGame}
-                  type="button"
-                  style={{ background: 'var(--ndl-text)', color: 'var(--ndl-bg)', padding: '0.625rem 1.75rem', border: 'none', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase' }}
-                >
-                  {started ? 'Play Again' : 'Start Game'}
-                </button>
-              </div>
+            <div
+              className="absolute inset-0 grid p-1.5 rounded-2xl"
+              style={{
+                gridTemplateColumns: 'repeat(4, 1fr)',
+                gap: '6px',
+                background: 'color-mix(in srgb, var(--ndl-border) 35%, var(--ndl-surface-2))',
+              }}
+            >
+              {board.map((v, i) => {
+                const st = getTileStyle(v);
+                return (
+                  <div
+                    key={i}
+                    className="flex items-center justify-center font-extrabold rounded-lg"
+                    style={{
+                      fontSize: v >= 1024 ? '0.875rem' : v >= 128 ? '1rem' : v >= 8 ? '1.125rem' : '1.25rem',
+                      background: st.bg,
+                      color: st.fg,
+                      aspectRatio: '1',
+                      transition: 'background-color 0.08s, color 0.08s',
+                      boxShadow: v > 0 ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
+                    }}
+                  >
+                    {v > 0 ? v.toLocaleString('en-US') : ''}
+                  </div>
+                );
+              })}
             </div>
-          )}
-        </div>
 
-        {/* Controls */}
-        <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
-          <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--ndl-faint)', marginBottom: '0.75rem' }}>Controls</p>
-          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-            {[['↑ W', 'Up'], ['↓ S', 'Down'], ['← A', 'Left'], ['→ D', 'Right'], ['Swipe', 'Touch']].map(([key, label]) => (
-              <div key={key} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem' }}>
-                <span style={{ fontSize: '0.6875rem', fontWeight: 600, color: 'var(--ndl-muted)', padding: '0.25rem 0.5rem', border: '1px solid var(--ndl-border)', background: 'var(--ndl-surface-2)' }}>{key}</span>
-                <span style={{ fontSize: '0.6875rem', color: 'var(--ndl-faint)' }}>{label}</span>
-              </div>
-            ))}
+            {overlay && (
+              <GameOverlay
+                title={overlay.title}
+                sub={overlay.sub}
+                titleColor={overlay.titleColor}
+                btnText={started ? 'Play Again' : 'Start Game'}
+                onAction={startGame}
+              />
+            )}
           </div>
-        </div>
-      </div>
-      </div>
+        </GameBoardFrame>
+
+        <GameControlsRow
+          items={[
+            { key: '↑ W', label: 'Up' },
+            { key: '↓ S', label: 'Down' },
+            { key: '← A', label: 'Left' },
+            { key: '→ D', label: 'Right' },
+            { key: 'Swipe', label: 'Touch' },
+          ]}
+        />
+      </GamePageBody>
     </>
   );
 }
