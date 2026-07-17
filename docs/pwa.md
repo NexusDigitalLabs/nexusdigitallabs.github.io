@@ -49,10 +49,23 @@ npm run build && npm start
 
 - **Android / Chrome** — `PWAInstallBanner` captures `beforeinstallprompt` and
   shows an "Add to Home Screen" button.
+- **Samsung Internet** — do **not** use Samsung's install flow. Samsung's
+  WebAPK minting server generates an outdated `targetSdkVersion`, which triggers
+  Android's "Unsafe app blocked / built for an older version of Android" warning
+  on Android 14+. The banner detects `SamsungBrowser` and directs users to open
+  the site in **Google Chrome**, then use **Install app**.
 - **iOS / Safari** — no programmatic prompt exists; the banner shows
   Share → *Add to Home Screen* instructions instead.
 - Dismissing stores `ndl_pwa_dismissed=1` in `localStorage` (persists across
   visits). The banner is hidden automatically when already running standalone.
+
+## iOS safe areas
+
+`viewportFit: 'cover'` is set so `env(safe-area-inset-*)` works. The sticky
+header uses `padding-top: env(safe-area-inset-top)` and
+`appleWebApp.statusBarStyle` is `'default'` (not `black-translucent`) so the
+logo / nav are not drawn under the Dynamic Island or status bar when launched
+as a home-screen app.
 
 ## Regenerating icons
 

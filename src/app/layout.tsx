@@ -69,7 +69,9 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'black-translucent',
+    // `default` keeps the status bar opaque so content is not drawn under it.
+    // Pair with header safe-area padding for standalone / Add to Home Screen.
+    statusBarStyle: 'default',
     title: SITE_NAME,
   },
   formatDetection: {

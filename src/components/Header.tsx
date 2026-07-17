@@ -155,6 +155,8 @@ export default function Header() {
         borderColor: 'var(--ndl-border)',
         backdropFilter: 'blur(14px)',
         WebkitBackdropFilter: 'blur(14px)',
+        // Clears Dynamic Island / status bar when installed as a PWA (viewport-fit=cover).
+        paddingTop: 'env(safe-area-inset-top, 0px)',
       }}
     >
       <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 md:px-10 h-16 flex items-center gap-3 sm:gap-6 min-w-0">
