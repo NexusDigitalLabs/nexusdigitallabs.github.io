@@ -17,11 +17,14 @@ const DISMISS_KEY = 'ndl_pwa_dismissed';
 
 /**
  * Mobile-only install prompt for the whole-site PWA.
- * Android/Chrome: uses beforeinstallprompt. iOS: Share → Add to Home Screen tips.
+ * Android/Chrome: uses beforeinstallprompt. Samsung Internet: directs users
+ * to Chrome because Samsung's WebAPK minting server targets an outdated SDK.
+ * iOS: Share → Add to Home Screen tips.
  */
 export default function PWAInstallBanner() {
   const [show, setShow] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
+  const [isSamsungInternet, setIsSamsungInternet] = useState(false);
   const [installing, setInstalling] = useState(false);
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
@@ -39,6 +42,7 @@ export default function PWAInstallBanner() {
     }
 
     const ua = navigator.userAgent;
+    const onSamsungInternet = /SamsungBrowser/i.test(ua);
     const onIOS =
       /iPad|iPhone|iPod/.test(ua) &&
       !(window as Window & { MSStream?: unknown }).MSStream;
@@ -49,6 +53,17 @@ export default function PWAInstallBanner() {
       setIsIOS(true);
       setShow(true);
       return;
+    }
+
+    if (onSamsungInternet) {
+      setIsSamsungInternet(true);
+      setShow(true);
+
+      // Suppress any page-driven Samsung install prompt. Users can still use
+      // the browser menu, so the visible guidance explicitly directs to Chrome.
+      const blockSamsungPrompt = (e: Event) => e.preventDefault();
+      window.addEventListener('beforeinstallprompt', blockSamsungPrompt);
+      return () => window.removeEventListener('beforeinstallprompt', blockSamsungPrompt);
     }
 
     const handler = (e: Event) => {
@@ -129,13 +144,20 @@ export default function PWAInstallBanner() {
               then <strong style={{ color: 'var(--ndl-text)' }}>Add to Home Screen</strong> for a full-screen app
               experience.
             </p>
+          ) : isSamsungInternet ? (
+            <p className="text-xs m-0 leading-relaxed" style={{ color: 'var(--ndl-muted)' }}>
+              Samsung Internet currently creates an outdated Android installer.
+              Open <strong style={{ color: 'var(--ndl-text)' }}>nexusdigitallabs.dev</strong> in{' '}
+              <strong style={{ color: 'var(--ndl-accent)' }}>Google Chrome</strong>, then choose{' '}
+              <strong style={{ color: 'var(--ndl-text)' }}>Install app</strong>.
+            </p>
           ) : (
             <p className="text-xs m-0 mb-3 leading-relaxed" style={{ color: 'var(--ndl-muted)' }}>
               Install as an app — opens instantly, no browser chrome.
             </p>
           )}
 
-          {!isIOS && (
+          {!isIOS && !isSamsungInternet && (
             <button
               type="button"
               onClick={handleInstall}
