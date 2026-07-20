@@ -4,7 +4,7 @@ import { pageMetadata } from '@/lib/seo';
 export const metadata = pageMetadata({
   title: 'Debt Settlement & Savings Planner — NexusDigitalLabs',
   description:
-    'Compare Short, Medium, and Long debt payoff plans that also build savings. Enter income, expenses, and balances — no monthly payment required. Free, 100% client-side, with PDF export.',
+    'Compare Short, Medium, and Long debt payoff plans that also build savings. Enter income, expenses, balances, and minimum payments. Free, 100% client-side, with PDF export.',
   path: '/tools/debt-optimizer/',
   keywords: [
     'debt payoff calculator',
@@ -18,7 +18,7 @@ export const metadata = pageMetadata({
   ],
   absoluteTitle: true,
   ogDescription:
-    'Short, Medium, and Long plans that clear debt while building savings. No monthly payment fields — just income, expenses, and balances.',
+    'Short, Medium, and Long plans that clear debt while building savings. Pays required minimums first, then snowball extra.',
 });
 
 const jsonLd = {
@@ -49,7 +49,7 @@ export default function DebtOptimizerPage() {
             <p className="text-xs font-semibold tracking-widest text-sky-400 uppercase mb-4">About this tool</p>
             <h2 className="text-2xl font-light text-white tracking-tight mb-4">What is the Debt Settlement &amp; Savings Planner?</h2>
             <p className="text-slate-400 font-light leading-relaxed text-sm sm:text-base mb-3">
-              The Debt Settlement &amp; Savings Planner is a free, browser-based tool that builds three ways to become debt-free while still putting money into savings. Enter your monthly income, living expenses, and debt balances — you do not need to know or enter monthly payments for credit cards or loans. The tool calculates free cash flow, then generates Short, Medium, and Long plans that split that surplus between debt payoff and savings.
+              The Debt Settlement &amp; Savings Planner is a free, browser-based tool that builds three ways to become debt-free while still putting money into savings. Enter your monthly income, living expenses, debt balances, and required minimum payments for each credit card or loan. The tool calculates free cash flow, pays all minimums every month, then applies snowball extra to the lowest balance. Short, Medium, and Long plans split remaining surplus between faster payoff and savings.
             </p>
             <p className="text-slate-400 font-light leading-relaxed text-sm sm:text-base">
               Debts are cleared with the snowball method (lowest balance first). Pick the plan that fits your comfort level, review the month-by-month runway, and download a PDF that includes all three options plus the selected schedule.
@@ -63,7 +63,7 @@ export default function DebtOptimizerPage() {
               {[
                 ['Enter your monthly income', 'Input your take-home (after-tax) income. If income varies, use a conservative average.'],
                 ['Add your monthly expenses', 'List living costs — rent, utilities, groceries, subscriptions. Use + to add as many categories as you need.'],
-                ['Add your debts', 'For each credit card or loan, enter a name, total amount / limit, and outstanding balance. No monthly payment required — the planner decides how much to put toward debt each month.'],
+                ['Add your debts', 'For each credit card or loan, enter a name, total amount / limit, outstanding balance, and minimum monthly payment. Credit cards auto-suggest ~5% of the balance when the name includes “card”.'],
                 ['Calculate and compare plans', 'Click Calculate Plan to see Short (aggressive), Medium (balanced), and Long (more savings) side by side — each with debt-free date and savings by that date.'],
                 ['Select a plan and review the runway', 'Choose the plan that fits you. Review payoff order and the month-by-month table showing debt payments and cumulative savings.'],
                 ['Download your PDF', 'Export the selected plan plus a comparison of all three options for offline use or sharing.'],
@@ -84,7 +84,7 @@ export default function DebtOptimizerPage() {
             <h2 className="text-2xl font-light text-white tracking-tight mb-6">Frequently asked questions</h2>
             <div className="space-y-6">
               {[
-                { q: 'Why is there no monthly payment field?', a: 'The planner builds the payment plan for you. It takes whatever free cash flow remains after expenses and splits it between debts and savings according to Short (90/10), Medium (70/30), or Long (50/50). You only need outstanding balances.' },
+                { q: 'How are credit card minimum payments handled?', a: 'Enter the minimum shown on your statement, or use the suggested figure for cards (~2.5% of balance or a typical issuer floor — a rough planning estimate only). Every month the plan pays all minimums first, then snowball extra toward the lowest balance.' },
                 { q: 'What do Short, Medium, and Long mean?', a: 'Short puts most surplus toward debt so you clear balances faster with a small savings buffer. Medium balances both. Long puts half toward savings so you build a larger cushion while debt takes longer to clear.' },
                 { q: 'What debt payoff method does this tool use?', a: 'Within each plan’s debt budget, the tool uses the snowball method — lowest outstanding balance first — then rolls that capacity into the next debt. That builds early wins and keeps the plan easy to follow.' },
                 { q: 'Is my financial data stored anywhere?', a: 'By default, all planning stays in your browser. If you sign in and enable Cloud draft, a copy of the form is stored under your account so you can resume later — you can turn that off anytime. See the Privacy Policy for details.' },

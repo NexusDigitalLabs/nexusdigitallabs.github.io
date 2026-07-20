@@ -7,6 +7,8 @@ import Script from 'next/script';
 import {
   type Expense, type Debt, type MultiPlanResult, type PlanResult, type PlanHorizon,
   runEngine, fmtC, fmtMo, fmtPct, totalDebtRemaining, totalMinPayments,
+  estimateCreditCardMinPayment, isLikelyCreditCard, debtsMissingMinPayment,
+  suggestedDebtMinPayment, CREDIT_CARD_MIN_DISCLAIMER,
 } from '@/lib/debt-engine';
 import { loginUrl } from '@/lib/auth-redirect';
 import CloudDraftBar from '@/components/CloudDraftBar';
@@ -146,7 +148,7 @@ export default function DebtOptimizerClient() {
     { id: 'exp-3', name: 'Utilities',         amount:  8000 },
   ]);
   const [debts, setDebts] = useState<Debt[]>([
-    { id: 'debt-1', name: 'Credit Card', totalAmt: 200000, outstanding: 85000, minPayment: 5000 },
+    { id: 'debt-1', name: 'Credit Card', totalAmt: 200000, outstanding: 85000, minPayment: 2125 },
     { id: 'debt-2', name: 'Car Loan', totalAmt: 800000, outstanding: 420000, minPayment: 25000 },
   ]);
   const [expUid, setExpUid] = useState(4);
@@ -243,6 +245,7 @@ export default function DebtOptimizerClient() {
   const totalPaidSoFar = debts.reduce((s, d) => s + (d.totalPaid ?? 0), 0);
   const remainingDebt = totalDebtRemaining(debts);
   const totalMins = totalMinPayments(debts);
+  const missingMins = debtsMissingMinPayment(debts);
 
   const selectedPlan: PlanResult | null = useMemo(() => {
     if (!result?.isViable) return null;
@@ -265,7 +268,17 @@ export default function DebtOptimizerClient() {
   };
   const removeDebt = (id: string) => setDebts((prev) => prev.filter((d) => d.id !== id));
   const updateDebt = (id: string, field: keyof Debt, value: string | number) =>
-    setDebts((prev) => prev.map((d) => d.id === id ? { ...d, [field]: value } : d));
+    setDebts((prev) => prev.map((d) => {
+      if (d.id !== id) return d;
+      const next = { ...d, [field]: value };
+      const outstanding = field === 'outstanding' ? Number(value) : d.outstanding;
+      const name = field === 'name' ? String(value) : d.name;
+      const minUnset = (d.minPayment ?? 0) <= 0;
+      if (minUnset && outstanding > 0 && isLikelyCreditCard(name)) {
+        next.minPayment = estimateCreditCardMinPayment(outstanding, currency);
+      }
+      return next;
+    }));
 
   const recordPayment = useCallback((debtId: string) => {
     const amount = paymentDrafts[debtId] ?? 0;
@@ -504,6 +517,7 @@ export default function DebtOptimizerClient() {
                     const pct = debt.totalAmt > 0
                       ? Math.min(100, (debt.outstanding / debt.totalAmt) * 100)
                       : 0;
+                    const suggestedMin = suggestedDebtMinPayment(debt, currency);
                     return (
                       <div key={debt.id} style={{ border: `1px solid ${D.cardBorder}`, background: D.cardBg, padding: '12px' }}>
                         <div className="flex items-center gap-2 mb-2.5">
@@ -546,6 +560,32 @@ export default function DebtOptimizerClient() {
                               onChange={(n) => updateDebt(debt.id, 'minPayment', n)}
                               prefix={sym}
                             />
+                            {suggestedMin !== null && (
+                              <div className="mt-1.5">
+                                <p className="text-[10px] font-light leading-relaxed" style={{ color: D.textFaint }}>
+                                  Suggested min:{' '}
+                                  <span className="font-mono font-medium" style={{ color: D.textMuted }}>
+                                    {fmtC(suggestedMin, sym)}
+                                  </span>
+                                  {' '}— rough figure (~2.5% or issuer floor). Check your statement.
+                                </p>
+                                {(debt.minPayment ?? 0) !== suggestedMin && (
+                                  <button
+                                    type="button"
+                                    onClick={() => updateDebt(debt.id, 'minPayment', suggestedMin)}
+                                    className="mt-1 text-[10px] font-semibold tracking-wide uppercase bg-transparent border-none cursor-pointer p-0 transition-colors"
+                                    style={{ color: D.blue }}
+                                  >
+                                    Use suggested
+                                  </button>
+                                )}
+                              </div>
+                            )}
+                            {debt.outstanding > 0 && suggestedMin === null && (debt.minPayment ?? 0) <= 0 && (
+                              <p className="text-[10px] mt-1 font-medium" style={{ color: '#f59e0b' }}>
+                                Enter the lender&apos;s required minimum
+                              </p>
+                            )}
                           </div>
                         </div>
                         <div className="mt-2.5 h-[3px] overflow-hidden" style={{ background: D.sep }}>
@@ -602,6 +642,19 @@ export default function DebtOptimizerClient() {
                   </span>
                 </div>
               )}
+              {debts.some((d) => suggestedDebtMinPayment(d, currency) !== null) && (
+                <p className="text-[10px] mt-2 font-light leading-relaxed" style={{ color: D.textFaint }}>
+                  {CREDIT_CARD_MIN_DISCLAIMER}
+                </p>
+              )}
+              {missingMins.length > 0 && (
+                <p className="text-[11px] mt-2 font-light leading-relaxed" style={{ color: '#f59e0b' }}>
+                  {missingMins.length === 1
+                    ? `${missingMins[0].name || 'One debt'} has no minimum payment set.`
+                    : `${missingMins.length} debts have no minimum payment set.`}
+                  {' '}Credit cards and loans require a monthly minimum — the plan pays these before snowball extra.
+                </p>
+              )}
             </div>
 
             <button
@@ -634,8 +687,8 @@ export default function DebtOptimizerClient() {
             </button>
 
             <p className="text-[10px] mt-4 leading-relaxed font-light" style={{ color: D.textFaint }}>
-              Enter required minimum payments for each debt. Surplus free cash flow is split into Short, Medium, and Long plans.
-              Debts paid lowest-balance-first. Interest not included.
+              Enter minimum payments for each debt (use suggested figures for cards as a starting point — they are rough estimates).
+              Surplus free cash flow is split into Short, Medium, and Long plans. Debts paid lowest-balance-first. Interest not included.
             </p>
           </div>
 

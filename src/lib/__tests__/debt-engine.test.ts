@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest';
 import {
   runEngine, fmtNum, fmtC, fmtMo, fmtPct, PLAN_SPLITS,
   totalDebtRemaining, totalMinPayments, debtMinPayment,
+  estimateCreditCardMinPayment, isLikelyCreditCard, debtsMissingMinPayment,
+  suggestedDebtMinPayment,
   type Expense, type Debt,
 } from '../debt-engine';
 
@@ -102,6 +104,34 @@ describe('totalMinPayments', () => {
   it('treats missing minPayment as zero', () => {
     expect(debtMinPayment({ id: 'd1', name: 'Card', totalAmt: 1000, outstanding: 500 })).toBe(0);
     expect(totalMinPayments([{ id: 'd1', name: 'Card', totalAmt: 1000, outstanding: 500 }])).toBe(0);
+  });
+
+  it('estimates credit card minimum as ~2.5% or currency floor', () => {
+    expect(estimateCreditCardMinPayment(85000, 'LKR')).toBe(2125);
+    expect(estimateCreditCardMinPayment(85000, 'USD')).toBe(2125);
+    expect(estimateCreditCardMinPayment(100, 'USD')).toBe(25);
+    expect(estimateCreditCardMinPayment(100, 'LKR')).toBe(100);
+    expect(estimateCreditCardMinPayment(25000, 'LKR')).toBe(625);
+    expect(estimateCreditCardMinPayment(0)).toBe(0);
+  });
+
+  it('returns suggested min only for credit-card-like debts', () => {
+    expect(suggestedDebtMinPayment({ id: 'd1', name: 'Credit Card', totalAmt: 10000, outstanding: 85000 }, 'LKR')).toBe(2125);
+    expect(suggestedDebtMinPayment({ id: 'd2', name: 'Car Loan', totalAmt: 10000, outstanding: 85000 }, 'LKR')).toBeNull();
+  });
+
+  it('detects likely credit card names', () => {
+    expect(isLikelyCreditCard('Credit Card')).toBe(true);
+    expect(isLikelyCreditCard('Car Loan')).toBe(false);
+  });
+
+  it('flags debts missing minimum payments', () => {
+    const missing = debtsMissingMinPayment([
+      { id: 'd1', name: 'Card', totalAmt: 1000, outstanding: 500 },
+      { id: 'd2', name: 'Loan', totalAmt: 5000, outstanding: 2000, minPayment: 100 },
+    ]);
+    expect(missing).toHaveLength(1);
+    expect(missing[0].id).toBe('d1');
   });
 });
 

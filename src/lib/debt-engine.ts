@@ -28,6 +28,52 @@ export function totalMinPayments(debts: Debt[]): number {
     .reduce((s, d) => s + debtMinPayment(d), 0);
 }
 
+/** Common issuer minimum: ~2.5% of balance (CARD Act–style simplified). */
+export const CREDIT_CARD_MIN_PERCENT = 0.025;
+
+/** Typical statement minimum floors by currency (rough planning figures). */
+export const CREDIT_CARD_MIN_FLOORS: Record<string, number> = {
+  USD: 25,
+  EUR: 25,
+  GBP: 25,
+  LKR: 500,
+  INR: 500,
+  AUD: 25,
+  CAD: 25,
+  SGD: 25,
+  AED: 50,
+  MYR: 25,
+};
+
+export const CREDIT_CARD_MIN_DISCLAIMER =
+  'Suggested minimums are rough planning figures (~2.5% of balance or a typical issuer floor). Check your statement for the exact amount.';
+
+/** Heuristic: name suggests a revolving credit card balance. */
+export function isLikelyCreditCard(name: string): boolean {
+  return /\b(card|visa|mastercard|amex|credit)\b/i.test(name);
+}
+
+/**
+ * Standard credit-card minimum estimate: greater of ~2.5% of balance or currency floor,
+ * capped at outstanding. Issuer rules vary — this is for planning only.
+ */
+export function estimateCreditCardMinPayment(outstanding: number, currency = 'USD'): number {
+  if (outstanding <= 0) return 0;
+  const pctAmount = Math.round(outstanding * CREDIT_CARD_MIN_PERCENT);
+  const floor = CREDIT_CARD_MIN_FLOORS[currency] ?? 25;
+  return Math.min(outstanding, Math.max(pctAmount, floor));
+}
+
+/** Suggested minimum for a debt row (credit cards only). */
+export function suggestedDebtMinPayment(debt: Debt, currency = 'USD'): number | null {
+  if (debt.outstanding <= 0 || !isLikelyCreditCard(debt.name)) return null;
+  return estimateCreditCardMinPayment(debt.outstanding, currency);
+}
+
+export function debtsMissingMinPayment(debts: Debt[]): Debt[] {
+  return debts.filter((d) => d.outstanding > 0 && debtMinPayment(d) <= 0);
+}
+
 /** Remaining balance after logged payments (outstanding is kept in sync when recording). */
 export function debtRemaining(d: Debt): number {
   return Math.max(0, d.outstanding);
