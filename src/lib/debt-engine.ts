@@ -5,15 +5,27 @@ export interface Expense {
   amount: number;
 }
 
-/** Debt input — no monthly payment required; the engine allocates Free Cash Flow. */
+/** Debt input — minimum payments are required each month; surplus FCF is allocated by the engine. */
 export interface Debt {
   id: string;
   name: string;
   totalAmt: number;
   /** Current balance still owed. */
   outstanding: number;
+  /** Required monthly minimum payment (credit card / loan). Defaults to 0 when omitted. */
+  minPayment?: number;
   /** Cumulative payments logged against this debt (for progress tracking). */
   totalPaid?: number;
+}
+
+export function debtMinPayment(d: Debt): number {
+  return Math.max(0, d.minPayment ?? 0);
+}
+
+export function totalMinPayments(debts: Debt[]): number {
+  return debts
+    .filter((d) => d.outstanding > 0)
+    .reduce((s, d) => s + debtMinPayment(d), 0);
 }
 
 /** Remaining balance after logged payments (outstanding is kept in sync when recording). */
@@ -60,20 +72,34 @@ export const PLAN_SPLITS: PlanSplit[] = [
   },
 ];
 
+export interface DebtPaymentDetail {
+  id: string;
+  minPaid: number;
+  extraPaid: number;
+  totalPaid: number;
+  outstanding: number;
+}
+
 export interface RunwayRow {
   month: number;
   totalOut: number;
   debtCount: number;
-  /** Amount applied to debts this month. */
+  /** Total amount applied to debts this month. */
   payment: number;
+  /** Total minimum payments applied this month. */
+  minPayment: number;
+  /** Total snowball extra applied this month. */
+  extraPayment: number;
   /** Amount saved this month. */
   savings: number;
   /** Cumulative savings after this month. */
   savingsTotal: number;
   pivotMonth: boolean;
   debtDetail: Array<{ id: string; outstanding: number }>;
-  /** Per-debt payment applied this month (snowball focus). */
+  /** Per-debt payment applied this month (min + extra combined). */
   paymentsByDebt: Array<{ id: string; amount: number }>;
+  /** Per-debt breakdown: minimum, extra, and remaining balance. */
+  debtBreakdown: DebtPaymentDetail[];
 }
 
 /** How much to put toward each debt under a plan, and when. */
@@ -81,7 +107,11 @@ export interface DebtAllocation {
   id: string;
   name: string;
   outstanding: number;
-  /** Typical monthly amount to put toward this debt while it is the snowball focus. */
+  /** Required monthly minimum while this debt is active. */
+  monthlyMin: number;
+  /** Typical snowball extra per month while this debt is the focus. */
+  monthlyExtra: number;
+  /** Typical total when this debt is the snowball focus (min + extra). */
   monthlyPut: number;
   startMonth: number;
   endMonth: number | null;
@@ -99,6 +129,10 @@ export interface PlanResult {
   monthlyDebtBudget: number;
   /** Monthly amount set aside for savings. */
   monthlySavings: number;
+  /** Sum of required minimum payments at plan start. */
+  totalMinPayments: number;
+  /** Snowball extra available after minimums (month 1 steady state). */
+  monthlySnowballExtra: number;
   runway: RunwayRow[];
   /** Ordered snowball schedule: which debt gets how much, and for which months. */
   allocations: DebtAllocation[];
@@ -113,6 +147,7 @@ export interface MultiPlanResult {
   freeCashFlow: number;
   totalExpenses: number;
   totalInitialDebt: number;
+  totalMinPayments: number;
   isViable: boolean;
   error: string | null;
   plans: PlanResult[];
@@ -140,48 +175,66 @@ export function fmtPct(pct: number): string {
   return `${Math.round(pct * 100)}%`;
 }
 
+type SimDebt = {
+  id: string;
+  outstanding: number;
+  minPayment: number;
+};
+
 function buildAllocations(
   debts: Debt[],
   monthlyDebtBudget: number,
+  totalMins: number,
   runway: RunwayRow[],
 ): DebtAllocation[] {
   const nameById = new Map(debts.map((d) => [d.id, d.name || 'Unnamed debt']));
   const outstandingById = new Map(debts.map((d) => [d.id, d.outstanding]));
+  const minById = new Map(debts.map((d) => [d.id, debtMinPayment(d)]));
 
-  // Preserve snowball order (lowest outstanding first)
   const order = [...debts]
     .filter((d) => d.outstanding > 0)
     .sort((a, b) => a.outstanding - b.outstanding)
     .map((d) => d.id);
 
-  const stats = new Map<string, { totalPaid: number; startMonth: number | null; endMonth: number | null; focusMonths: number[] }>();
+  const stats = new Map<string, {
+    totalPaid: number;
+    startMonth: number | null;
+    endMonth: number | null;
+    extraMonths: number[];
+  }>();
+
   for (const id of order) {
-    stats.set(id, { totalPaid: 0, startMonth: null, endMonth: null, focusMonths: [] });
+    stats.set(id, { totalPaid: 0, startMonth: null, endMonth: null, extraMonths: [] });
   }
 
   for (const row of runway) {
-    for (const p of row.paymentsByDebt) {
-      const s = stats.get(p.id);
-      if (!s) continue;
-      s.totalPaid += p.amount;
+    for (const detail of row.debtBreakdown) {
+      const s = stats.get(detail.id);
+      if (!s || detail.totalPaid <= 0) continue;
+      s.totalPaid += detail.totalPaid;
       if (s.startMonth === null) s.startMonth = row.month;
       s.endMonth = row.month;
-      if (p.amount > 0.5) s.focusMonths.push(row.month);
+      if (detail.extraPaid > 0.5) s.extraMonths.push(detail.extraPaid);
     }
   }
 
+  const steadyExtra = Math.max(0, monthlyDebtBudget - totalMins);
+
   return order.map((id) => {
     const s = stats.get(id)!;
+    const monthlyMin = minById.get(id) ?? 0;
     const months = s.startMonth && s.endMonth ? s.endMonth - s.startMonth + 1 : 0;
-    // Typical monthly put = full debt budget while this is the focus (partial last month allowed)
-    const monthlyPut = months > 0
-      ? Math.min(monthlyDebtBudget, s.totalPaid / Math.max(1, s.focusMonths.length || months))
+    const monthlyExtra = s.extraMonths.length > 0
+      ? s.extraMonths.reduce((a, b) => a + b, 0) / s.extraMonths.length
       : 0;
+    const monthlyPut = monthlyMin + (monthlyExtra > 0.5 ? monthlyExtra : steadyExtra);
 
     return {
       id,
       name: nameById.get(id) ?? 'Unnamed debt',
       outstanding: outstandingById.get(id) ?? 0,
+      monthlyMin: Math.round(monthlyMin * 100) / 100,
+      monthlyExtra: Math.round(monthlyExtra * 100) / 100,
       monthlyPut: Math.round(monthlyPut * 100) / 100,
       startMonth: s.startMonth ?? 1,
       endMonth: s.endMonth,
@@ -189,6 +242,60 @@ function buildAllocations(
       totalPaid: Math.round(s.totalPaid * 100) / 100,
     };
   });
+}
+
+function simulateMonth(
+  sim: SimDebt[],
+  budget: number,
+): { sim: SimDebt[]; breakdown: DebtPaymentDetail[]; minPaid: number; extraPaid: number } {
+  const breakdownMap = new Map<string, DebtPaymentDetail>();
+  const ensure = (id: string) => {
+    if (!breakdownMap.has(id)) {
+      breakdownMap.set(id, { id, minPaid: 0, extraPaid: 0, totalPaid: 0, outstanding: 0 });
+    }
+    return breakdownMap.get(id)!;
+  };
+
+  let remaining = budget;
+  let minPaid = 0;
+  let extraPaid = 0;
+
+  for (const d of sim) {
+    if (remaining < 0.5 || d.outstanding < 0.5) continue;
+    const pay = Math.min(d.outstanding, d.minPayment, remaining);
+    if (pay <= 0) continue;
+    d.outstanding -= pay;
+    remaining -= pay;
+    minPaid += pay;
+    const row = ensure(d.id);
+    row.minPaid += pay;
+    row.totalPaid += pay;
+  }
+
+  const snowballOrder = [...sim]
+    .filter((d) => d.outstanding > 0.5)
+    .sort((a, b) => a.outstanding - b.outstanding);
+
+  for (const d of snowballOrder) {
+    if (remaining < 0.5) break;
+    const pay = Math.min(d.outstanding, remaining);
+    if (pay <= 0) continue;
+    d.outstanding -= pay;
+    remaining -= pay;
+    extraPaid += pay;
+    const row = ensure(d.id);
+    row.extraPaid += pay;
+    row.totalPaid += pay;
+  }
+
+  for (const d of sim) {
+    if (d.outstanding < 1) d.outstanding = 0;
+    const row = ensure(d.id);
+    row.outstanding = d.outstanding;
+  }
+
+  const breakdown = sim.map((d) => ensure(d.id));
+  return { sim: sim.filter((d) => d.outstanding > 0), breakdown, minPaid, extraPaid };
 }
 
 // ── Single-plan simulator (snowball — lowest outstanding first) ────────────────
@@ -199,6 +306,8 @@ function simulatePlan(
 ): PlanResult {
   const monthlyDebtBudget = freeCashFlow * split.debtPct;
   const monthlySavings = freeCashFlow * split.savingsPct;
+  const totalMins = totalMinPayments(debts);
+  const monthlySnowballExtra = Math.max(0, monthlyDebtBudget - totalMins);
 
   const empty = (
     extra: Partial<PlanResult> & { isViable: boolean; error: string | null },
@@ -210,6 +319,8 @@ function simulatePlan(
     savingsPct: split.savingsPct,
     monthlyDebtBudget,
     monthlySavings,
+    totalMinPayments: totalMins,
+    monthlySnowballExtra,
     runway: [],
     allocations: [],
     debtFreeMonth: null,
@@ -224,9 +335,20 @@ function simulatePlan(
     });
   }
 
-  let sim = debts
-    .map((d) => ({ id: d.id, outstanding: d.outstanding }))
+  if (totalMins > monthlyDebtBudget + 0.5) {
+    return empty({
+      isViable: false,
+      error: `Minimum payments exceed this plan's debt budget (${fmtNum(totalMins)} vs ${fmtNum(monthlyDebtBudget)}). Try the Short plan or increase income.`,
+    });
+  }
+
+  let sim: SimDebt[] = debts
     .filter((d) => d.outstanding > 0)
+    .map((d) => ({
+      id: d.id,
+      outstanding: d.outstanding,
+      minPayment: debtMinPayment(d),
+    }))
     .sort((a, b) => a.outstanding - b.outstanding);
 
   if (sim.length === 0) {
@@ -243,28 +365,16 @@ function simulatePlan(
   for (let month = 1; month <= 600; month++) {
     if (sim.length === 0) break;
 
-    let budget = monthlyDebtBudget;
-    const paymentsByDebt: Array<{ id: string; amount: number }> = [];
-
-    for (const d of sim) {
-      if (budget < 0.5) break;
-      if (d.outstanding > 0) {
-        const pay = Math.min(d.outstanding, budget);
-        d.outstanding -= pay;
-        budget -= pay;
-        if (pay > 0) paymentsByDebt.push({ id: d.id, amount: pay });
-      }
-    }
-
-    for (const d of sim) {
-      if (d.outstanding < 1) d.outstanding = 0;
-    }
+    const prevCount = sim.length;
+    const { sim: nextSim, breakdown, minPaid, extraPaid } = simulateMonth(
+      sim.map((d) => ({ ...d })),
+      monthlyDebtBudget,
+    );
+    sim = nextSim;
 
     savingsTotal += monthlySavings;
-    const payment = monthlyDebtBudget - Math.max(0, budget);
+    const payment = minPaid + extraPaid;
     const totalOut = sim.reduce((s, d) => s + d.outstanding, 0);
-    const prevCount = sim.length;
-    sim = sim.filter((d) => d.outstanding > 0);
 
     const isPivot = sim.length === 0 && prevCount > 0;
     if (isPivot) debtFreeMonth = month;
@@ -274,17 +384,22 @@ function simulatePlan(
       totalOut,
       debtCount: sim.length,
       payment,
+      minPayment: minPaid,
+      extraPayment: extraPaid,
       savings: monthlySavings,
       savingsTotal,
       pivotMonth: isPivot,
       debtDetail: sim.map((d) => ({ id: d.id, outstanding: d.outstanding })),
-      paymentsByDebt,
+      paymentsByDebt: breakdown
+        .filter((b) => b.totalPaid > 0)
+        .map((b) => ({ id: b.id, amount: b.totalPaid })),
+      debtBreakdown: breakdown,
     });
   }
 
   const pivotRow = runway.find((r) => r.pivotMonth);
   const totalSavedByDebtFree = pivotRow?.savingsTotal ?? 0;
-  const allocations = buildAllocations(debts, monthlyDebtBudget, runway);
+  const allocations = buildAllocations(debts, monthlyDebtBudget, totalMins, runway);
 
   return {
     horizon: split.horizon,
@@ -294,6 +409,8 @@ function simulatePlan(
     savingsPct: split.savingsPct,
     monthlyDebtBudget,
     monthlySavings,
+    totalMinPayments: totalMins,
+    monthlySnowballExtra,
     runway,
     allocations,
     debtFreeMonth,
@@ -308,8 +425,8 @@ function simulatePlan(
 // ── Multi-plan engine ──────────────────────────────────────────────────────────
 /**
  * Builds Short / Medium / Long settlement plans from income, expenses, and debts.
- * No per-debt monthly payment is required — Free Cash Flow is split between
- * debt payoff (snowball) and savings according to each plan's percentages.
+ * Each month pays all required minimums first, then applies snowball extra to the
+ * lowest balance. Free Cash Flow is split between debt and savings per plan.
  */
 export function runEngine(
   income: number,
@@ -321,11 +438,13 @@ export function runEngine(
   const freeCashFlow = income - totalExp;
   const activeDebts = debts.filter((d) => d.outstanding > 0);
   const totalInitialDebt = activeDebts.reduce((s, d) => s + d.outstanding, 0);
+  const totalMins = totalMinPayments(activeDebts);
 
   const fail = (error: string): MultiPlanResult => ({
     freeCashFlow,
     totalExpenses: totalExp,
     totalInitialDebt: 0,
+    totalMinPayments: totalMins,
     isViable: false,
     error,
     plans: [],
@@ -337,6 +456,11 @@ export function runEngine(
   if (activeDebts.length === 0) {
     return fail('Add at least one debt with an outstanding balance to generate a plan.');
   }
+  if (totalMins > freeCashFlow + 0.5) {
+    return fail(
+      'Minimum payments exceed free cash flow. Reduce minimums, increase income, or cut expenses.',
+    );
+  }
 
   const plans = PLAN_SPLITS.map((split) => simulatePlan(freeCashFlow, activeDebts, split));
   const anyViable = plans.some((p) => p.isViable);
@@ -345,6 +469,7 @@ export function runEngine(
     freeCashFlow,
     totalExpenses: totalExp,
     totalInitialDebt,
+    totalMinPayments: totalMins,
     isViable: anyViable,
     error: anyViable
       ? null

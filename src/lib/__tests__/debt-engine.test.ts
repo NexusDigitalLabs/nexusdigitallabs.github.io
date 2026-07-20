@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   runEngine, fmtNum, fmtC, fmtMo, fmtPct, PLAN_SPLITS,
-  totalDebtRemaining,
+  totalDebtRemaining, totalMinPayments, debtMinPayment,
   type Expense, type Debt,
 } from '../debt-engine';
 
@@ -86,6 +86,22 @@ describe('totalDebtRemaining', () => {
       ...baseDebts,
       { id: 'd3', name: 'Cleared', totalAmt: 1000, outstanding: 0, totalPaid: 500 },
     ])).toBe(4800);
+  });
+});
+
+// ── totalMinPayments ──────────────────────────────────────────────────────────
+describe('totalMinPayments', () => {
+  it('sums minimum payments for active debts only', () => {
+    expect(totalMinPayments([
+      { id: 'd1', name: 'Card', totalAmt: 5000, outstanding: 1200, minPayment: 50 },
+      { id: 'd2', name: 'Loan', totalAmt: 10000, outstanding: 3600, minPayment: 120 },
+      { id: 'd3', name: 'Cleared', totalAmt: 1000, outstanding: 0, minPayment: 25 },
+    ])).toBe(170);
+  });
+
+  it('treats missing minPayment as zero', () => {
+    expect(debtMinPayment({ id: 'd1', name: 'Card', totalAmt: 1000, outstanding: 500 })).toBe(0);
+    expect(totalMinPayments([{ id: 'd1', name: 'Card', totalAmt: 1000, outstanding: 500 }])).toBe(0);
   });
 });
 
@@ -210,11 +226,67 @@ describe('runEngine — multi-plan happy path', () => {
     expect(short.allocations[0].endMonth!).toBeLessThanOrEqual(short.allocations[1].endMonth!);
   });
 
-  it('records paymentsByDebt on runway rows', () => {
+  it('records paymentsByDebt and debtBreakdown on runway rows', () => {
     const result = runEngine(5000, baseExpenses, baseDebts, '$');
     const short = result.plans.find((p) => p.horizon === 'short')!;
     expect(short.runway[0].paymentsByDebt.length).toBeGreaterThan(0);
     expect(short.runway[0].paymentsByDebt[0].amount).toBeGreaterThan(0);
+    expect(short.runway[0].debtBreakdown.length).toBeGreaterThan(0);
+    expect(short.runway[0].minPayment + short.runway[0].extraPayment).toBeCloseTo(short.runway[0].payment);
+  });
+
+  it('fails when minimum payments exceed free cash flow', () => {
+    const debts: Debt[] = [
+      { id: 'd1', name: 'Card', totalAmt: 10000, outstanding: 8000, minPayment: 3000 },
+      { id: 'd2', name: 'Loan', totalAmt: 20000, outstanding: 15000, minPayment: 2500 },
+    ];
+    const result = runEngine(5000, baseExpenses, debts, '$');
+    expect(result.isViable).toBe(false);
+    expect(result.error).toContain('Minimum payments exceed free cash flow');
+  });
+
+  it('pays minimums before snowball extra', () => {
+    const debts: Debt[] = [
+      { id: 'd1', name: 'Credit Card', totalAmt: 5000, outstanding: 1200, minPayment: 50 },
+      { id: 'd2', name: 'Loan', totalAmt: 10000, outstanding: 3600, minPayment: 120 },
+    ];
+    const result = runEngine(5000, baseExpenses, debts, '$');
+    const short = result.plans.find((p) => p.horizon === 'short')!;
+    const first = short.runway[0];
+    expect(first.minPayment).toBeCloseTo(170);
+    expect(first.extraPayment).toBeCloseTo(3430);
+    expect(first.payment).toBeCloseTo(3600);
+    const card = first.debtBreakdown.find((b) => b.id === 'd1')!;
+    expect(card.minPaid).toBeCloseTo(50);
+    expect(card.extraPaid).toBeCloseTo(1150);
+    expect(card.outstanding).toBe(0);
+  });
+
+  it('marks long plan non-viable when minimums exceed its debt budget', () => {
+    const debts: Debt[] = [
+      { id: 'd1', name: 'Card', totalAmt: 10000, outstanding: 8000, minPayment: 1800 },
+      { id: 'd2', name: 'Loan', totalAmt: 20000, outstanding: 15000, minPayment: 300 },
+    ];
+    const result = runEngine(5000, baseExpenses, debts, '$');
+    const long = result.plans.find((p) => p.horizon === 'long')!;
+    expect(long.isViable).toBe(false);
+    expect(long.error).toContain('Minimum payments exceed');
+    const short = result.plans.find((p) => p.horizon === 'short')!;
+    expect(short.isViable).toBe(true);
+  });
+
+  it('exposes monthlyMin and monthlyExtra on allocations', () => {
+    const debts: Debt[] = [
+      { id: 'd1', name: 'Credit Card', totalAmt: 5000, outstanding: 1200, minPayment: 50 },
+      { id: 'd2', name: 'Loan', totalAmt: 10000, outstanding: 3600, minPayment: 120 },
+    ];
+    const result = runEngine(5000, baseExpenses, debts, '$');
+    const short = result.plans.find((p) => p.horizon === 'short')!;
+    expect(short.allocations[0].monthlyMin).toBe(50);
+    expect(short.allocations[0].monthlyExtra).toBeGreaterThan(0);
+    expect(short.allocations[0].monthlyPut).toBeCloseTo(
+      short.allocations[0].monthlyMin + short.allocations[0].monthlyExtra,
+    );
   });
 });
 

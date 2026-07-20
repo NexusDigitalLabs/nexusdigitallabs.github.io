@@ -54,6 +54,12 @@ describe('DebtOptimizerClient — rendering', () => {
     expect(screen.getByDisplayValue(/car loan/i)).toBeInTheDocument();
   });
 
+  it('renders minimum payment inputs for each debt', () => {
+    render(<DebtOptimizerClient />);
+    expect(screen.getAllByText(/min payment \/ mo/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/total minimum payments/i)).toBeInTheDocument();
+  });
+
   it('renders the currency selector with LKR as default', () => {
     render(<DebtOptimizerClient />);
     const select = screen.getByRole('combobox');
