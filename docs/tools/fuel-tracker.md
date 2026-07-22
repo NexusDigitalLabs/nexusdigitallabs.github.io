@@ -106,10 +106,11 @@ create index fuel_fills_user_code_idx on fuel_fills(user_code);
 
 1. Profiles: [`supabase/migrations/001_profiles.sql`](../../supabase/migrations/001_profiles.sql)
 2. Fuel `user_id` + claim helper: [`supabase/migrations/002_fuel_user_id.sql`](../../supabase/migrations/002_fuel_user_id.sql)
-3. If an older draft enabled RLS: [`002b_fuel_disable_rls.sql`](../../supabase/migrations/002b_fuel_disable_rls.sql)
-4. Unlink helper: [`supabase/migrations/004_unlink_fuel_garage.sql`](../../supabase/migrations/004_unlink_fuel_garage.sql)
+3. Unlink helper: [`supabase/migrations/004_unlink_fuel_garage.sql`](../../supabase/migrations/004_unlink_fuel_garage.sql)
+4. **RLS (required):** [`008_enable_rls_service_role_tables.sql`](../../supabase/migrations/008_enable_rls_service_role_tables.sql) — enables RLS on `fuel_vehicles`, `fuel_fills`, and `page_views` so the anon key cannot read/write them. Service-role `/api/fuel` is unchanged.
+5. **Function grants (required):** [`009_harden_security_definer_functions.sql`](../../supabase/migrations/009_harden_security_definer_functions.sql) — revokes client RPC on claim/unlink helpers; locks `handle_new_user` to trigger-only.
 
-Sync by code still uses `/api/fuel` with the **service role**. Anonymous codes remain fully supported when `user_id` is null.
+Sync by code still uses `/api/fuel` with the **service role**. Anonymous codes remain fully supported when `user_id` is null. Do not re-run `002b_fuel_disable_rls.sql` after `008`.
 
 ---
 

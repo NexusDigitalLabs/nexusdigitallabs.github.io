@@ -37,6 +37,7 @@ create policy "profiles_update_own"
 create or replace function public.set_profiles_updated_at()
 returns trigger
 language plpgsql
+set search_path = public
 as $$
 begin
   new.updated_at = now();
@@ -84,6 +85,11 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
+
+-- Trigger-only: clients must not call this via PostgREST RPC.
+revoke all on function public.handle_new_user() from public;
+revoke all on function public.handle_new_user() from anon;
+revoke all on function public.handle_new_user() from authenticated;
 
 -- Backfill existing auth users (safe to re-run)
 insert into public.profiles (id, email, display_name, avatar_url)

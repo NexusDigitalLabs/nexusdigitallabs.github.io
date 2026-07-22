@@ -45,12 +45,37 @@ Never expose the service role key to the client.
 
 ## Phase B — Fuel Tracker claim (complete)
 
-1. Run [`supabase/migrations/002_fuel_user_id.sql`](../supabase/migrations/002_fuel_user_id.sql) (requires Phase A). If an older draft enabled RLS, run [`002b_fuel_disable_rls.sql`](../supabase/migrations/002b_fuel_disable_rls.sql).
+1. Run [`supabase/migrations/002_fuel_user_id.sql`](../supabase/migrations/002_fuel_user_id.sql) (requires Phase A).
 2. **Claim API:** `POST /api/fuel` `{ resource: "claim", code }` (signed-in); `GET …?resource=claim_status&code=`; new vehicles inherit existing `user_id` for that code.
 3. **Restore by account:** `GET /api/fuel?resource=account` + Fuel Tracker init when signed in with no local sync code.
 4. **UI:** sync card + Settings — **Link to my account** / **Sign in to link** / Linked badge.
 
 Anonymous `user_code` sync continues to work without signing in.
+
+## RLS on service-role tables (required)
+
+Run [`008_enable_rls_service_role_tables.sql`](../supabase/migrations/008_enable_rls_service_role_tables.sql) so Supabase Security Advisor no longer flags `rls_disabled_in_public`.
+
+| Table | Access model |
+|-------|----------------|
+| `fuel_vehicles` / `fuel_fills` | RLS on. CRUD only via `/api/fuel` (service role). Signed-in users may **SELECT** claimed rows (`user_id = auth.uid()`). |
+| `page_views` | RLS on; explicit deny for `anon` / `authenticated`. Read/write only via `/api/counters` (service role). |
+
+If you already ran an older `008` and Advisor shows `rls_enabled_no_policy` on `page_views`, run [`008b_page_views_deny_client_policy.sql`](../supabase/migrations/008b_page_views_deny_client_policy.sql).
+
+Do **not** re-run [`002b_fuel_disable_rls.sql`](../supabase/migrations/002b_fuel_disable_rls.sql) after `008` — that file was a temporary hot-fix and leaves tables publicly readable with the anon key.
+
+## Harden SECURITY DEFINER functions (required)
+
+Run [`009_harden_security_definer_functions.sql`](../supabase/migrations/009_harden_security_definer_functions.sql) after `001`–`004` (and preferably after `008`).
+
+| Function | Intended callers |
+|----------|------------------|
+| `claim_fuel_garage` / `unlink_fuel_garage` | `service_role` only (`/api/fuel`) — revoke `anon` / `authenticated` |
+| `handle_new_user` | Auth trigger only — no PostgREST RPC |
+| `set_profiles_updated_at` | Trigger; `search_path = public` |
+
+Optional (Auth dashboard, not SQL): enable **Leaked password protection** under Auth → Password security if password sign-in is allowed.
 
 ## Privacy / legal
 

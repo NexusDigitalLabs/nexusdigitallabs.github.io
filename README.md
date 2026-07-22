@@ -356,14 +356,7 @@ CONTACT_TO_EMAIL=you@example.com
 
 **Supabase table setup:**
 
-```sql
-create table page_views (
-  page_path text primary key,
-  count     int8 default 1
-);
-```
-
-Also apply Auth / Fuel / drafts migrations under `supabase/migrations/` as documented in `docs/auth.md`.
+Apply Auth / Fuel / drafts migrations under `supabase/migrations/` as documented in `docs/auth.md`. For counters and Fuel tables, run [`008_enable_rls_service_role_tables.sql`](supabase/migrations/008_enable_rls_service_role_tables.sql) so `page_views`, `fuel_vehicles`, and `fuel_fills` have RLS enabled (service-role APIs only).
 ---
 
 ## Local Development

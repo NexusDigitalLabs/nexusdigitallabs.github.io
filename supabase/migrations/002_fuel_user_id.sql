@@ -72,9 +72,11 @@ end;
 $$;
 
 revoke all on function public.claim_fuel_garage(text, uuid) from public;
+revoke all on function public.claim_fuel_garage(text, uuid) from anon;
+revoke all on function public.claim_fuel_garage(text, uuid) from authenticated;
 grant execute on function public.claim_fuel_garage(text, uuid) to service_role;
 
--- Note: Do NOT enable RLS on fuel_* here. Cross-device sync uses the Next.js
--- /api/fuel route with the service-role key. Securing by code happens in that
--- API. Enabling RLS without anon policies also hides unclaimed rows in the
--- Supabase Table Editor when browsing as an authenticated user.
+-- Note: RLS for fuel_* is applied in 008_enable_rls_service_role_tables.sql.
+-- Cross-device sync uses /api/fuel with the service-role key (bypasses RLS).
+-- Securing by sync code happens in that API. Unclaimed rows stay hidden from
+-- anon/authenticated in the Table Editor; claimed rows are SELECT-only for the owner.
