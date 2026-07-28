@@ -8,7 +8,7 @@ import PWAInstallBanner from '@/components/PWAInstallBanner';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { AuthProvider } from '@/components/AuthProvider';
 import ScrollToTop from '@/components/ScrollToTop';
-import { DEFAULT_OG_IMAGE, KOFI_URL, SITE_NAME } from '@/lib/seo';
+import { DEFAULT_OG_IMAGE, KOFI_URL, SITE_NAME, SITE_URL } from '@/lib/seo';
 import { THEME_BOOT_SCRIPT } from '@/lib/theme';
 import './globals.css';
 
@@ -37,7 +37,7 @@ export const viewport: Viewport = {
 
 // ── Root metadata ──────────────────────────────────────────────────────────
 export const metadata: Metadata = {
-  metadataBase: new URL('https://nexusdigitallabs.dev'),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: 'NexusDigitalLabs — Software Studio',
     template: '%s — NexusDigitalLabs',

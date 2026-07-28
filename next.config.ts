@@ -18,6 +18,10 @@ const withPWA = withPWAInit({
 });
 
 const nextConfig: NextConfig = {
+  // Canonical URL shape: always trailing slash (matches sitemap + pageMetadata).
+  // Without this, Next serves /about as 200 and 308s /about/ → /about, which
+  // conflicts with SITE_URL canonicals and triggers GSC "Page with redirect".
+  trailingSlash: true,
   // Pin the tracing root — multiple lockfiles exist above this project.
   outputFileTracingRoot: projectRoot,
   // next-pwa injects a webpack plugin; also pin turbopack.root so a parent

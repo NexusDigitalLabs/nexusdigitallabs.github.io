@@ -1,5 +1,12 @@
 import type { Metadata } from 'next';
 
+/**
+ * Canonical public origin.
+ * Policy (do not change without updating Vercel primary domain + sitemap tests):
+ * - HTTPS apex only (`nexusdigitallabs.dev`) — never `www`
+ * - No trailing slash on the origin itself
+ * - Page paths always use a trailing slash (see `normalizeSitePath`)
+ */
 export const SITE_URL = 'https://nexusdigitallabs.dev';
 export const SITE_NAME = 'NexusDigitalLabs';
 export const KOFI_URL = 'https://ko-fi.com/nexusdigitallabs';
@@ -24,18 +31,23 @@ export type PageSeoInput = {
   ogDescription?: string;
 };
 
-function absolutize(pathOrUrl: string): string {
+/** Ensures a site path has a leading and trailing slash (`/` stays `/`). */
+export function normalizeSitePath(path: string): string {
+  if (!path || path === '/') return '/';
+  const withLeading = path.startsWith('/') ? path : `/${path}`;
+  return withLeading.endsWith('/') ? withLeading : `${withLeading}/`;
+}
+
+/**
+ * Resolves a path or absolute URL against SITE_URL.
+ * Relative paths are joined as-is (call `normalizeSitePath` first for page URLs).
+ */
+export function absoluteSiteUrl(pathOrUrl: string): string {
   if (pathOrUrl.startsWith('http://') || pathOrUrl.startsWith('https://')) {
     return pathOrUrl;
   }
   const path = pathOrUrl.startsWith('/') ? pathOrUrl : `/${pathOrUrl}`;
   return `${SITE_URL}${path}`;
-}
-
-function normalizePath(path: string): string {
-  if (!path || path === '/') return '/';
-  const withLeading = path.startsWith('/') ? path : `/${path}`;
-  return withLeading.endsWith('/') ? withLeading : `${withLeading}/`;
 }
 
 /**
@@ -53,9 +65,8 @@ export function pageMetadata({
   ogTitle,
   ogDescription,
 }: PageSeoInput): Metadata {
-  const normalizedPath = normalizePath(path);
-  const url = absolutize(normalizedPath);
-  const imageUrl = absolutize(image);
+  const url = absoluteSiteUrl(normalizeSitePath(path));
+  const imageUrl = absoluteSiteUrl(image);
   const socialTitle = ogTitle ?? title;
   const socialDescription = ogDescription ?? description;
 

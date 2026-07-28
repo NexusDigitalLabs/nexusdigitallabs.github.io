@@ -22,6 +22,9 @@ yarn-error.log*
 # Vercel
 .vercel
 
+# Local Cursor agent rules (not shared via git)
+.cursorrules
+
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts

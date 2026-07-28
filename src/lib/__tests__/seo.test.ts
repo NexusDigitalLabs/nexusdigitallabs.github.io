@@ -1,5 +1,37 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_OG_IMAGE, DEFAULT_OG_IMAGE_SIZE, SITE_URL, pageMetadata } from '@/lib/seo';
+import {
+  DEFAULT_OG_IMAGE,
+  DEFAULT_OG_IMAGE_SIZE,
+  SITE_URL,
+  absoluteSiteUrl,
+  normalizeSitePath,
+  pageMetadata,
+} from '@/lib/seo';
+
+describe('SITE_URL canonical policy', () => {
+  it('is HTTPS apex with no www and no trailing slash on the origin', () => {
+    expect(SITE_URL).toBe('https://nexusdigitallabs.dev');
+    expect(SITE_URL.startsWith('https://')).toBe(true);
+    expect(SITE_URL).not.toContain('://www.');
+    expect(SITE_URL.endsWith('/')).toBe(false);
+  });
+});
+
+describe('normalizeSitePath / absoluteSiteUrl', () => {
+  it('normalizes page paths to trailing-slash form', () => {
+    expect(normalizeSitePath('/')).toBe('/');
+    expect(normalizeSitePath('')).toBe('/');
+    expect(normalizeSitePath('/about')).toBe('/about/');
+    expect(normalizeSitePath('/about/')).toBe('/about/');
+    expect(normalizeSitePath('tools/fuel-tracker')).toBe('/tools/fuel-tracker/');
+  });
+
+  it('joins relative paths to SITE_URL and leaves absolute URLs alone', () => {
+    expect(absoluteSiteUrl('/og-image.png')).toBe(`${SITE_URL}/og-image.png`);
+    expect(absoluteSiteUrl(normalizeSitePath('/about'))).toBe(`${SITE_URL}/about/`);
+    expect(absoluteSiteUrl('https://cdn.example/x.png')).toBe('https://cdn.example/x.png');
+  });
+});
 
 describe('pageMetadata', () => {
   it('sets canonical, Open Graph, and Twitter large-image fields', () => {
@@ -12,6 +44,7 @@ describe('pageMetadata', () => {
     expect(meta.alternates).toEqual({
       canonical: `${SITE_URL}/tools/fuel-tracker/`,
     });
+    expect(String(meta.alternates?.canonical)).not.toContain('www.');
     expect(meta.openGraph).toMatchObject({
       type: 'website',
       siteName: 'NexusDigitalLabs',
