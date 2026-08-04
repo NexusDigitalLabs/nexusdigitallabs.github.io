@@ -19,7 +19,7 @@ import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 
 const FUEL_CODE_KEY = 'ndl_fuel_code';
 const FUEL_CURRENCY_KEY = 'ndl_fuel_currency';
-/** When set to the active sync code, garage UI requires sign-in after logout. */
+/** Set only after a successful account claim; garage UI then requires sign-in after logout. */
 const FUEL_AUTH_LOCK_KEY = 'ndl_fuel_auth_lock';
 
 function markGarageAuthLock(code: string) {
@@ -511,15 +511,6 @@ export default function FuelTrackerClient() {
   // chart
   const [activeChart, setActiveChart] = useState<'efficiency' | 'spend'>('efficiency');
 
-  // When a signed-in user opens/uses a garage, lock it to auth after sign-out.
-  const hadSignedInRef = useRef(false);
-  useEffect(() => {
-    if (user?.id) {
-      hadSignedInRef.current = true;
-      if (userCode) markGarageAuthLock(userCode);
-    }
-  }, [user?.id, userCode]);
-
   // Preferred currency: profile (signed in) > localStorage > USD
   useEffect(() => {
     if (authLoading) return;
@@ -534,6 +525,7 @@ export default function FuelTrackerClient() {
     } catch { /* ignore */ }
   }, [authLoading, profile?.preferred_currency]);
 
+  // Auth lock only after a real account claim (not mere sign-in).
   useEffect(() => {
     if (claimState === 'owned' && userCode) {
       markGarageAuthLock(userCode);
@@ -545,7 +537,7 @@ export default function FuelTrackerClient() {
     !user &&
     Boolean(userCode) &&
     (step === 'main' || step === 'vehicle_setup') &&
-    (isGarageAuthLocked(userCode) || hadSignedInRef.current);
+    isGarageAuthLocked(userCode);
 
   useEffect(() => {
     if (!garageNeedsSignIn) return;
@@ -774,12 +766,36 @@ export default function FuelTrackerClient() {
   }, [activeVehicleId, userCode, fetchFills]);
 
   // ── Claim status for current sync code ────────────────────────────────────
+  /** Link an unclaimed garage to the signed-in account (silent; used on load). */
+  const tryAutoClaimGarage = useCallback(async (code: string): Promise<'owned' | 'claimed_other' | 'unclaimed' | 'error'> => {
+    try {
+      const res = await fetch('/api/fuel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ resource: 'claim', code }),
+      });
+      const json = await res.json();
+      if (res.ok) {
+        markGarageAuthLock(code);
+        return 'owned';
+      }
+      if (res.status === 409) return 'claimed_other';
+      // e.g. pending / no vehicles yet — leave unclaimed for the manual button
+      if (json?.pending) return 'unclaimed';
+      return 'error';
+    } catch {
+      return 'error';
+    }
+  }, []);
+
   const refreshClaimStatus = useCallback(async (code: string) => {
     setClaimState('loading');
     setClaimMessage(null);
     try {
       const res = await fetch(
-        `/api/fuel?code=${encodeURIComponent(code)}&resource=claim_status`
+        `/api/fuel?code=${encodeURIComponent(code)}&resource=claim_status`,
+        { credentials: 'same-origin', cache: 'no-store' }
       );
       const json = await res.json();
       if (!res.ok) {
@@ -787,14 +803,38 @@ export default function FuelTrackerClient() {
         setClaimMessage(json.error ?? 'Could not check link status');
         return;
       }
-      if (json.is_owner) setClaimState('owned');
-      else if (json.claimed) setClaimState('claimed_other');
-      else setClaimState('unclaimed');
+      if (json.is_owner) {
+        setClaimState('owned');
+        markGarageAuthLock(code);
+        return;
+      }
+      if (json.claimed) {
+        setClaimState('claimed_other');
+        return;
+      }
+      // Unclaimed + signed in → auto-link so restore-on-login works without a manual click.
+      if (user?.id) {
+        const result = await tryAutoClaimGarage(code);
+        if (result === 'owned') {
+          setClaimState('owned');
+          setClaimMessage('Garage linked to your account.');
+          return;
+        }
+        if (result === 'claimed_other') {
+          setClaimState('claimed_other');
+          return;
+        }
+        if (result === 'error') {
+          setClaimState('unclaimed');
+          return;
+        }
+      }
+      setClaimState('unclaimed');
     } catch {
       setClaimState('error');
       setClaimMessage('Could not check link status');
     }
-  }, []);
+  }, [user, tryAutoClaimGarage]);
 
   useEffect(() => {
     if (!userCode || (step !== 'main' && step !== 'vehicle_setup')) {
@@ -814,20 +854,19 @@ export default function FuelTrackerClient() {
     setClaimBusy(true);
     setClaimMessage(null);
     try {
-      const res = await fetch('/api/fuel', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ resource: 'claim', code: userCode }),
-      });
-      const json = await res.json();
-      if (!res.ok) {
-        setClaimState(res.status === 409 ? 'claimed_other' : 'error');
-        setClaimMessage(json.error ?? 'Could not link garage');
+      const result = await tryAutoClaimGarage(userCode);
+      if (result === 'owned') {
+        setClaimState('owned');
+        setClaimMessage('Garage linked to your account.');
         return;
       }
-      setClaimState('owned');
-      setClaimMessage('Garage linked to your account.');
-      markGarageAuthLock(userCode);
+      if (result === 'claimed_other') {
+        setClaimState('claimed_other');
+        setClaimMessage('This sync code is already linked to another account');
+        return;
+      }
+      setClaimState('error');
+      setClaimMessage('Could not link garage');
     } catch {
       setClaimState('error');
       setClaimMessage('Could not link garage');

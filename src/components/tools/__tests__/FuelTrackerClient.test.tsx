@@ -3,21 +3,66 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import FuelTrackerClient from '../FuelTrackerClient';
 
+const useAuthMock = vi.fn();
+
 vi.mock('@/components/AuthProvider', () => ({
-  useAuth: () => ({
-    user: null,
-    session: null,
-    profile: null,
-    loading: false,
-    signOut: vi.fn(),
-    setProfile: vi.fn(),
-  }),
+  useAuth: () => useAuthMock(),
 }));
+
+vi.mock('@/lib/supabase/client', () => ({
+  createBrowserSupabaseClient: () => ({}),
+}));
+
+vi.mock('@/lib/profile', () => ({
+  updateOwnPreferredCurrency: vi.fn().mockResolvedValue({ profile: null }),
+}));
+
+const signedOutAuth = {
+  user: null,
+  session: null,
+  profile: null,
+  loading: false,
+  signOut: vi.fn(),
+  setProfile: vi.fn(),
+};
+
+const signedInAuth = {
+  user: { id: 'user-1' },
+  session: null,
+  profile: null,
+  loading: false,
+  signOut: vi.fn(),
+  setProfile: vi.fn(),
+};
+
+function jsonResponse(body: unknown, ok = true, status = 200) {
+  return {
+    ok,
+    status,
+    json: () => Promise.resolve(body),
+  } as Response;
+}
+
+type FetchHandler = (url: string, init?: RequestInit) => Response | Promise<Response> | undefined;
+
+function mockFetchRouter(handlers: FetchHandler[]) {
+  const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = typeof input === 'string' ? input : input.toString();
+    for (const handler of handlers) {
+      const result = await handler(url, init);
+      if (result) return result;
+    }
+    return jsonResponse({ data: [] });
+  });
+  global.fetch = fetchMock;
+  return fetchMock;
+}
 
 // Clear localStorage before each test so the component always starts fresh
 beforeEach(() => {
   localStorage.clear();
   vi.clearAllMocks();
+  useAuthMock.mockReturnValue(signedOutAuth);
   // Default: no fetch needed for no-code path (component goes to onboarding without fetching)
   global.fetch = vi.fn(() => new Promise(() => {})); // unresolved by default
 });
@@ -168,5 +213,168 @@ describe('FuelTrackerClient — loading state', () => {
     localStorage.setItem('ndl_fuel_code', 'testuser-abcd');
     render(<FuelTrackerClient />);
     expect(document.body).toBeTruthy();
+  });
+});
+
+// ── Signed-in account restore + auto-claim ─────────────────────────────────────
+
+describe('FuelTrackerClient — signed-in restore & auto-claim', () => {
+  const vehicle = {
+    id: 'v1',
+    make: 'Toyota',
+    model: 'Prius',
+    year: 2020,
+    fuel_type: 'Hybrid',
+    nickname: 'Daily',
+    user_code: 'mygarage-ab12',
+    user_id: null as string | null,
+  };
+
+  it('shows "No linked garage" when signed in with no account garage and no local code', async () => {
+    useAuthMock.mockReturnValue(signedInAuth);
+    mockFetchRouter([
+      (url) => {
+        if (url.includes('resource=account')) {
+          return jsonResponse({ data: [], code: null });
+        }
+      },
+    ]);
+
+    render(<FuelTrackerClient />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/no linked garage found on this account/i)).toBeInTheDocument();
+    });
+    expect(screen.getByRole('button', { name: /create my garage/i })).toBeInTheDocument();
+  });
+
+  it('restores a linked account garage without needing a local sync code', async () => {
+    useAuthMock.mockReturnValue(signedInAuth);
+    const linked = { ...vehicle, user_id: 'user-1' };
+    mockFetchRouter([
+      (url) => {
+        if (url.includes('resource=account')) {
+          return jsonResponse({ data: [linked], code: 'mygarage-ab12' });
+        }
+        if (url.includes('resource=fills')) {
+          return jsonResponse({ data: [] });
+        }
+        if (url.includes('resource=claim_status')) {
+          return jsonResponse({ claimed: true, is_owner: true, signed_in: true });
+        }
+      },
+    ]);
+
+    render(<FuelTrackerClient />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /Daily/ })).toBeInTheDocument();
+    });
+    expect(localStorage.getItem('ndl_fuel_code')).toBe('mygarage-ab12');
+    expect(localStorage.getItem('ndl_fuel_auth_lock')).toBe('mygarage-ab12');
+  });
+
+  it('auto-claims an unclaimed local garage when signed in', async () => {
+    useAuthMock.mockReturnValue(signedInAuth);
+    localStorage.setItem('ndl_fuel_code', 'mygarage-ab12');
+
+    const fetchMock = mockFetchRouter([
+      (url) => {
+        if (url.includes('resource=account')) {
+          return jsonResponse({ data: [], code: null });
+        }
+        if (url.includes('resource=vehicles')) {
+          return jsonResponse({ data: [vehicle] });
+        }
+        if (url.includes('resource=fills')) {
+          return jsonResponse({ data: [] });
+        }
+        if (url.includes('resource=claim_status')) {
+          return jsonResponse({ claimed: false, is_owner: false, signed_in: true });
+        }
+      },
+      (_url, init) => {
+        if (init?.method === 'POST') {
+          const body = JSON.parse(String(init.body)) as { resource?: string; code?: string };
+          if (body.resource === 'claim' && body.code === 'mygarage-ab12') {
+            return jsonResponse({ success: true, vehicles_updated: 1 });
+          }
+        }
+      },
+    ]);
+
+    render(<FuelTrackerClient />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /Daily/ })).toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      const claimPost = fetchMock.mock.calls.find((call) => {
+        const init = call[1] as RequestInit | undefined;
+        if (init?.method !== 'POST') return false;
+        try {
+          const body = JSON.parse(String(init.body)) as { resource?: string };
+          return body.resource === 'claim';
+        } catch {
+          return false;
+        }
+      });
+      expect(claimPost).toBeDefined();
+    });
+
+    await waitFor(() => {
+      expect(localStorage.getItem('ndl_fuel_auth_lock')).toBe('mygarage-ab12');
+    });
+  });
+
+  it('does not set auth lock for an unclaimed garage when signed out', async () => {
+    useAuthMock.mockReturnValue(signedOutAuth);
+    localStorage.setItem('ndl_fuel_code', 'mygarage-ab12');
+
+    mockFetchRouter([
+      (url) => {
+        if (url.includes('resource=vehicles')) {
+          return jsonResponse({ data: [vehicle] });
+        }
+        if (url.includes('resource=fills')) {
+          return jsonResponse({ data: [] });
+        }
+        if (url.includes('resource=claim_status')) {
+          return jsonResponse({ claimed: false, is_owner: false, signed_in: false });
+        }
+      },
+    ]);
+
+    render(<FuelTrackerClient />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /Daily/ })).toBeInTheDocument();
+    });
+    expect(localStorage.getItem('ndl_fuel_auth_lock')).toBeNull();
+    expect(screen.queryByRole('dialog', { name: /sign in to unlock your garage/i })).not.toBeInTheDocument();
+  });
+
+  it('requires sign-in when a linked garage is opened while signed out', async () => {
+    useAuthMock.mockReturnValue(signedOutAuth);
+    localStorage.setItem('ndl_fuel_code', 'mygarage-ab12');
+
+    mockFetchRouter([
+      (url) => {
+        if (url.includes('resource=vehicles')) {
+          return jsonResponse({
+            data: [{ ...vehicle, user_id: 'user-1' }],
+          });
+        }
+      },
+    ]);
+
+    render(<FuelTrackerClient />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog', { name: /sign in to unlock your garage/i })).toBeInTheDocument();
+    });
+    expect(localStorage.getItem('ndl_fuel_auth_lock')).toBe('mygarage-ab12');
+    expect(screen.queryByRole('button', { name: /Daily/ })).not.toBeInTheDocument();
   });
 });
