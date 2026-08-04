@@ -72,7 +72,7 @@ function LineChart({ points, color, yLabel }: {
       <div style={{ height: '180px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.375rem' }}>
         <p style={{ fontSize: '0.8125rem', color: 'var(--ndl-faint)', textAlign: 'center' }}>Not enough data yet</p>
         <p style={{ fontSize: '0.6875rem', color: '#334155', textAlign: 'center' }}>
-          {yLabel === 'L/100km'
+          {yLabel === 'L/100km' || yLabel === 'km/L'
             ? 'Log a 3rd fill-up to unlock the efficiency chart'
             : 'Log your first fill-up to see spending over time'}
         </p>
@@ -509,7 +509,7 @@ export default function FuelTrackerClient() {
   const [garageInitDone, setGarageInitDone] = useState(false);
 
   // chart
-  const [activeChart, setActiveChart] = useState<'efficiency' | 'spend'>('efficiency');
+  const [activeChart, setActiveChart] = useState<'efficiency' | 'kmpl' | 'spend'>('kmpl');
 
   // Preferred currency: profile (signed in) > localStorage > USD
   useEffect(() => {
@@ -1114,6 +1114,10 @@ export default function FuelTrackerClient() {
     .filter(s => s.l100km !== null)
     .map(s => ({ x: s.fill.fill_date.slice(5), y: s.l100km! }));
 
+  const kmplPoints = fillStats
+    .filter(s => s.kmpl !== null)
+    .map(s => ({ x: s.fill.fill_date.slice(5), y: s.kmpl! }));
+
   const spendPoints = (() => {
     let cumulative = 0;
     return fillStats.map(s => { cumulative += s.totalCost; return { x: s.fill.fill_date.slice(5), y: cumulative }; });
@@ -1627,25 +1631,32 @@ export default function FuelTrackerClient() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
               <p style={S.label}>Chart</p>
               <div style={{ display: 'flex', gap: '1px', background: 'rgba(255,255,255,0.07)' }}>
-                {(['efficiency', 'spend'] as const).map(c => (
-                  <button key={c} type="button" onClick={() => setActiveChart(c)}
+                {([
+                  { id: 'kmpl' as const, label: 'km/L' },
+                  { id: 'efficiency' as const, label: 'L/100km' },
+                  { id: 'spend' as const, label: 'Total Spend' },
+                ]).map(c => (
+                  <button key={c.id} type="button" onClick={() => setActiveChart(c.id)}
                     style={{
                       padding: '0.25rem 0.75rem', cursor: 'pointer', border: 'none',
-                      background: activeChart === c ? '#f59e0b' : 'transparent',
-                      color: activeChart === c ? '#0f172a' : '#64748b',
+                      background: activeChart === c.id ? '#f59e0b' : 'transparent',
+                      color: activeChart === c.id ? '#0f172a' : '#64748b',
                       fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em',
                     }}>
-                    {c === 'efficiency' ? 'L/100km' : 'Total Spend'}
+                    {c.label}
                   </button>
                 ))}
               </div>
             </div>
-            {/* Auto-fall back to spend chart when efficiency has insufficient data */}
-            {(activeChart === 'efficiency' && efficiencyPoints.length < 2)
+            {/* Auto-fall back to spend chart when efficiency series has insufficient data */}
+            {((activeChart === 'kmpl' && kmplPoints.length < 2) ||
+              (activeChart === 'efficiency' && efficiencyPoints.length < 2))
               ? <LineChart points={spendPoints} color="#4ade80" yLabel={currency.code} />
-              : activeChart === 'efficiency'
-                ? <LineChart points={efficiencyPoints} color="#f59e0b" yLabel="L/100km" />
-                : <LineChart points={spendPoints} color="#4ade80" yLabel={currency.code} />
+              : activeChart === 'kmpl'
+                ? <LineChart points={kmplPoints} color="#f59e0b" yLabel="km/L" />
+                : activeChart === 'efficiency'
+                  ? <LineChart points={efficiencyPoints} color="#f59e0b" yLabel="L/100km" />
+                  : <LineChart points={spendPoints} color="#4ade80" yLabel={currency.code} />
             }
           </div>
         )}
