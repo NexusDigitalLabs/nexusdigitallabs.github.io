@@ -42,4 +42,10 @@ describe('buildSitemapEntries', () => {
       8 /* static */ + ARTICLES.length + TOOLS.length + GAMES.length;
     expect(entries).toHaveLength(expected);
   });
+
+  it('excludes the unlisted private resume route under /p/', () => {
+    const urls = buildSitemapEntries().map((e) => e.url);
+    expect(urls).not.toContain(sitemapUrl('/p/df-resume-2026/'));
+    expect(urls.some((url) => url.includes('/p/'))).toBe(false);
+  });
 });
