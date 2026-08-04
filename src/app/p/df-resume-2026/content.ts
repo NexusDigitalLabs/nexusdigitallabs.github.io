@@ -2,11 +2,9 @@
 
 export const CONTACT = {
   name: 'Dilan Fernando',
-  title: 'Senior Mobile Engineer & Tech Lead',
+  title: 'Mobile & Full-Stack Engineer (Android · iOS · Cross-Platform)',
   email: 'dilanfdo1@gmail.com',
-  /** Update if your public LinkedIn slug differs. */
   linkedInUrl: 'https://www.linkedin.com/in/dilan-fernando-92413463/',
-  linkedInLabel: 'LinkedIn',
 } as const;
 
 export const SUMMARY = [
