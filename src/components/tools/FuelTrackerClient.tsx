@@ -1251,7 +1251,7 @@ export default function FuelTrackerClient() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <InputField
                 label="Choose a nickname for your garage"
-                placeholder="e.g. MyGarage, Dilan_Cars, BluePrius"
+                placeholder="e.g. MyGarage, John_Cars, BluePrius"
                 value={nicknameInput}
                 onChange={e => { setNicknameInput(e.target.value); setOnboardError(''); }}
                 onKeyDown={e => e.key === 'Enter' && handleStartNew()}

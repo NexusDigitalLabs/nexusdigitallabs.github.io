@@ -62,7 +62,7 @@ describe('POST /api/contact', () => {
     const res = await POST(
       makeReq(
         {
-          name: 'Dilan',
+          name: 'John Doe',
           email: 'visitor@example.com',
           subject: 'Hello',
           message: 'Need a tool',
@@ -84,14 +84,14 @@ describe('POST /api/contact', () => {
   it('returns 502 when Resend fails', async () => {
     sendMock.mockResolvedValue({ data: null, error: { message: 'boom' } });
     const res = await POST(
-      makeReq({ name: 'Dilan', email: 'visitor@example.com', message: 'Need a tool' }, '10.0.0.5')
+      makeReq({ name: 'John Doe', email: 'visitor@example.com', message: 'Need a tool' }, '10.0.0.5')
     );
     expect(res.status).toBe(502);
   });
 
   it('returns 429 when rate limit is exceeded', async () => {
     const body = {
-      name: 'Dilan',
+      name: 'John Doe',
       email: 'visitor@example.com',
       message: 'Need a tool',
     };

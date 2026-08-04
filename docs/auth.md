@@ -107,7 +107,7 @@ The contact page posts to `POST /api/contact`, which sends mail with **Resend** 
 |----------|---------|
 | `RESEND_API_KEY` | Resend API key |
 | `CONTACT_FROM_EMAIL` | Public From (e.g. `NexusDigitalLabs <hello@nexusdigitallabs.dev>`) |
-| `CONTACT_TO_EMAIL` | Private inbox (e.g. `dilanfdo.dev@gmail.com`) — never exposed to the client |
+| `CONTACT_TO_EMAIL` | Private inbox (e.g. `inbox@example.com`) — never exposed to the client |
 
 Set the same vars on Vercel. Domain sending must be verified in Resend. `Reply-To` is the visitor’s address.
 
