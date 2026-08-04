@@ -1,6 +1,7 @@
 'use client';
 
 import { type CSSProperties } from 'react';
+import { usePathname } from 'next/navigation';
 import { KOFI_URL } from '@/lib/seo';
 
 type Variant = 'button' | 'link' | 'card' | 'floating';
@@ -128,6 +129,10 @@ function FloatingTipJar({
   href: string;
   className: string;
 }) {
+  const pathname = usePathname();
+  // Hide on private portfolio / hire routes under /p/
+  if (pathname?.startsWith('/p/')) return null;
+
   return (
     <a
       href={href}

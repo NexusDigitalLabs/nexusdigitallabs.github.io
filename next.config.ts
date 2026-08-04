@@ -31,6 +31,20 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: projectRoot,
   },
+  async redirects() {
+    return [
+      {
+        source: '/p/df-resume-2026',
+        destination: '/p/portfolio/',
+        permanent: true,
+      },
+      {
+        source: '/p/df-resume-2026/',
+        destination: '/p/portfolio/',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default withPWA(nextConfig);

@@ -1,13 +1,12 @@
 import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import Script from 'next/script';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import KofiTipLink from '@/components/KofiTipLink';
 import PWAInstallBanner from '@/components/PWAInstallBanner';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { AuthProvider } from '@/components/AuthProvider';
 import ScrollToTop from '@/components/ScrollToTop';
+import SiteChrome from '@/components/SiteChrome';
 import { DEFAULT_OG_IMAGE, KOFI_URL, SITE_NAME, SITE_URL } from '@/lib/seo';
 import { THEME_BOOT_SCRIPT } from '@/lib/theme';
 import './globals.css';
@@ -118,13 +117,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider>
           <AuthProvider>
             <ScrollToTop />
-            <Header />
-
-            <main className="flex-1">
-              {children}
-            </main>
-
-            <Footer />
+            <SiteChrome>{children}</SiteChrome>
             <KofiTipLink variant="floating" href={KOFI_URL} />
             <PWAInstallBanner />
           </AuthProvider>

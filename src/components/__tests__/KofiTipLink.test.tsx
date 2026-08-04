@@ -1,8 +1,17 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import KofiTipLink from '../KofiTipLink';
 
 const HREF = 'https://ko-fi.com/nexusdigitallabs';
+const usePathnameMock = vi.fn(() => '/');
+
+vi.mock('next/navigation', () => ({
+  usePathname: () => usePathnameMock(),
+}));
+
+beforeEach(() => {
+  usePathnameMock.mockReturnValue('/');
+});
 
 describe('KofiTipLink — floating', () => {
   it('renders the persistent tip jar link', () => {
@@ -22,6 +31,12 @@ describe('KofiTipLink — floating', () => {
     const link = screen.getByRole('link', { name: /buy me a coffee/i });
     expect(link.style.borderRadius).toBe('12px');
     expect(link.style.background).toContain('var(--ndl-accent)');
+  });
+
+  it('hides on private portfolio routes under /p/', () => {
+    usePathnameMock.mockReturnValue('/p/portfolio/');
+    render(<KofiTipLink variant="floating" href={HREF} />);
+    expect(screen.queryByRole('link', { name: /buy me a coffee/i })).not.toBeInTheDocument();
   });
 });
 
