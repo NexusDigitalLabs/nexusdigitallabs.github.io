@@ -8,8 +8,8 @@ export const CONTACT = {
 } as const;
 
 export const SUMMARY = [
-  'Senior Mobile Engineer & Tech Lead with 13+ years of experience delivering scalable, high-impact mobile applications across Android and cross-platform platforms. Proven track record of leading products from MVP to global production, driving architecture, performance, and rapid delivery using modern stacks and AI-assisted development.',
-  'Strong expertise in Kotlin, Java, and React Native, with hands-on experience supporting backend (Spring Boot) and cloud (AWS) systems to ensure reliable, production-grade solutions. Focused on building scalable products, accelerating development cycles, and delivering measurable business impact in fast-paced, distributed teams.',
+  'Mobile & Full-Stack Engineer with 13+ years building and leading Android, iOS, and cross-platform products from MVP to global production. Experienced across native (Kotlin/Java), React Native, and modern web/mobile stacks (Nuxt, Vue, Capacitor), with a track record of owning architecture, performance, and release quality.',
+  'Hands-on across the stack — client apps through backend APIs and cloud — and comfortable accelerating delivery with AI-assisted workflows while keeping production standards high. Focused on shipping scalable products, shortening feedback loops, and delivering measurable impact in fast-moving teams.',
 ] as const;
 
 export type Role = {
