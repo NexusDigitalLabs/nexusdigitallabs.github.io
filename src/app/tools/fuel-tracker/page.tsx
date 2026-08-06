@@ -97,6 +97,20 @@ export default function FuelTrackerPage() {
               <p style={{ fontSize: '0.875rem', color: '#94a3b8', lineHeight: 1.75 }}>{a}</p>
             </div>
           ))}
+
+          <div style={{ marginTop: '2.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(30,41,59,0.8)' }}>
+            <p style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#64748b', marginBottom: '0.75rem' }}>
+              Related reading
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <a href="/articles/how-to-track-car-fuel-efficiency/" style={{ fontSize: '0.875rem', color: '#f59e0b', textDecoration: 'none' }}>
+                How to Track Your Car&apos;s Fuel Efficiency →
+              </a>
+              <a href="/articles/how-to-save-money-on-fuel/" style={{ fontSize: '0.875rem', color: '#f59e0b', textDecoration: 'none' }}>
+                How to Save Money on Fuel Every Month →
+              </a>
+            </div>
+          </div>
         </div>
       </section>
     </>

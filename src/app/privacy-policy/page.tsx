@@ -47,7 +47,7 @@ export default function PrivacyPolicyPage() {
       <div className="mb-10 space-y-2 border-b border-slate-800/60 pb-8">
         <p className="text-[11px] font-semibold tracking-widest text-slate-500 uppercase">Legal</p>
         <h1 className="text-2xl sm:text-3xl font-light tracking-tight text-white">Privacy Policy</h1>
-        <p className="text-xs text-slate-500 font-light">Last updated: July 15, 2026</p>
+        <p className="text-xs text-slate-500 font-light">Last updated: August 6, 2026</p>
       </div>
 
       <div>
@@ -129,7 +129,7 @@ export default function PrivacyPolicyPage() {
 
         <Section title="Google AdSense &amp; Advertising">
           <P>
-            We use Google AdSense to display advertisements on our pages. Google, as a third-party vendor, uses cookies to serve ads based on your prior visits to this website or other websites. Google&apos;s use of advertising cookies enables it and its partners to serve ads to you based on your visit to our site and/or other sites on the Internet.
+            We may display advertisements on some pages using Google AdSense or similar networks. When ads are enabled, Google (as a third-party vendor) may use cookies to serve ads based on your prior visits to this website or other websites. Google&apos;s use of advertising cookies enables it and its partners to serve ads based on your visit to our site and/or other sites on the Internet. Where required by law, we will present consent choices before non-essential advertising cookies are used.
           </P>
         </Section>
 

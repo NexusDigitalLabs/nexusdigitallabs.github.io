@@ -2,4 +2,8 @@ User-agent: *
 Allow: /
 Disallow: /p/
 
+# AdSense crawler — explicit allow for tools, articles, and games
+User-agent: Mediapartners-Google
+Allow: /
+
 Sitemap: https://nexusdigitallabs.dev/sitemap.xml

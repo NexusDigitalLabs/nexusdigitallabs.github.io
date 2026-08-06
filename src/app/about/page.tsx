@@ -19,7 +19,7 @@ const PRINCIPLES = [
     dot: 'bg-blue-400',
     ring: 'bg-blue-500/15 border-blue-500/25',
     title: 'Privacy by default',
-    desc: 'Client-side tools keep your work private. Optional accounts use auth cookies only when you sign in. GDPR/CCPA conscious.',
+    desc: 'Client-side tools keep your work private. Optional accounts use auth cookies only when you sign in. Advertising cookies, if ads are enabled, are disclosed in the Privacy Policy.',
   },
   {
     color: 'violet',
@@ -80,10 +80,12 @@ const VALUES = [
 ];
 
 const STACK = [
+  ['TypeScript', 'Typed app & API routes'],
   ['React', 'Server + Client components'],
-  ['Next.js', 'App Router, Vercel edge'],
+  ['Next.js', 'App Router on Vercel'],
   ['Tailwind CSS', 'Utility-first styling'],
-  ['Vercel', 'Zero-cost hosting'],
+  ['Supabase', 'Auth, Postgres, optional sync'],
+  ['Vercel', 'Static + serverless hosting'],
 ];
 
 export default function AboutPage() {
@@ -107,7 +109,19 @@ export default function AboutPage() {
             <span className="ndl-gradient-text">engineers trust.</span>
           </h1>
           <p className="ndl-anim-3 text-slate-400 font-light max-w-xl leading-relaxed text-base sm:text-lg">
-            NexusDigitalLabs is a software studio focused on engineering minimalist, privacy-first utilities. No framework bloat. Optional accounts only when they add clear value. No compromises on the tools that stay local.
+            NexusDigitalLabs is an independent, privacy-first software project. We engineer minimalist web utilities, articles, and browser games — calculation tools run fully client-side so your inputs stay in the browser unless you opt into sync or sign-in.
+          </p>
+          <p className="ndl-anim-3 mt-4 text-sm text-slate-500 font-light">
+            Maintained in the open on{' '}
+            <a
+              href="https://github.com/NexusDigitalLabs"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:text-blue-300 underline-offset-4 hover:underline"
+            >
+              github.com/NexusDigitalLabs
+            </a>
+            .
           </p>
         </div>
       </section>
@@ -178,7 +192,11 @@ export default function AboutPage() {
             <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-3">Tech stack</p>
             <h2 className="text-2xl font-light text-white tracking-tight">Intentionally lean.</h2>
           </ScrollReveal>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <p className="text-sm text-slate-400 font-light leading-relaxed mb-8 max-w-2xl">
+            The public site is a Next.js App Router app written in TypeScript and React, styled with Tailwind CSS, and hosted on Vercel.
+            Optional accounts, Fuel Tracker sync, and page-view counters use Supabase (Postgres + Auth). Most calculators and generators never send your document or number inputs to our servers.
+          </p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             {STACK.map(([name, sub], i) => (
               <ScrollReveal key={name} delay={i * 80}>
                 <div className="p-4 rounded-xl bg-slate-900/40 border border-slate-800/50 text-center">
@@ -200,7 +218,7 @@ export default function AboutPage() {
           </ScrollReveal>
           <div className="space-y-6 max-w-2xl">
             {[
-              { q: 'Who built NexusDigitalLabs?', a: 'NexusDigitalLabs is an independent software studio. The tools, articles, and games on this site are built and maintained by a small team of developers focused on building useful things without unnecessary complexity.' },
+              { q: 'Who built NexusDigitalLabs?', a: 'NexusDigitalLabs is an independent software project. The tools, articles, and games are built and maintained by developers shipping from the NexusDigitalLabs GitHub organization (github.com/NexusDigitalLabs). We focus on useful, auditable utilities without unnecessary complexity.' },
               { q: 'Are the tools free to use?', a: 'Yes — core tools are free to use with no account required. Optional sign-in unlocks extras such as linking a Fuel Tracker garage to your account. We may introduce premium features later, but core functionality stays free.' },
               { q: 'Do you collect any user data?', a: 'Most tools process everything in your browser. Fuel Tracker stores vehicles and fill-ups under a sync code you choose (no email required). If you sign in, we store account profile data (email, display name, avatar) via Supabase Auth, optional garage linking, optional game high-score sync, and optional Invoice/Debt cloud drafts you explicitly enable. Contact form messages are emailed to us via our provider. Analytics (Umami), page counters, and ads (where shown) are disclosed in the Privacy Policy.' },
               { q: 'Can I suggest a tool or feature?', a: 'Yes. Use the Contact page to send a suggestion. We build what we find genuinely useful, so real-world requests from real users carry a lot of weight in what gets prioritised next.' },

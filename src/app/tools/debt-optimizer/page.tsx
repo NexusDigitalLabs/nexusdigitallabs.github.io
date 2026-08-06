@@ -57,6 +57,42 @@ export default function DebtOptimizerPage() {
           </div>
 
           <div>
+            <p className="text-xs font-semibold tracking-widest text-sky-400 uppercase mb-4">Technical guide</p>
+            <h2 className="text-2xl font-light text-white tracking-tight mb-4">
+              Debt Snowball vs Debt Avalanche — the math
+            </h2>
+            <h3 className="text-lg font-medium text-slate-200 tracking-tight mb-3">
+              How each method orders your payments
+            </h3>
+            <p className="text-slate-400 font-light leading-relaxed text-sm sm:text-base mb-4">
+              Both methods start the same way: every month you pay the required minimum on every debt. What differs is where
+              the leftover “extra” goes after those minimums.
+            </p>
+            <ul className="list-disc pl-5 space-y-3 text-sm sm:text-base text-slate-400 font-light mb-4">
+              <li>
+                <strong className="text-slate-200 font-medium">Snowball</strong> orders debts by{' '}
+                <em>lowest remaining balance first</em>. Extra cash clears the smallest balance, then rolls into the next.
+                Interest paid over the full schedule is often higher than Avalanche, but early “wins” can make the plan
+                easier to stick with — especially on irregular freelance income.
+              </li>
+              <li>
+                <strong className="text-slate-200 font-medium">Avalanche</strong> orders by{' '}
+                <em>highest interest rate (APR) first</em>. Extra cash attacks the costliest debt. Mathematically this usually
+                minimizes total interest if you never miss a payment and rates are accurate.
+              </li>
+            </ul>
+            <h3 className="text-lg font-medium text-slate-200 tracking-tight mb-3">
+              What this planner computes
+            </h3>
+            <p className="text-slate-400 font-light leading-relaxed text-sm sm:text-base mb-4">
+              Free cash flow = income − living expenses. After funding all minimums, remaining surplus is split between
+              debt payoff and savings according to Short / Medium / Long. Within the debt budget, this tool applies{' '}
+              <strong className="text-slate-200 font-medium">snowball ordering</strong> (lowest balance first). Use the
+              article below if you want a full Avalanche-vs-Snowball comparison with worked examples before you choose a plan.
+            </p>
+          </div>
+
+          <div>
             <p className="text-xs font-semibold tracking-widest text-sky-400 uppercase mb-4">How to use it</p>
             <h2 className="text-2xl font-light text-white tracking-tight mb-5">Building your debt payoff plan</h2>
             <ol className="space-y-4 text-sm sm:text-base text-slate-400 font-light">
@@ -99,11 +135,19 @@ export default function DebtOptimizerPage() {
             </div>
           </div>
 
-          <div className="pt-6 border-t border-slate-800/40">
+          <div className="pt-6 border-t border-slate-800/40 space-y-4">
             <p className="text-xs font-semibold tracking-widest text-slate-500 uppercase mb-4">Related reading</p>
-            <a href="/articles/avalanche-vs-snowball-debt-payoff/" className="text-sm text-sky-400 hover:text-sky-300 transition-colors no-underline">
-              Avalanche vs Snowball: Which Debt Payoff Method Saves More? →
-            </a>
+            <p className="text-sm text-slate-400 font-light leading-relaxed">
+              Confused about strategies? Read our complete personal finance breakdown:{' '}
+              <a href="/articles/avalanche-vs-snowball-debt-payoff/" className="text-sky-400 hover:text-sky-300 transition-colors underline-offset-4 hover:underline">
+                Avalanche vs Snowball: Which Debt Payoff Method Saves More?
+              </a>
+              .
+            </p>
+            <p className="text-xs text-slate-500 font-light leading-relaxed border-l-2 border-slate-700 pl-4">
+              Not financial advice. This planner is an educational calculator for personal scenarios you enter yourself.
+              It does not recommend products, guarantee outcomes, or replace a licensed adviser.
+            </p>
           </div>
         </div>
       </section>
