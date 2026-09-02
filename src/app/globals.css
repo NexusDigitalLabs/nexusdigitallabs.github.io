@@ -382,7 +382,43 @@ body {
   color: var(--ndl-text) !important;
 }
 
-/* ── Invoice generator inputs (theme-aware) ───────────────────────────────── */
+/* ── Artist portfolio (/p/arjuna-rookantha/) ──────────────────────────────── */
+/* Scoped tokens driven by `data-ar-theme`, which defaults to dark even when   */
+/* the OS prefers light. The hero keeps a fixed dark treatment in both themes  */
+/* because it sits over a photo.                                              */
+.ar-page {
+  --ar-bg:            #121212;
+  --ar-surface:       #1e1e1e;
+  --ar-border:        rgba(255, 255, 255, 0.08);
+  --ar-border-strong: rgba(255, 255, 255, 0.12);
+  --ar-border-accent: rgba(212, 175, 55, 0.35);
+  --ar-chip-bg:       rgba(255, 255, 255, 0.03);
+  --ar-text:          #f5f5f4;
+  --ar-text-soft:     #d4d4d8;
+  --ar-muted:         #a1a1aa;
+  --ar-faint:         #71717a;
+  --ar-accent:        #d4af37;
+  --ar-accent-text:   #d4af37;
+  --ar-on-accent:     #121212;
+}
+
+[data-ar-theme="light"] .ar-page {
+  --ar-bg:            #faf8f4;
+  --ar-surface:       #ffffff;
+  --ar-border:        rgba(18, 18, 18, 0.1);
+  --ar-border-strong: rgba(18, 18, 18, 0.14);
+  --ar-border-accent: rgba(125, 99, 24, 0.45);
+  --ar-chip-bg:       rgba(18, 18, 18, 0.02);
+  --ar-text:          #17150f;
+  --ar-text-soft:     #3f3b33;
+  --ar-muted:         #5c574c;
+  --ar-faint:         #6f6a5c;
+  --ar-accent:        #d4af37;
+  --ar-accent-text:   #7d6318;
+  --ar-on-accent:     #121212;
+}
+
+/* Invoice generator inputs (theme-aware) ─────────────────────────────────── */
 .ndl-invoice-input {
   background: var(--ndl-input-bg);
   border: 1px solid var(--ndl-input-border);
