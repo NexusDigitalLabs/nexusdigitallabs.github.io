@@ -54,9 +54,15 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-function SocialRow({ onDark = false }: { onDark?: boolean }) {
+function SocialRow({
+  onDark = false,
+  className = '',
+}: {
+  onDark?: boolean;
+  className?: string;
+}) {
   return (
-    <ul className="m-0 flex list-none flex-wrap items-center gap-3 p-0">
+    <ul className={`m-0 flex list-none flex-wrap items-center gap-3 p-0 ${className}`}>
       {SOCIAL_LINKS.map((link) => {
         const Icon = SOCIAL_ICONS[link.key];
         return (
@@ -100,7 +106,7 @@ export default function ArjunaRookanthaPage() {
             height={682}
             fetchPriority="high"
             decoding="async"
-            className="ar-hero-zoom absolute inset-0 h-full w-full object-cover object-[center_30%] opacity-70 sm:object-center"
+            className="ar-hero-zoom absolute inset-0 h-full w-full object-cover object-[center_22%] opacity-70 sm:object-center"
           />
         </div>
         <div
@@ -126,17 +132,19 @@ export default function ArjunaRookanthaPage() {
           >
             AR
           </a>
-          <div className="mr-28 hidden items-center gap-7 text-[11px] font-semibold tracking-[0.18em] uppercase text-white/70 lg:mr-36 lg:flex">
-            <a className={`hover:text-[#D4AF37] ${focusRing}`} href="#about">Biography</a>
-            <a className={`hover:text-[#D4AF37] ${focusRing}`} href="#tracks">Music</a>
-            <a className={`hover:text-[#D4AF37] ${focusRing}`} href="#media">Gallery</a>
-            <a className={`hover:text-[#D4AF37] ${focusRing}`} href="#contact">Booking</a>
+          <div className="mr-28 flex items-center gap-4 text-[10px] font-semibold tracking-[0.16em] uppercase text-white/70 sm:gap-5 lg:mr-36 lg:gap-7 lg:text-[11px] lg:tracking-[0.18em]">
+            <a className={`hover:text-[#D4AF37] lg:hidden ${focusRing}`} href="#tracks">Music</a>
+            <a className={`hover:text-[#D4AF37] lg:hidden ${focusRing}`} href="#contact">Book</a>
+            <a className={`hidden hover:text-[#D4AF37] lg:inline ${focusRing}`} href="#about">Biography</a>
+            <a className={`hidden hover:text-[#D4AF37] lg:inline ${focusRing}`} href="#tracks">Music</a>
+            <a className={`hidden hover:text-[#D4AF37] lg:inline ${focusRing}`} href="#media">Gallery</a>
+            <a className={`hidden hover:text-[#D4AF37] lg:inline ${focusRing}`} href="#contact">Booking</a>
           </div>
         </nav>
 
         <div
           id="top"
-          className="relative mx-auto flex w-full max-w-6xl flex-col justify-end px-5 pt-28 pb-12 sm:px-10 sm:pt-44 sm:pb-20"
+          className="relative mx-auto flex w-full max-w-6xl flex-col justify-end px-5 pt-28 pb-10 sm:px-10 sm:pt-44 sm:pb-20"
         >
           <div className="ndl-anim-1 mb-4 flex items-center gap-3 sm:mb-6">
             <span className="h-px w-8 bg-[#D4AF37]" aria-hidden="true" />
@@ -148,20 +156,20 @@ export default function ArjunaRookanthaPage() {
             {ARTIST.name}
           </h1>
 
-          <div className="mt-7 grid gap-6 border-t border-white/20 pt-6 sm:mt-9 sm:gap-8 sm:pt-7 md:grid-cols-[1fr_auto] md:items-end">
+          <div className="mt-6 grid gap-5 border-t border-white/20 pt-5 sm:mt-9 sm:gap-8 sm:pt-7 md:grid-cols-[1fr_auto] md:items-end">
             <div className="ndl-anim-3 max-w-xl">
               <p className="text-sm leading-relaxed font-light tracking-wide text-white/70 sm:text-base">
                 {ARTIST.tagline}
               </p>
-              <p className="mt-3 max-w-lg text-sm leading-relaxed text-white/55">
+              <p className="mt-3 hidden max-w-lg text-sm leading-relaxed text-white/55 sm:block">
                 Original Sinhala music, expressive live performance, and vocal coaching rooted in
                 storytelling.
               </p>
             </div>
-            <div className="ndl-anim-4 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
+            <div className="ndl-anim-4 grid w-full grid-cols-2 gap-2.5 sm:flex sm:w-auto sm:flex-wrap sm:items-center sm:gap-3">
               <a
                 href="#tracks"
-                className={`inline-flex w-full items-center justify-center bg-[#D4AF37] px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase text-[#121212] transition-colors hover:bg-white sm:w-auto ${focusRing}`}
+                className={`inline-flex items-center justify-center bg-[#D4AF37] px-3 py-3.5 text-[11px] font-semibold tracking-[0.08em] uppercase text-[#121212] transition-colors hover:bg-white sm:px-7 sm:text-xs sm:tracking-[0.12em] ${focusRing}`}
               >
                 Explore music
               </a>
@@ -169,7 +177,7 @@ export default function ArjunaRookanthaPage() {
                 href={CONTACT.whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`inline-flex w-full items-center justify-center gap-2 border border-white/30 px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase text-white transition-colors hover:border-[#D4AF37] hover:text-[#D4AF37] sm:w-auto ${focusRing}`}
+                className={`inline-flex items-center justify-center gap-1.5 border border-white/30 px-3 py-3.5 text-[11px] font-semibold tracking-[0.08em] uppercase text-white transition-colors hover:border-[#D4AF37] hover:text-[#D4AF37] sm:gap-2 sm:px-7 sm:text-xs sm:tracking-[0.12em] ${focusRing}`}
               >
                 <WhatsAppIcon className="h-4 w-4" />
                 Book now
@@ -185,8 +193,8 @@ export default function ArjunaRookanthaPage() {
           <Reveal>
             <SectionLabel>Biography</SectionLabel>
           </Reveal>
-          <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-20">
-            <Reveal>
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-20">
+            <Reveal className="order-2 lg:order-1">
               <div>
                 <h2 className="ar-display mb-6 max-w-xl text-3xl leading-[1.1] font-normal sm:mb-8 sm:text-6xl">
                   A voice shaped by story, emotion, and experiment.
@@ -202,12 +210,12 @@ export default function ArjunaRookanthaPage() {
                 ))}
                 </div>
                 <div className="mt-8">
-                  <SocialRow />
+                  <SocialRow className="justify-center sm:justify-start" />
                 </div>
               </div>
             </Reveal>
-            <Reveal delay={100}>
-              <figure className="relative m-0 max-w-full overflow-hidden sm:overflow-visible">
+            <Reveal delay={100} className="order-1 lg:order-2">
+              <figure className="relative m-0 mx-auto max-w-sm overflow-hidden sm:mx-0 sm:max-w-full sm:overflow-visible">
                 <div className="absolute -right-3 -bottom-3 hidden h-full w-full border border-[var(--ar-border-accent)] sm:block" aria-hidden="true" />
                 <div className="relative aspect-square overflow-hidden bg-[var(--ar-surface)] sm:mr-3 sm:mb-3">
                   <img
@@ -224,18 +232,18 @@ export default function ArjunaRookanthaPage() {
             </Reveal>
           </div>
 
-          <ul className="m-0 mt-12 grid list-none grid-cols-1 border-y border-[var(--ar-border)] p-0 sm:mt-16 sm:grid-cols-3">
+          <ul className="m-0 mt-12 grid list-none grid-cols-3 border-y border-[var(--ar-border)] p-0 sm:mt-16">
               {STATS.map((stat, i) => (
                 <li
                   key={stat.label}
-                  className="border-b border-[var(--ar-border)] last:border-b-0 sm:border-r sm:border-b-0 sm:last:border-r-0"
+                  className="border-r border-[var(--ar-border)] last:border-r-0"
                 >
                   <Reveal delay={i * 80}>
-                    <div className="px-5 py-5 text-center sm:px-6 sm:py-7">
-                      <p className="ar-display text-3xl font-normal text-[var(--ar-accent-text)] sm:text-4xl">
+                    <div className="px-2 py-4 text-center sm:px-6 sm:py-7">
+                      <p className="ar-display text-xl font-normal text-[var(--ar-accent-text)] sm:text-4xl">
                         {stat.value}
                       </p>
-                      <p className="mt-1.5 text-xs tracking-[0.14em] uppercase text-[var(--ar-muted)]">
+                      <p className="mt-1 text-[9px] leading-snug tracking-[0.1em] uppercase text-[var(--ar-muted)] sm:mt-1.5 sm:text-xs sm:tracking-[0.14em]">
                         {stat.label}
                       </p>
                     </div>
@@ -268,7 +276,7 @@ export default function ArjunaRookanthaPage() {
             </div>
           </Reveal>
 
-          <ul className="m-0 grid list-none grid-cols-1 gap-x-8 gap-y-10 p-0 sm:grid-cols-2 sm:gap-y-14 lg:grid-cols-3">
+          <ul className="m-0 grid list-none grid-cols-2 gap-x-3 gap-y-8 p-0 sm:gap-x-8 sm:gap-y-14 lg:grid-cols-3">
             {TRACKS.map((track, i) => (
               <li key={track.title}>
                 <Reveal delay={(i % 3) * 90} className="h-full">
@@ -290,32 +298,32 @@ export default function ArjunaRookanthaPage() {
                         className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.035]"
                       />
                       <span className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/25" aria-hidden="true" />
-                      <span className="absolute right-4 bottom-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#D4AF37] text-[#121212] opacity-100 shadow-xl transition-all duration-300 sm:right-5 sm:bottom-5 sm:h-14 sm:w-14 sm:translate-y-3 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100">
-                        <svg className="h-5 w-5 translate-x-px" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <span className="absolute right-2.5 bottom-2.5 inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#D4AF37] text-[#121212] opacity-100 shadow-xl transition-all duration-300 sm:right-5 sm:bottom-5 sm:h-14 sm:w-14 sm:translate-y-3 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100">
+                        <svg className="h-4 w-4 translate-x-px sm:h-5 sm:w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                           <path d="M8 5v14l11-7z" />
                         </svg>
                       </span>
                     </a>
-                    <div className="mt-4 flex items-start justify-between gap-4 sm:mt-5">
+                    <div className="mt-3 flex items-start justify-between gap-2 sm:mt-5 sm:gap-4">
                       <div>
-                        <p className="mb-2 text-[10px] font-semibold tracking-[0.2em] uppercase text-[var(--ar-accent-text)]">
+                        <p className="mb-1.5 text-[9px] font-semibold tracking-[0.16em] uppercase text-[var(--ar-accent-text)] sm:mb-2 sm:text-[10px] sm:tracking-[0.2em]">
                           {track.genre} · {track.year}
                         </p>
-                        <h3 className="ar-display text-xl font-normal text-[var(--ar-text)] sm:text-2xl">
+                        <h3 className="ar-display text-base font-normal text-[var(--ar-text)] sm:text-2xl">
                           {track.title}
                         </h3>
-                        <p className="mt-1 text-sm font-light text-[var(--ar-muted)]">{track.subtitle}</p>
+                        <p className="mt-1 text-xs font-light text-[var(--ar-muted)] sm:text-sm">{track.subtitle}</p>
                       </div>
-                      <span className="ar-display pt-1 text-sm text-[var(--ar-faint)]" aria-hidden="true">
+                      <span className="ar-display hidden pt-1 text-sm text-[var(--ar-faint)] sm:inline" aria-hidden="true">
                         {String(i + 1).padStart(2, '0')}
                       </span>
                     </div>
-                    <div className="mt-5 flex flex-wrap gap-4 text-xs font-semibold tracking-[0.12em] uppercase">
+                    <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-[11px] font-semibold tracking-[0.1em] uppercase sm:mt-5 sm:gap-4 sm:text-xs sm:tracking-[0.12em]">
                       <a
                         href={track.appleMusicUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={`text-[var(--ar-accent-text)] ${focusRing}`}
+                        className={`inline-flex min-h-10 items-center text-[var(--ar-accent-text)] ${focusRing}`}
                       >
                         Apple Music <span aria-hidden="true">↗</span>
                       </a>
@@ -325,7 +333,7 @@ export default function ArjunaRookanthaPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label={`Watch ${track.title} on YouTube`}
-                        className={`text-[var(--ar-muted)] hover:text-[var(--ar-accent-text)] ${focusRing}`}
+                        className={`inline-flex min-h-10 items-center text-[var(--ar-muted)] hover:text-[var(--ar-accent-text)] ${focusRing}`}
                       >
                         YouTube <span aria-hidden="true">↗</span>
                       </a>
@@ -528,7 +536,7 @@ export default function ArjunaRookanthaPage() {
           </Reveal>
 
           <Reveal delay={120}>
-            <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-9">
+            <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-center sm:gap-9">
               <a
                 href={CONTACT.whatsappUrl}
                 target="_blank"
@@ -539,13 +547,13 @@ export default function ArjunaRookanthaPage() {
                 <WhatsAppIcon className="h-4 w-4" />
                 WhatsApp
               </a>
-              <SocialRow onDark />
+              <SocialRow onDark className="justify-center sm:justify-start" />
             </div>
           </Reveal>
         </div>
       </section>
 
-      <footer className="border-t border-[var(--ar-border)] pb-[env(safe-area-inset-bottom)]">
+      <footer className="border-t border-[var(--ar-border)] pb-[calc(5.5rem+env(safe-area-inset-bottom))] sm:pb-[env(safe-area-inset-bottom)]">
         <Reveal>
           <div className="mx-auto flex max-w-5xl flex-col gap-6 px-5 py-8 sm:flex-row sm:items-start sm:justify-between sm:gap-8 sm:px-10 sm:py-10">
             <div>
@@ -572,6 +580,25 @@ export default function ArjunaRookanthaPage() {
           </div>
         </Reveal>
       </footer>
+
+      {/* Mobile-only sticky booking bar */}
+      <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 sm:hidden">
+        <div
+          className="pointer-events-auto border-t border-white/10 bg-[#121212]/95 px-4 pt-3 backdrop-blur-md"
+          style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
+        >
+          <a
+            href={CONTACT.whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Message on WhatsApp"
+            className={`flex w-full items-center justify-center gap-2 rounded-full bg-[#D4AF37] px-5 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase text-[#121212] ${focusRing}`}
+          >
+            <WhatsAppIcon className="h-4 w-4" />
+            Book on WhatsApp
+          </a>
+        </div>
+      </div>
     </main>
   );
 }

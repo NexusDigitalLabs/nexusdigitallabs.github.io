@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
 declare global {
   interface Navigator {
@@ -20,8 +21,11 @@ const DISMISS_KEY = 'ndl_pwa_dismissed';
  * Android/Chrome: uses beforeinstallprompt. Samsung Internet: directs users
  * to Chrome because Samsung's WebAPK minting server targets an outdated SDK.
  * iOS: Share → Add to Home Screen tips.
+ * Hidden on private /p/* routes (artist portfolios, resumes) so client pages
+ * are not branded as an installable NexusDigitalLabs app.
  */
 export default function PWAInstallBanner() {
+  const pathname = usePathname();
   const [show, setShow] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [isSamsungInternet, setIsSamsungInternet] = useState(false);
@@ -29,7 +33,14 @@ export default function PWAInstallBanner() {
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
 
+  const isPrivatePortfolio = Boolean(pathname?.startsWith('/p/'));
+
   useEffect(() => {
+    if (isPrivatePortfolio) {
+      setShow(false);
+      return;
+    }
+
     const isStandalone =
       window.matchMedia('(display-mode: standalone)').matches ||
       navigator.standalone === true;
@@ -73,7 +84,7 @@ export default function PWAInstallBanner() {
     };
     window.addEventListener('beforeinstallprompt', handler);
     return () => window.removeEventListener('beforeinstallprompt', handler);
-  }, []);
+  }, [isPrivatePortfolio]);
 
   async function handleInstall() {
     if (!deferredPrompt) return;
@@ -94,7 +105,7 @@ export default function PWAInstallBanner() {
     setShow(false);
   }
 
-  if (!show) return null;
+  if (isPrivatePortfolio || !show) return null;
 
   return (
     <div
