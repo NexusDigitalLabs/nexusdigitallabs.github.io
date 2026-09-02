@@ -26,6 +26,23 @@ const focusRing =
 
 const quietLink = `text-[var(--ar-muted)] underline-offset-4 transition-colors duration-200 hover:text-[var(--ar-accent-text)] hover:underline ${focusRing}`;
 
+/** Lighter reveals for this long page — fire early, fade only (see .ar-page CSS). */
+function Reveal({
+  children,
+  className = '',
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+}) {
+  return (
+    <ScrollReveal className={className} delay={delay} threshold={0.01} rootMargin="140px 0px">
+      {children}
+    </ScrollReveal>
+  );
+}
+
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <div className="mb-5">
@@ -74,7 +91,7 @@ export default function ArjunaRookanthaPage() {
       <script dangerouslySetInnerHTML={{ __html: DARK_DEFAULT_BOOT_SCRIPT }} />
 
       {/* ── Hero (fixed dark in both themes — sits over a photo) ─────────── */}
-      <section className="ar-grain relative isolate flex min-h-[calc(100svh-4rem)] overflow-hidden bg-[#121212]">
+      <section className="ar-grain relative isolate flex min-h-svh overflow-hidden bg-[#121212]">
         <div className="ndl-anim-visual absolute inset-0 overflow-hidden">
           <img
             src={ARTIST.coverUrl}
@@ -83,7 +100,7 @@ export default function ArjunaRookanthaPage() {
             height={682}
             fetchPriority="high"
             decoding="async"
-            className="ar-hero-zoom absolute inset-0 h-full w-full object-cover object-center opacity-70"
+            className="ar-hero-zoom absolute inset-0 h-full w-full object-cover object-[center_30%] opacity-70 sm:object-center"
           />
         </div>
         <div
@@ -95,13 +112,13 @@ export default function ArjunaRookanthaPage() {
           }}
         />
         <div
-          className="ar-glow -top-24 -left-24 h-[26rem] w-[26rem]"
+          className="ar-glow -top-24 -left-24 h-[18rem] w-[18rem] sm:h-[26rem] sm:w-[26rem]"
           aria-hidden="true"
         />
 
         <nav
           aria-label="Artist page"
-          className="absolute top-0 right-0 left-0 z-10 mx-auto flex max-w-6xl items-center justify-between px-6 py-7 sm:px-10"
+          className="absolute top-0 right-0 left-0 z-10 mx-auto flex max-w-6xl items-center justify-between px-5 pt-[max(1.25rem,env(safe-area-inset-top))] pb-5 sm:px-10 sm:py-7"
         >
           <a
             href="#top"
@@ -109,7 +126,7 @@ export default function ArjunaRookanthaPage() {
           >
             AR
           </a>
-          <div className="mr-36 hidden items-center gap-7 text-[11px] font-semibold tracking-[0.18em] uppercase text-white/70 lg:flex">
+          <div className="mr-28 hidden items-center gap-7 text-[11px] font-semibold tracking-[0.18em] uppercase text-white/70 lg:mr-36 lg:flex">
             <a className={`hover:text-[#D4AF37] ${focusRing}`} href="#about">Biography</a>
             <a className={`hover:text-[#D4AF37] ${focusRing}`} href="#tracks">Music</a>
             <a className={`hover:text-[#D4AF37] ${focusRing}`} href="#media">Gallery</a>
@@ -119,19 +136,19 @@ export default function ArjunaRookanthaPage() {
 
         <div
           id="top"
-          className="relative mx-auto flex w-full max-w-6xl flex-col justify-end px-6 pt-36 pb-16 sm:px-10 sm:pt-44 sm:pb-20"
+          className="relative mx-auto flex w-full max-w-6xl flex-col justify-end px-5 pt-28 pb-12 sm:px-10 sm:pt-44 sm:pb-20"
         >
-          <div className="ndl-anim-1 mb-6 flex items-center gap-3">
+          <div className="ndl-anim-1 mb-4 flex items-center gap-3 sm:mb-6">
             <span className="h-px w-8 bg-[#D4AF37]" aria-hidden="true" />
-            <p className="text-xs font-semibold tracking-[0.3em] uppercase text-[#D4AF37]">
+            <p className="text-[10px] font-semibold tracking-[0.24em] uppercase text-[#D4AF37] sm:text-xs sm:tracking-[0.3em]">
               Professional singer · Sri Lanka
             </p>
           </div>
-          <h1 className="ar-display ndl-anim-2 max-w-4xl text-[3.35rem] leading-[0.94] font-normal text-[#fafafa] sm:text-8xl lg:text-[7rem]">
+          <h1 className="ar-display ndl-anim-2 max-w-4xl text-[2.65rem] leading-[0.96] font-normal text-[#fafafa] sm:text-8xl lg:text-[7rem]">
             {ARTIST.name}
           </h1>
 
-          <div className="mt-9 grid gap-8 border-t border-white/20 pt-7 md:grid-cols-[1fr_auto] md:items-end">
+          <div className="mt-7 grid gap-6 border-t border-white/20 pt-6 sm:mt-9 sm:gap-8 sm:pt-7 md:grid-cols-[1fr_auto] md:items-end">
             <div className="ndl-anim-3 max-w-xl">
               <p className="text-sm leading-relaxed font-light tracking-wide text-white/70 sm:text-base">
                 {ARTIST.tagline}
@@ -141,10 +158,10 @@ export default function ArjunaRookanthaPage() {
                 storytelling.
               </p>
             </div>
-            <div className="ndl-anim-4 flex flex-wrap items-center gap-3">
+            <div className="ndl-anim-4 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
               <a
                 href="#tracks"
-                className={`inline-flex items-center justify-center bg-[#D4AF37] px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase text-[#121212] transition-colors hover:bg-white ${focusRing}`}
+                className={`inline-flex w-full items-center justify-center bg-[#D4AF37] px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase text-[#121212] transition-colors hover:bg-white sm:w-auto ${focusRing}`}
               >
                 Explore music
               </a>
@@ -152,7 +169,7 @@ export default function ArjunaRookanthaPage() {
                 href={CONTACT.whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`inline-flex items-center justify-center gap-2 border border-white/30 px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase text-white transition-colors hover:border-[#D4AF37] hover:text-[#D4AF37] ${focusRing}`}
+                className={`inline-flex w-full items-center justify-center gap-2 border border-white/30 px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase text-white transition-colors hover:border-[#D4AF37] hover:text-[#D4AF37] sm:w-auto ${focusRing}`}
               >
                 <WhatsAppIcon className="h-4 w-4" />
                 Book now
@@ -164,21 +181,21 @@ export default function ArjunaRookanthaPage() {
 
       {/* ── About ────────────────────────────────────────────────────────── */}
       <section className="border-t border-[var(--ar-border)]" id="about">
-        <div className="mx-auto max-w-6xl px-6 py-20 sm:px-10 sm:py-28">
-          <ScrollReveal>
+        <div className="mx-auto max-w-6xl px-5 py-14 sm:px-10 sm:py-28">
+          <Reveal>
             <SectionLabel>Biography</SectionLabel>
-          </ScrollReveal>
-          <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-20">
-            <ScrollReveal>
+          </Reveal>
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-20">
+            <Reveal>
               <div>
-                <h2 className="ar-display mb-8 max-w-xl text-4xl leading-[1.08] font-normal sm:text-6xl">
+                <h2 className="ar-display mb-6 max-w-xl text-3xl leading-[1.1] font-normal sm:mb-8 sm:text-6xl">
                   A voice shaped by story, emotion, and experiment.
                 </h2>
                 <div className="space-y-5">
                 {ARTIST.bio.map((paragraph) => (
                   <p
                     key={paragraph}
-                    className="text-base leading-[1.8] font-light text-[var(--ar-text-soft)]"
+                    className="text-[0.95rem] leading-[1.8] font-light text-[var(--ar-text-soft)] sm:text-base"
                   >
                     {paragraph}
                   </p>
@@ -188,11 +205,11 @@ export default function ArjunaRookanthaPage() {
                   <SocialRow />
                 </div>
               </div>
-            </ScrollReveal>
-            <ScrollReveal delay={100}>
-              <figure className="relative m-0">
-                <div className="absolute -right-4 -bottom-4 h-full w-full border border-[var(--ar-border-accent)]" aria-hidden="true" />
-                <div className="relative aspect-square overflow-hidden bg-[var(--ar-surface)]">
+            </Reveal>
+            <Reveal delay={100}>
+              <figure className="relative m-0 max-w-full overflow-hidden sm:overflow-visible">
+                <div className="absolute -right-3 -bottom-3 hidden h-full w-full border border-[var(--ar-border-accent)] sm:block" aria-hidden="true" />
+                <div className="relative aspect-square overflow-hidden bg-[var(--ar-surface)] sm:mr-3 sm:mb-3">
                   <img
                     src={ARTIST.portraitUrl}
                     alt={`Portrait of ${ARTIST.name}`}
@@ -204,25 +221,25 @@ export default function ArjunaRookanthaPage() {
                   />
                 </div>
               </figure>
-            </ScrollReveal>
+            </Reveal>
           </div>
 
-          <ul className="m-0 mt-16 grid list-none grid-cols-1 border-y border-[var(--ar-border)] p-0 sm:grid-cols-3">
+          <ul className="m-0 mt-12 grid list-none grid-cols-1 border-y border-[var(--ar-border)] p-0 sm:mt-16 sm:grid-cols-3">
               {STATS.map((stat, i) => (
                 <li
                   key={stat.label}
                   className="border-b border-[var(--ar-border)] last:border-b-0 sm:border-r sm:border-b-0 sm:last:border-r-0"
                 >
-                  <ScrollReveal delay={i * 80}>
-                    <div className="px-6 py-7 text-center">
-                      <p className="ar-display text-4xl font-normal text-[var(--ar-accent-text)]">
+                  <Reveal delay={i * 80}>
+                    <div className="px-5 py-5 text-center sm:px-6 sm:py-7">
+                      <p className="ar-display text-3xl font-normal text-[var(--ar-accent-text)] sm:text-4xl">
                         {stat.value}
                       </p>
                       <p className="mt-1.5 text-xs tracking-[0.14em] uppercase text-[var(--ar-muted)]">
                         {stat.label}
                       </p>
                     </div>
-                  </ScrollReveal>
+                  </Reveal>
                 </li>
               ))}
           </ul>
@@ -231,11 +248,11 @@ export default function ArjunaRookanthaPage() {
 
       {/* ── Discography ──────────────────────────────────────────────────── */}
       <section className="border-t border-[var(--ar-border)]" id="tracks">
-        <div className="mx-auto max-w-6xl px-6 py-20 sm:px-10 sm:py-28">
-          <ScrollReveal>
+        <div className="mx-auto max-w-6xl px-5 py-14 sm:px-10 sm:py-28">
+          <Reveal>
             <SectionLabel>Latest releases</SectionLabel>
-            <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
-              <h2 className="ar-display max-w-2xl text-4xl leading-tight font-normal sm:text-6xl">
+            <div className="mb-8 flex flex-wrap items-end justify-between gap-4 sm:mb-10">
+              <h2 className="ar-display max-w-2xl text-3xl leading-tight font-normal sm:text-6xl">
                 Music made to be felt.
               </h2>
               {spotifyUrl ? (
@@ -249,12 +266,12 @@ export default function ArjunaRookanthaPage() {
                 </a>
               ) : null}
             </div>
-          </ScrollReveal>
+          </Reveal>
 
-          <ul className="m-0 grid list-none grid-cols-1 gap-x-8 gap-y-14 p-0 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="m-0 grid list-none grid-cols-1 gap-x-8 gap-y-10 p-0 sm:grid-cols-2 sm:gap-y-14 lg:grid-cols-3">
             {TRACKS.map((track, i) => (
               <li key={track.title}>
-                <ScrollReveal delay={(i % 3) * 90} className="h-full">
+                <Reveal delay={(i % 3) * 90} className="h-full">
                   <article className="group">
                     <a
                       href={track.appleMusicUrl}
@@ -273,18 +290,18 @@ export default function ArjunaRookanthaPage() {
                         className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.035]"
                       />
                       <span className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/25" aria-hidden="true" />
-                      <span className="absolute right-5 bottom-5 inline-flex h-14 w-14 translate-y-3 items-center justify-center rounded-full bg-[#D4AF37] text-[#121212] opacity-0 shadow-xl transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                      <span className="absolute right-4 bottom-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#D4AF37] text-[#121212] opacity-100 shadow-xl transition-all duration-300 sm:right-5 sm:bottom-5 sm:h-14 sm:w-14 sm:translate-y-3 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100">
                         <svg className="h-5 w-5 translate-x-px" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                           <path d="M8 5v14l11-7z" />
                         </svg>
                       </span>
                     </a>
-                    <div className="mt-5 flex items-start justify-between gap-4">
+                    <div className="mt-4 flex items-start justify-between gap-4 sm:mt-5">
                       <div>
                         <p className="mb-2 text-[10px] font-semibold tracking-[0.2em] uppercase text-[var(--ar-accent-text)]">
                           {track.genre} · {track.year}
                         </p>
-                        <h3 className="ar-display text-2xl font-normal text-[var(--ar-text)]">
+                        <h3 className="ar-display text-xl font-normal text-[var(--ar-text)] sm:text-2xl">
                           {track.title}
                         </h3>
                         <p className="mt-1 text-sm font-light text-[var(--ar-muted)]">{track.subtitle}</p>
@@ -315,7 +332,7 @@ export default function ArjunaRookanthaPage() {
                       ) : null}
                     </div>
                   </article>
-                </ScrollReveal>
+                </Reveal>
               </li>
             ))}
           </ul>
@@ -324,15 +341,15 @@ export default function ArjunaRookanthaPage() {
 
       {/* ── Media ────────────────────────────────────────────────────────── */}
       <section className="border-t border-[var(--ar-border)]" id="media">
-        <div className="mx-auto max-w-6xl px-6 py-20 sm:px-10 sm:py-28">
-          <ScrollReveal>
+        <div className="mx-auto max-w-6xl px-5 py-14 sm:px-10 sm:py-28">
+          <Reveal>
             <SectionLabel>Media</SectionLabel>
-            <h2 className="ar-display mb-10 text-3xl font-normal sm:text-4xl">Video highlights</h2>
-          </ScrollReveal>
+            <h2 className="ar-display mb-8 text-2xl font-normal sm:mb-10 sm:text-4xl">Video highlights</h2>
+          </Reveal>
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {FEATURED_VIDEOS.map((video, i) => (
-              <ScrollReveal key={video.videoId} delay={i * 100}>
+              <Reveal key={video.videoId} delay={i * 100}>
                 <figure className="m-0">
                   {video.embeddable ? (
                     <div className="overflow-hidden rounded-2xl border border-[var(--ar-border)] bg-[var(--ar-surface)]">
@@ -402,19 +419,19 @@ export default function ArjunaRookanthaPage() {
                     </a>
                   </figcaption>
                 </figure>
-              </ScrollReveal>
+              </Reveal>
             ))}
           </div>
 
-          <ScrollReveal className="mt-20 mb-8">
+          <Reveal className="mt-14 mb-6 sm:mt-20 sm:mb-8">
             <SectionLabel>Gallery</SectionLabel>
-            <h2 className="ar-display text-4xl font-normal sm:text-6xl">Behind the music.</h2>
-          </ScrollReveal>
+            <h2 className="ar-display text-3xl font-normal sm:text-6xl">Behind the music.</h2>
+          </Reveal>
           <ul className="m-0 grid list-none grid-cols-1 gap-3 p-0 sm:grid-cols-3">
             {GALLERY_SLOTS.map((slot, i) => (
               <li key={slot.title}>
-                <ScrollReveal delay={i * 90} className="h-full">
-                  <div className="group relative aspect-[4/5] h-full overflow-hidden bg-[#161616]">
+                <Reveal delay={i * 90} className="h-full">
+                  <div className="group relative aspect-[5/4] h-full overflow-hidden bg-[#161616] sm:aspect-[4/5]">
                     <img
                       src={slot.imageUrl}
                       alt=""
@@ -422,26 +439,26 @@ export default function ArjunaRookanthaPage() {
                       height={935}
                       loading="lazy"
                       decoding="async"
-                      className="h-full w-full object-cover grayscale-[35%] transition-all duration-700 group-hover:scale-105 group-hover:grayscale-0"
+                      className="h-full w-full object-cover grayscale-[20%] transition-all duration-700 sm:grayscale-[35%] group-hover:scale-105 group-hover:grayscale-0"
                     />
                     <div
-                      className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-transparent"
+                      className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/15 to-transparent"
                       aria-hidden="true"
                     />
-                    <div className="absolute right-0 bottom-0 left-0 p-6 text-white">
-                      <p className="ar-display text-xl font-normal">{slot.title}</p>
+                    <div className="absolute right-0 bottom-0 left-0 p-5 text-white sm:p-6">
+                      <p className="ar-display text-lg font-normal sm:text-xl">{slot.title}</p>
                       <p className="mt-1.5 text-xs leading-relaxed font-light text-white/65">
                         {slot.description}
                       </p>
                     </div>
                   </div>
-                </ScrollReveal>
+                </Reveal>
               </li>
             ))}
           </ul>
 
           {youtubeUrl ? (
-            <ScrollReveal>
+            <Reveal>
               <p className="mt-8 text-sm font-light text-[var(--ar-muted)]">
                 More performances on the{' '}
                 <a
@@ -453,36 +470,36 @@ export default function ArjunaRookanthaPage() {
                   official YouTube channel <span aria-hidden="true">↗</span>
                 </a>
               </p>
-            </ScrollReveal>
+            </Reveal>
           ) : null}
         </div>
       </section>
 
       {/* ── Services ─────────────────────────────────────────────────────── */}
       <section className="border-t border-[var(--ar-border)]" id="services">
-        <div className="mx-auto max-w-6xl px-6 py-20 sm:px-10 sm:py-28">
-          <ScrollReveal>
+        <div className="mx-auto max-w-6xl px-5 py-14 sm:px-10 sm:py-28">
+          <Reveal>
             <SectionLabel>Work together</SectionLabel>
-            <h2 className="ar-display mb-12 max-w-2xl text-4xl leading-tight font-normal sm:text-6xl">
+            <h2 className="ar-display mb-8 max-w-2xl text-3xl leading-tight font-normal sm:mb-12 sm:text-6xl">
               Music for stages, stories, and new voices.
             </h2>
-          </ScrollReveal>
+          </Reveal>
           <ul className="m-0 list-none border-t border-[var(--ar-border)] p-0">
             {SERVICES.map((service, i) => (
               <li key={service.title}>
-                <ScrollReveal delay={(i % 2) * 100}>
-                  <div className="grid gap-3 border-b border-[var(--ar-border)] py-7 sm:grid-cols-[5rem_1fr_1.2fr] sm:items-baseline sm:gap-8">
+                <Reveal delay={(i % 2) * 100}>
+                  <div className="grid gap-2 border-b border-[var(--ar-border)] py-6 sm:grid-cols-[5rem_1fr_1.2fr] sm:items-baseline sm:gap-8 sm:py-7">
                     <span className="text-xs font-semibold tracking-[0.2em] text-[var(--ar-accent-text)]">
                       {String(i + 1).padStart(2, '0')}
                     </span>
-                    <h3 className="ar-display text-2xl font-normal text-[var(--ar-text)]">
+                    <h3 className="ar-display text-xl font-normal text-[var(--ar-text)] sm:text-2xl">
                       {service.title}
                     </h3>
                     <p className="text-sm leading-relaxed font-light text-[var(--ar-muted)]">
                       {service.description}
                     </p>
                   </div>
-                </ScrollReveal>
+                </Reveal>
               </li>
             ))}
           </ul>
@@ -495,42 +512,42 @@ export default function ArjunaRookanthaPage() {
         id="contact"
       >
         <div
-          className="ar-glow -bottom-32 left-1/2 h-[24rem] w-[24rem] -translate-x-1/2"
+          className="ar-glow -bottom-32 left-1/2 h-[16rem] w-[16rem] -translate-x-1/2 sm:h-[24rem] sm:w-[24rem]"
           aria-hidden="true"
         />
-        <div className="relative mx-auto max-w-6xl px-6 py-24 sm:px-10 sm:py-32">
-          <ScrollReveal>
+        <div className="relative mx-auto max-w-6xl px-5 py-16 sm:px-10 sm:py-32">
+          <Reveal>
             <SectionLabel>Bookings</SectionLabel>
-            <h2 className="ar-display mb-6 max-w-4xl text-5xl leading-[1.02] font-normal sm:text-7xl">
+            <h2 className="ar-display mb-5 max-w-4xl text-3xl leading-[1.08] font-normal sm:mb-6 sm:text-7xl">
               Let&apos;s make something memorable.
             </h2>
-            <p className="mb-12 max-w-xl text-base leading-relaxed font-light text-white/60">
+            <p className="mb-8 max-w-xl text-sm leading-relaxed font-light text-white/60 sm:mb-12 sm:text-base">
               Message {ARTIST.studioName} on WhatsApp with your event type, date, and location for
               availability and rates.
             </p>
-          </ScrollReveal>
+          </Reveal>
 
-          <ScrollReveal delay={120}>
-            <div className="flex flex-col gap-7 sm:flex-row sm:items-center sm:gap-9">
+          <Reveal delay={120}>
+            <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-9">
               <a
                 href={CONTACT.whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Message on WhatsApp"
-                className={`inline-flex w-fit items-center justify-center gap-2.5 rounded-full bg-[var(--ar-accent)] px-7 py-4 text-sm font-semibold tracking-[0.06em] uppercase text-[var(--ar-on-accent)] shadow-[0_16px_36px_-16px_rgba(212,175,55,0.75)] transition-transform duration-200 hover:-translate-y-0.5 hover:opacity-95 ${focusRing}`}
+                className={`inline-flex w-full items-center justify-center gap-2.5 rounded-full bg-[var(--ar-accent)] px-7 py-4 text-sm font-semibold tracking-[0.06em] uppercase text-[var(--ar-on-accent)] shadow-[0_16px_36px_-16px_rgba(212,175,55,0.75)] transition-transform duration-200 hover:-translate-y-0.5 hover:opacity-95 sm:w-fit ${focusRing}`}
               >
                 <WhatsAppIcon className="h-4 w-4" />
                 WhatsApp
               </a>
               <SocialRow onDark />
             </div>
-          </ScrollReveal>
+          </Reveal>
         </div>
       </section>
 
-      <footer className="border-t border-[var(--ar-border)]">
-        <ScrollReveal>
-          <div className="mx-auto flex max-w-5xl flex-col gap-8 px-6 py-10 sm:flex-row sm:items-start sm:justify-between sm:px-10">
+      <footer className="border-t border-[var(--ar-border)] pb-[env(safe-area-inset-bottom)]">
+        <Reveal>
+          <div className="mx-auto flex max-w-5xl flex-col gap-6 px-5 py-8 sm:flex-row sm:items-start sm:justify-between sm:gap-8 sm:px-10 sm:py-10">
             <div>
               <p className="text-sm font-light text-[var(--ar-muted)]">
                 © {new Date().getFullYear()} {ARTIST.studioName}
@@ -553,7 +570,7 @@ export default function ArjunaRookanthaPage() {
               </p>
             </div>
           </div>
-        </ScrollReveal>
+        </Reveal>
       </footer>
     </main>
   );

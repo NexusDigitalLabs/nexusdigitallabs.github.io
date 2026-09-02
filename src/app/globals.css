@@ -462,15 +462,54 @@ body {
   background: radial-gradient(circle, rgba(212, 175, 55, 0.26) 0%, transparent 70%);
 }
 
-/* Film grain over the hero photo so it reads as artwork, not a stock image. */
+/*
+ * Cheap film grain — CSS dots only. SVG feTurbulence was causing mobile scroll
+ * jank because the filter re-composites on every frame during scroll.
+ */
 .ar-grain::after {
   content: '';
   position: absolute;
   inset: 0;
   pointer-events: none;
-  opacity: 0.07;
+  opacity: 0.045;
   mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/></filter><rect width='140' height='140' filter='url(%23n)'/></svg>");
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.35) 0.6px, transparent 0.7px),
+    radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.28) 0.5px, transparent 0.6px),
+    radial-gradient(circle at 40% 80%, rgba(0, 0, 0, 0.35) 0.55px, transparent 0.65px);
+  background-size: 3px 3px, 4px 4px, 5px 5px;
+}
+
+/* Artist page: fade-only reveals (no translateY) — cheaper during scroll. */
+.ar-page .ndl-reveal {
+  transform: none;
+  transition: opacity 0.4s ease;
+}
+.ar-page .ndl-reveal.ndl-revealed {
+  transform: none;
+}
+
+/* Hash targets clear the fixed theme toggle. */
+.ar-page section[id] {
+  scroll-margin-top: 4.5rem;
+}
+
+.ar-page {
+  overflow-x: clip;
+}
+
+@media (max-width: 640px) {
+  .ar-glow {
+    filter: blur(36px);
+    opacity: 0.75;
+  }
+  .ar-grain::after {
+    display: none;
+  }
+  .ar-hero-zoom {
+    animation: none;
+    transform: none;
+  }
 }
 
 /* Hairline that fades out — separates labels from headings. */

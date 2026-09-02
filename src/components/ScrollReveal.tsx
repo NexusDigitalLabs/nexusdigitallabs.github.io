@@ -8,6 +8,8 @@ interface Props {
   /** CSS transition-delay applied when the element becomes visible. */
   delay?: number; // milliseconds
   threshold?: number;
+  /** Expand the observer root so elements reveal before they fully enter. */
+  rootMargin?: string;
 }
 
 /**
@@ -24,6 +26,7 @@ export default function ScrollReveal({
   className = '',
   delay = 0,
   threshold = 0.12,
+  rootMargin = '0px',
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -40,12 +43,12 @@ export default function ScrollReveal({
           }
         });
       },
-      { threshold }
+      { threshold, rootMargin }
     );
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, [threshold]);
+  }, [threshold, rootMargin]);
 
   return (
     <div
