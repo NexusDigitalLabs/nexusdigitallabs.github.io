@@ -5,7 +5,10 @@ export const ARTIST = {
   studioName: 'Arjuna Rookantha Studios',
   tagline: 'Singer | Songwriter | Music Composer | Vocal Coach',
   location: 'Sri Lanka',
-  portraitUrl: 'https://i.ytimg.com/vi/44XXpDb13lA/maxresdefault.jpg',
+  /** Wide live shot behind the hero. */
+  coverUrl: '/p/arjuna-rookantha/cover.jpg',
+  /** Studio headshot used beside the biography. */
+  portraitUrl: '/p/arjuna-rookantha/portrait.jpg',
   bio: [
     'Arjuna Rookantha is a Sri Lankan singer-songwriter, composer, and vocal coach whose contemporary Sinhala music blends storytelling with expressive, experimental sound.',
     'Raised in a family of musicians, he first performed with a band at age 13 and later reached a national audience as the runner-up of Sirasa Super Star Season 3. Alongside original releases and live performances, he helps vocal students develop authentic voices rooted in emotion and storytelling.',
@@ -13,7 +16,6 @@ export const ARTIST = {
 } as const;
 
 export const CONTACT = {
-  phoneDisplay: '+94 77 706 9526',
   whatsappUrl:
     'https://wa.me/94777069526?text=Hello%20Arjuna%20Rookantha%20Studios%2C%20I%20would%20like%20to%20make%20a%20booking%20inquiry.',
 } as const;
@@ -48,15 +50,17 @@ export const SOCIAL_LINKS = [
 
 export const STATS = [
   { value: '10+', label: 'Years of music' },
-  { value: '7', label: 'Featured tracks' },
+  { value: '6', label: 'Official releases' },
   { value: 'Live', label: 'Events & coaching' },
 ] as const;
 
 export type Track = {
   title: string;
   subtitle: string;
-  /** Omitted when no release year has been verified. */
-  year?: string;
+  year: string;
+  genre: string;
+  appleMusicUrl: string;
+  artworkUrl: string;
   /** Verified YouTube watch URL, when one exists. */
   watchUrl?: string;
 };
@@ -64,38 +68,65 @@ export type Track = {
 export const TRACKS: Track[] = [
   {
     title: 'Roo Chaaya',
-    subtitle: 'Latest single',
+    subtitle: 'with Hirushi',
     year: '2025',
+    genre: 'Pop',
+    appleMusicUrl:
+      'https://music.apple.com/us/album/roo-chaaya/1801554738?i=1801554739',
+    artworkUrl:
+      'https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/d3/4d/39/d34d3934-0c29-6804-f730-a06b6eea793b/764656209681_cover.jpg/800x800bb.jpg',
   },
   {
     title: 'Nanaprakarai',
     subtitle: 'feat. Hirushi',
     year: '2024',
+    genre: 'Experimental',
+    appleMusicUrl:
+      'https://music.apple.com/us/album/nanaprakarai-feat-hirushi/1775458667?i=1775458668',
+    artworkUrl:
+      'https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/89/3f/23/893f23ae-43db-d8ca-0f0f-1caa176483e8/797885483843_cover.jpg/800x800bb.jpg',
   },
   {
-    title: 'Prathirawe',
+    title: 'Prathiraawe',
     subtitle: 'ප්‍රතිරාවේ',
     year: '2018',
+    genre: 'Classical',
+    appleMusicUrl:
+      'https://music.apple.com/us/album/prathiraawe/1690405575?i=1690405996',
+    artworkUrl:
+      'https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/84/3e/16/843e1645-46d2-7d66-ae11-1cf3f17c9e55/617513600100_cover.jpg/800x800bb.jpg',
     watchUrl: 'https://www.youtube.com/watch?v=xMYV1tYE8OQ',
   },
   {
     title: 'Himidiri Yaame',
     subtitle: 'හිමිදිරි යාමේ',
     year: '2014',
+    genre: 'Classical',
+    appleMusicUrl:
+      'https://music.apple.com/us/album/himidiri-yaame/1699629931?i=1699629932',
+    artworkUrl:
+      'https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/9b/40/7d/9b407d1e-b71b-54d1-8d5a-ad2d0431698e/617513708349_cover.jpg/800x800bb.jpg',
   },
   {
-    title: 'Sodi Lamahasa',
+    title: 'Kiri Sudu Sele',
+    subtitle: 'කිරි සුදු සේලේ',
+    year: '2012',
+    genre: 'Pop',
+    appleMusicUrl:
+      'https://music.apple.com/us/album/kiri-sudu-sele/662777245?i=662777363',
+    artworkUrl:
+      'https://is1-ssl.mzstatic.com/image/thumb/Music4/v4/6f/dc/58/6fdc58ce-a1a5-6c4c-5e15-4a8fa589e7e1/887396159655.jpg/800x800bb.jpg',
+  },
+  {
+    title: 'Sodi Lama Hasa',
     subtitle: 'සෝඩි ළමාහස',
     year: '2012',
+    genre: 'Pop',
+    appleMusicUrl:
+      'https://music.apple.com/us/album/sodi-lama-hasa/660025163?i=660025165',
+    artworkUrl:
+      'https://is1-ssl.mzstatic.com/image/thumb/Music/v4/07/89/f9/0789f946-c811-c711-5583-fcb7da7f3f3a/887396163669.jpg/800x800bb.jpg',
     watchUrl: 'https://www.youtube.com/watch?v=44XXpDb13lA',
-  },
-  {
-    title: 'Sarpaya',
-    subtitle: 'සර්පයා',
-  },
-  {
-    title: 'Saminde',
-    subtitle: 'සමින්දේ',
   },
 ];
 
@@ -129,14 +160,17 @@ export const GALLERY_SLOTS = [
   {
     title: 'Live Performances',
     description: 'On stage with band and acoustic arrangements.',
+    imageUrl: '/p/arjuna-rookantha/live.jpg',
   },
   {
     title: 'Studio Sessions',
     description: 'Writing, recording, and shaping original music.',
+    imageUrl: '/p/arjuna-rookantha/studio.jpg',
   },
   {
     title: 'Artist Portraits',
     description: 'Promotional photography and creative direction.',
+    imageUrl: '/p/arjuna-rookantha/portrait.jpg',
   },
 ] as const;
 
