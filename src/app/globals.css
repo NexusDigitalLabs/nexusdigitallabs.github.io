@@ -189,6 +189,31 @@ body {
   pointer-events: auto;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .ndl-anim-1,
+  .ndl-anim-2,
+  .ndl-anim-3,
+  .ndl-anim-4,
+  .ndl-anim-5,
+  .ndl-anim-visual,
+  .ndl-float-a,
+  .ndl-float-b,
+  .ndl-float-c,
+  .ndl-gradient-text,
+  .ndl-skeleton {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .ndl-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    pointer-events: auto !important;
+  }
+}
+
 /* ── Skeleton shimmer ─────────────────────────────────────────────────────── */
 .ndl-skeleton {
   background: linear-gradient(90deg, var(--ndl-skeleton-a) 25%, var(--ndl-skeleton-b) 50%, var(--ndl-skeleton-a) 75%);
@@ -383,9 +408,9 @@ body {
 }
 
 /* ── Artist portfolio (/p/arjuna-rookantha/) ──────────────────────────────── */
-/* Scoped tokens driven by `data-ar-theme`, which defaults to dark even when   */
-/* the OS prefers light. The hero keeps a fixed dark treatment in both themes  */
-/* because it sits over a photo.                                              */
+/* Scoped tokens that follow the site theme toggle. The page seeds a dark      */
+/* preference on first visit; the hero keeps a fixed dark treatment in both    */
+/* themes because it sits over a photo.                                       */
 .ar-page {
   --ar-bg:            #121212;
   --ar-surface:       #1e1e1e;
@@ -402,7 +427,7 @@ body {
   --ar-on-accent:     #121212;
 }
 
-[data-ar-theme="light"] .ar-page {
+[data-theme="light"] .ar-page {
   --ar-bg:            #faf8f4;
   --ar-surface:       #ffffff;
   --ar-border:        rgba(18, 18, 18, 0.1);

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import ScrollReveal from '@/components/ScrollReveal';
 import { SITE_NAME, SITE_URL } from '@/lib/seo';
 import {
   ARTIST,
@@ -11,7 +12,7 @@ import {
   TRACKS,
 } from './content';
 import { SOCIAL_ICONS, WhatsAppIcon } from './icons';
-import ThemeScope, { AR_THEME_BOOT_SCRIPT } from './ThemeScope';
+import { DARK_DEFAULT_BOOT_SCRIPT } from './theme-default';
 
 export const metadata: Metadata = {
   title: { absolute: `${ARTIST.name} — ${ARTIST.tagline}` },
@@ -67,20 +68,21 @@ export default function ArjunaRookanthaPage() {
 
   return (
     <main className="ar-page min-h-screen bg-[var(--ar-bg)] text-[var(--ar-text)] antialiased">
-      <script dangerouslySetInnerHTML={{ __html: AR_THEME_BOOT_SCRIPT }} />
-      <ThemeScope />
+      <script dangerouslySetInnerHTML={{ __html: DARK_DEFAULT_BOOT_SCRIPT }} />
 
       {/* ── Hero (fixed dark in both themes — sits over a photo) ─────────── */}
       <section className="relative isolate overflow-hidden bg-[#121212]">
-        <img
-          src={ARTIST.portraitUrl}
-          alt={`${ARTIST.name} performing`}
-          width={1280}
-          height={720}
-          fetchPriority="high"
-          decoding="async"
-          className="absolute inset-0 h-full w-full object-cover object-center opacity-45"
-        />
+        <div className="ndl-anim-visual absolute inset-0">
+          <img
+            src={ARTIST.portraitUrl}
+            alt={`${ARTIST.name} performing`}
+            width={1280}
+            height={720}
+            fetchPriority="high"
+            decoding="async"
+            className="absolute inset-0 h-full w-full object-cover object-center opacity-45"
+          />
+        </div>
         <div
           className="absolute inset-0"
           aria-hidden="true"
@@ -91,18 +93,18 @@ export default function ArjunaRookanthaPage() {
         />
 
         <div className="relative mx-auto max-w-5xl px-6 pt-28 pb-20 sm:px-10 sm:pt-36 sm:pb-28">
-          <p className="mb-5 text-xs font-semibold tracking-[0.28em] uppercase text-[#D4AF37]">
+          <p className="ndl-anim-1 mb-5 text-xs font-semibold tracking-[0.28em] uppercase text-[#D4AF37]">
             {ARTIST.studioName}
           </p>
-          <h1 className="mb-5 text-4xl leading-[1.08] font-light tracking-tight text-[#fafafa] sm:text-6xl">
+          <h1 className="ndl-anim-2 mb-5 text-4xl leading-[1.08] font-light tracking-tight text-[#fafafa] sm:text-6xl">
             {ARTIST.name}
           </h1>
-          <p className="mb-9 max-w-xl text-base leading-relaxed font-light text-[#d4d4d8] sm:text-lg">
+          <p className="ndl-anim-3 mb-9 max-w-xl text-base leading-relaxed font-light text-[#d4d4d8] sm:text-lg">
             {ARTIST.tagline}
           </p>
 
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-8">
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="ndl-anim-4 flex flex-wrap items-center gap-3">
               <a
                 href="#tracks"
                 className={`inline-flex items-center justify-center rounded-full bg-[#D4AF37] px-6 py-3 text-sm font-semibold tracking-[0.06em] uppercase text-[#121212] transition-opacity duration-200 hover:opacity-90 ${focusRing}`}
@@ -119,7 +121,9 @@ export default function ArjunaRookanthaPage() {
                 Book for events
               </a>
             </div>
-            <SocialRow onDark />
+            <div className="ndl-anim-5">
+              <SocialRow onDark />
+            </div>
           </div>
         </div>
       </section>
@@ -127,28 +131,33 @@ export default function ArjunaRookanthaPage() {
       {/* ── About ────────────────────────────────────────────────────────── */}
       <section className="border-t border-[var(--ar-border)]" id="about">
         <div className="mx-auto max-w-5xl px-6 py-20 sm:px-10 sm:py-24">
-          <SectionLabel>About the artist</SectionLabel>
+          <ScrollReveal>
+            <SectionLabel>About the artist</SectionLabel>
+          </ScrollReveal>
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1.6fr_1fr] lg:gap-16">
-            <div className="space-y-5">
-              {ARTIST.bio.map((paragraph) => (
-                <p
-                  key={paragraph}
-                  className="text-base leading-[1.8] font-light text-[var(--ar-text-soft)]"
-                >
-                  {paragraph}
-                </p>
-              ))}
-            </div>
-            <ul className="m-0 grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-3 lg:grid-cols-1">
-              {STATS.map((stat) => (
-                <li
-                  key={stat.label}
-                  className="rounded-2xl border border-[var(--ar-border)] bg-[var(--ar-surface)] px-5 py-5"
-                >
-                  <p className="text-2xl font-light tracking-tight text-[var(--ar-accent-text)]">
-                    {stat.value}
+            <ScrollReveal>
+              <div className="space-y-5">
+                {ARTIST.bio.map((paragraph) => (
+                  <p
+                    key={paragraph}
+                    className="text-base leading-[1.8] font-light text-[var(--ar-text-soft)]"
+                  >
+                    {paragraph}
                   </p>
-                  <p className="mt-1 text-sm font-light text-[var(--ar-muted)]">{stat.label}</p>
+                ))}
+              </div>
+            </ScrollReveal>
+            <ul className="m-0 grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-3 lg:grid-cols-1">
+              {STATS.map((stat, i) => (
+                <li key={stat.label}>
+                  <ScrollReveal delay={i * 80}>
+                    <div className="rounded-2xl border border-[var(--ar-border)] bg-[var(--ar-surface)] px-5 py-5">
+                      <p className="text-2xl font-light tracking-tight text-[var(--ar-accent-text)]">
+                        {stat.value}
+                      </p>
+                      <p className="mt-1 text-sm font-light text-[var(--ar-muted)]">{stat.label}</p>
+                    </div>
+                  </ScrollReveal>
                 </li>
               ))}
             </ul>
@@ -159,54 +168,57 @@ export default function ArjunaRookanthaPage() {
       {/* ── Discography ──────────────────────────────────────────────────── */}
       <section className="border-t border-[var(--ar-border)]" id="tracks">
         <div className="mx-auto max-w-5xl px-6 py-20 sm:px-10 sm:py-24">
-          <SectionLabel>Discography</SectionLabel>
-          <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
-            <h2 className="text-2xl font-light tracking-tight sm:text-3xl">Original releases</h2>
-            {spotifyUrl ? (
-              <a
-                href={spotifyUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`text-sm font-medium tracking-wide ${quietLink}`}
-              >
-                Full catalogue on Spotify <span aria-hidden="true">↗</span>
-              </a>
-            ) : null}
-          </div>
+          <ScrollReveal>
+            <SectionLabel>Discography</SectionLabel>
+            <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
+              <h2 className="text-2xl font-light tracking-tight sm:text-3xl">Original releases</h2>
+              {spotifyUrl ? (
+                <a
+                  href={spotifyUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`text-sm font-medium tracking-wide ${quietLink}`}
+                >
+                  Full catalogue on Spotify <span aria-hidden="true">↗</span>
+                </a>
+              ) : null}
+            </div>
+          </ScrollReveal>
 
           <ul className="m-0 grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2 lg:grid-cols-3">
-            {TRACKS.map((track) => (
-              <li
-                key={track.title}
-                className="flex flex-col justify-between rounded-2xl border border-[var(--ar-border)] bg-[var(--ar-surface)] p-6 transition-colors duration-200 hover:border-[var(--ar-border-accent)]"
-              >
-                <div>
-                  <div className="mb-2 flex items-baseline justify-between gap-3">
-                    <h3 className="text-lg font-medium tracking-tight text-[var(--ar-text)]">
-                      {track.title}
-                    </h3>
-                    {track.year ? (
-                      <span className="text-xs tracking-[0.14em] text-[var(--ar-faint)]">
-                        {track.year}
-                      </span>
-                    ) : null}
+            {TRACKS.map((track, i) => (
+              <li key={track.title}>
+                <ScrollReveal delay={(i % 3) * 90} className="h-full">
+                  <div className="flex h-full flex-col justify-between rounded-2xl border border-[var(--ar-border)] bg-[var(--ar-surface)] p-6 transition-colors duration-200 hover:border-[var(--ar-border-accent)]">
+                    <div>
+                      <div className="mb-2 flex items-baseline justify-between gap-3">
+                        <h3 className="text-lg font-medium tracking-tight text-[var(--ar-text)]">
+                          {track.title}
+                        </h3>
+                        {track.year ? (
+                          <span className="text-xs tracking-[0.14em] text-[var(--ar-faint)]">
+                            {track.year}
+                          </span>
+                        ) : null}
+                      </div>
+                      <p className="mb-6 text-sm font-light text-[var(--ar-muted)]">{track.subtitle}</p>
+                    </div>
+                    {track.watchUrl ? (
+                      <a
+                        href={track.watchUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`inline-flex w-fit items-center gap-2 text-sm font-semibold tracking-wide text-[var(--ar-accent-text)] underline-offset-4 transition-opacity duration-200 hover:underline ${focusRing}`}
+                      >
+                        Watch on YouTube <span aria-hidden="true">↗</span>
+                      </a>
+                    ) : (
+                      <p className="text-xs tracking-wide text-[var(--ar-faint)]">
+                        Streaming link coming soon
+                      </p>
+                    )}
                   </div>
-                  <p className="mb-6 text-sm font-light text-[var(--ar-muted)]">{track.subtitle}</p>
-                </div>
-                {track.watchUrl ? (
-                  <a
-                    href={track.watchUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`inline-flex w-fit items-center gap-2 text-sm font-semibold tracking-wide text-[var(--ar-accent-text)] underline-offset-4 transition-opacity duration-200 hover:underline ${focusRing}`}
-                  >
-                    Watch on YouTube <span aria-hidden="true">↗</span>
-                  </a>
-                ) : (
-                  <p className="text-xs tracking-wide text-[var(--ar-faint)]">
-                    Streaming link coming soon
-                  </p>
-                )}
+                </ScrollReveal>
               </li>
             ))}
           </ul>
@@ -216,113 +228,122 @@ export default function ArjunaRookanthaPage() {
       {/* ── Media ────────────────────────────────────────────────────────── */}
       <section className="border-t border-[var(--ar-border)]" id="media">
         <div className="mx-auto max-w-5xl px-6 py-20 sm:px-10 sm:py-24">
-          <SectionLabel>Media</SectionLabel>
-          <h2 className="mb-10 text-2xl font-light tracking-tight sm:text-3xl">Video highlights</h2>
+          <ScrollReveal>
+            <SectionLabel>Media</SectionLabel>
+            <h2 className="mb-10 text-2xl font-light tracking-tight sm:text-3xl">Video highlights</h2>
+          </ScrollReveal>
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            {FEATURED_VIDEOS.map((video) => (
-              <figure key={video.videoId} className="m-0">
-                {video.embeddable ? (
-                  <div className="overflow-hidden rounded-2xl border border-[var(--ar-border)] bg-[var(--ar-surface)]">
-                    <iframe
-                      src={`https://www.youtube-nocookie.com/embed/${video.videoId}`}
-                      title={`${video.title} — ${ARTIST.name}`}
-                      loading="lazy"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      allowFullScreen
-                      className="aspect-video w-full border-0"
-                    />
-                  </div>
-                ) : (
-                  <a
-                    href={video.watchUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`Watch ${video.title} on YouTube`}
-                    className={`group relative block aspect-video overflow-hidden rounded-2xl border border-[var(--ar-border)] bg-[#1e1e1e] ${focusRing}`}
-                  >
-                    <img
-                      src={`https://i.ytimg.com/vi/${video.videoId}/hqdefault.jpg`}
-                      alt=""
-                      width={480}
-                      height={360}
-                      loading="lazy"
-                      decoding="async"
-                      className="absolute inset-0 h-full w-full object-cover opacity-60 transition-opacity duration-200 group-hover:opacity-75"
-                    />
-                    <span
-                      className="absolute inset-0"
-                      aria-hidden="true"
-                      style={{
-                        background:
-                          'linear-gradient(180deg, rgba(18,18,18,0.35) 0%, rgba(18,18,18,0.85) 100%)',
-                      }}
-                    />
-                    <span className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center">
-                      <span className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-[#D4AF37] text-[#121212]">
-                        <svg
-                          className="h-6 w-6 translate-x-[1px]"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                          aria-hidden="true"
-                        >
-                          <path d="M8 5v14l11-7z" />
-                        </svg>
+            {FEATURED_VIDEOS.map((video, i) => (
+              <ScrollReveal key={video.videoId} delay={i * 100}>
+                <figure className="m-0">
+                  {video.embeddable ? (
+                    <div className="overflow-hidden rounded-2xl border border-[var(--ar-border)] bg-[var(--ar-surface)]">
+                      <iframe
+                        src={`https://www.youtube-nocookie.com/embed/${video.videoId}`}
+                        title={`${video.title} — ${ARTIST.name}`}
+                        loading="lazy"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowFullScreen
+                        className="aspect-video w-full border-0"
+                      />
+                    </div>
+                  ) : (
+                    <a
+                      href={video.watchUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Watch ${video.title} on YouTube`}
+                      className={`group relative block aspect-video overflow-hidden rounded-2xl border border-[var(--ar-border)] bg-[#1e1e1e] ${focusRing}`}
+                    >
+                      <img
+                        src={`https://i.ytimg.com/vi/${video.videoId}/hqdefault.jpg`}
+                        alt=""
+                        width={480}
+                        height={360}
+                        loading="lazy"
+                        decoding="async"
+                        className="absolute inset-0 h-full w-full object-cover opacity-60 transition-opacity duration-200 group-hover:opacity-75"
+                      />
+                      <span
+                        className="absolute inset-0"
+                        aria-hidden="true"
+                        style={{
+                          background:
+                            'linear-gradient(180deg, rgba(18,18,18,0.35) 0%, rgba(18,18,18,0.85) 100%)',
+                        }}
+                      />
+                      <span className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center">
+                        <span className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-[#D4AF37] text-[#121212]">
+                          <svg
+                            className="h-6 w-6 translate-x-[1px]"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            aria-hidden="true"
+                          >
+                            <path d="M8 5v14l11-7z" />
+                          </svg>
+                        </span>
+                        <span className="text-xs tracking-[0.16em] uppercase text-[#e4e4e7]">
+                          Watch on YouTube
+                        </span>
                       </span>
-                      <span className="text-xs tracking-[0.16em] uppercase text-[#e4e4e7]">
-                        Watch on YouTube
-                      </span>
+                    </a>
+                  )}
+                  <figcaption className="mt-3 flex flex-wrap items-center justify-between gap-3">
+                    <span className="text-sm font-light text-[var(--ar-text-soft)]">
+                      {video.title}
+                      <span className="text-[var(--ar-faint)]"> · {video.note}</span>
                     </span>
-                  </a>
-                )}
-                <figcaption className="mt-3 flex flex-wrap items-center justify-between gap-3">
-                  <span className="text-sm font-light text-[var(--ar-text-soft)]">
-                    {video.title}
-                    <span className="text-[var(--ar-faint)]"> · {video.note}</span>
-                  </span>
-                  <a
-                    href={video.watchUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`text-xs tracking-wide ${quietLink}`}
-                  >
-                    Open on YouTube <span aria-hidden="true">↗</span>
-                  </a>
-                </figcaption>
-              </figure>
+                    <a
+                      href={video.watchUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`text-xs tracking-wide ${quietLink}`}
+                    >
+                      Open on YouTube <span aria-hidden="true">↗</span>
+                    </a>
+                  </figcaption>
+                </figure>
+              </ScrollReveal>
             ))}
           </div>
 
-          <h2 className="mt-16 mb-8 text-2xl font-light tracking-tight sm:text-3xl">Gallery</h2>
+          <ScrollReveal className="mt-16 mb-8">
+            <h2 className="text-2xl font-light tracking-tight sm:text-3xl">Gallery</h2>
+          </ScrollReveal>
           <ul className="m-0 grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-3">
-            {GALLERY_SLOTS.map((slot) => (
-              <li
-                key={slot.title}
-                className="flex aspect-[4/5] flex-col justify-end rounded-2xl border border-dashed border-[var(--ar-border-strong)] bg-[var(--ar-surface)] p-6"
-              >
-                <p className="text-sm font-medium text-[var(--ar-text)]">{slot.title}</p>
-                <p className="mt-1 text-xs leading-relaxed font-light text-[var(--ar-muted)]">
-                  {slot.description}
-                </p>
-                <p className="mt-3 text-[11px] tracking-[0.14em] uppercase text-[var(--ar-faint)]">
-                  Photos coming soon
-                </p>
+            {GALLERY_SLOTS.map((slot, i) => (
+              <li key={slot.title}>
+                <ScrollReveal delay={i * 90} className="h-full">
+                  <div className="flex aspect-[4/5] h-full flex-col justify-end rounded-2xl border border-dashed border-[var(--ar-border-strong)] bg-[var(--ar-surface)] p-6">
+                    <p className="text-sm font-medium text-[var(--ar-text)]">{slot.title}</p>
+                    <p className="mt-1 text-xs leading-relaxed font-light text-[var(--ar-muted)]">
+                      {slot.description}
+                    </p>
+                    <p className="mt-3 text-[11px] tracking-[0.14em] uppercase text-[var(--ar-faint)]">
+                      Photos coming soon
+                    </p>
+                  </div>
+                </ScrollReveal>
               </li>
             ))}
           </ul>
 
           {youtubeUrl ? (
-            <p className="mt-8 text-sm font-light text-[var(--ar-muted)]">
-              More performances on the{' '}
-              <a
-                href={youtubeUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`text-[var(--ar-accent-text)] underline-offset-4 transition-opacity duration-200 hover:underline ${focusRing}`}
-              >
-                official YouTube channel <span aria-hidden="true">↗</span>
-              </a>
-            </p>
+            <ScrollReveal>
+              <p className="mt-8 text-sm font-light text-[var(--ar-muted)]">
+                More performances on the{' '}
+                <a
+                  href={youtubeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`text-[var(--ar-accent-text)] underline-offset-4 transition-opacity duration-200 hover:underline ${focusRing}`}
+                >
+                  official YouTube channel <span aria-hidden="true">↗</span>
+                </a>
+              </p>
+            </ScrollReveal>
           ) : null}
         </div>
       </section>
@@ -330,19 +351,25 @@ export default function ArjunaRookanthaPage() {
       {/* ── Services ─────────────────────────────────────────────────────── */}
       <section className="border-t border-[var(--ar-border)]" id="services">
         <div className="mx-auto max-w-5xl px-6 py-20 sm:px-10 sm:py-24">
-          <SectionLabel>Services</SectionLabel>
-          <h2 className="mb-10 text-2xl font-light tracking-tight sm:text-3xl">
-            Work with {ARTIST.name.split(' ')[0]}
-          </h2>
+          <ScrollReveal>
+            <SectionLabel>Services</SectionLabel>
+            <h2 className="mb-10 text-2xl font-light tracking-tight sm:text-3xl">
+              Work with {ARTIST.name.split(' ')[0]}
+            </h2>
+          </ScrollReveal>
           <ul className="m-0 grid list-none grid-cols-1 gap-x-10 gap-y-8 p-0 sm:grid-cols-2">
-            {SERVICES.map((service) => (
-              <li key={service.title} className="border-t border-[var(--ar-border)] pt-6">
-                <h3 className="mb-2 text-base font-medium text-[var(--ar-text)]">
-                  {service.title}
-                </h3>
-                <p className="text-base leading-relaxed font-light text-[var(--ar-muted)]">
-                  {service.description}
-                </p>
+            {SERVICES.map((service, i) => (
+              <li key={service.title}>
+                <ScrollReveal delay={(i % 2) * 100}>
+                  <div className="border-t border-[var(--ar-border)] pt-6">
+                    <h3 className="mb-2 text-base font-medium text-[var(--ar-text)]">
+                      {service.title}
+                    </h3>
+                    <p className="text-base leading-relaxed font-light text-[var(--ar-muted)]">
+                      {service.description}
+                    </p>
+                  </div>
+                </ScrollReveal>
               </li>
             ))}
           </ul>
@@ -352,54 +379,60 @@ export default function ArjunaRookanthaPage() {
       {/* ── Contact ──────────────────────────────────────────────────────── */}
       <section className="border-t border-[var(--ar-border)]" id="contact">
         <div className="mx-auto max-w-5xl px-6 py-20 sm:px-10 sm:py-24">
-          <SectionLabel>Bookings</SectionLabel>
-          <h2 className="mb-4 text-2xl font-light tracking-tight sm:text-3xl">
-            Concerts, private events, coaching, and compositions
-          </h2>
-          <p className="mb-9 max-w-xl text-base leading-relaxed font-light text-[var(--ar-muted)]">
-            Message {ARTIST.studioName} on WhatsApp with your event type, date, and location for
-            availability and rates.
-          </p>
+          <ScrollReveal>
+            <SectionLabel>Bookings</SectionLabel>
+            <h2 className="mb-4 text-2xl font-light tracking-tight sm:text-3xl">
+              Concerts, private events, coaching, and compositions
+            </h2>
+            <p className="mb-9 max-w-xl text-base leading-relaxed font-light text-[var(--ar-muted)]">
+              Message {ARTIST.studioName} on WhatsApp with your event type, date, and location for
+              availability and rates.
+            </p>
+          </ScrollReveal>
 
-          <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-8">
-            <a
-              href={CONTACT.whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`inline-flex w-fit items-center justify-center gap-2 rounded-full bg-[var(--ar-accent)] px-6 py-3 text-sm font-semibold tracking-[0.06em] uppercase text-[var(--ar-on-accent)] transition-opacity duration-200 hover:opacity-90 ${focusRing}`}
-            >
-              <WhatsAppIcon className="h-4 w-4" />
-              WhatsApp {CONTACT.phoneDisplay}
-            </a>
-            <SocialRow />
-          </div>
+          <ScrollReveal delay={120}>
+            <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-8">
+              <a
+                href={CONTACT.whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`inline-flex w-fit items-center justify-center gap-2 rounded-full bg-[var(--ar-accent)] px-6 py-3 text-sm font-semibold tracking-[0.06em] uppercase text-[var(--ar-on-accent)] transition-opacity duration-200 hover:opacity-90 ${focusRing}`}
+              >
+                <WhatsAppIcon className="h-4 w-4" />
+                WhatsApp {CONTACT.phoneDisplay}
+              </a>
+              <SocialRow />
+            </div>
+          </ScrollReveal>
         </div>
       </section>
 
       <footer className="border-t border-[var(--ar-border)]">
-        <div className="mx-auto flex max-w-5xl flex-col gap-8 px-6 py-10 sm:flex-row sm:items-start sm:justify-between sm:px-10">
-          <div>
-            <p className="text-sm font-light text-[var(--ar-muted)]">
-              © {new Date().getFullYear()} {ARTIST.studioName}
-            </p>
-            <p className="mt-1 text-xs tracking-wide text-[var(--ar-faint)]">
-              {ARTIST.name} · {ARTIST.location}
-            </p>
+        <ScrollReveal>
+          <div className="mx-auto flex max-w-5xl flex-col gap-8 px-6 py-10 sm:flex-row sm:items-start sm:justify-between sm:px-10">
+            <div>
+              <p className="text-sm font-light text-[var(--ar-muted)]">
+                © {new Date().getFullYear()} {ARTIST.studioName}
+              </p>
+              <p className="mt-1 text-xs tracking-wide text-[var(--ar-faint)]">
+                {ARTIST.name} · {ARTIST.location}
+              </p>
+            </div>
+            <div className="sm:text-right">
+              <p className="text-xs tracking-wide text-[var(--ar-faint)]">
+                Website by{' '}
+                <a href={`${SITE_URL}/`} className={quietLink}>
+                  {SITE_NAME}
+                </a>
+              </p>
+              <p className="mt-1.5 text-xs tracking-wide">
+                <a href="/contact/" className={quietLink}>
+                  Looking for a website like this? Get in touch
+                </a>
+              </p>
+            </div>
           </div>
-          <div className="sm:text-right">
-            <p className="text-xs tracking-wide text-[var(--ar-faint)]">
-              Website by{' '}
-              <a href={`${SITE_URL}/`} className={quietLink}>
-                {SITE_NAME}
-              </a>
-            </p>
-            <p className="mt-1.5 text-xs tracking-wide">
-              <a href="/contact/" className={quietLink}>
-                Looking for a website like this? Get in touch
-              </a>
-            </p>
-          </div>
-        </div>
+        </ScrollReveal>
       </footer>
     </main>
   );
