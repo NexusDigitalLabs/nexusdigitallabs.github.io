@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import ScrollReveal from '@/components/ScrollReveal';
 import { SITE_NAME, SITE_URL } from '@/lib/seo';
 import {
@@ -89,6 +90,9 @@ function SocialRow({
 }
 
 export default function ArjunaRookanthaPage() {
+  // Offline in production builds/deploys; still available under `next dev`.
+  if (process.env.NODE_ENV === 'production') notFound();
+
   const spotifyUrl = SOCIAL_LINKS.find((link) => link.key === 'spotify')?.href;
   const youtubeUrl = SOCIAL_LINKS.find((link) => link.key === 'youtube')?.href;
 
