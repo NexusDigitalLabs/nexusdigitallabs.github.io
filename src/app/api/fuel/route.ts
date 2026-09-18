@@ -54,7 +54,28 @@ function serverError(err: unknown, label: string) {
   return jsonError('Something went wrong. Please try again.', 500);
 }
 
-async function getSignedInUserId(): Promise<string | null> {
+/**
+ * Resolves the caller's Supabase user id from either an SSR cookie session
+ * (the web app) or an `Authorization: Bearer <access_token>` header (a
+ * non-browser client, e.g. the Odova mobile app, which has no cookie jar to
+ * share with this domain). Cookie session takes precedence when both are
+ * somehow present; Bearer is the fallback, not the default, so existing web
+ * behaviour is unchanged.
+ */
+async function getSignedInUserId(req: NextRequest): Promise<string | null> {
+  const authHeader = req.headers.get('authorization');
+  if (authHeader?.startsWith('Bearer ')) {
+    try {
+      const token = authHeader.slice('Bearer '.length).trim();
+      const supabase = createServerSupabaseClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser(token);
+      return user?.id ?? null;
+    } catch {
+      return null;
+    }
+  }
   try {
     const auth = await createServerSupabaseAuthClient();
     const {
@@ -122,7 +143,7 @@ export async function GET(req: NextRequest) {
 
     // Restore garage for the signed-in account (no sync code required).
     if (resource === 'account') {
-      const userId = await getSignedInUserId();
+      const userId = await getSignedInUserId(req);
       if (!userId) return jsonError('Sign in required', 401);
 
       const { data, error } = await supabase
@@ -171,7 +192,7 @@ export async function GET(req: NextRequest) {
     if (resource === 'vehicles' || resource === 'fills') {
       const ownerId = await ownerIdForCode(supabase, code);
       if (ownerId) {
-        const signedInId = await getSignedInUserId();
+        const signedInId = await getSignedInUserId(req);
         if (signedInId !== ownerId) {
           return NextResponse.json({ data: [], locked: true });
         }
@@ -218,7 +239,7 @@ export async function GET(req: NextRequest) {
       if (error) return serverError(error, '/api/fuel GET claim_status');
 
       const ownerId = (data?.user_id as string | undefined) ?? null;
-      const signedInId = await getSignedInUserId();
+      const signedInId = await getSignedInUserId(req);
 
       // Do not expose owner UUID to clients — only claim relationship flags.
       return NextResponse.json({
@@ -252,7 +273,7 @@ export async function POST(req: NextRequest) {
     if (resource === 'claim') {
       if (!code) return jsonError('Missing code', 400);
 
-      const userId = await getSignedInUserId();
+      const userId = await getSignedInUserId(req);
       if (!userId) return jsonError('Sign in required to claim a garage', 401);
 
       const supabase = createServerSupabaseClient();
@@ -296,7 +317,7 @@ export async function POST(req: NextRequest) {
     if (resource === 'unlink') {
       if (!code) return jsonError('Missing code', 400);
 
-      const userId = await getSignedInUserId();
+      const userId = await getSignedInUserId(req);
       if (!userId) return jsonError('Sign in required to unlink a garage', 401);
 
       const supabase = createServerSupabaseClient();
