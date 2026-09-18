@@ -110,7 +110,7 @@ create index fuel_fills_user_code_idx on fuel_fills(user_code);
 4. **RLS (required):** [`008_enable_rls_service_role_tables.sql`](../../supabase/migrations/008_enable_rls_service_role_tables.sql) — enables RLS on `fuel_vehicles`, `fuel_fills`, and `page_views` so the anon key cannot read/write them. Service-role `/api/fuel` is unchanged.
 5. **Function grants (required):** [`009_harden_security_definer_functions.sql`](../../supabase/migrations/009_harden_security_definer_functions.sql) — revokes client RPC on claim/unlink helpers; locks `handle_new_user` to trigger-only.
 
-Sync by code still uses `/api/fuel` with the **service role**. Anonymous codes remain fully supported when `user_id` is null. Do not re-run `002b_fuel_disable_rls.sql` after `008`.
+Sync by code still uses `/api/fuel` with the **service role**. Anonymous codes remain fully supported when `user_id` is null. The old `002b_fuel_disable_rls.sql` hot-fix is archived at `supabase/migrations/archive/` — do not move it back into `supabase/migrations/`.
 
 ---
 
@@ -118,14 +118,26 @@ Sync by code still uses `/api/fuel` with the **service role**. Anonymous codes r
 
 | Method | Resource | Auth | Notes |
 |--------|----------|------|-------|
-| GET | `vehicles` + `code` | No | List vehicles for sync code |
-| GET | `fills` + `code` + `vehicleId` | No | Fill history |
+| GET | `vehicles` + `code` | No, unless claimed | List vehicles for sync code — if claimed, returns `{ data: [], locked: true }` to any caller not signed in as the owner (server-enforced; see below) |
+| GET | `fills` + `code` + `vehicleId` | No, unless claimed | Fill history — same `locked` behaviour as `vehicles` |
 | GET | `claim_status` + `code` | Optional session | Claimed / is_owner / signed_in |
 | GET | `account` | Signed in | Restore garage(s) linked to `user_id` |
 | POST | `vehicle` / `fill` + `code` | No | Create; new vehicles inherit existing `user_id` |
 | POST | `claim` + `code` | Signed in | Links garage to account (`claim_fuel_garage`) |
 | POST | `unlink` + `code` | Signed in (owner) | Clears `user_id` (`unlink_fuel_garage`); sync code kept |
 | DELETE | `fill` / `vehicle` / `user` | No | Delete by id or wipe code |
+
+**Claim lock is server-enforced**, not just a client UI convention: once a garage is
+claimed, `GET vehicles`/`fills` withholds real data (`locked: true`, empty `data`)
+from any request that isn't signed in as the owner — checked server-side against the
+SSR cookie session. Any client consuming this API must check `locked` explicitly
+rather than inferring it from `data` contents. Non-browser clients (e.g. a mobile
+app) can't send this cookie and so currently always see `locked: true` for a claimed
+garage — Bearer-token auth support is planned but not yet implemented.
+
+**Rate limited** (soft, in-memory, per serverless instance, resets every 60s): GET
+requests to 30/min/IP, POST/DELETE to 20/min/IP — mitigates sync-code enumeration
+against `genCode()`'s ~2.8×10¹² combination space (see Sync Code Design below).
 
 ---
 
@@ -145,8 +157,11 @@ Distance = `current_odometer − previous_odometer`
 ## Sync Code Design
 
 1. User chooses a nickname (≤20 chars, alphanumeric + `-_`)
-2. System appends 4-char random suffix: `XXXX = Math.random().toString(36).slice(2,6).toUpperCase()`
-3. Final code: `Nickname-XXXX` — stored in `localStorage` key `ndl_fuel_code`
+2. System appends an 8-char suffix from `crypto.getRandomValues` (~36⁸ ≈ 2.8×10¹²
+   combinations — see `genCode()` in `lib/fuel-utils.ts`). Previously 4 chars via
+   `Math.random()`, which was brute-forceable; already-issued 4-char codes remain
+   valid, only newly generated codes use the longer format.
+3. Final code: `nickname-xxxxxxxx` — stored in `localStorage` key `ndl_fuel_code`
 4. On another device: "I Have a Code", **or** sign in if the garage was linked to an account
 
 **Privacy:** Sync-code use does not require email. If the user types `@` in the nickname, a warning advises against personal info. Optional account link stores email/provider profile via Supabase Auth — see the [Privacy Policy](https://nexusdigitallabs.dev/privacy-policy/).

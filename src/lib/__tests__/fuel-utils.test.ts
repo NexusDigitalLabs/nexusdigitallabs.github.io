@@ -18,19 +18,19 @@ describe('genCode', () => {
     expect(code).toBe(code.toLowerCase());
   });
 
-  it('includes the sanitised nickname followed by a dash and 4-char suffix', () => {
+  it('includes the sanitised nickname followed by a dash and 8-char suffix', () => {
     const code = genCode('Tesla');
-    expect(code).toMatch(/^tesla-[a-z0-9]{4}$/);
+    expect(code).toMatch(/^tesla-[a-z0-9]{8}$/);
   });
 
   it('strips special characters from nickname', () => {
     const code = genCode('My Car!! 2024');
-    expect(code).toMatch(/^mycar2024-[a-z0-9]{4}$/);
+    expect(code).toMatch(/^mycar2024-[a-z0-9]{8}$/);
   });
 
   it('falls back to "mygarage" when nickname is empty after stripping', () => {
     const code = genCode('!!!');
-    expect(code).toMatch(/^mygarage-[a-z0-9]{4}$/);
+    expect(code).toMatch(/^mygarage-[a-z0-9]{8}$/);
   });
 
   it('truncates nickname at 20 characters', () => {

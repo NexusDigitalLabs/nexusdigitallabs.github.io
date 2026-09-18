@@ -362,9 +362,9 @@ describe('FuelTrackerClient — signed-in restore & auto-claim', () => {
     mockFetchRouter([
       (url) => {
         if (url.includes('resource=vehicles')) {
-          return jsonResponse({
-            data: [{ ...vehicle, user_id: 'user-1' }],
-          });
+          // Server-enforced lock (route.ts): claimed garage, no matching session
+          // → withheld data, signalled explicitly via `locked`.
+          return jsonResponse({ data: [], locked: true });
         }
       },
     ]);

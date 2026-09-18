@@ -63,7 +63,7 @@ Run [`008_enable_rls_service_role_tables.sql`](../supabase/migrations/008_enable
 
 If you already ran an older `008` and Advisor shows `rls_enabled_no_policy` on `page_views`, run [`008b_page_views_deny_client_policy.sql`](../supabase/migrations/008b_page_views_deny_client_policy.sql).
 
-Do **not** re-run [`002b_fuel_disable_rls.sql`](../supabase/migrations/002b_fuel_disable_rls.sql) after `008` — that file was a temporary hot-fix and leaves tables publicly readable with the anon key.
+`002b_fuel_disable_rls.sql` was a temporary hot-fix that leaves tables publicly readable with the anon key — it's archived at [`supabase/migrations/archive/002b_fuel_disable_rls.sql`](../supabase/migrations/archive/002b_fuel_disable_rls.sql) specifically so migration tooling won't auto-apply it. Do not move it back into `supabase/migrations/`.
 
 ## Harden SECURITY DEFINER functions (required)
 

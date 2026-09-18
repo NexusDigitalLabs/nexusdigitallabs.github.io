@@ -21,9 +21,17 @@ export interface FillStats {
 }
 
 // ── Sync code helpers ──────────────────────────────────────────────────────────
+/**
+ * 8-char suffix from the Web Crypto RNG (~36^8 ≈ 2.8e12 combinations) — the sync
+ * code is a bearer secret (see docs/tools/fuel-tracker.md), so it must not be
+ * guessable. `crypto.getRandomValues` is available globally in both the browser
+ * and the Next.js Node runtime; do not swap this for `Math.random()`.
+ */
 export function genCode(nickname: string): string {
   const clean = nickname.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 20) || 'mygarage';
-  const suffix = Math.random().toString(36).slice(2, 6);
+  const bytes = new Uint8Array(8);
+  crypto.getRandomValues(bytes);
+  const suffix = Array.from(bytes, (b) => (b % 36).toString(36)).join('');
   return `${clean}-${suffix}`.toLowerCase();
 }
 

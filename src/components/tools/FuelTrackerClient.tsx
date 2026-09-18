@@ -549,23 +549,23 @@ export default function FuelTrackerClient() {
   }, [garageNeedsSignIn]);
 
   // ── Fetch vehicles (only called explicitly, never reactively on userCode change)
-  const fetchVehicles = useCallback(async (code: string, signedIn = false) => {
+  const fetchVehicles = useCallback(async (code: string) => {
     setDataLoading(true);
     try {
       const res = await fetch(`/api/fuel?code=${encodeURIComponent(code)}&resource=vehicles`);
       const json = await res.json();
+      // Server-enforced: `locked` means this garage is claimed by an account and
+      // the current request isn't signed in as its owner — no data is returned.
+      if (json.locked) {
+        markGarageAuthLock(code);
+        setUserCode(code);
+        setVehicles([]);
+        setFills([]);
+        setActiveVehicleId(null);
+        setStep('main');
+        return;
+      }
       if (json.data && json.data.length > 0) {
-        const linked = (json.data as { user_id?: string | null }[]).some((v) => Boolean(v.user_id));
-        // Account-linked garage: do not show data while signed out.
-        if (linked && !signedIn) {
-          markGarageAuthLock(code);
-          setUserCode(code);
-          setVehicles([]);
-          setFills([]);
-          setActiveVehicleId(null);
-          setStep('main');
-          return;
-        }
         setVehicles(json.data);
         setActiveVehicleId(json.data[0].id);
         setStep('main');
@@ -652,7 +652,7 @@ export default function FuelTrackerClient() {
               setStep('main');
               return;
             }
-            await fetchVehicles(code, Boolean(user));
+            await fetchVehicles(code);
           }
           return;
         }
@@ -704,7 +704,7 @@ export default function FuelTrackerClient() {
         const stored = localStorage.getItem(FUEL_CODE_KEY);
         const code = stored ? normaliseCode(stored) : null;
         if (code) {
-          await fetchVehicles(code, true);
+          await fetchVehicles(code);
         }
       } finally {
         if (!cancelled) setAccountChecking(false);
@@ -926,6 +926,14 @@ export default function FuelTrackerClient() {
     try {
       const res = await fetch(`/api/fuel?code=${encodeURIComponent(code)}&resource=vehicles`);
       const json = await res.json();
+      if (json.locked) {
+        // Claimed by an account — this device isn't signed in as its owner.
+        try { localStorage.setItem(FUEL_CODE_KEY, code); } catch { /* ignore */ }
+        markGarageAuthLock(code);
+        setUserCode(code);
+        setStep('main');
+        return;
+      }
       // A valid existing garage must have at least one vehicle.
       // An empty array means the code was never registered — treat as not found.
       if (json.data && json.data.length > 0) {
@@ -1534,7 +1542,7 @@ export default function FuelTrackerClient() {
             </p>
             <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
               <button type="button"
-                onClick={() => userCode && fetchVehicles(userCode, Boolean(user))}
+                onClick={() => userCode && fetchVehicles(userCode)}
                 style={{ ...S.btnFill('#f59e0b'), padding: '0.5rem 1.25rem', fontSize: '0.75rem' }}>
                 Retry
               </button>

@@ -4,6 +4,47 @@ import { createServerSupabaseAuthClient } from '@/lib/supabase/server';
 
 type SupabaseAdmin = ReturnType<typeof createServerSupabaseClient>;
 
+/**
+ * Soft in-memory rate limit (per serverless instance), mirroring api/contact's
+ * pattern. GET is limited too, not just mutations — it's the sync-code
+ * enumeration/brute-force vector (see genCode() in lib/fuel-utils.ts).
+ */
+const RATE_WINDOW_MS = 60_000;
+const READ_RATE_MAX = 30;
+const WRITE_RATE_MAX = 20;
+const hits = new Map<string, number[]>();
+
+function clientKey(request: NextRequest): string {
+  return (
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    'unknown'
+  );
+}
+
+/**
+ * `bucket` keeps read/write budgets independent per IP — otherwise a burst of
+ * reads (e.g. the app polling claim_status) could exhaust a legitimate user's
+ * write budget (e.g. logging a fill-up) and vice versa, since they'd share one
+ * counter under the same key.
+ */
+function rateLimited(key: string, bucket: 'read' | 'write', max: number): boolean {
+  const bucketKey = `${bucket}:${key}`;
+  const now = Date.now();
+  const recent = (hits.get(bucketKey) ?? []).filter((t) => now - t < RATE_WINDOW_MS);
+  if (recent.length >= max) {
+    hits.set(bucketKey, recent);
+    return true;
+  }
+  recent.push(now);
+  hits.set(bucketKey, recent);
+  return false;
+}
+
+function rateLimitResponse() {
+  return jsonError('Too many requests. Please wait a minute and try again.', 429);
+}
+
 function jsonError(message: string, status: number) {
   return NextResponse.json({ error: message }, { status });
 }
@@ -69,6 +110,8 @@ async function fillBelongsToCode(
 
 // ── GET — fetch vehicles, fills, claim status, or account garage ─────────────
 export async function GET(req: NextRequest) {
+  if (rateLimited(clientKey(req), 'read', READ_RATE_MAX)) return rateLimitResponse();
+
   const { searchParams } = new URL(req.url);
   const code = searchParams.get('code');
   const resource = searchParams.get('resource');
@@ -118,6 +161,22 @@ export async function GET(req: NextRequest) {
     }
 
     if (!code) return jsonError('Missing code', 400);
+
+    // A claimed garage's data may only be read by its owner. This used to be a
+    // client-side-only UI convention (see isGarageAuthLocked in
+    // FuelTrackerClient.tsx) inferred from already-returned data — the API never
+    // actually enforced it, so any client could read a "claimed" garage's data
+    // by sync code alone. Enforce it here instead, and signal it explicitly via
+    // `locked` so clients don't have to infer lock state from array contents.
+    if (resource === 'vehicles' || resource === 'fills') {
+      const ownerId = await ownerIdForCode(supabase, code);
+      if (ownerId) {
+        const signedInId = await getSignedInUserId();
+        if (signedInId !== ownerId) {
+          return NextResponse.json({ data: [], locked: true });
+        }
+      }
+    }
 
     if (resource === 'vehicles') {
       const { data, error } = await supabase
@@ -177,6 +236,8 @@ export async function GET(req: NextRequest) {
 
 // ── POST — create vehicle / fill, or claim garage ────────────────────────────
 export async function POST(req: NextRequest) {
+  if (rateLimited(clientKey(req), 'write', WRITE_RATE_MAX)) return rateLimitResponse();
+
   let body: Record<string, unknown>;
   try {
     body = (await req.json()) as Record<string, unknown>;
@@ -349,6 +410,8 @@ export async function POST(req: NextRequest) {
 
 // ── DELETE — remove fill, vehicle, or all user data ──────────────────────────
 export async function DELETE(req: NextRequest) {
+  if (rateLimited(clientKey(req), 'write', WRITE_RATE_MAX)) return rateLimitResponse();
+
   let body: Record<string, unknown>;
   try {
     body = (await req.json()) as Record<string, unknown>;

@@ -1,3 +1,7 @@
+-- ARCHIVED — moved out of supabase/migrations/ so it can't be auto-applied by
+-- migration tooling (which only discovers NNNN_name.sql files directly in that
+-- directory). Kept here for history only. DO NOT re-run or move back.
+--
 -- DEPRECATED hot-fix — do not run on production after migration 008.
 -- Disabling RLS exposes fuel_* to the anon key (Security Advisor: rls_disabled_in_public).
 -- Use 008_enable_rls_service_role_tables.sql instead. Service-role /api/fuel bypasses RLS.
