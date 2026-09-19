@@ -71,6 +71,12 @@ exports[`Footer — snapshot > matches snapshot 1`] = `
           >
             Terms of Use
           </a>
+          <button
+            class="text-left bg-transparent border-0 p-0 cursor-pointer ndl-footer-link block text-sm transition-colors"
+            type="button"
+          >
+            Cookie Settings
+          </button>
         </div>
       </div>
       <div>

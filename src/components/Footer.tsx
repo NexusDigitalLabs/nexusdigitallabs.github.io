@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import MetricCounter from './MetricCounter';
+import CookieSettingsLink from './CookieSettingsLink';
 import { GAMES, TOOLS } from '@/data/catalog';
 
 const COMPANY_LINKS = [
@@ -16,7 +17,13 @@ const GAME_LINKS = [
   ...GAMES.map((g) => ({ href: g.href, label: g.title })),
 ];
 
-function FooterColumn({ heading, links }: { heading: string; links: { href: string; label: string; external?: boolean }[] }) {
+function FooterColumn({
+  heading, links, trailing,
+}: {
+  heading: string;
+  links: { href: string; label: string; external?: boolean }[];
+  trailing?: React.ReactNode;
+}) {
   return (
     <div>
       <p
@@ -47,6 +54,7 @@ function FooterColumn({ heading, links }: { heading: string; links: { href: stri
             </Link>
           )
         ))}
+        {trailing}
       </div>
     </div>
   );
@@ -79,7 +87,11 @@ export default function Footer() {
             </p>
           </div>
 
-          <FooterColumn heading="Company" links={COMPANY_LINKS} />
+          <FooterColumn
+            heading="Company"
+            links={COMPANY_LINKS}
+            trailing={<CookieSettingsLink className="ndl-footer-link block text-sm transition-colors" />}
+          />
           <FooterColumn heading="Tools" links={TOOL_LINKS} />
           <FooterColumn heading="Games" links={GAME_LINKS} />
         </div>

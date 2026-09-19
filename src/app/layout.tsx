@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import Script from 'next/script';
 import KofiTipLink from '@/components/KofiTipLink';
 import PWAInstallBanner from '@/components/PWAInstallBanner';
+import ConsentBanner from '@/components/ConsentBanner';
+import AdSenseScript from '@/components/AdSenseScript';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { AuthProvider } from '@/components/AuthProvider';
 import ScrollToTop from '@/components/ScrollToTop';
@@ -92,6 +94,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         {/* Apply theme before paint to avoid flash of wrong theme */}
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
+        {/* Google Consent Mode v2 — MUST run before the GTM snippet below so
+            any tag GTM fires (now or later, e.g. AdSense) starts from a safe
+            "denied" baseline until ConsentBanner (or a returning visitor's
+            stored choice) says otherwise. See lib/consent.ts. */}
+        <Script id="consent-default" strategy="beforeInteractive">{`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('consent', 'default', {
+            ad_storage: 'denied',
+            ad_user_data: 'denied',
+            ad_personalization: 'denied',
+            analytics_storage: 'denied',
+            wait_for_update: 500
+          });
+        `}</Script>
         {/* ── Google Tag Manager ── */}
         <Script id="gtm-head" strategy="beforeInteractive">{`
           (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -120,8 +137,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <SiteChrome>{children}</SiteChrome>
             <KofiTipLink variant="floating" href={KOFI_URL} />
             <PWAInstallBanner />
+            <ConsentBanner />
           </AuthProvider>
         </ThemeProvider>
+
+        <AdSenseScript />
 
         {/* Umami Analytics — cookie-free, GDPR/CCPA compliant */}
         <Script
