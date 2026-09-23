@@ -1,4 +1,5 @@
 import PromptArchitectClient from '@/components/tools/PromptArchitectClient';
+import AdSlot from '@/components/AdSlot';
 import { pageMetadata } from '@/lib/seo';
 
 export const metadata = pageMetadata({
@@ -121,6 +122,8 @@ export default function PromptArchitectPage() {
           </div>
         </div>
       </section>
+
+      <AdSlot slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_TOOLS} />
     </>
   );
 }

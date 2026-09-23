@@ -1,5 +1,6 @@
 import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
+import AdSlot from '@/components/AdSlot';
 
 export const metadata = pageMetadata({
   title: 'Optimizing AI Prompt Tokens for LLMs',
@@ -231,6 +232,8 @@ export default function ArticlePage() {
             </Link>
           </div>
         </article>
+
+        <AdSlot slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_ARTICLES} />
       </div>
     </>
   );

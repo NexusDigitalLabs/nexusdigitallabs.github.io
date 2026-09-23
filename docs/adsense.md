@@ -52,9 +52,36 @@ alone doesn't clear AdSense's EEA/UK certified-CMP requirement.
 4. Create `public/ads.txt` with the line AdSense gives you
    (`google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0`) — can't be
    created correctly before you have a publisher ID.
-5. Add actual `<ins class="adsbygoogle">` ad-unit markup to the
-   pages/placements you want — not yet done anywhere; `AdSenseScript` only
-   loads the library, it doesn't place ad slots.
+5. Set the slot-id env vars below (Vercel) once you've created the matching
+   ad units in the AdSense dashboard. The `<ins class="adsbygoogle">` markup
+   itself (via `AdSlot.tsx`) is already placed site-wide — see below.
+
+## Ad placements (site-wide)
+
+`AdSlot.tsx` is a single reusable component: it renders nothing unless a
+publisher ID **and** a slot id are both set **and** the visitor has granted
+consent (same gate as `AdSenseScript.tsx`). Placed once per page template —
+one slot id shared across every page of that type, not one per URL, which is
+standard AdSense practice and keeps the dashboard simple.
+
+| Placement | Pages | Env var |
+|---|---|---|
+| Homepage | `/` | `NEXT_PUBLIC_ADSENSE_SLOT_HOME` |
+| Tool pages | all 8 `/tools/*/` | `NEXT_PUBLIC_ADSENSE_SLOT_TOOLS` |
+| Games index | `/games/` | `NEXT_PUBLIC_ADSENSE_SLOT_GAMES_INDEX` |
+| Game pages | all 8 `/games/*/` | `NEXT_PUBLIC_ADSENSE_SLOT_GAMES` |
+| Articles index | `/articles/` | `NEXT_PUBLIC_ADSENSE_SLOT_ARTICLES_INDEX` |
+| Article pages | all 17 `/articles/*/` | `NEXT_PUBLIC_ADSENSE_SLOT_ARTICLES` |
+| Academy lobby | `/academy/` | `NEXT_PUBLIC_ADSENSE_SLOT_ACADEMY_LOBBY` |
+| Academy lessons | all 46 `/academy/*/` | `NEXT_PUBLIC_ADSENSE_SLOT_ACADEMY_LESSON` |
+
+Deliberately excluded: About, Contact, Privacy Policy, Terms, Login, Account —
+thin/legal content or a bad fit for ads next to an auth flow.
+
+Adding a new tool/game/article page: add `import AdSlot from
+'@/components/AdSlot';` and `<AdSlot slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_<TYPE>} />`
+at the end of its JSX, reusing that type's existing env var — no new env var
+needed per page.
 
 ## Testing
 

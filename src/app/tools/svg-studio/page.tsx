@@ -1,4 +1,5 @@
 import SvgStudioClient from '@/components/tools/SvgStudioClient';
+import AdSlot from '@/components/AdSlot';
 import { pageMetadata } from '@/lib/seo';
 
 export const metadata = pageMetadata({
@@ -137,6 +138,8 @@ export default function SvgStudioPage() {
           </div>
         </div>
       </section>
+
+      <AdSlot slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_TOOLS} />
     </>
   );
 }

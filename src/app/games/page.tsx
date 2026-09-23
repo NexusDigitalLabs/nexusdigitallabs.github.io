@@ -1,4 +1,5 @@
 import GameLoader from '@/components/games/GameLoader';
+import AdSlot from '@/components/AdSlot';
 import { pageMetadata } from '@/lib/seo';
 import { FUN_GAMES, BRAIN_GAMES } from '@/data/catalog';
 
@@ -53,6 +54,8 @@ export default function GamesPage() {
           </a>
         </div>
       </section>
+
+      <AdSlot slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_GAMES_INDEX} />
     </>
   );
 }

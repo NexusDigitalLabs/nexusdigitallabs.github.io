@@ -1,4 +1,5 @@
 import DebtOptimizerClient from '@/components/tools/DebtOptimizerClient';
+import AdSlot from '@/components/AdSlot';
 import { pageMetadata } from '@/lib/seo';
 
 export const metadata = pageMetadata({
@@ -151,6 +152,8 @@ export default function DebtOptimizerPage() {
           </div>
         </div>
       </section>
+
+      <AdSlot slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_TOOLS} />
     </>
   );
 }

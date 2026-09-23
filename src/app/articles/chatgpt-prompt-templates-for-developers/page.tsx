@@ -1,5 +1,6 @@
 import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
+import AdSlot from '@/components/AdSlot';
 
 export const metadata = pageMetadata({
   title: 'ChatGPT Prompt Templates for Developers — Copy and Use Today — NexusDigitalLabs',
@@ -163,6 +164,8 @@ Include: what it does step by step, why each part exists, and any potential pitf
             </Link>
           </div>
         </article>
+
+        <AdSlot slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_ARTICLES} />
       </div>
     </>
   );

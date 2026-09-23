@@ -1,5 +1,6 @@
 import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
+import AdSlot from '@/components/AdSlot';
 
 export const metadata = pageMetadata({
   title: 'Avalanche vs Snowball: Which Debt Payoff Method Saves More? — NexusDigitalLabs',
@@ -214,6 +215,8 @@ export default function AvalancheVsSnowballPage() {
             </Link>
           </div>
         </article>
+
+        <AdSlot slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_ARTICLES} />
       </div>
     </>
   );

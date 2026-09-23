@@ -1,4 +1,5 @@
 import JsonEngineClient from '@/components/tools/JsonEngineClient';
+import AdSlot from '@/components/AdSlot';
 import { pageMetadata } from '@/lib/seo';
 
 export const metadata = pageMetadata({
@@ -145,6 +146,8 @@ export default function JsonEnginePage() {
           </div>
         </div>
       </section>
+
+      <AdSlot slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_TOOLS} />
     </>
   );
 }

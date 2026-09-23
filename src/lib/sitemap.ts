@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { ARTICLES } from '@/data/articles';
 import { GAMES, TOOLS } from '@/data/catalog';
+import { LESSONS } from '@/data/academy';
 import { absoluteSiteUrl, normalizeSitePath } from '@/lib/seo';
 
 type SitemapEntry = MetadataRoute.Sitemap[number];
@@ -37,6 +38,7 @@ export function buildSitemapEntries(): MetadataRoute.Sitemap {
     entry('/login/', 0.2, 'yearly'),
     entry('/articles/', 0.8, 'weekly'),
     entry('/games/', 0.8, 'monthly'),
+    entry('/academy/', 0.8, 'weekly'),
   ];
 
   const articleRoutes = ARTICLES.map((a) =>
@@ -44,6 +46,9 @@ export function buildSitemapEntries(): MetadataRoute.Sitemap {
   );
   const toolRoutes = TOOLS.map((t) => entry(t.href, 0.9, 'monthly'));
   const gameRoutes = GAMES.map((g) => entry(g.href, 0.7, 'monthly'));
+  const lessonRoutes = LESSONS.filter((l) => l.status === 'ready').map((l) =>
+    entry(`/academy/${l.slug}/`, 0.6, 'monthly'),
+  );
 
-  return [...staticRoutes, ...articleRoutes, ...toolRoutes, ...gameRoutes];
+  return [...staticRoutes, ...articleRoutes, ...toolRoutes, ...gameRoutes, ...lessonRoutes];
 }

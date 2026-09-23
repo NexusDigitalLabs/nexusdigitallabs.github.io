@@ -1,5 +1,6 @@
 import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
+import AdSlot from '@/components/AdSlot';
 
 export const metadata = pageMetadata({
   title: 'How to Save Money on Fuel Every Month — NexusDigitalLabs',
@@ -126,6 +127,8 @@ export default function SaveMoneyFuelPage() {
             </Link>
           </div>
         </article>
+
+        <AdSlot slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_ARTICLES} />
       </div>
     </>
   );

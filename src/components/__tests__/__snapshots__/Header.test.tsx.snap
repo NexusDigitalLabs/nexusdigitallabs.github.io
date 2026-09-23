@@ -33,6 +33,16 @@ exports[`Header — snapshot > matches snapshot on homepage 1`] = `
         style="color: var(--ndl-muted);"
         type="button"
       >
+        Academy
+        <span
+          class="absolute -bottom-0.5 left-0 h-px bg-blue-500 transition-all duration-300 w-0 group-hover:w-full"
+        />
+      </button>
+      <button
+        class="text-sm transition-colors duration-200 no-underline relative group cursor-pointer bg-transparent border-0 p-0"
+        style="color: var(--ndl-muted);"
+        type="button"
+      >
         Tools
         <span
           class="absolute -bottom-0.5 left-0 h-px bg-blue-500 transition-all duration-300 w-0 group-hover:w-full"

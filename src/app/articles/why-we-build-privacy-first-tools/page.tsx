@@ -1,6 +1,7 @@
 import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 import HomeSectionLink from '@/components/HomeSectionLink';
+import AdSlot from '@/components/AdSlot';
 
 export const metadata = pageMetadata({
   title: 'Why We Build Privacy-First Tools — NexusDigitalLabs',
@@ -93,6 +94,8 @@ export default function PrivacyFirstPage() {
             </HomeSectionLink>
           </div>
         </article>
+
+        <AdSlot slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_ARTICLES} />
       </div>
     </>
   );

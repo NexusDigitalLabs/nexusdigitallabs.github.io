@@ -1,5 +1,6 @@
 import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
+import AdSlot from '@/components/AdSlot';
 
 export const metadata = pageMetadata({
   title: 'How to Reduce OpenAI API Costs: A Practical Guide — NexusDigitalLabs',
@@ -211,6 +212,8 @@ export default function ReduceOpenAICostsPage() {
             </Link>
           </div>
         </article>
+
+        <AdSlot slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_ARTICLES} />
       </div>
     </>
   );
