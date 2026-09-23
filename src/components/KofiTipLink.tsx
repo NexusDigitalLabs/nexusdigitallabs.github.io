@@ -1,8 +1,9 @@
 'use client';
 
-import { type CSSProperties } from 'react';
+import { type CSSProperties, useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { KOFI_URL } from '@/lib/seo';
+import { getStoredConsent, CONSENT_CHANGED_EVENT } from '@/lib/consent';
 
 type Variant = 'button' | 'link' | 'card' | 'floating';
 
@@ -130,8 +131,22 @@ function FloatingTipJar({
   className: string;
 }) {
   const pathname = usePathname();
+  // Hidden until the visitor has answered the consent banner — both are
+  // fixed to the bottom-right on mobile and would otherwise overlap.
+  const [consentPending, setConsentPending] = useState(true);
+
+  useEffect(() => {
+    setConsentPending(getStoredConsent() === null);
+    function handleChange() {
+      setConsentPending(false);
+    }
+    window.addEventListener(CONSENT_CHANGED_EVENT, handleChange);
+    return () => window.removeEventListener(CONSENT_CHANGED_EVENT, handleChange);
+  }, []);
+
   // Hide on private portfolio / hire routes under /p/
   if (pathname?.startsWith('/p/')) return null;
+  if (consentPending) return null;
 
   return (
     <a
