@@ -1,5 +1,6 @@
 import GameLoader from '@/components/games/GameLoader';
 import GameSeoSection from '@/components/games/GameSeoSection';
+import AdSlot from '@/components/AdSlot';
 import { pageMetadata } from '@/lib/seo';
 
 export const metadata = pageMetadata({
@@ -69,6 +70,8 @@ export default function GameBlackjackPage() {
           </p>
         }
       />
+
+      <AdSlot slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_GAMES} />
     </>
   );
 }

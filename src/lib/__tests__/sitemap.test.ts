@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ARTICLES } from '@/data/articles';
 import { GAMES, TOOLS } from '@/data/catalog';
+import { LESSONS } from '@/data/academy';
 import { SITE_URL } from '@/lib/seo';
 import { buildSitemapEntries, sitemapUrl } from '@/lib/sitemap';
 
@@ -21,6 +22,7 @@ describe('buildSitemapEntries', () => {
     expect(urls).toContain(`${SITE_URL}/articles/`);
     expect(urls).toContain(`${SITE_URL}/games/`);
     expect(urls).toContain(`${SITE_URL}/login/`);
+    expect(urls).toContain(`${SITE_URL}/academy/`);
 
     for (const url of urls) {
       expect(url.startsWith(SITE_URL)).toBe(true);
@@ -37,10 +39,19 @@ describe('buildSitemapEntries', () => {
     for (const article of ARTICLES) {
       expect(urls).toContain(sitemapUrl(`/articles/${article.slug}/`));
     }
+    const readyLessons = LESSONS.filter((l) => l.status === 'ready');
+    for (const lesson of readyLessons) {
+      expect(urls).toContain(sitemapUrl(`/academy/${lesson.slug}/`));
+    }
 
     const expected =
-      8 /* static */ + ARTICLES.length + TOOLS.length + GAMES.length;
+      9 /* static */ + ARTICLES.length + TOOLS.length + GAMES.length + readyLessons.length;
     expect(entries).toHaveLength(expected);
+  });
+
+  it('never emits a duplicate URL — academy lesson slugs collapsing would double-list a page', () => {
+    const urls = buildSitemapEntries().map((e) => e.url);
+    expect(new Set(urls).size).toBe(urls.length);
   });
 
   it('excludes the unlisted private resume route under /p/', () => {

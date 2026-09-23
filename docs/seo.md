@@ -26,7 +26,14 @@ Changing host or slash policy requires updating **all** of: Vercel Domains, `SIT
 | Root `metadataBase` | `src/app/layout.tsx` (uses `SITE_URL`) |
 | Guards | `src/lib/__tests__/seo.test.ts`, `src/lib/__tests__/sitemap.test.ts` |
 
-Tools / games / articles in the sitemap come from `src/data/catalog.ts` and `src/data/articles.ts`. Add catalog entries when shipping new public pages so the sitemap stays in sync.
+Tools / games / articles in the sitemap come from `src/data/catalog.ts` and `src/data/articles.ts`; academy lessons come from `src/data/academy.ts` (only `status: 'ready'` lessons — a `coming-soon` lesson has no route and must never appear here). Add catalog/lesson entries when shipping new public pages so the sitemap stays in sync.
+
+## Academy-specific SEO
+
+- Each lesson's meta description is generated from its own opening paragraph (`lessonMetaDescription` in `src/data/academy.ts`), not a generic template — trimmed to ~155 chars at a word boundary.
+- Each lesson page carries `LearningResource` + `BreadcrumbList` JSON-LD (`src/app/academy/[lessonSlug]/page.tsx`), and the lobby carries `Course` JSON-LD (`src/app/academy/page.tsx`).
+- The homepage links to `/academy/` from its own promo section (`#academy` in `src/app/page.tsx`) — internal linking from the highest-authority page on the site.
+- Guards: `src/data/__tests__/academy.test.ts` (slug uniqueness, valid quiz shape, non-empty descriptions) and `src/lib/__tests__/sitemap.test.ts` (academy routes present, no duplicate URLs).
 
 ## Why GSC “Page with redirect” appeared
 

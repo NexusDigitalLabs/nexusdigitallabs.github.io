@@ -2,6 +2,7 @@ import Link from 'next/link';
 import ScrollReveal from '@/components/ScrollReveal';
 import SiteStatsClient from '@/components/SiteStatsClient';
 import HomeSectionLink from '@/components/HomeSectionLink';
+import AdSlot from '@/components/AdSlot';
 import { ARTICLES, FEATURED_ARTICLES } from '@/data/articles';
 import { GAMES, TOOLS } from '@/data/catalog';
 import { pageMetadata } from '@/lib/seo';
@@ -236,8 +237,37 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* ── ACADEMY SECTION ──────────────────────────────────────────────── */}
+      <section id="academy" className="scroll-mt-20 py-20 sm:py-28">
+        <div className="max-w-7xl mx-auto px-6 sm:px-10">
+          <ScrollReveal
+            className="rounded-3xl bg-slate-900/50 border border-violet-500/20 p-10 sm:p-14 flex flex-col lg:flex-row lg:items-center gap-8 lg:gap-16"
+          >
+            <div className="flex-1">
+              <p className="text-xs font-semibold tracking-widest text-violet-400 uppercase mb-3">Free Course</p>
+              <h2 className="text-2xl sm:text-3xl font-light text-white tracking-tight mb-4">
+                Become an AI engineer, one free lesson at a time.
+              </h2>
+              <p className="text-sm text-slate-400 font-light leading-relaxed max-w-xl">
+                46 lessons from Python foundations to production AI systems — RAG, agents, evals, and deployment —
+                with a graded check-yourself quiz after every lesson. No account, no payment, ever.
+              </p>
+            </div>
+            <div className="shrink-0">
+              <Link
+                href="/academy/"
+                className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 ndl-on-accent text-sm font-semibold px-7 py-3.5 rounded-xl transition-all duration-200 no-underline"
+                style={{ boxShadow: '0 4px 20px rgba(124,58,237,0.4)' }}
+              >
+                Start the Academy <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </ScrollReveal>
+        </div>
+      </section>
+
       {/* ── TOOLS SECTION ────────────────────────────────────────────────── */}
-      <section id="tools" className="scroll-mt-20 py-20 sm:py-28">
+      <section id="tools" className="scroll-mt-20 py-20 sm:py-28 border-t border-slate-800/50">
         <div className="max-w-7xl mx-auto px-6 sm:px-10">
           <ScrollReveal className="mb-14">
             <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-3">Free Tools</p>
@@ -358,6 +388,10 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 pb-16">
+        <AdSlot slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME} />
+      </div>
     </>
   );
 }

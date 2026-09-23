@@ -21,6 +21,7 @@ type NavLink =
 
 // ── Nav links ─────────────────────────────────────────────────────────────────
 const NAV_LINKS: NavLink[] = [
+  { kind: 'section', sectionId: 'academy', label: 'Academy' },
   { kind: 'section', sectionId: 'tools', label: 'Tools' },
   { kind: 'section', sectionId: 'articles', label: 'Articles' },
   { kind: 'section', sectionId: 'games', label: 'Games' },
@@ -47,6 +48,7 @@ const BADGES: Record<string, Badge> = {
   '/games/cryptic-paths/':     { label: 'Cryptic Paths',     color: 'violet'  },
   '/games/semantic-shift/':    { label: 'Semantic Shift',    color: 'amber'   },
   '/games/':                   { label: 'Games',             color: 'amber'   },
+  '/academy/':                 { label: 'Academy',           color: 'violet'  },
   '/articles/':                { label: 'Article',           color: 'blue'    },
   '/about/':                   { label: 'About',             color: 'slate'   },
   '/contact/':                 { label: 'Contact',           color: 'slate'   },
@@ -73,6 +75,7 @@ function detectBadge(pathname: string): Badge | null {
 
 function isActive(link: NavLink, pathname: string): boolean {
   if (link.kind === 'section') {
+    if (link.sectionId === 'academy') return pathname.startsWith('/academy');
     if (link.sectionId === 'tools') return pathname.startsWith('/tools');
     if (link.sectionId === 'articles') return pathname.startsWith('/articles');
     if (link.sectionId === 'games') return pathname.startsWith('/games');

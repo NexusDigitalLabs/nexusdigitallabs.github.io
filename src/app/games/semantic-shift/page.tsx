@@ -1,5 +1,6 @@
 import GameLoader from '@/components/games/GameLoader';
 import GameSeoSection from '@/components/games/GameSeoSection';
+import AdSlot from '@/components/AdSlot';
 import { pageMetadata } from '@/lib/seo';
 
 export const metadata = pageMetadata({
@@ -43,6 +44,8 @@ export default function Page() {
           { href: '/games/', label: 'Browse all browser games →' },
         ]}
       />
+
+      <AdSlot slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_GAMES} />
     </>
   );
 }

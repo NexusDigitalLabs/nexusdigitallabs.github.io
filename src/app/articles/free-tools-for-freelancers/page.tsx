@@ -1,6 +1,7 @@
 import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 import HomeSectionLink from '@/components/HomeSectionLink';
+import AdSlot from '@/components/AdSlot';
 
 export const metadata = pageMetadata({
   title: 'Free Tools Every Freelancer Should Be Using in 2026 — NexusDigitalLabs',
@@ -132,6 +133,8 @@ export default function FreeToolsFreelancersPage() {
             </HomeSectionLink>
           </div>
         </article>
+
+        <AdSlot slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_ARTICLES} />
       </div>
     </>
   );
