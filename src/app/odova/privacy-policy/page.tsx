@@ -10,9 +10,9 @@ export const metadata = pageMetadata({
   ogDescription: 'Privacy Policy for the Odova vehicle tracking app.',
 });
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, children, id }: { title: string; children: React.ReactNode; id?: string }) {
   return (
-    <div className="mt-8">
+    <div id={id} className="mt-8 scroll-mt-24">
       <h2 className="text-base font-medium text-slate-100 mb-2">{title}</h2>
       {children}
     </div>
@@ -156,7 +156,7 @@ export default function OdovaPrivacyPolicyPage() {
           <P>We may update this Privacy Policy from time to time. Any changes will be posted on this page with an updated revision date.</P>
         </Section>
 
-        <Section title="Contact">
+        <Section title="Contact" id="contact">
           <P>
             If you have any questions about this Privacy Policy, or to request account or data deletion,
             please contact us at{' '}
