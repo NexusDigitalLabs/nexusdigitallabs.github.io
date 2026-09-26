@@ -174,7 +174,7 @@ export default function OdovaPrivacyPolicyPage() {
             { href: '/about/', label: 'About' },
             { href: '/contact/', label: 'Contact' },
             { href: '/odova/privacy-policy/', label: 'Odova Privacy' },
-            { href: '/terms/', label: 'Terms' },
+            { href: '/odova/terms/', label: 'Odova Terms' },
           ].map(({ href, label }) => (
             <Link key={href} href={href} className="hover:text-slate-300 transition-colors no-underline">
               {label}
