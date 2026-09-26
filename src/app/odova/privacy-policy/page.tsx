@@ -47,7 +47,7 @@ export default function OdovaPrivacyPolicyPage() {
       <div className="mb-10 space-y-2 border-b border-slate-800/60 pb-8">
         <p className="text-[11px] font-semibold tracking-widest text-slate-500 uppercase">Legal · Odova</p>
         <h1 className="text-2xl sm:text-3xl font-light tracking-tight text-white">Odova Privacy Policy</h1>
-        <p className="text-xs text-slate-500 font-light">Last updated: September 23, 2026</p>
+        <p className="text-xs text-slate-500 font-light">Last updated: September 26, 2026</p>
       </div>
 
       <div>
@@ -63,8 +63,9 @@ export default function OdovaPrivacyPolicyPage() {
             entirely on your device, or synced across devices using a sync code backed by our Supabase
             database. Maintenance reminders and notifications stay local to your device and are never
             transmitted anywhere. Signing in is optional and only used to link your sync code to your
-            account so your garage can be restored on another device. Odova contains no advertising and no
-            third-party analytics or crash-reporting SDKs.
+            account so your garage can be restored on another device. The free version shows banner ads
+            served by Google AdMob; upgrading to Pro removes them. Odova has no third-party analytics or
+            crash-reporting SDKs, and never shares your vehicle, fuel, or account data with the ad network.
           </P>
         </Section>
 
@@ -96,6 +97,24 @@ export default function OdovaPrivacyPolicyPage() {
             token is collected.
           </P>
           <P>
+            <strong className="text-slate-300 font-medium">Advertising (free version only).</strong>{' '}
+            If you have not purchased Pro, Odova shows banner ads served by Google AdMob. AdMob and its
+            partners may collect device and advertising identifiers (such as your Android advertising ID),
+            approximate location, and app usage signals to serve and measure ads, and may use them for
+            personalized advertising where you have given consent. If you are in the EEA, UK, or
+            Switzerland, Odova asks for your consent (via Google&apos;s User Messaging Platform) before
+            requesting personalized ads. We never send your vehicle, fuel, or account data to AdMob.
+            Purchasing Pro removes ads entirely. See{' '}
+            <a
+              href="https://policies.google.com/technologies/partner-sites"
+              className="text-blue-400 underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              how Google uses information from sites or apps that use its services
+            </a>.
+          </P>
+          <P>
             <strong className="text-slate-300 font-medium">Pro purchase.</strong>{' '}
             Odova offers an optional one-time Pro purchase handled by Google Play Billing (Android) or
             Apple StoreKit (iOS) through RevenueCat. RevenueCat and the store process your purchase and
@@ -110,8 +129,9 @@ export default function OdovaPrivacyPolicyPage() {
           <P>
             We use garage data to operate cross-device sync, account data to authenticate optional
             sign-in and link your sync code, and purchase/entitlement data to unlock Pro features you
-            paid for. We do not sell your personal information, and we do not use garage or account data
-            for advertising — Odova has no advertising integration.
+            paid for. Free-tier users are shown ads through Google AdMob, as described above. We do not
+            sell your personal information, and we never share your garage or account data with the ad
+            network or use it for ad targeting.
           </P>
         </Section>
 
@@ -126,9 +146,9 @@ export default function OdovaPrivacyPolicyPage() {
         <Section title="Service Providers">
           <P>
             Odova relies on Supabase (database and optional authentication), RevenueCat (purchase and
-            entitlement management), and the Google Play Store / Apple App Store (billing). These
-            providers process data under their own terms and only as needed for the functionality
-            described above.
+            entitlement management), Google AdMob (advertising, free tier only), and the Google Play
+            Store / Apple App Store (billing). These providers process data under their own terms and only
+            as needed for the functionality described above.
           </P>
         </Section>
 
