@@ -133,6 +133,21 @@ async function fillBelongsToCode(
   return Boolean(data?.id);
 }
 
+async function reminderBelongsToCode(
+  supabase: SupabaseAdmin,
+  reminderId: string,
+  code: string
+): Promise<boolean> {
+  const { data, error } = await supabase
+    .from('fuel_reminders')
+    .select('id')
+    .eq('id', reminderId)
+    .eq('user_code', code)
+    .maybeSingle();
+  if (error) throw error;
+  return Boolean(data?.id);
+}
+
 /**
  * Server-side check backing the free tier's vehicle-count cap. Deliberately
  * fails OPEN (does not block) whenever entitlement can't be positively
@@ -251,7 +266,7 @@ export async function GET(req: NextRequest) {
     // actually enforced it, so any client could read a "claimed" garage's data
     // by sync code alone. Enforce it here instead, and signal it explicitly via
     // `locked` so clients don't have to infer lock state from array contents.
-    if (resource === 'vehicles' || resource === 'fills') {
+    if (resource === 'vehicles' || resource === 'fills' || resource === 'reminders') {
       const ownerId = await ownerIdForCode(supabase, code);
       if (ownerId) {
         const signedInId = await getSignedInUserId(req);
@@ -286,6 +301,22 @@ export async function GET(req: NextRequest) {
         .order('odometer', { ascending: true });
 
       if (error) return serverError(error, '/api/fuel GET fills');
+      return NextResponse.json({ data });
+    }
+
+    if (resource === 'reminders') {
+      if (!vehicleId) return jsonError('Missing vehicleId', 400);
+      const ok = await vehicleBelongsToCode(supabase, vehicleId, code);
+      if (!ok) return jsonError('Vehicle not found for this sync code', 404);
+
+      const { data, error } = await supabase
+        .from('fuel_reminders')
+        .select('*')
+        .eq('vehicle_id', vehicleId)
+        .eq('user_code', code)
+        .order('created_at', { ascending: true });
+
+      if (error) return serverError(error, '/api/fuel GET reminders');
       return NextResponse.json({ data });
     }
 
@@ -516,6 +547,66 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ data });
     }
 
+    if (resource === 'reminder') {
+      const vehicleId = typeof body.vehicleId === 'string' ? body.vehicleId : '';
+      if (!vehicleId) return jsonError('Missing vehicleId', 400);
+
+      const ok = await vehicleBelongsToCode(supabase, vehicleId, code);
+      if (!ok) return jsonError('Vehicle not found for this sync code', 404);
+
+      const title = typeof body.title === 'string' ? body.title.trim() : '';
+      if (!title) return jsonError('Title is required', 400);
+
+      const dueType = body.dueType;
+      if (dueType !== 'date' && dueType !== 'odometer') {
+        return jsonError('dueType must be "date" or "odometer"', 400);
+      }
+
+      let dueDate: string | null = null;
+      let dueOdometer: number | null = null;
+      if (dueType === 'date') {
+        if (typeof body.dueDate !== 'string' || !body.dueDate) return jsonError('dueDate is required', 400);
+        dueDate = body.dueDate;
+      } else {
+        dueOdometer = Number(body.dueOdometer);
+        if (!Number.isFinite(dueOdometer)) return jsonError('dueOdometer must be a valid number', 400);
+      }
+
+      const recurrenceIntervalDays =
+        body.recurrenceIntervalDays === null || body.recurrenceIntervalDays === undefined || body.recurrenceIntervalDays === ''
+          ? null
+          : Number(body.recurrenceIntervalDays);
+      if (recurrenceIntervalDays !== null && !Number.isFinite(recurrenceIntervalDays)) {
+        return jsonError('Invalid recurrenceIntervalDays', 400);
+      }
+      const recurrenceIntervalKm =
+        body.recurrenceIntervalKm === null || body.recurrenceIntervalKm === undefined || body.recurrenceIntervalKm === ''
+          ? null
+          : Number(body.recurrenceIntervalKm);
+      if (recurrenceIntervalKm !== null && !Number.isFinite(recurrenceIntervalKm)) {
+        return jsonError('Invalid recurrenceIntervalKm', 400);
+      }
+
+      const { data, error } = await supabase
+        .from('fuel_reminders')
+        .insert({
+          vehicle_id: vehicleId,
+          user_code: code,
+          title,
+          due_type: dueType,
+          due_date: dueDate,
+          due_odometer: dueOdometer,
+          notes: typeof body.notes === 'string' && body.notes.trim() ? body.notes.trim() : null,
+          recurrence_interval_days: recurrenceIntervalDays,
+          recurrence_interval_km: recurrenceIntervalKm,
+        })
+        .select()
+        .single();
+
+      if (error) return serverError(error, '/api/fuel POST reminder');
+      return NextResponse.json({ data });
+    }
+
     return jsonError('Invalid resource', 400);
   } catch (e) {
     return serverError(e, '/api/fuel POST');
@@ -630,6 +721,74 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ data });
     }
 
+    if (resource === 'reminder') {
+      const ok = await reminderBelongsToCode(supabase, id, code);
+      if (!ok) return jsonError('Reminder not found for this sync code', 404);
+
+      const updates: Record<string, unknown> = {};
+
+      if ('title' in body) {
+        const title = typeof body.title === 'string' ? body.title.trim() : '';
+        if (!title) return jsonError('Title cannot be empty', 400);
+        updates.title = title;
+      }
+      if ('dueType' in body) {
+        if (body.dueType !== 'date' && body.dueType !== 'odometer') {
+          return jsonError('dueType must be "date" or "odometer"', 400);
+        }
+        updates.due_type = body.dueType;
+      }
+      if ('dueDate' in body) {
+        updates.due_date = typeof body.dueDate === 'string' && body.dueDate ? body.dueDate : null;
+      }
+      if ('dueOdometer' in body) {
+        if (body.dueOdometer === null) {
+          updates.due_odometer = null;
+        } else {
+          const dueOdometer = Number(body.dueOdometer);
+          if (!Number.isFinite(dueOdometer)) return jsonError('dueOdometer must be a valid number', 400);
+          updates.due_odometer = dueOdometer;
+        }
+      }
+      if ('notes' in body) {
+        updates.notes = typeof body.notes === 'string' && body.notes.trim() ? body.notes.trim() : null;
+      }
+      if ('completedAt' in body) {
+        updates.completed_at = typeof body.completedAt === 'string' && body.completedAt ? body.completedAt : null;
+      }
+      if ('recurrenceIntervalDays' in body) {
+        if (body.recurrenceIntervalDays === null || body.recurrenceIntervalDays === '') {
+          updates.recurrence_interval_days = null;
+        } else {
+          const v = Number(body.recurrenceIntervalDays);
+          if (!Number.isFinite(v)) return jsonError('Invalid recurrenceIntervalDays', 400);
+          updates.recurrence_interval_days = v;
+        }
+      }
+      if ('recurrenceIntervalKm' in body) {
+        if (body.recurrenceIntervalKm === null || body.recurrenceIntervalKm === '') {
+          updates.recurrence_interval_km = null;
+        } else {
+          const v = Number(body.recurrenceIntervalKm);
+          if (!Number.isFinite(v)) return jsonError('Invalid recurrenceIntervalKm', 400);
+          updates.recurrence_interval_km = v;
+        }
+      }
+
+      if (Object.keys(updates).length === 0) return jsonError('No fields to update', 400);
+
+      const { data, error } = await supabase
+        .from('fuel_reminders')
+        .update(updates)
+        .eq('id', id)
+        .eq('user_code', code)
+        .select()
+        .single();
+
+      if (error) return serverError(error, '/api/fuel PATCH reminder');
+      return NextResponse.json({ data });
+    }
+
     return jsonError('Invalid resource', 400);
   } catch (e) {
     return serverError(e, '/api/fuel PATCH');
@@ -679,6 +838,20 @@ export async function DELETE(req: NextRequest) {
         .eq('id', id)
         .eq('user_code', code);
       if (error) return serverError(error, '/api/fuel DELETE vehicle');
+      return NextResponse.json({ success: true });
+    }
+
+    if (resource === 'reminder') {
+      if (!id || !code) return jsonError('Missing id or code', 400);
+      const ok = await reminderBelongsToCode(supabase, id, code);
+      if (!ok) return jsonError('Reminder not found for this sync code', 404);
+
+      const { error } = await supabase
+        .from('fuel_reminders')
+        .delete()
+        .eq('id', id)
+        .eq('user_code', code);
+      if (error) return serverError(error, '/api/fuel DELETE reminder');
       return NextResponse.json({ success: true });
     }
 

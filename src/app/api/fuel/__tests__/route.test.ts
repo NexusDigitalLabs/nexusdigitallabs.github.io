@@ -151,6 +151,32 @@ describe('GET /api/fuel', () => {
     expect(json.code).toBe('garage-ab12');
     expect(json.data).toHaveLength(2);
   });
+
+  it('returns 400 for resource=reminders when vehicleId is missing', async () => {
+    const req = new NextRequest('http://localhost/api/fuel?code=test-abc1&resource=reminders');
+    const res = await GET(req);
+    expect(res.status).toBe(400);
+  });
+
+  it('returns reminders for a vehicle', async () => {
+    const reminders = [{ id: 'r1', vehicle_id: 'v1', title: 'Oil change', due_type: 'date', due_date: '2026-12-01' }];
+    let call = 0;
+    mockFrom.mockImplementation(() => {
+      call += 1;
+      // 1st: claim-lock's ownerIdForCode maybeSingle → unclaimed
+      // 2nd: vehicleBelongsToCode maybeSingle → found
+      // 3rd: reminders list
+      if (call === 1) return chainResolve({ data: null, error: null });
+      if (call === 2) return chainResolve({ data: { id: 'v1' }, error: null });
+      return chainResolve({ data: reminders, error: null });
+    });
+
+    const req = new NextRequest('http://localhost/api/fuel?code=test-abc1&resource=reminders&vehicleId=v1');
+    const res = await GET(req);
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.data).toEqual(reminders);
+  });
 });
 
 describe('POST /api/fuel', () => {
@@ -646,5 +672,132 @@ describe('PATCH /api/fuel', () => {
     });
     const res = await PATCH(req);
     expect(res.status).toBe(400);
+  });
+});
+
+describe('resource=reminder', () => {
+  function req(method: string, body: Record<string, unknown>) {
+    return new NextRequest('http://localhost/api/fuel', {
+      method,
+      headers: uniqueClientHeaders(),
+      body: JSON.stringify(body),
+    });
+  }
+
+  it('POST returns 400 when title is missing', async () => {
+    mockFrom.mockImplementation(() => chainResolve({ data: { id: 'v1' }, error: null }));
+    const res = await POST(
+      req('POST', { resource: 'reminder', code: 'test-abc1', vehicleId: 'v1', dueType: 'date', dueDate: '2026-12-01' })
+    );
+    expect(res.status).toBe(400);
+  });
+
+  it('POST returns 400 for an invalid dueType', async () => {
+    mockFrom.mockImplementation(() => chainResolve({ data: { id: 'v1' }, error: null }));
+    const res = await POST(
+      req('POST', { resource: 'reminder', code: 'test-abc1', vehicleId: 'v1', title: 'Oil change', dueType: 'never' })
+    );
+    expect(res.status).toBe(400);
+  });
+
+  it('POST returns 400 when dueType=date has no dueDate', async () => {
+    mockFrom.mockImplementation(() => chainResolve({ data: { id: 'v1' }, error: null }));
+    const res = await POST(
+      req('POST', { resource: 'reminder', code: 'test-abc1', vehicleId: 'v1', title: 'Oil change', dueType: 'date' })
+    );
+    expect(res.status).toBe(400);
+  });
+
+  it('POST creates a date-based reminder', async () => {
+    const created = { id: 'r1', vehicle_id: 'v1', title: 'Oil change', due_type: 'date', due_date: '2026-12-01' };
+    let call = 0;
+    mockFrom.mockImplementation(() => {
+      call += 1;
+      if (call === 1) return chainResolve({ data: { id: 'v1' }, error: null }); // vehicleBelongsToCode
+      return chainResolve({ data: created, error: null }); // insert
+    });
+
+    const res = await POST(
+      req('POST', {
+        resource: 'reminder', code: 'test-abc1', vehicleId: 'v1', title: 'Oil change',
+        dueType: 'date', dueDate: '2026-12-01',
+      })
+    );
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.data.title).toBe('Oil change');
+  });
+
+  it('POST creates a recurring odometer-based reminder', async () => {
+    const created = {
+      id: 'r2', vehicle_id: 'v1', title: 'Tyre rotation', due_type: 'odometer',
+      due_odometer: 15000, recurrence_interval_km: 10000,
+    };
+    let call = 0;
+    mockFrom.mockImplementation(() => {
+      call += 1;
+      if (call === 1) return chainResolve({ data: { id: 'v1' }, error: null });
+      return chainResolve({ data: created, error: null });
+    });
+
+    const res = await POST(
+      req('POST', {
+        resource: 'reminder', code: 'test-abc1', vehicleId: 'v1', title: 'Tyre rotation',
+        dueType: 'odometer', dueOdometer: '15000', recurrenceIntervalKm: '10000',
+      })
+    );
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.data.recurrence_interval_km).toBe(10000);
+  });
+
+  it('PATCH returns 404 when the reminder does not belong to the sync code', async () => {
+    mockFrom.mockImplementation(() => chainResolve({ data: null, error: null }));
+    const res = await PATCH(req('PATCH', { resource: 'reminder', id: 'r1', code: 'test-abc1', title: 'New title' }));
+    expect(res.status).toBe(404);
+  });
+
+  it('PATCH marks a reminder complete', async () => {
+    const updated = { id: 'r1', title: 'Oil change', completed_at: '2026-09-27T00:00:00.000Z' };
+    let call = 0;
+    mockFrom.mockImplementation(() => {
+      call += 1;
+      if (call === 1) return chainResolve({ data: { id: 'r1' }, error: null }); // reminderBelongsToCode
+      return chainResolve({ data: updated, error: null }); // update
+    });
+
+    const res = await PATCH(
+      req('PATCH', { resource: 'reminder', id: 'r1', code: 'test-abc1', completedAt: '2026-09-27T00:00:00.000Z' })
+    );
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.data.completed_at).toBe('2026-09-27T00:00:00.000Z');
+  });
+
+  it('DELETE returns 404 when the reminder does not belong to the sync code', async () => {
+    mockFrom.mockImplementation(() => chainResolve({ data: null, error: null }));
+    const res = await DELETE(req('DELETE', { resource: 'reminder', id: 'r1', code: 'test-abc1' }));
+    expect(res.status).toBe(404);
+  });
+
+  it('DELETE removes a reminder', async () => {
+    const ownership = chainResolve({ data: { id: 'r1' }, error: null });
+    const del = chainResolve({ data: null, error: null });
+    let eqCount = 0;
+    del.eq = vi.fn(() => {
+      eqCount += 1;
+      if (eqCount >= 2) return Promise.resolve({ error: null });
+      return del;
+    });
+    let call = 0;
+    mockFrom.mockImplementation(() => {
+      call += 1;
+      return call === 1 ? ownership : del;
+    });
+
+    const res = await DELETE(req('DELETE', { resource: 'reminder', id: 'r1', code: 'test-abc1' }));
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.success).toBe(true);
   });
 });
