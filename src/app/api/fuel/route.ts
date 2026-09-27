@@ -429,6 +429,120 @@ export async function POST(req: NextRequest) {
   }
 }
 
+// ── PATCH — update vehicle or fill fields ────────────────────────────────────
+export async function PATCH(req: NextRequest) {
+  if (rateLimited(clientKey(req), 'write', WRITE_RATE_MAX)) return rateLimitResponse();
+
+  let body: Record<string, unknown>;
+  try {
+    body = (await req.json()) as Record<string, unknown>;
+  } catch {
+    return jsonError('Invalid JSON body', 400);
+  }
+
+  const resource = body.resource as string | undefined;
+  const id = typeof body.id === 'string' ? body.id : undefined;
+  const code = typeof body.code === 'string' ? body.code : undefined;
+  if (!id || !code) return jsonError('Missing id or code', 400);
+
+  try {
+    const supabase = createServerSupabaseClient();
+
+    if (resource === 'vehicle') {
+      const ok = await vehicleBelongsToCode(supabase, id, code);
+      if (!ok) return jsonError('Vehicle not found for this sync code', 404);
+
+      const updates: Record<string, unknown> = {};
+
+      if ('make' in body) {
+        const make = typeof body.make === 'string' ? body.make.trim() : '';
+        if (!make) return jsonError('Make cannot be empty', 400);
+        updates.make = make;
+      }
+      if ('model' in body) {
+        const model = typeof body.model === 'string' ? body.model.trim() : '';
+        if (!model) return jsonError('Model cannot be empty', 400);
+        updates.model = model;
+      }
+      if ('year' in body) {
+        const yearRaw = body.year;
+        const year =
+          yearRaw === null || yearRaw === undefined || yearRaw === ''
+            ? null
+            : Number(yearRaw);
+        if (year !== null && !Number.isFinite(year)) return jsonError('Invalid year', 400);
+        updates.year = year;
+      }
+      if ('fuelType' in body) {
+        updates.fuel_type = (typeof body.fuelType === 'string' && body.fuelType) || 'petrol';
+      }
+      if ('nickname' in body) {
+        updates.nickname =
+          typeof body.nickname === 'string' && body.nickname.trim() ? body.nickname.trim() : null;
+      }
+
+      if (Object.keys(updates).length === 0) return jsonError('No fields to update', 400);
+
+      const { data, error } = await supabase
+        .from('fuel_vehicles')
+        .update(updates)
+        .eq('id', id)
+        .eq('user_code', code)
+        .select()
+        .single();
+
+      if (error) return serverError(error, '/api/fuel PATCH vehicle');
+      return NextResponse.json({ data });
+    }
+
+    if (resource === 'fill') {
+      const ok = await fillBelongsToCode(supabase, id, code);
+      if (!ok) return jsonError('Fill not found for this sync code', 404);
+
+      const updates: Record<string, unknown> = {};
+
+      if ('fillDate' in body) updates.fill_date = body.fillDate;
+      if ('odometer' in body) {
+        const odometer = Number(body.odometer);
+        if (!Number.isFinite(odometer)) return jsonError('Odometer must be a valid number', 400);
+        updates.odometer = odometer;
+      }
+      if ('litres' in body) {
+        const litres = Number(body.litres);
+        if (!Number.isFinite(litres)) return jsonError('Litres must be a valid number', 400);
+        updates.litres = litres;
+      }
+      if ('pricePerLitre' in body) {
+        const pricePerLitre = Number(body.pricePerLitre);
+        if (!Number.isFinite(pricePerLitre)) return jsonError('Price must be a valid number', 400);
+        updates.price_per_litre = pricePerLitre;
+      }
+      if ('isPartial' in body) updates.is_partial = Boolean(body.isPartial);
+      if ('notes' in body) {
+        updates.notes =
+          typeof body.notes === 'string' && body.notes.trim() ? body.notes.trim() : null;
+      }
+
+      if (Object.keys(updates).length === 0) return jsonError('No fields to update', 400);
+
+      const { data, error } = await supabase
+        .from('fuel_fills')
+        .update(updates)
+        .eq('id', id)
+        .eq('user_code', code)
+        .select()
+        .single();
+
+      if (error) return serverError(error, '/api/fuel PATCH fill');
+      return NextResponse.json({ data });
+    }
+
+    return jsonError('Invalid resource', 400);
+  } catch (e) {
+    return serverError(e, '/api/fuel PATCH');
+  }
+}
+
 // ── DELETE — remove fill, vehicle, or all user data ──────────────────────────
 export async function DELETE(req: NextRequest) {
   if (rateLimited(clientKey(req), 'write', WRITE_RATE_MAX)) return rateLimitResponse();
