@@ -4,11 +4,13 @@ import { NextRequest } from 'next/server';
 const mockFrom = vi.fn();
 const mockRpc = vi.fn();
 const mockGetUser = vi.fn();
+const mockDeleteUser = vi.fn();
 
 vi.mock('@/lib/supabase-server', () => ({
   createServerSupabaseClient: () => ({
     from: (...args: unknown[]) => mockFrom(...args),
     rpc: (...args: unknown[]) => mockRpc(...args),
+    auth: { admin: { deleteUser: (...args: unknown[]) => mockDeleteUser(...args) } },
   }),
 }));
 
@@ -27,6 +29,7 @@ function chainResolve(result: { data?: unknown; error?: unknown }) {
   chain.eq = vi.fn(self);
   chain.not = vi.fn(self);
   chain.limit = vi.fn(self);
+  chain.update = vi.fn(self);
   chain.order = vi.fn(() => Promise.resolve(result));
   chain.single = vi.fn(() => Promise.resolve(result));
   chain.maybeSingle = vi.fn(() => Promise.resolve(result));
@@ -35,14 +38,37 @@ function chainResolve(result: { data?: unknown; error?: unknown }) {
   return chain;
 }
 
+// The route's in-memory rate limiter buckets by client IP and persists across
+// tests in this file (it's module-level state, not reset per test). Give
+// every request added below its own key via x-forwarded-for so a growing
+// test suite never trips WRITE_RATE_MAX/READ_RATE_MAX on an unrelated test —
+// mirrors api/contact's __tests__/route.test.ts, which does the same.
+let clientKeyCounter = 0;
+function uniqueClientHeaders(): HeadersInit {
+  clientKeyCounter += 1;
+  return { 'x-forwarded-for': `test-client-${clientKeyCounter}` };
+}
+
+/** For `.select('id', { count: 'exact', head: true }).eq(...)`, which resolves
+ * directly off the final `.eq()` rather than `.single()`/`.maybeSingle()`. */
+function countChain(count: number | null) {
+  const chain: Record<string, unknown> = {};
+  chain.select = vi.fn(() => chain);
+  chain.eq = vi.fn(() => Promise.resolve({ count, error: null }));
+  return chain;
+}
+
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.unstubAllEnvs();
+  vi.unstubAllGlobals();
   mockGetUser.mockResolvedValue({ data: { user: null }, error: null });
   mockRpc.mockResolvedValue({ data: null, error: null });
+  mockDeleteUser.mockResolvedValue({ data: {}, error: null });
   mockFrom.mockImplementation(() => chainResolve({ data: null, error: null }));
 });
 
-import { GET, POST, DELETE } from '../route';
+import { GET, POST, DELETE, PATCH } from '../route';
 
 describe('GET /api/fuel', () => {
   it('returns 400 when code is missing', async () => {
@@ -148,7 +174,7 @@ describe('POST /api/fuel', () => {
     expect(json.error).toMatch(/Invalid resource/i);
   });
 
-  it('creates a vehicle and returns it', async () => {
+  it('creates a first vehicle and returns it', async () => {
     const created = {
       id: 'v1',
       make: 'Toyota',
@@ -160,9 +186,11 @@ describe('POST /api/fuel', () => {
     let call = 0;
     mockFrom.mockImplementation(() => {
       call += 1;
-      // 1st: ownerIdForCode maybeSingle → null
-      // 2nd: insert
+      // 1st: ownerIdForCode maybeSingle → null (unclaimed)
+      // 2nd: vehicle count → 0 (no cap check needed for the 1st vehicle)
+      // 3rd: insert
       if (call === 1) return chainResolve({ data: null, error: null });
+      if (call === 2) return countChain(0);
       return chainResolve({ data: created, error: null });
     });
 
@@ -181,6 +209,164 @@ describe('POST /api/fuel', () => {
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.data.make).toBe('Toyota');
+  });
+
+  describe('free-tier vehicle cap', () => {
+    function postVehicle(body: Record<string, unknown>) {
+      return POST(
+        new NextRequest('http://localhost/api/fuel', {
+          method: 'POST',
+          headers: uniqueClientHeaders(),
+          body: JSON.stringify({
+            resource: 'vehicle', code: 'test-abc1', make: 'Honda', model: 'Civic', ...body,
+          }),
+        })
+      );
+    }
+
+    it('allows a 2nd vehicle for an anonymous garage that sends no RevenueCat id (old app version, fail open)', async () => {
+      // No revenueCatAppUserId in the body at all — e.g. a pre-update app
+      // build. Genuinely can't verify anything here, so this must not block,
+      // by design (see hasProEntitlement's header comment): a version-skew
+      // window is the tradeoff for never locking out a real payer on an old
+      // build. What actually closes the anonymous-path gap is the app
+      // sending a real id (always true once RevenueCat is configured
+      // client-side, whether the caller is Pro or not) plus
+      // REVENUECAT_SECRET_API_KEY being set server-side — see the tests
+      // below for that path.
+      let call = 0;
+      mockFrom.mockImplementation(() => {
+        call += 1;
+        if (call === 1) return chainResolve({ data: null, error: null }); // unclaimed
+        if (call === 2) return countChain(1); // already has 1 vehicle
+        return chainResolve({ data: { id: 'v2' }, error: null }); // insert
+      });
+
+      const res = await postVehicle({});
+      expect(res.status).toBe(200);
+    });
+
+    it('allows a 2nd vehicle for a claimed garage with an active pro_entitlements row', async () => {
+      let call = 0;
+      mockFrom.mockImplementation(() => {
+        call += 1;
+        if (call === 1) return chainResolve({ data: { user_id: 'user-1' }, error: null }); // claimed
+        if (call === 2) return countChain(1);
+        if (call === 3) return chainResolve({ data: { is_pro: true }, error: null }); // pro_entitlements
+        return chainResolve({ data: { id: 'v2' }, error: null }); // insert
+      });
+
+      const res = await postVehicle({});
+      expect(res.status).toBe(200);
+    });
+
+    it('blocks a 2nd vehicle for a claimed garage explicitly revoked in pro_entitlements', async () => {
+      let call = 0;
+      mockFrom.mockImplementation(() => {
+        call += 1;
+        if (call === 1) return chainResolve({ data: { user_id: 'user-1' }, error: null });
+        if (call === 2) return countChain(1);
+        return chainResolve({ data: { is_pro: false }, error: null }); // explicitly revoked
+      });
+
+      const res = await postVehicle({});
+      expect(res.status).toBe(403);
+    });
+
+    it('allows a 2nd vehicle for a claimed garage with no pro_entitlements row yet (ambiguous → fail open)', async () => {
+      let call = 0;
+      mockFrom.mockImplementation(() => {
+        call += 1;
+        if (call === 1) return chainResolve({ data: { user_id: 'user-1' }, error: null });
+        if (call === 2) return countChain(1);
+        if (call === 3) return chainResolve({ data: null, error: null }); // no row
+        return chainResolve({ data: { id: 'v2' }, error: null });
+      });
+
+      const res = await postVehicle({});
+      expect(res.status).toBe(200);
+    });
+
+    it('allows an anonymous 2nd vehicle when REVENUECAT_SECRET_API_KEY is not configured (fail open)', async () => {
+      let call = 0;
+      mockFrom.mockImplementation(() => {
+        call += 1;
+        if (call === 1) return chainResolve({ data: null, error: null });
+        if (call === 2) return countChain(1);
+        return chainResolve({ data: { id: 'v2' }, error: null });
+      });
+
+      const res = await postVehicle({ revenueCatAppUserId: '$RCAnonymousID:abc' });
+      expect(res.status).toBe(200);
+    });
+
+    it('blocks an anonymous 2nd vehicle when RevenueCat reports no active entitlement', async () => {
+      vi.stubEnv('REVENUECAT_SECRET_API_KEY', 'rc-secret-test');
+      let call = 0;
+      mockFrom.mockImplementation(() => {
+        call += 1;
+        if (call === 1) return chainResolve({ data: null, error: null });
+        return countChain(1);
+      });
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: true,
+          json: async () => ({ subscriber: { entitlements: {} } }),
+        })
+      );
+
+      const res = await postVehicle({ revenueCatAppUserId: '$RCAnonymousID:abc' });
+      expect(res.status).toBe(403);
+    });
+
+    it('allows an anonymous 2nd vehicle when RevenueCat reports an active entitlement', async () => {
+      vi.stubEnv('REVENUECAT_SECRET_API_KEY', 'rc-secret-test');
+      let call = 0;
+      mockFrom.mockImplementation(() => {
+        call += 1;
+        if (call === 1) return chainResolve({ data: null, error: null });
+        if (call === 2) return countChain(1);
+        return chainResolve({ data: { id: 'v2' }, error: null });
+      });
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: true,
+          json: async () => ({ subscriber: { entitlements: { odova_pro: { expires_date: null } } } }),
+        })
+      );
+
+      const res = await postVehicle({ revenueCatAppUserId: '$RCAnonymousID:abc' });
+      expect(res.status).toBe(200);
+    });
+  });
+
+  describe('resource=delete_account', () => {
+    it('returns 401 when signed out', async () => {
+      const req = new NextRequest('http://localhost/api/fuel', {
+        method: 'POST',
+        headers: uniqueClientHeaders(),
+        body: JSON.stringify({ resource: 'delete_account' }),
+      });
+      const res = await POST(req);
+      expect(res.status).toBe(401);
+    });
+
+    it('deletes the signed-in user and returns success', async () => {
+      mockGetUser.mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null });
+
+      const req = new NextRequest('http://localhost/api/fuel', {
+        method: 'POST',
+        headers: uniqueClientHeaders(),
+        body: JSON.stringify({ resource: 'delete_account' }),
+      });
+      const res = await POST(req);
+      expect(res.status).toBe(200);
+      const json = await res.json();
+      expect(json.success).toBe(true);
+      expect(mockDeleteUser).toHaveBeenCalledWith('user-1');
+    });
   });
 
   it('creates a fill-up and returns it', async () => {
@@ -336,5 +522,129 @@ describe('DELETE /api/fuel', () => {
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.success).toBe(true);
+  });
+});
+
+describe('PATCH /api/fuel', () => {
+  it('returns 400 when id or code is missing', async () => {
+    const req = new NextRequest('http://localhost/api/fuel', {
+      method: 'PATCH',
+      headers: uniqueClientHeaders(),
+      body: JSON.stringify({ resource: 'vehicle', code: 'test-abc1' }),
+    });
+    const res = await PATCH(req);
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 400 for invalid resource', async () => {
+    const req = new NextRequest('http://localhost/api/fuel', {
+      method: 'PATCH',
+      headers: uniqueClientHeaders(),
+      body: JSON.stringify({ resource: 'unknown', id: 'v1', code: 'test-abc1' }),
+    });
+    const res = await PATCH(req);
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 404 when the vehicle does not belong to the sync code', async () => {
+    mockFrom.mockImplementation(() => chainResolve({ data: null, error: null }));
+
+    const req = new NextRequest('http://localhost/api/fuel', {
+      method: 'PATCH',
+      headers: uniqueClientHeaders(),
+      body: JSON.stringify({ resource: 'vehicle', id: 'v1', code: 'test-abc1', make: 'Toyota' }),
+    });
+    const res = await PATCH(req);
+    expect(res.status).toBe(404);
+  });
+
+  it('returns 400 when a vehicle patch has no fields to update', async () => {
+    mockFrom.mockImplementation(() => chainResolve({ data: { id: 'v1' }, error: null }));
+
+    const req = new NextRequest('http://localhost/api/fuel', {
+      method: 'PATCH',
+      headers: uniqueClientHeaders(),
+      body: JSON.stringify({ resource: 'vehicle', id: 'v1', code: 'test-abc1' }),
+    });
+    const res = await PATCH(req);
+    expect(res.status).toBe(400);
+  });
+
+  it('updates a vehicle and returns it', async () => {
+    const updated = { id: 'v1', make: 'Toyota', model: 'Camry', user_code: 'test-abc1' };
+    let call = 0;
+    mockFrom.mockImplementation(() => {
+      call += 1;
+      // 1st: vehicleBelongsToCode maybeSingle → found
+      // 2nd: update
+      if (call === 1) return chainResolve({ data: { id: 'v1' }, error: null });
+      return chainResolve({ data: updated, error: null });
+    });
+
+    const req = new NextRequest('http://localhost/api/fuel', {
+      method: 'PATCH',
+      headers: uniqueClientHeaders(),
+      body: JSON.stringify({ resource: 'vehicle', id: 'v1', code: 'test-abc1', make: 'Toyota', model: 'Camry' }),
+    });
+    const res = await PATCH(req);
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.data.model).toBe('Camry');
+  });
+
+  it('rejects an empty make on a vehicle patch', async () => {
+    mockFrom.mockImplementation(() => chainResolve({ data: { id: 'v1' }, error: null }));
+
+    const req = new NextRequest('http://localhost/api/fuel', {
+      method: 'PATCH',
+      headers: uniqueClientHeaders(),
+      body: JSON.stringify({ resource: 'vehicle', id: 'v1', code: 'test-abc1', make: '  ' }),
+    });
+    const res = await PATCH(req);
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 404 when the fill does not belong to the sync code', async () => {
+    mockFrom.mockImplementation(() => chainResolve({ data: null, error: null }));
+
+    const req = new NextRequest('http://localhost/api/fuel', {
+      method: 'PATCH',
+      headers: uniqueClientHeaders(),
+      body: JSON.stringify({ resource: 'fill', id: 'f1', code: 'test-abc1', litres: 40 }),
+    });
+    const res = await PATCH(req);
+    expect(res.status).toBe(404);
+  });
+
+  it('updates a fill and returns it', async () => {
+    const updated = { id: 'f1', vehicle_id: 'v1', litres: 42.5, odometer: 11230 };
+    let call = 0;
+    mockFrom.mockImplementation(() => {
+      call += 1;
+      if (call === 1) return chainResolve({ data: { id: 'f1' }, error: null });
+      return chainResolve({ data: updated, error: null });
+    });
+
+    const req = new NextRequest('http://localhost/api/fuel', {
+      method: 'PATCH',
+      headers: uniqueClientHeaders(),
+      body: JSON.stringify({ resource: 'fill', id: 'f1', code: 'test-abc1', litres: '42.5' }),
+    });
+    const res = await PATCH(req);
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.data.litres).toBe(42.5);
+  });
+
+  it('rejects a non-numeric odometer on a fill patch', async () => {
+    mockFrom.mockImplementation(() => chainResolve({ data: { id: 'f1' }, error: null }));
+
+    const req = new NextRequest('http://localhost/api/fuel', {
+      method: 'PATCH',
+      headers: uniqueClientHeaders(),
+      body: JSON.stringify({ resource: 'fill', id: 'f1', code: 'test-abc1', odometer: 'not-a-number' }),
+    });
+    const res = await PATCH(req);
+    expect(res.status).toBe(400);
   });
 });

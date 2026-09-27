@@ -4,6 +4,10 @@ import { createServerSupabaseAuthClient } from '@/lib/supabase/server';
 
 type SupabaseAdmin = ReturnType<typeof createServerSupabaseClient>;
 
+// Must match Odova's src/lib/config.ts REVENUECAT_ENTITLEMENT_ID.
+const REVENUECAT_ENTITLEMENT_ID = 'odova_pro';
+const FREE_TIER_VEHICLE_LIMIT = 1;
+
 /**
  * Soft in-memory rate limit (per serverless instance), mirroring api/contact's
  * pattern. GET is limited too, not just mutations — it's the sync-code
@@ -127,6 +131,64 @@ async function fillBelongsToCode(
     .maybeSingle();
   if (error) throw error;
   return Boolean(data?.id);
+}
+
+/**
+ * Server-side check backing the free tier's vehicle-count cap. Deliberately
+ * fails OPEN (does not block) whenever entitlement can't be positively
+ * determined, on both paths below — this is a defense against the "anyone
+ * with a sync code can curl unlimited vehicles for free" gap, not a system
+ * that should ever lock out a real payer because of an infra/config gap it
+ * can't see:
+ *
+ * - Claimed garage (ownerId set): looks up `pro_entitlements`, written by
+ *   the RevenueCat webhook (see revenuecat-webhook/route.ts). No row at all
+ *   is ambiguous (webhook may not be wired up in the RevenueCat dashboard
+ *   yet, or this purchase predates it) — allow. A row with is_pro=false is
+ *   a confident revoke signal — block.
+ * - Unclaimed/anonymous garage: the client (Odova) sends its RevenueCat
+ *   app_user_id (see api.ts createVehicle). Verified live against
+ *   RevenueCat's REST API using REVENUECAT_SECRET_API_KEY (the dashboard's
+ *   secret key, not the public SDK key already embedded in the app). If
+ *   that env var isn't set yet, or no app_user_id was sent, this path
+ *   can't verify anything — allow.
+ */
+async function hasProEntitlement(
+  supabase: SupabaseAdmin,
+  ownerId: string | null,
+  revenueCatAppUserId: unknown
+): Promise<boolean> {
+  if (ownerId) {
+    const { data, error } = await supabase
+      .from('pro_entitlements')
+      .select('is_pro')
+      .eq('user_id', ownerId)
+      .maybeSingle();
+    if (error) throw error;
+    if (data === null) return true; // No record yet — ambiguous, don't block.
+    return Boolean(data.is_pro);
+  }
+
+  const rcId = typeof revenueCatAppUserId === 'string' ? revenueCatAppUserId.trim() : '';
+  const secretKey = process.env.REVENUECAT_SECRET_API_KEY;
+  if (!rcId || !secretKey) return true; // Can't verify — don't block.
+
+  try {
+    const res = await fetch(`https://api.revenuecat.com/v1/subscribers/${encodeURIComponent(rcId)}`, {
+      headers: { Authorization: `Bearer ${secretKey}` },
+    });
+    if (!res.ok) return true; // RevenueCat unreachable/erroring — don't block on our outage.
+    const json = (await res.json()) as {
+      subscriber?: { entitlements?: Record<string, { expires_date?: string | null }> };
+    };
+    const entitlement = json.subscriber?.entitlements?.[REVENUECAT_ENTITLEMENT_ID];
+    if (!entitlement) return false; // Verified: this id has no active grant.
+    // A non-renewing entitlement with no expiry never expires; one with an
+    // expiry must still be in the future.
+    return !entitlement.expires_date || new Date(entitlement.expires_date).getTime() > Date.now();
+  } catch {
+    return true; // Network error reaching RevenueCat — don't block on our outage.
+  }
 }
 
 // ── GET — fetch vehicles, fills, claim status, or account garage ─────────────
@@ -349,6 +411,23 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    if (resource === 'delete_account') {
+      const userId = await getSignedInUserId(req);
+      if (!userId) return jsonError('Sign in required to delete your account', 401);
+
+      const supabase = createServerSupabaseClient();
+      // Cascades: profiles and pro_entitlements rows are deleted (on delete
+      // cascade from auth.users). fuel_vehicles.user_id is `on delete set
+      // null` (see 002_fuel_user_id.sql) — any claimed garages fall back to
+      // anonymous sync-code-only access rather than being deleted, mirroring
+      // what "unlink" already does deliberately; a user who also wants their
+      // garage data gone still has the separate DELETE resource=user flow.
+      const { error } = await supabase.auth.admin.deleteUser(userId);
+      if (error) return serverError(error, '/api/fuel POST delete_account');
+
+      return NextResponse.json({ success: true });
+    }
+
     if (!code) return jsonError('Missing code', 400);
 
     const supabase = createServerSupabaseClient();
@@ -368,6 +447,20 @@ export async function POST(req: NextRequest) {
       }
 
       const ownerId = await ownerIdForCode(supabase, code);
+
+      const { count: existingCount, error: countError } = await supabase
+        .from('fuel_vehicles')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_code', code);
+      if (countError) return serverError(countError, '/api/fuel POST vehicle count');
+
+      if ((existingCount ?? 0) >= FREE_TIER_VEHICLE_LIMIT) {
+        const isPro = await hasProEntitlement(supabase, ownerId, body.revenueCatAppUserId);
+        if (!isPro) {
+          return jsonError('Upgrade to Pro to add more than one vehicle.', 403);
+        }
+      }
+
       const { data, error } = await supabase
         .from('fuel_vehicles')
         .insert({
