@@ -68,6 +68,11 @@ export const metadata: Metadata = {
     images: [DEFAULT_OG_IMAGE],
   },
   applicationName: SITE_NAME,
+  // Server-rendered so AdSense's crawler can verify site ownership without
+  // accepting the consent banner (the ad script itself stays consent-gated).
+  ...(process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID
+    ? { other: { 'google-adsense-account': process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID } }
+    : {}),
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
