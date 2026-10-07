@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
+import { isAppPath } from '@/lib/freelanceos/paths';
 
 declare global {
   interface Navigator {
@@ -33,7 +34,8 @@ export default function PWAInstallBanner() {
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
 
-  const isPrivatePortfolio = Boolean(pathname?.startsWith('/p/'));
+  // Also suppressed inside FreelanceOS (/app), which isn't the NDL site PWA.
+  const isPrivatePortfolio = Boolean(pathname?.startsWith('/p/')) || isAppPath(pathname);
 
   useEffect(() => {
     if (isPrivatePortfolio) {

@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import Script from 'next/script';
+import { usePathname } from 'next/navigation';
 import { getStoredConsent, CONSENT_CHANGED_EVENT } from '@/lib/consent';
+import { isAppPath } from '@/lib/freelanceos/paths';
 
 const ADSENSE_CLIENT_ID = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
 
@@ -16,6 +18,7 @@ const ADSENSE_CLIENT_ID = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
  * no other code changes needed anywhere in the app.
  */
 export default function AdSenseScript() {
+  const pathname = usePathname();
   const [granted, setGranted] = useState(false);
 
   useEffect(() => {
@@ -27,7 +30,10 @@ export default function AdSenseScript() {
     return () => window.removeEventListener(CONSENT_CHANGED_EVENT, handleChange);
   }, []);
 
-  if (!ADSENSE_CLIENT_ID || !granted) return null;
+  // No ads inside FreelanceOS (signed-in business data). Only stops the
+  // initial load: a script already loaded on a public page stays loaded, so
+  // also exclude /app/* in the AdSense dashboard (Auto ads → page exclusions).
+  if (!ADSENSE_CLIENT_ID || !granted || isAppPath(pathname)) return null;
 
   return (
     <Script

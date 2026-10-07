@@ -5,14 +5,18 @@ import { usePathname } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ThemeToggle from '@/components/ThemeToggle';
+import { isAppPath } from '@/lib/freelanceos/paths';
 
 /**
  * Full site chrome everywhere except private /p/* routes,
- * which only keep the theme toggle (no nav / auth / footer).
+ * which only keep the theme toggle (no nav / auth / footer),
+ * and FreelanceOS /app/* routes, which render their own AppShell.
  */
 export default function SiteChrome({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const isPrivatePortfolio = Boolean(pathname?.startsWith('/p/'));
+
+  if (isAppPath(pathname)) return <>{children}</>;
 
   if (isPrivatePortfolio) {
     return (

@@ -1,6 +1,7 @@
 User-agent: *
 Allow: /
 Disallow: /p/
+Disallow: /app/
 
 # AdSense crawler — explicit allow for tools, articles, and games
 User-agent: Mediapartners-Google

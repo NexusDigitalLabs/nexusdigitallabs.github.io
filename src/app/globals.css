@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Site theme is driven by <html data-theme>, not prefers-color-scheme. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 /* ── Design tokens — dark (default) ───────────────────────────────────────── */
 :root,
 [data-theme="dark"] {
@@ -576,4 +579,52 @@ body {
 }
 .ndl-invoice-input:focus {
   border-color: rgba(99, 102, 241, 0.55);
+}
+
+/* ── FreelanceOS (/app) — shadcn/ui tokens ────────────────────────────────────
+   Utilities like bg-primary / text-muted-foreground resolve to --fos-* vars,
+   which are only defined inside .fos-app. Outside the app those vars are
+   undefined, so the utilities are inert and can't restyle the public site.
+   Values map onto the --ndl-* tokens, so the app follows the site theme. */
+@theme inline {
+  --color-background: var(--fos-background);
+  --color-foreground: var(--fos-foreground);
+  --color-card: var(--fos-card);
+  --color-card-foreground: var(--fos-foreground);
+  --color-popover: var(--fos-card);
+  --color-popover-foreground: var(--fos-foreground);
+  --color-primary: var(--fos-primary);
+  --color-primary-foreground: var(--fos-primary-foreground);
+  --color-secondary: var(--fos-muted);
+  --color-secondary-foreground: var(--fos-foreground);
+  --color-muted: var(--fos-muted);
+  --color-muted-foreground: var(--fos-muted-foreground);
+  --color-accent: var(--fos-muted);
+  --color-accent-foreground: var(--fos-foreground);
+  --color-destructive: var(--fos-destructive);
+  --color-border: var(--fos-border);
+  --color-input: var(--fos-input);
+  --color-ring: var(--fos-primary);
+}
+
+.fos-app {
+  --fos-background: var(--ndl-bg);
+  --fos-foreground: var(--ndl-text);
+  --fos-card: var(--ndl-surface);
+  --fos-muted: var(--ndl-surface-2);
+  --fos-muted-foreground: var(--ndl-muted);
+  --fos-primary: var(--ndl-accent);
+  --fos-primary-foreground: #ffffff;
+  --fos-destructive: #dc2626;
+  --fos-border: var(--ndl-border);
+  --fos-input: var(--ndl-input-border);
+}
+
+/* In the base layer so border-* utilities still win. */
+@layer base {
+  .fos-app *,
+  .fos-app ::before,
+  .fos-app ::after {
+    border-color: var(--fos-border);
+  }
 }
