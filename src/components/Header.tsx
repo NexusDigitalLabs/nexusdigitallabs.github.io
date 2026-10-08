@@ -83,9 +83,32 @@ function isActive(link: NavLink, pathname: string): boolean {
     if (link.sectionId === 'games') return pathname.startsWith('/games');
     return false;
   }
-  if (link.href === '/about/') return pathname === '/about' || pathname === '/about/';
-  if (link.href === '/contact/') return pathname === '/contact' || pathname === '/contact/';
-  return false;
+  // Page links are active on their page and anything beneath it.
+  const base = link.href.replace(/\/$/, '');
+  return pathname === base || pathname.startsWith(`${base}/`);
+}
+
+/** Section landing pages, where the context badge would just repeat the active nav item. */
+const NAV_ROOTS = new Set(['/academy', '/articles', '/games', '/freelanceos', '/about', '/contact']);
+
+function badgeDuplicatesNav(pathname: string): boolean {
+  return NAV_ROOTS.has(pathname.replace(/\/$/, ''));
+}
+
+// Desktop nav item: pill that lights up on hover and stays lit (accent) when active.
+const NAV_ITEM_BASE =
+  'text-sm no-underline cursor-pointer border px-3.5 py-1.5 rounded-full transition-all duration-200 whitespace-nowrap';
+const NAV_ITEM_IDLE = 'border-transparent hover:bg-[var(--ndl-surface-2)]';
+
+function navItemStyle(active: boolean): React.CSSProperties {
+  return active
+    ? {
+        color: 'var(--ndl-text)',
+        background: 'color-mix(in srgb, var(--ndl-accent) 14%, transparent)',
+        borderColor: 'color-mix(in srgb, var(--ndl-accent) 38%, transparent)',
+        boxShadow: '0 0 18px color-mix(in srgb, var(--ndl-accent) 22%, transparent)',
+      }
+    : { color: 'var(--ndl-muted)' };
 }
 
 function MenuIcon() {
@@ -114,7 +137,7 @@ export default function Header() {
   const [isDesktop, setIsDesktop] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
-  const badge = detectBadge(pathname);
+  const badge = badgeDuplicatesNav(pathname) ? null : detectBadge(pathname);
 
   useEffect(() => {
     const mq = window.matchMedia('(min-width: 768px)');
@@ -185,11 +208,11 @@ export default function Header() {
           </span>
         </Link>
 
-        <nav className="flex-1 hidden md:flex items-center justify-center gap-9">
+        <nav className="flex-1 hidden md:flex items-center justify-center gap-1 lg:gap-2">
           {NAV_LINKS.map((link) => {
             const active = isActive(link, pathname);
-            const className = 'text-sm transition-colors duration-200 no-underline relative group cursor-pointer bg-transparent border-0 p-0';
-            const style = { color: active ? 'var(--ndl-text)' : 'var(--ndl-muted)' } as const;
+            const className = `${NAV_ITEM_BASE} ${active ? '' : NAV_ITEM_IDLE}`;
+            const style = navItemStyle(active);
 
             if (link.kind === 'section') {
               return (
@@ -198,14 +221,10 @@ export default function Header() {
                   type="button"
                   className={className}
                   style={style}
+                  aria-current={active ? 'page' : undefined}
                   onClick={() => goHomeSection(link.sectionId)}
                 >
                   {link.label}
-                  <span
-                    className={`absolute -bottom-0.5 left-0 h-px bg-blue-500 transition-all duration-300 ${
-                      active ? 'w-full' : 'w-0 group-hover:w-full'
-                    }`}
-                  />
                 </button>
               );
             }
@@ -216,14 +235,10 @@ export default function Header() {
                 href={link.href}
                 className={className}
                 style={style}
+                aria-current={active ? 'page' : undefined}
                 onClick={() => setMobileOpen(false)}
               >
                 {link.label}
-                <span
-                  className={`absolute -bottom-0.5 left-0 h-px bg-blue-500 transition-all duration-300 ${
-                    active ? 'w-full' : 'w-0 group-hover:w-full'
-                  }`}
-                />
               </Link>
             );
           })}
@@ -257,13 +272,21 @@ export default function Header() {
           style={{ background: 'var(--ndl-surface)', borderColor: 'var(--ndl-border)' }}
         >
           <nav className="max-w-7xl mx-auto px-6 py-5 flex flex-col gap-4">
-            {NAV_LINKS.map((link) =>
-              link.kind === 'section' ? (
+            {NAV_LINKS.map((link) => {
+              const active = isActive(link, pathname);
+              const mobileClass = 'text-sm text-left transition-colors no-underline cursor-pointer bg-transparent border-0 border-l-2 pl-3 -ml-3';
+              const mobileStyle = {
+                color: active ? 'var(--ndl-text)' : 'var(--ndl-text-secondary)',
+                borderLeftColor: active ? 'var(--ndl-accent)' : 'transparent',
+                fontWeight: active ? 600 : undefined,
+              };
+              return link.kind === 'section' ? (
                 <button
                   key={navKey(link)}
                   type="button"
-                  className="text-sm text-left transition-colors no-underline cursor-pointer bg-transparent border-0 p-0"
-                  style={{ color: 'var(--ndl-text-secondary)' }}
+                  className={mobileClass}
+                  style={mobileStyle}
+                  aria-current={active ? 'page' : undefined}
                   onClick={() => goHomeSection(link.sectionId)}
                 >
                   {link.label}
@@ -272,14 +295,15 @@ export default function Header() {
                 <Link
                   key={navKey(link)}
                   href={link.href}
-                  className="text-sm transition-colors no-underline"
-                  style={{ color: 'var(--ndl-text-secondary)' }}
+                  className={mobileClass}
+                  style={mobileStyle}
+                  aria-current={active ? 'page' : undefined}
                   onClick={() => setMobileOpen(false)}
                 >
                   {link.label}
                 </Link>
-              )
-            )}
+              );
+            })}
             <div className="pt-2" style={{ borderTop: '1px solid var(--ndl-border)' }}>
               <p className="text-[0.65rem] font-semibold tracking-widest uppercase mb-2.5" style={{ color: 'var(--ndl-faint)' }}>
                 Account

@@ -26,77 +26,56 @@ exports[`Header — snapshot > matches snapshot on homepage 1`] = `
       </span>
     </a>
     <nav
-      class="flex-1 hidden md:flex items-center justify-center gap-9"
+      class="flex-1 hidden md:flex items-center justify-center gap-1 lg:gap-2"
     >
       <button
-        class="text-sm transition-colors duration-200 no-underline relative group cursor-pointer bg-transparent border-0 p-0"
+        class="text-sm no-underline cursor-pointer border px-3.5 py-1.5 rounded-full transition-all duration-200 whitespace-nowrap border-transparent hover:bg-[var(--ndl-surface-2)]"
         style="color: var(--ndl-muted);"
         type="button"
       >
         Academy
-        <span
-          class="absolute -bottom-0.5 left-0 h-px bg-blue-500 transition-all duration-300 w-0 group-hover:w-full"
-        />
       </button>
       <button
-        class="text-sm transition-colors duration-200 no-underline relative group cursor-pointer bg-transparent border-0 p-0"
+        class="text-sm no-underline cursor-pointer border px-3.5 py-1.5 rounded-full transition-all duration-200 whitespace-nowrap border-transparent hover:bg-[var(--ndl-surface-2)]"
         style="color: var(--ndl-muted);"
         type="button"
       >
         Tools
-        <span
-          class="absolute -bottom-0.5 left-0 h-px bg-blue-500 transition-all duration-300 w-0 group-hover:w-full"
-        />
       </button>
       <button
-        class="text-sm transition-colors duration-200 no-underline relative group cursor-pointer bg-transparent border-0 p-0"
+        class="text-sm no-underline cursor-pointer border px-3.5 py-1.5 rounded-full transition-all duration-200 whitespace-nowrap border-transparent hover:bg-[var(--ndl-surface-2)]"
         style="color: var(--ndl-muted);"
         type="button"
       >
         Articles
-        <span
-          class="absolute -bottom-0.5 left-0 h-px bg-blue-500 transition-all duration-300 w-0 group-hover:w-full"
-        />
       </button>
       <button
-        class="text-sm transition-colors duration-200 no-underline relative group cursor-pointer bg-transparent border-0 p-0"
+        class="text-sm no-underline cursor-pointer border px-3.5 py-1.5 rounded-full transition-all duration-200 whitespace-nowrap border-transparent hover:bg-[var(--ndl-surface-2)]"
         style="color: var(--ndl-muted);"
         type="button"
       >
         Games
-        <span
-          class="absolute -bottom-0.5 left-0 h-px bg-blue-500 transition-all duration-300 w-0 group-hover:w-full"
-        />
       </button>
       <a
-        class="text-sm transition-colors duration-200 no-underline relative group cursor-pointer bg-transparent border-0 p-0"
+        class="text-sm no-underline cursor-pointer border px-3.5 py-1.5 rounded-full transition-all duration-200 whitespace-nowrap border-transparent hover:bg-[var(--ndl-surface-2)]"
         href="/freelanceos"
         style="color: var(--ndl-muted);"
       >
         FreelanceOS
-        <span
-          class="absolute -bottom-0.5 left-0 h-px bg-blue-500 transition-all duration-300 w-0 group-hover:w-full"
-        />
       </a>
       <a
-        class="text-sm transition-colors duration-200 no-underline relative group cursor-pointer bg-transparent border-0 p-0"
+        class="text-sm no-underline cursor-pointer border px-3.5 py-1.5 rounded-full transition-all duration-200 whitespace-nowrap border-transparent hover:bg-[var(--ndl-surface-2)]"
         href="/about"
         style="color: var(--ndl-muted);"
       >
         About
-        <span
-          class="absolute -bottom-0.5 left-0 h-px bg-blue-500 transition-all duration-300 w-0 group-hover:w-full"
-        />
       </a>
       <a
-        class="text-sm transition-colors duration-200 no-underline relative group cursor-pointer bg-transparent border-0 p-0"
+        class="text-sm no-underline cursor-pointer border px-3.5 py-1.5 rounded-full transition-all duration-200 whitespace-nowrap border-transparent hover:bg-[var(--ndl-surface-2)]"
         href="/contact"
         style="color: var(--ndl-muted);"
       >
         Contact
-        <span
-          class="absolute -bottom-0.5 left-0 h-px bg-blue-500 transition-all duration-300 w-0 group-hover:w-full"
-        />
       </a>
     </nav>
     <div

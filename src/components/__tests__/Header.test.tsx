@@ -152,6 +152,32 @@ describe('Header — active state badge', () => {
   });
 });
 
+describe('Header — active nav item', () => {
+  const current = () =>
+    screen.queryAllByRole('link').concat(screen.queryAllByRole('button')).filter((el) => el.getAttribute('aria-current') === 'page');
+
+  it('marks FreelanceOS active on its page and hides the duplicate badge', () => {
+    mockPathname.mockReturnValue('/freelanceos/');
+    renderHeader();
+    expect(current().map((el) => el.textContent)).toEqual(['FreelanceOS']);
+    // Only the nav item says "FreelanceOS" — no repeated context badge.
+    expect(screen.getAllByText('FreelanceOS')).toHaveLength(1);
+  });
+
+  it('marks the section active on sub-pages and keeps the tool badge', () => {
+    mockPathname.mockReturnValue('/tools/invoice-generator/');
+    renderHeader();
+    expect(current().map((el) => el.textContent)).toEqual(['Tools']);
+    expect(screen.getByText('Invoice Generator')).toBeInTheDocument();
+  });
+
+  it('marks nothing active on the homepage', () => {
+    mockPathname.mockReturnValue('/');
+    renderHeader();
+    expect(current()).toHaveLength(0);
+  });
+});
+
 describe('Header — snapshot', () => {
   it('matches snapshot on homepage', async () => {
     mockPathname.mockReturnValue('/');
