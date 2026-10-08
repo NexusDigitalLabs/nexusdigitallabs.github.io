@@ -55,6 +55,7 @@ Already in repo: Next.js 16, TypeScript, Tailwind v4, Supabase Auth + SSR middle
 - [x] ★ **Invoices:** `invoices`, `invoice_items`, `payments` tables + RLS — `014_freelanceos_invoices.sql`
   - [x] **Run `014_freelanceos_invoices.sql` in Supabase** (manual step)
   - [ ] **Run `015_freelanceos_invoice_number_width.sql` in Supabase** (fixes numbers past 9999)
+  - [x] **Run `016_freelanceos_expenses.sql` in Supabase**
 - [x] ★ Sequential numbering per organization (race-safe, DB-side; assigned on send, so deleted drafts leave no gaps)
 - [x] ★ Invoice builder: line items, tax %, discount, currency, due date, notes (live totals; DB recomputes on save)
 - [x] ★ Prefill line items from project rate/price (tracked time comes with Phase 3)
@@ -63,10 +64,10 @@ Already in repo: Next.js 16, TypeScript, Tailwind v4, Supabase Auth + SSR middle
 - [x] ★ Statuses: draft → sent → paid / overdue (overdue derived from due date); sent invoices locked + snapshotted; void
 - [x] ★ Record payment manually (full/partial, never above balance) — *no payment collection in v1*
 - [ ] Email invoice via Resend (PDF attached or secure link)
-- [ ] **Expenses:** table + RLS, categories, project link, monthly view
+- [x] **Expenses:** table + RLS, categories, project link, monthly view (migration 016)
 - [x] ★ **Dashboard v2:** revenue this month, outstanding, due soon (per currency) — expenses card comes with Expenses
 - [x] Unit tests for totals, tax, discount, rounding; numbering + locking tested on local Postgres; TS/SQL math parity checked on 2,000 random invoices
-- [ ] Funnel: link from the public invoice generator → "save & track this in FreelanceOS"
+- [x] Funnel: Invoice Generator links (toolbar, promo card, FAQ) → `/freelanceos/` landing page
 
 > **Milestone: usable product.** Put it in front of 3–5 freelancers before continuing.
 
@@ -140,17 +141,20 @@ Already in repo: Next.js 16, TypeScript, Tailwind v4, Supabase Auth + SSR middle
 - [ ] Rate limiting on AI and auth-sensitive endpoints
 - [ ] PII minimisation in prompts (only fields the tool needs)
 - [ ] Audit log for important actions (invoice sent, payment recorded, deletion, AI-sent email)
-- [ ] Data export (CSV/JSON) and account/org deletion
+- [x] Self-serve account deletion (Settings)
+- [ ] Data export (CSV/JSON)
 - [ ] Cost dashboard: spend per org, per model, per feature
 - [ ] Latency budget: first token < 2s for chat
-- [ ] Security review of RLS policies and server actions
+- [x] Security review of RLS policies and server actions (no high-confidence findings, Oct 8 2026)
 
 ## Phase 11 — Polish & launch `[AI: Deploy It]`
 
 - [ ] Onboarding (business profile → first client → first invoice)
 - [ ] Empty, loading and error states everywhere
 - [ ] Mobile-responsive pass + accessibility pass
-- [ ] Pricing page, Terms, Privacy (AI processing disclosed)
+- [x] Landing page `/freelanceos/` (free-beta pricing, FAQ + JSON-LD, sitemap, header + home links); Terms + Privacy FreelanceOS sections
+- [x] Per-page social preview cards (`/og/<path>/`) for every public page
+- [ ] Privacy: disclose AI processing before the assistant ships
 - [ ] "Free during beta" messaging + feedback channel (in-app link)
 - [ ] Analytics events: signup, onboarding_completed, client_created, project_created, invoice_created, invoice_sent, invoice_paid, expense_created, ai_used, proposal_created, subscription_started, subscription_cancelled
 - [ ] Production deploy of web app + AI service, env separation, monitoring/alerts
