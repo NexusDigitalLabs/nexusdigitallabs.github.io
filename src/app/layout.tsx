@@ -40,11 +40,11 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'NexusDigitalLabs — Software Studio',
+    default: 'NexusDigitalLabs — Free Tools for Freelancers & AI Builders',
     template: '%s — NexusDigitalLabs',
   },
   description:
-    'Engineering minimalist web utilities, developer tools, and high-performance software built for speed, privacy, and utility.',
+    'Free, private tools and guides for freelancers and AI builders — invoices, budgeting, prompts and JSON — plus FreelanceOS to run your business. A software studio that also builds custom projects.',
   keywords: [
     'developer tools', 'web utilities', 'prompt optimization', 'token counter',
     'software engineering', 'LLM tools', 'AI prompt optimizer', 'software studio',
@@ -55,16 +55,16 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     siteName: SITE_NAME,
-    title: 'NexusDigitalLabs — Software Studio',
+    title: 'NexusDigitalLabs — Free Tools for Freelancers & AI Builders',
     description:
-      'Engineering minimalist web utilities, developer tools, and high-performance software built for speed, privacy, and utility.',
+      'Free, private tools and guides for freelancers and AI builders — invoices, budgeting, prompts and JSON — plus FreelanceOS to run your business. A software studio that also builds custom projects.',
     images: [{ url: DEFAULT_OG_IMAGE, ...DEFAULT_OG_IMAGE_SIZE }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'NexusDigitalLabs — Software Studio',
+    title: 'NexusDigitalLabs — Free Tools for Freelancers & AI Builders',
     description:
-      'Engineering minimalist web utilities, developer tools, and high-performance software built for speed, privacy, and utility.',
+      'Free, private tools and guides for freelancers and AI builders — invoices, budgeting, prompts and JSON — plus FreelanceOS to run your business. A software studio that also builds custom projects.',
     images: [DEFAULT_OG_IMAGE],
   },
   applicationName: SITE_NAME,

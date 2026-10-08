@@ -33,7 +33,7 @@ export const ACCENT_HEX: Record<ToolAccent | 'violet' | 'emerald' | 'amber' | 'b
 };
 
 const SITE_DESCRIPTION =
-  'Free tools, games and guides built for speed, privacy and utility — no account needed for most of them.';
+  'Free, private tools and guides for freelancers and AI builders — plus FreelanceOS to run your business.';
 
 const STATIC_CARDS: Record<string, OgCard> = {
   '/': {
@@ -44,8 +44,8 @@ const STATIC_CARDS: Record<string, OgCard> = {
   },
   '/about/': {
     eyebrow: 'About',
-    title: 'A software studio for minimalist, privacy-first tools.',
-    description: 'Fast, focused web utilities and developer tools — built lean, accessible and free to use.',
+    title: 'A software studio building useful, privacy-first tools.',
+    description: 'Free tools and guides for freelancers and AI builders, FreelanceOS — and custom projects for clients.',
     accent: ACCENT_HEX.slate,
   },
   '/contact/': {

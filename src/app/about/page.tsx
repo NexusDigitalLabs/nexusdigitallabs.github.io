@@ -6,11 +6,11 @@ import { pageMetadata } from '@/lib/seo';
 export const metadata = pageMetadata({
   title: 'About',
   description:
-    'NexusDigitalLabs is a software studio engineering minimalist web utilities, developer tools, and high-performance software built for speed, privacy, and utility.',
+    'NexusDigitalLabs is a software studio building free, private tools and guides for freelancers and AI builders, FreelanceOS for running a freelance business, and custom software for clients.',
   path: '/about/',
   ogTitle: 'About — NexusDigitalLabs',
   ogDescription:
-    'A software studio engineering minimalist web utilities and developer tools built for speed, privacy, and utility.',
+    'A software studio building free tools for freelancers and AI builders, FreelanceOS, and custom projects.',
 });
 
 const PRINCIPLES = [
@@ -26,21 +26,21 @@ const PRINCIPLES = [
     dot: 'bg-violet-400',
     ring: 'bg-violet-500/15 border-violet-500/25',
     title: 'Zero-bloat architecture',
-    desc: 'React, Tailwind CSS, and nothing extra. No unnecessary dependencies or client-side state engines.',
+    desc: 'Every dependency has to earn its place. No tracking SDKs, no heavy client-side state engines.',
   },
   {
     color: 'emerald',
     dot: 'bg-emerald-400',
     ring: 'bg-emerald-500/15 border-emerald-500/25',
     title: 'Performance as a feature',
-    desc: 'Every tool targets a perfect Lighthouse score. Fast load, fast interaction, no layout shift.',
+    desc: 'Fast load, fast interaction, no layout shift — speed is designed in from the start, not patched on later.',
   },
   {
     color: 'amber',
     dot: 'bg-amber-400',
     ring: 'bg-amber-500/15 border-amber-500/25',
     title: 'Accessible by design',
-    desc: 'Core tools are free to use with no account required. Built lean so access stays wide.',
+    desc: 'Core tools are free with no account required, and FreelanceOS is free during its beta. Built lean so access stays wide.',
   },
 ];
 
@@ -66,7 +66,7 @@ const VALUES = [
     iconClass: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400',
     iconPath: 'M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4',
     title: 'Minimal footprint',
-    desc: 'React and Tailwind CSS only. The codebase stays readable, auditable, and dependency-minimal.',
+    desc: 'A small, readable codebase on a deliberately short list of dependencies — easy to audit, quick to load.',
     delay: 0,
   },
   {
@@ -106,10 +106,10 @@ export default function AboutPage() {
           </div>
           <h1 className="ndl-anim-2 text-4xl sm:text-5xl lg:text-6xl font-light tracking-tight leading-[1.12] mb-6">
             We build tools<br />
-            <span className="ndl-gradient-text">engineers trust.</span>
+            <span className="ndl-gradient-text">people actually use.</span>
           </h1>
           <p className="ndl-anim-3 text-slate-400 font-light max-w-xl leading-relaxed text-base sm:text-lg">
-            NexusDigitalLabs is an independent, privacy-first software project. We engineer minimalist web utilities, articles, and browser games — calculation tools run fully client-side so your inputs stay in the browser unless you opt into sync or sign-in.
+            NexusDigitalLabs is an independent, privacy-first software studio. We build free tools and guides for freelancers and AI builders, FreelanceOS for running a freelance business, and custom software for clients. Calculation tools run fully client-side, so your inputs stay in the browser unless you opt into sync or sign-in.
           </p>
           <p className="ndl-anim-3 mt-4 text-sm text-slate-500 font-light">
             Maintained in the open on{' '}
@@ -137,7 +137,7 @@ export default function AboutPage() {
                 The web doesn&apos;t need more bloated SaaS platforms. It needs sharp, single-purpose tools that do exactly what they say — fast, privately, and without unnecessary friction.
               </p>
               <p className="text-slate-400 font-light leading-relaxed text-sm sm:text-base mt-4">
-                Most tools run entirely in your browser. Fuel Tracker can sync via an anonymous code with no account. Sign-in is optional: link a garage, sync game scores, or enable Invoice/Debt cloud drafts when you want restore-across-devices.
+                Most tools run entirely in your browser. Fuel Tracker can sync via an anonymous code with no account. Sign-in is optional: link a garage, sync game scores, or enable Invoice/Debt cloud drafts when you want restore-across-devices. FreelanceOS is the one product that needs an account — it stores your clients, projects and invoices so you can run your business from any device.
               </p>
             </ScrollReveal>
             <ScrollReveal delay={120}>
@@ -219,8 +219,9 @@ export default function AboutPage() {
           <div className="space-y-6 max-w-2xl">
             {[
               { q: 'Who built NexusDigitalLabs?', a: 'NexusDigitalLabs is an independent software project. The tools, articles, and games are built and maintained by developers shipping from the NexusDigitalLabs GitHub organization (github.com/NexusDigitalLabs). We focus on useful, auditable utilities without unnecessary complexity.' },
-              { q: 'Are the tools free to use?', a: 'Yes — core tools are free to use with no account required. Optional sign-in unlocks extras such as linking a Fuel Tracker garage to your account. We may introduce premium features later, but core functionality stays free.' },
-              { q: 'Do you collect any user data?', a: 'Most tools process everything in your browser. Fuel Tracker stores vehicles and fill-ups under a sync code you choose (no email required). If you sign in, we store account profile data (email, display name, avatar) via Supabase Auth, optional garage linking, optional game high-score sync, and optional Invoice/Debt cloud drafts you explicitly enable. Contact form messages are emailed to us via our provider. Analytics (Umami), page counters, and ads (where shown) are disclosed in the Privacy Policy.' },
+              { q: 'Are the tools free to use?', a: 'Yes — core tools are free to use with no account required. Optional sign-in unlocks extras such as linking a Fuel Tracker garage to your account. FreelanceOS is free during its beta; paid plans for advanced features may come later, but the core tools stay free.' },
+              { q: 'Do you take on custom projects?', a: 'Yes. Alongside our own products, the studio builds custom web apps, internal tools and AI features for clients. Tell us about your project on the Contact page and we’ll get back to you.' },
+              { q: 'Do you collect any user data?', a: 'Most tools process everything in your browser. Fuel Tracker stores vehicles and fill-ups under a sync code you choose (no email required). If you sign in, we store account profile data (email, display name, avatar) via Supabase Auth, optional garage linking, optional game high-score sync, and optional Invoice/Debt cloud drafts you explicitly enable. FreelanceOS stores the business records you enter (clients, projects, invoices, payments, expenses) in your private workspace. Contact form messages are emailed to us via our provider. Analytics (Umami), page counters, and ads (where shown) are disclosed in the Privacy Policy.' },
               { q: 'Can I suggest a tool or feature?', a: 'Yes. Use the Contact page to send a suggestion. We build what we find genuinely useful, so real-world requests from real users carry a lot of weight in what gets prioritised next.' },
               { q: 'How do I report a bug or request a feature?', a: 'Use the Contact page to send us a message. We review every submission and prioritise based on real-world impact and frequency of request.' },
               { q: 'Why not use a popular framework like WordPress or Webflow?', a: "WordPress and Webflow solve the wrong problem for what we're building. Managed CMSs add complexity, cookies, plugin dependencies, and performance overhead that are simply unnecessary for a site built around lightweight, client-side tools. Next.js and React give us full control with zero compromise on speed or privacy." },

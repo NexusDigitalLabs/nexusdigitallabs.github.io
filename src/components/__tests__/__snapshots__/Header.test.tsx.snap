@@ -103,28 +103,7 @@ exports[`Header — snapshot > matches snapshot on homepage 1`] = `
         style="color: var(--ndl-muted);"
         type="button"
       >
-        Academy
-      </button>
-      <button
-        class="text-sm no-underline cursor-pointer border px-3.5 py-1.5 rounded-full transition-all duration-200 whitespace-nowrap border-transparent hover:bg-[var(--ndl-surface-2)]"
-        style="color: var(--ndl-muted);"
-        type="button"
-      >
         Tools
-      </button>
-      <button
-        class="text-sm no-underline cursor-pointer border px-3.5 py-1.5 rounded-full transition-all duration-200 whitespace-nowrap border-transparent hover:bg-[var(--ndl-surface-2)]"
-        style="color: var(--ndl-muted);"
-        type="button"
-      >
-        Articles
-      </button>
-      <button
-        class="text-sm no-underline cursor-pointer border px-3.5 py-1.5 rounded-full transition-all duration-200 whitespace-nowrap border-transparent hover:bg-[var(--ndl-surface-2)]"
-        style="color: var(--ndl-muted);"
-        type="button"
-      >
-        Games
       </button>
       <a
         class="text-sm no-underline cursor-pointer border px-3.5 py-1.5 rounded-full transition-all duration-200 whitespace-nowrap border-transparent hover:bg-[var(--ndl-surface-2)]"
@@ -133,20 +112,20 @@ exports[`Header — snapshot > matches snapshot on homepage 1`] = `
       >
         FreelanceOS
       </a>
-      <a
+      <button
         class="text-sm no-underline cursor-pointer border px-3.5 py-1.5 rounded-full transition-all duration-200 whitespace-nowrap border-transparent hover:bg-[var(--ndl-surface-2)]"
-        href="/about"
         style="color: var(--ndl-muted);"
+        type="button"
       >
-        About
-      </a>
-      <a
+        Academy
+      </button>
+      <button
         class="text-sm no-underline cursor-pointer border px-3.5 py-1.5 rounded-full transition-all duration-200 whitespace-nowrap border-transparent hover:bg-[var(--ndl-surface-2)]"
-        href="/contact"
         style="color: var(--ndl-muted);"
+        type="button"
       >
-        Contact
-      </a>
+        Articles
+      </button>
     </nav>
     <div
       class="ml-auto flex items-center gap-1.5 sm:gap-3 flex-shrink-0"
