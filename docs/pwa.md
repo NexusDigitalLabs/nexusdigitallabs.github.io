@@ -12,7 +12,7 @@ caching of previously visited routes.
 | Service worker | `public/sw.js` (+ `public/workbox-*.js`) | **Generated on build** by `@ducanh2912/next-pwa`. Git-ignored. |
 | Build config | `next.config.ts` | Wraps Next config with `withPWA`. Disabled in development. |
 | Metadata | `src/app/layout.tsx` | `manifest`, `appleWebApp`, `themeColor`, `applicationName`. |
-| Icons | `src/app/icon.png`, `src/app/apple-icon.png`, `src/app/favicon.ico`, `public/icon-192.png`, `public/icon-512.png` | Generated from `public/favicon.png` via `scripts/gen-favicons.mjs`. |
+| Icons | `src/app/icon.svg`, `src/app/icon.png`, `src/app/apple-icon.png`, `src/app/favicon.ico`, `public/icon-192.png`, `public/icon-512.png`, `public/favicon.png` | Generated from the brand mark geometry in `src/lib/brand.ts` via `npm run icons` (`scripts/gen-favicons.mjs`). |
 | Install prompt | `src/components/PWAInstallBanner.tsx` | Mounted globally in the root layout. Mobile-only. |
 
 ## Build requirement (Next.js 16)
@@ -73,7 +73,7 @@ All icons derive from `public/favicon.png` (the blue "N"). To regenerate after
 changing the source logo:
 
 ```bash
-node scripts/gen-favicons.mjs
+npm run icons
 ```
 
 This writes `icon.png` (256), `apple-icon.png` (180), a multi-size
