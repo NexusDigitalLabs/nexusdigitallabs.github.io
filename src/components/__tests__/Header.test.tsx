@@ -41,13 +41,15 @@ describe('Header — structure', () => {
     expect(screen.getByText('NexusDigitalLabs')).toBeInTheDocument();
   });
 
-  it('renders all 5 nav items', () => {
+  it('renders the 4 primary nav items', () => {
     renderHeader();
-    expect(screen.getAllByRole('button', { name: /^tools$/i }).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByRole('button', { name: /^articles$/i }).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByRole('button', { name: /^games$/i }).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByRole('link', { name: /about/i }).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByRole('link', { name: /contact/i }).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByRole('button', { name: /^tools$/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /^freelanceos$/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^academy$/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^articles$/i })).toBeInTheDocument();
+    // Secondary pages live in the footer / mobile "More" group, not the bar.
+    expect(screen.queryByRole('button', { name: /^games$/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /^about$/i })).not.toBeInTheDocument();
   });
 
   it('logo links to /', () => {
@@ -110,10 +112,14 @@ describe('Header — mobile menu', () => {
     expect(screen.getByRole('button', { name: /close menu/i })).toBeInTheDocument();
   });
 
-  it('shows nav items in mobile drawer after opening', () => {
+  it('shows primary items plus a More group (Games, About, Contact) in the drawer', () => {
     renderHeader();
     fireEvent.click(screen.getByRole('button', { name: /open menu/i }));
-    expect(screen.getAllByRole('button', { name: /^games$/i }).length).toBeGreaterThan(1);
+    expect(screen.getAllByRole('button', { name: /^tools$/i })).toHaveLength(2); // bar + drawer
+    expect(screen.getByText(/^more$/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^games$/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /^about$/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /^contact$/i })).toBeInTheDocument();
   });
 
   it('shows theme section in mobile drawer', () => {

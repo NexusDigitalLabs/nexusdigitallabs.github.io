@@ -22,12 +22,17 @@ type NavLink =
   | { kind: 'page'; href: string; label: string };
 
 // ── Nav links ─────────────────────────────────────────────────────────────────
+// Primary navigation — the site's main products. Games, About and Contact
+// live in the footer (and the mobile drawer's "More" group).
 const NAV_LINKS: NavLink[] = [
-  { kind: 'section', sectionId: 'academy', label: 'Academy' },
   { kind: 'section', sectionId: 'tools', label: 'Tools' },
-  { kind: 'section', sectionId: 'articles', label: 'Articles' },
-  { kind: 'section', sectionId: 'games', label: 'Games' },
   { kind: 'page', href: '/freelanceos/', label: 'FreelanceOS' },
+  { kind: 'section', sectionId: 'academy', label: 'Academy' },
+  { kind: 'section', sectionId: 'articles', label: 'Articles' },
+];
+
+const MORE_LINKS: NavLink[] = [
+  { kind: 'section', sectionId: 'games', label: 'Games' },
   { kind: 'page', href: '/about/', label: 'About' },
   { kind: 'page', href: '/contact/', label: 'Contact' },
 ];
@@ -350,7 +355,18 @@ export default function Header() {
                 </button>
               </div>
               <nav aria-label="Mobile" className="px-6 py-5 flex flex-col gap-4">
-                {NAV_LINKS.map((link) => {
+                {[...NAV_LINKS, null, ...MORE_LINKS].map((link) => {
+                  if (link === null) {
+                    return (
+                      <p
+                        key="more-heading"
+                        className="text-[0.65rem] font-semibold tracking-widest uppercase pt-3"
+                        style={{ color: 'var(--ndl-faint)', borderTop: '1px solid var(--ndl-border)' }}
+                      >
+                        More
+                      </p>
+                    );
+                  }
                   const active = isActive(link, pathname);
                   const mobileClass = 'text-sm text-left transition-colors no-underline cursor-pointer bg-transparent border-0 border-l-2 pl-3 -ml-3';
                   const mobileStyle = {

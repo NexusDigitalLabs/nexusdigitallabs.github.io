@@ -8,9 +8,9 @@ import { GAMES, TOOLS } from '@/data/catalog';
 import { pageMetadata } from '@/lib/seo';
 
 export const metadata = pageMetadata({
-  title: 'NexusDigitalLabs — Software Studio',
+  title: 'NexusDigitalLabs — Free Tools for Freelancers & AI Builders',
   description:
-    'Engineering minimalist web utilities, developer tools, and high-performance software built for speed, privacy, and utility.',
+    'Free, private tools and guides for freelancers and AI builders — invoices, budgeting, prompts and JSON — plus FreelanceOS to run your business. A software studio that also builds custom projects.',
   path: '/',
   absoluteTitle: true,
 });
@@ -64,7 +64,8 @@ export default function HomePage() {
               className="ndl-anim-1 inline-flex items-center gap-2 text-xs font-medium text-blue-400 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-1.5 mb-5 sm:mb-7 no-underline hover:bg-blue-500/20 hover:border-blue-500/40 transition-all duration-200"
             >
               <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" />
-              Software Studio — Open to new projects
+              Software studio · Open for custom projects
+              <ArrowRight className="w-3 h-3" />
             </Link>
             <h1 className="ndl-anim-2 text-4xl sm:text-5xl lg:text-[3.8rem] xl:text-[4.2rem] font-light tracking-tight leading-[1.12] mb-5 sm:mb-6">
               Free tools that<br />
@@ -72,7 +73,7 @@ export default function HomePage() {
               <span className="ndl-gradient-text">tasks effortless.</span>
             </h1>
             <p className="ndl-anim-3 text-slate-400 font-light max-w-md leading-relaxed text-base sm:text-lg mb-8 sm:mb-10">
-              Practical tools built for everyone — fast, private, and simple. Most tools work without an account and collect no personal data.
+              Free, private tools and guides for freelancers and AI builders — plus FreelanceOS to run your business. Most tools work without an account and collect no personal data.
             </p>
             <div className="ndl-anim-4 flex flex-col sm:flex-row items-start gap-3">
               <HomeSectionLink
@@ -300,7 +301,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-6 sm:px-10">
           <ScrollReveal className="mb-14">
             <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-3">Free Tools</p>
-            <h2 className="text-2xl sm:text-3xl font-light text-white tracking-tight">Tools built for engineers.</h2>
+            <h2 className="text-2xl sm:text-3xl font-light text-white tracking-tight">Free tools for work, money and AI.</h2>
           </ScrollReveal>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {TOOLS.map((tool, i) => {
