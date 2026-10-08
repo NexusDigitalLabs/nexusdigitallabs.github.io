@@ -15,7 +15,7 @@ import sharp from 'sharp';
 import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { BRAND_NODES, BRAND_PALETTES, BRAND_STROKES, BRAND_VIEWBOX, brandMarkMetrics, brandMarkSvg } from '../src/lib/brand.ts';
+import { BRAND_NODES, BRAND_PALETTES, BRAND_STROKES, BRAND_VIEWBOX, brandGapCircles, brandMarkMetrics, brandMarkSvg } from '../src/lib/brand.ts';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const out = (...p) => join(root, ...p);
@@ -30,7 +30,7 @@ const TILE_PADDING = 0.22;
 
 const render = (svg, size) => sharp(Buffer.from(svg)).resize(size, size).png().toBuffer();
 
-/** Transparent, compact mark for browser tabs (no node rings — no known background). */
+/** Transparent, compact mark for browser tabs (gap is a transparent cut-out). */
 const tabIcon = (size) => brandMarkSvg({ palette: BRAND_PALETTES.light, size, compact: true });
 
 /** Mark on the dark app tile. */
@@ -39,7 +39,6 @@ const tileIcon = (size) =>
     palette: BRAND_PALETTES.dark,
     size,
     compact: false,
-    ringColor: TILE,
     background: TILE,
     padding: TILE_PADDING,
   });
@@ -57,7 +56,11 @@ function adaptiveSvg() {
   const nodes = BRAND_NODES.map(
     (n) => `<circle class="c${n.color}" cx="${n.cx}" cy="${n.cy}" r="${m.nodeRadius}" style="stroke:none"/>`
   ).join('');
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${BRAND_VIEWBOX}"><style>${css}</style>${strokes}${nodes}</svg>\n`;
+  const holes = brandGapCircles(true)
+    .map((c) => `<circle cx="${c.cx}" cy="${c.cy}" r="${c.r}" fill="black"/>`)
+    .join('');
+  const mask = `<mask id="g" maskUnits="userSpaceOnUse" x="-8" y="-8" width="64" height="64"><rect x="-8" y="-8" width="64" height="64" fill="white"/>${holes}</mask>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${BRAND_VIEWBOX}"><style>${css}</style><defs>${mask}</defs><g mask="url(#g)">${strokes}</g>${nodes}</svg>\n`;
 }
 
 function packIco(images) {

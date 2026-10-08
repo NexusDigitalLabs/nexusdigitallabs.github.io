@@ -131,7 +131,7 @@ export default function PWAInstallBanner() {
           style={{ background: '#0b0f19', borderRadius: 10 }}
           aria-hidden="true"
         >
-          <BrandMark size={28} ringColor="#0b0f19" />
+          <BrandMark size={28} />
         </div>
 
         <div className="flex-1 min-w-0">

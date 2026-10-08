@@ -32,13 +32,20 @@ export const BRAND_PALETTES: { light: BrandPalette; dark: BrandPalette } = {
 
 /**
  * Matches the approved design: regular = 7-unit strokes, 6-unit nodes with a
- * 2.5-unit ring in the background colour (the gap around each dot). Compact
- * (≤ ~24px, favicons) = 8-unit strokes, 6.5-unit solid nodes, no ring.
+ * 2.5-unit gap around each dot. Compact (≤ ~24px, favicons) = thicker
+ * strokes and nodes with the same gap. The gap is cut out of the strokes
+ * (an SVG mask), so it is transparent and works on any background.
  */
 export function brandMarkMetrics(compact: boolean) {
   return compact
-    ? { strokeWidth: 8, nodeRadius: 6.5, ringWidth: 0 }
+    ? { strokeWidth: 8, nodeRadius: 6.5, ringWidth: 2.5 }
     : { strokeWidth: 7, nodeRadius: 6, ringWidth: 2.5 };
+}
+
+/** Circles to cut out of the strokes: each node plus its gap. */
+export function brandGapCircles(compact: boolean) {
+  const m = brandMarkMetrics(compact);
+  return BRAND_NODES.map((n) => ({ cx: n.cx, cy: n.cy, r: m.nodeRadius + m.ringWidth }));
 }
 
 /** Standalone SVG markup (for raster icons and data URIs). */
@@ -46,7 +53,6 @@ export function brandMarkSvg({
   palette,
   size,
   compact = size <= 24,
-  ringColor,
   background,
   padding = 0,
   radius = 0,
@@ -54,8 +60,6 @@ export function brandMarkSvg({
   palette: BrandPalette;
   size: number;
   compact?: boolean;
-  /** Colour of the ring around nodes — the background they sit on. */
-  ringColor?: string;
   /** Optional solid tile behind the mark (app icons). */
   background?: string;
   /** Fraction of the canvas reserved as margin on each side (0–0.45). */
@@ -64,18 +68,16 @@ export function brandMarkSvg({
   radius?: number;
 }): string {
   const m = brandMarkMetrics(compact);
-  const inner = 48 * (1 - 2 * padding);
-  const scale = inner / 48;
+  const scale = 1 - 2 * padding;
   const offset = 48 * padding;
-  const ring = m.ringWidth && ringColor ? ` stroke="${ringColor}" stroke-width="${m.ringWidth}"` : '';
-  const tile = background
-    ? `<rect width="48" height="48" rx="${48 * radius}" fill="${background}"/>`
-    : '';
+  const tile = background ? `<rect width="48" height="48" rx="${48 * radius}" fill="${background}"/>` : '';
+  const holes = brandGapCircles(compact)
+    .map((c) => `<circle cx="${c.cx}" cy="${c.cy}" r="${c.r}" fill="black"/>`)
+    .join('');
+  const mask = `<mask id="ndl-gap" maskUnits="userSpaceOnUse" x="-8" y="-8" width="64" height="64"><rect x="-8" y="-8" width="64" height="64" fill="white"/>${holes}</mask>`;
   const strokes = BRAND_STROKES.map(
     (s) => `<path d="${s.d}" stroke="${palette[s.color]}" stroke-width="${m.strokeWidth}" stroke-linecap="round" fill="none"/>`
   ).join('');
-  const nodes = BRAND_NODES.map(
-    (n) => `<circle cx="${n.cx}" cy="${n.cy}" r="${m.nodeRadius}" fill="${palette[n.color]}"${ring}/>`
-  ).join('');
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="${BRAND_VIEWBOX}">${tile}<g transform="translate(${offset} ${offset}) scale(${scale})">${strokes}${nodes}</g></svg>`;
+  const nodes = BRAND_NODES.map((n) => `<circle cx="${n.cx}" cy="${n.cy}" r="${m.nodeRadius}" fill="${palette[n.color]}"/>`).join('');
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="${BRAND_VIEWBOX}"><defs>${mask}</defs>${tile}<g transform="translate(${offset} ${offset}) scale(${scale})"><g mask="url(#ndl-gap)">${strokes}</g>${nodes}</g></svg>`;
 }
