@@ -1,4 +1,5 @@
 import FuelTrackerClient from '@/components/tools/FuelTrackerClient';
+import AndroidAppBanner from '@/components/tools/AndroidAppBanner';
 import AdSlot from '@/components/AdSlot';
 import { pageMetadata } from '@/lib/seo';
 
@@ -35,32 +36,34 @@ export default function FuelTrackerPage() {
         }}
       />
 
+      <AndroidAppBanner />
+
       {/* ── Interactive Tool ─────────────────────────────────────────── */}
       <FuelTrackerClient />
 
       {/* ── SEO Content Block ─────────────────────────────────────────── */}
-      <section style={{ background: 'var(--ndl-bg)', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '4rem 1.5rem' }}>
+      <section style={{ background: 'var(--ndl-bg)', borderTop: '1px solid var(--ndl-border)', padding: '4rem 1.5rem' }}>
         <div style={{ maxWidth: '52rem', margin: '0 auto' }}>
 
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#f8fafc', marginBottom: '0.75rem', letterSpacing: '-0.02em' }}>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--ndl-text)', marginBottom: '0.75rem', letterSpacing: '-0.02em' }}>
             What is the Fuel Tracker?
           </h2>
-          <p style={{ fontSize: '0.9375rem', color: '#94a3b8', lineHeight: 1.75, marginBottom: '2rem' }}>
+          <p style={{ fontSize: '0.9375rem', color: 'var(--ndl-muted)', lineHeight: 1.75, marginBottom: '2rem' }}>
             The Nexus Digital Labs Fuel Tracker is a browser-based tool for tracking fuel fill-ups, calculating real-world fuel efficiency (L/100km and km/L), and monitoring spend across one or more vehicles. Data syncs via a personal code you create — no account required. Optionally sign in and link the garage to your account so it restores on new devices.
           </p>
 
-          <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: '#f8fafc', marginBottom: '0.875rem' }}>
+          <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--ndl-text)', marginBottom: '0.875rem' }}>
             How to use it
           </h2>
-          <ol style={{ paddingLeft: '1.25rem', color: '#94a3b8', lineHeight: 2, marginBottom: '2rem', fontSize: '0.9375rem' }}>
-            <li><strong style={{ color: '#f8fafc' }}>Create your garage</strong> — choose a memorable nickname; a unique sync code is generated for you.</li>
-            <li><strong style={{ color: '#f8fafc' }}>Add your vehicle</strong> — make, model, year, and fuel type.</li>
-            <li><strong style={{ color: '#f8fafc' }}>Log each fill-up</strong> — enter the odometer reading, litres pumped, and price per litre.</li>
-            <li><strong style={{ color: '#f8fafc' }}>Read your stats</strong> — average efficiency, best/worst fill, total spend, and cost per km update instantly.</li>
-            <li><strong style={{ color: '#f8fafc' }}>Sync anywhere</strong> — enter your sync code on any device, or sign in if you linked the garage to your account.</li>
+          <ol style={{ paddingLeft: '1.25rem', color: 'var(--ndl-muted)', lineHeight: 2, marginBottom: '2rem', fontSize: '0.9375rem' }}>
+            <li><strong style={{ color: 'var(--ndl-text)' }}>Create your garage</strong> — choose a memorable nickname; a unique sync code is generated for you.</li>
+            <li><strong style={{ color: 'var(--ndl-text)' }}>Add your vehicle</strong> — make, model, year, and fuel type.</li>
+            <li><strong style={{ color: 'var(--ndl-text)' }}>Log each fill-up</strong> — enter the odometer reading, litres pumped, and price per litre.</li>
+            <li><strong style={{ color: 'var(--ndl-text)' }}>Read your stats</strong> — average efficiency, best/worst fill, total spend, and cost per km update instantly.</li>
+            <li><strong style={{ color: 'var(--ndl-text)' }}>Sync anywhere</strong> — enter your sync code on any device, or sign in if you linked the garage to your account.</li>
           </ol>
 
-          <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: '#f8fafc', marginBottom: '1.25rem' }}>
+          <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--ndl-text)', marginBottom: '1.25rem' }}>
             Frequently Asked Questions
           </h2>
           {[
@@ -89,18 +92,22 @@ export default function FuelTrackerPage() {
               a: 'Yes. After your first vehicle is set up, click "Add Vehicle" from the main view at any time. All vehicles share the same sync code and switch with a single tap.',
             },
             {
+              q: 'Is there an Android app?',
+              a: 'Yes — Odova is the Fuel Tracker as an Android app, available on Google Play. It uses the same garage data: open the app, choose "Have a Code", and enter your sync code (or sign in if you linked the garage to your account) and your vehicles, fill-ups and reminders appear on your phone.',
+            },
+            {
               q: 'Can I export my data?',
               a: 'Yes. Click the "Export CSV" button in Settings or at the bottom of your fill history. The exported file includes all odometer readings, efficiency calculations, costs, and notes — fully compatible with Excel and Google Sheets.',
             },
           ].map(({ q, a }) => (
             <div key={q} style={{ marginBottom: '1.5rem' }}>
-              <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: '#f8fafc', marginBottom: '0.375rem' }}>{q}</h3>
-              <p style={{ fontSize: '0.875rem', color: '#94a3b8', lineHeight: 1.75 }}>{a}</p>
+              <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--ndl-text)', marginBottom: '0.375rem' }}>{q}</h3>
+              <p style={{ fontSize: '0.875rem', color: 'var(--ndl-muted)', lineHeight: 1.75 }}>{a}</p>
             </div>
           ))}
 
-          <div style={{ marginTop: '2.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(30,41,59,0.8)' }}>
-            <p style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#64748b', marginBottom: '0.75rem' }}>
+          <div style={{ marginTop: '2.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--ndl-border)' }}>
+            <p style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ndl-faint)', marginBottom: '0.75rem' }}>
               Related reading
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
