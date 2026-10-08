@@ -61,7 +61,12 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-6">
-      <PageHeader title="Invoices" description="Bill your clients and track what's been paid." actions={newButton} />
+      {/* The "all" empty state carries its own button — don't show two. */}
+      <PageHeader
+        title="Invoices"
+        description="Bill your clients and track what's been paid."
+        actions={!(invoices.length === 0 && view.key === 'all') && newButton}
+      />
 
       {all.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-2">

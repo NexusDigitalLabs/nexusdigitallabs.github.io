@@ -58,7 +58,8 @@ export default async function ExpensesPage({ searchParams }: { searchParams: Pro
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-6">
-      <PageHeader title="Expenses" description="What your business spends, by month." actions={newButton} />
+      {/* The empty state carries its own button — don't show two. */}
+      <PageHeader title="Expenses" description="What your business spends, by month." actions={expenses.length > 0 && newButton} />
 
       <div className="flex items-center gap-2">
         <Button variant="outline" size="icon-sm" asChild>

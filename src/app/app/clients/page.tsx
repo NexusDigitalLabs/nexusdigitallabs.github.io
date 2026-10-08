@@ -58,12 +58,15 @@ export default async function ClientsPage({
         title="Clients"
         description="The people and companies you work with."
         actions={
-          <Button asChild>
-            <Link href="/app/clients/new/">
-              <Plus aria-hidden="true" />
-              New client
-            </Link>
-          </Button>
+          // The first-client empty state carries its own button — don't show two.
+          !(clients.length === 0 && !q && !showArchived) && (
+            <Button asChild>
+              <Link href="/app/clients/new/">
+                <Plus aria-hidden="true" />
+                New client
+              </Link>
+            </Button>
+          )
         }
       />
 

@@ -51,7 +51,12 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-6">
-      <PageHeader title="Projects" description="Everything you're working on, by client." actions={newButton} />
+      {/* The "open" empty state carries its own button — don't show two. */}
+      <PageHeader
+        title="Projects"
+        description="Everything you're working on, by client."
+        actions={!(projects.length === 0 && view === 'open') && newButton}
+      />
 
       <nav aria-label="Project filter" className="flex flex-wrap gap-1 text-sm">
         {VIEWS.map((v) => (
