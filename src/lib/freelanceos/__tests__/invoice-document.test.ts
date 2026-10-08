@@ -28,8 +28,8 @@ const today = '2026-10-08';
 
 describe('buildInvoiceSheet', () => {
   it('drafts use live business + client details', () => {
-    const sheet = buildInvoiceSheet(base, live, today);
-    expect(sheet.number).toBe('Draft');
+    const sheet = buildInvoiceSheet(base, { ...live, upcomingNumber: 'INV-0003' }, today);
+    expect(sheet.number).toBe('INV-0003');
     expect(sheet.badge).toEqual({ label: 'Draft', tone: 'draft' });
     expect(sheet.from).toEqual({ name: 'Live Studio', lines: ['live@studio.dev', 'Tax ID: VAT1'] });
     expect(sheet.billTo).toEqual({ name: 'ABC Corp', lines: ['Jane Smith', 'jane@abc.com', 'Australia'] });

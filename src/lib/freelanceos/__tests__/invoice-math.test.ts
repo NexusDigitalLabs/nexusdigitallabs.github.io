@@ -114,3 +114,13 @@ describe('helpers', () => {
     ]);
   });
 });
+
+describe('formatInvoiceNumber', () => {
+  it('pads to 4 digits and grows past 9999 (matches migration 015)', async () => {
+    const { formatInvoiceNumber } = await import('../invoice-math');
+    expect(formatInvoiceNumber('INV-', 7)).toBe('INV-0007');
+    expect(formatInvoiceNumber('INV-', 9999)).toBe('INV-9999');
+    expect(formatInvoiceNumber('INV-', 10000)).toBe('INV-10000');
+    expect(formatInvoiceNumber('', 42)).toBe('0042');
+  });
+});

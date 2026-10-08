@@ -8,7 +8,7 @@ import { InvoiceStatusPanel, RecordPaymentForm } from '@/components/app/InvoiceP
 import { Detail, InvoiceStatusBadge, PageHeader } from '@/components/app/page-parts';
 import { deletePaymentAction, invoiceStatusAction, recordPaymentAction } from '@/app/app/invoices/actions';
 import { buildInvoiceSheet } from '@/lib/freelanceos/invoice-document';
-import { balanceDue, invoiceDisplayStatus, todayISO } from '@/lib/freelanceos/invoice-math';
+import { balanceDue, formatInvoiceNumber, invoiceDisplayStatus, todayISO } from '@/lib/freelanceos/invoice-math';
 import { formatMoney, minorToInput } from '@/lib/freelanceos/money';
 import { requireOrg } from '@/lib/freelanceos/org';
 import { formatDate } from '@/lib/freelanceos/projects';
@@ -25,8 +25,11 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
   const status = invoiceDisplayStatus(invoice, today);
   const balance = balanceDue(invoice);
   const money = (minor: number) => formatMoney(minor, invoice.currency);
-  const sheet = buildInvoiceSheet(invoice, { business, client: invoice.client }, today);
+  const isDraft = invoice.status === 'draft';
   const clientName = invoice.client ? invoice.client.company || invoice.client.name : 'Client';
+  // Best guess while drafting; the real number is assigned atomically on issue.
+  const upcomingNumber = formatInvoiceNumber(business.invoice_prefix, business.next_invoice_number);
+  const sheet = buildInvoiceSheet(invoice, { business, client: invoice.client, upcomingNumber }, today);
   const filename = `invoice-${(invoice.number ?? 'draft').replace(/[^a-zA-Z0-9-]/g, '-').toLowerCase()}.pdf`;
   const missingProfile = invoice.status === 'draft' && !business.email;
 
@@ -36,15 +39,19 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
         back={{ href: '/app/invoices/', label: 'Invoices' }}
         title={
           <span className="flex flex-wrap items-center gap-2">
-            {invoice.number ?? 'Draft invoice'}
+            {isDraft ? `Invoice for ${clientName}` : invoice.number}
             <InvoiceStatusBadge status={status} />
           </span>
         }
         description={
-          invoice.client && (
-            <Link href={`/app/clients/${invoice.client.id}/`} className="hover:underline">
-              {clientName}
-            </Link>
+          isDraft ? (
+            <>Becomes {upcomingNumber} when it&apos;s ready to send.</>
+          ) : (
+            invoice.client && (
+              <Link href={`/app/clients/${invoice.client.id}/`} className="hover:underline">
+                {clientName}
+              </Link>
+            )
           )
         }
         actions={
@@ -57,7 +64,11 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
                 </Link>
               </Button>
             )}
-            <InvoiceStatusPanel action={invoiceStatusAction.bind(null, invoice.id)} status={invoice.status} />
+            <InvoiceStatusPanel
+              action={invoiceStatusAction.bind(null, invoice.id)}
+              status={invoice.status}
+              upcomingNumber={upcomingNumber}
+            />
           </>
         }
       />
@@ -73,7 +84,11 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
       )}
 
       <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
-        <InvoicePreview sheet={sheet} filename={filename} />
+        <InvoicePreview
+          sheet={sheet}
+          filename={filename}
+          downloadLabel={invoice.status === 'draft' ? 'Download draft PDF' : 'Download PDF'}
+        />
 
         <div className="flex flex-col gap-4">
           <Card>
@@ -94,15 +109,15 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
                     </Link>
                   </Detail>
                 )}
-                {invoice.sent_at && <Detail label="Sent">{formatDate(invoice.sent_at)}</Detail>}
+                {invoice.sent_at && <Detail label="Issued on">{formatDate(invoice.sent_at)}</Detail>}
               </dl>
             </CardContent>
           </Card>
 
           {invoice.status === 'draft' && (
             <p className="text-sm text-muted-foreground">
-              Download the PDF and send it to your client, then click <strong>Mark as sent</strong>. That assigns the
-              invoice number and lets you record payments.
+              Happy with it? Click <strong>Ready to send</strong> to issue it as {upcomingNumber} and lock it, then
+              download the PDF and send it to your client.
             </p>
           )}
 

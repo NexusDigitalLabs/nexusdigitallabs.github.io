@@ -39,7 +39,15 @@ function IntentButton({
 }
 
 /** Send / void / delete, depending on the stored status. */
-export function InvoiceStatusPanel({ action, status }: { action: Action; status: 'draft' | 'sent' | 'void' }) {
+export function InvoiceStatusPanel({
+  action,
+  status,
+  upcomingNumber,
+}: {
+  action: Action;
+  status: 'draft' | 'sent' | 'void';
+  upcomingNumber?: string;
+}) {
   const [state, formAction] = useActionState(action, initialFormState);
   if (status === 'void') return null;
 
@@ -50,10 +58,10 @@ export function InvoiceStatusPanel({ action, status }: { action: Action; status:
           <IntentButton
             intent="send"
             variant="default"
-            confirmText="Mark as sent? This assigns the invoice number and locks the invoice from further edits."
+            confirmText={`Issue this invoice as ${upcomingNumber ?? 'the next number'}? It will be locked from further edits, then you can download the PDF and send it.`}
           >
             <Send aria-hidden="true" />
-            Mark as sent
+            Ready to send
           </IntentButton>
           <IntentButton intent="delete" confirmText="Delete this draft invoice?">
             <Trash2 aria-hidden="true" />

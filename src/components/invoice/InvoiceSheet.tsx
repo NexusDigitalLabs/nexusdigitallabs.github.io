@@ -3,9 +3,12 @@ import type { ReactNode, Ref } from 'react';
 /**
  * Printable A4 invoice sheet (794px wide), shared by the public Invoice
  * Generator tool and FreelanceOS. Takes pre-formatted strings so each caller
- * keeps its own money math. Inline styles on purpose: html2pdf rasterizes
- * this element, and it must look identical in light and dark site themes.
+ * keeps its own money math. The PDF twin is InvoicePdfDocument (same data).
+ * Inline styles on purpose: it must look identical in light and dark site themes.
  */
+
+/** Everything printed on the invoice — shared by the HTML sheet and the PDF. */
+export type InvoiceSheetData = Omit<InvoiceSheetProps, 'sheetRef'>;
 
 export type InvoiceSheetProps = {
   number: string;

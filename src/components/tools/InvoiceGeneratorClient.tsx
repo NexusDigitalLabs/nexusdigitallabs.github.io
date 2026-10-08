@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import Script from 'next/script';
 import CloudDraftBar from '@/components/CloudDraftBar';
 import { useCloudToolDraft } from '@/hooks/useCloudToolDraft';
 import { loginUrl } from '@/lib/auth-redirect';
-import InvoiceSheet, { type InvoiceSheetProps } from '@/components/invoice/InvoiceSheet';
+import InvoiceSheet, { type InvoiceSheetData } from '@/components/invoice/InvoiceSheet';
+import { downloadInvoicePdf } from '@/components/invoice/pdf';
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 const SYM: Record<string, string> = {
@@ -31,12 +31,6 @@ interface LineItem {
   qty: number;
   rate: number;
 }
-
-type Html2PdfInstance = {
-  set: (opts: object) => Html2PdfInstance;
-  from: (el: HTMLElement) => Html2PdfInstance;
-  save: () => Promise<void>;
-};
 
 // ── Pure helpers ───────────────────────────────────────────────────────────────
 function todayISO() {
@@ -86,8 +80,8 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
 const inputCls =
   'block w-full rounded-[7px] px-[11px] py-[7px] text-[12.5px] outline-none transition-colors font-[Inter,sans-serif] ndl-invoice-input';
 
-// ── Invoice preview (A4 sheet — captured by html2pdf) ───────────────────────
-interface InvoicePreviewProps {
+// ── Invoice data for the shared sheet (on-screen preview + real-text PDF) ───
+interface ToolInvoiceInput {
   num: string;
   currency: string;
   date: string;
@@ -112,52 +106,48 @@ interface InvoicePreviewProps {
   items: LineItem[];
   sym: string;
   totals: { sub: number; discAmt: number; taxAmt: number; total: number };
-  innerRef: React.RefObject<HTMLDivElement | null>;
 }
 
-function InvoicePreview({
+function buildToolSheet({
   num, currency, date, due,
   issName, issEmail, issAddr, issWeb,
   cliName, cliContact, cliEmail, cliAddr,
   taxLabel, taxPct, discPct,
   bankName, bankAcctName, bankAcctNum, bankSwift, bankIban,
-  notes, items, sym, totals, innerRef,
-}: InvoicePreviewProps) {
-  const summary: InvoiceSheetProps['summary'] = [{ label: 'Subtotal', value: fmtMoney(totals.sub, sym), tone: 'strong' }];
+  notes, items, sym, totals,
+}: ToolInvoiceInput): InvoiceSheetData {
+  const summary: InvoiceSheetData['summary'] = [{ label: 'Subtotal', value: fmtMoney(totals.sub, sym), tone: 'strong' }];
   if (discPct > 0) summary.push({ label: `Discount (${discPct}%)`, value: `−${fmtMoney(totals.discAmt, sym)}`, tone: 'negative' });
   if (taxPct > 0) summary.push({ label: `${taxLabel} (${taxPct}%)`, value: fmtMoney(totals.taxAmt, sym) });
 
-  return (
-    <InvoiceSheet
-      sheetRef={innerRef}
-      number={num || 'INV-001'}
-      issued={fmtDate(date)}
-      due={fmtDate(due)}
-      currency={currency}
-      from={{ name: issName || 'Issuer', lines: [issEmail, issAddr, issWeb] }}
-      billTo={{ name: cliName || 'Client', lines: [cliContact, cliEmail, cliAddr] }}
-      items={items.map((item) => ({
-        key: item.id,
-        description: item.desc,
-        quantity: String(item.qty),
-        rate: fmtMoney(item.rate, sym),
-        amount: fmtMoney((item.qty || 0) * (item.rate || 0), sym),
-      }))}
-      summary={summary}
-      total={fmtMoney(totals.total, sym)}
-      payment={{
-        rows: [
-          { label: 'Bank', value: bankName },
-          { label: 'Account name', value: bankAcctName },
-          { label: 'Account no.', value: bankAcctNum, mono: true },
-          { label: 'SWIFT / BIC', value: bankSwift, mono: true },
-          { label: 'IBAN', value: bankIban, mono: true },
-        ],
-      }}
-      notes={notes}
-      footerLeft={issName}
-    />
-  );
+  return {
+    number: num || 'INV-001',
+    issued: fmtDate(date),
+    due: fmtDate(due),
+    currency,
+    from: { name: issName || 'Issuer', lines: [issEmail, issAddr, issWeb] },
+    billTo: { name: cliName || 'Client', lines: [cliContact, cliEmail, cliAddr] },
+    items: items.map((item) => ({
+      key: item.id,
+      description: item.desc,
+      quantity: String(item.qty),
+      rate: fmtMoney(item.rate, sym),
+      amount: fmtMoney((item.qty || 0) * (item.rate || 0), sym),
+    })),
+    summary,
+    total: fmtMoney(totals.total, sym),
+    payment: {
+      rows: [
+        { label: 'Bank', value: bankName },
+        { label: 'Account name', value: bankAcctName },
+        { label: 'Account no.', value: bankAcctNum, mono: true },
+        { label: 'SWIFT / BIC', value: bankSwift, mono: true },
+        { label: 'IBAN', value: bankIban, mono: true },
+      ],
+    },
+    notes,
+    footerLeft: issName,
+  };
 }
 
 // ── Main component ─────────────────────────────────────────────────────────────
@@ -316,53 +306,30 @@ export default function InvoiceGeneratorClient() {
     );
   };
 
-  // PDF download
+  const sheetData = buildToolSheet({
+    num, currency, date, due,
+    issName, issEmail, issAddr, issWeb,
+    cliName, cliContact, cliEmail, cliAddr,
+    taxLabel, taxPct: taxRate, discPct: discount,
+    bankName, bankAcctName, bankAcctNum, bankSwift, bankIban,
+    notes, items, sym, totals,
+  });
+
+  // Real-text PDF from the same data as the preview (components/invoice/pdf.tsx)
   const handleDownload = useCallback(async () => {
-    if (!invoiceSheetRef.current) return;
-    const w = window as Window & { html2pdf?: () => Html2PdfInstance };
-    if (!w.html2pdf) {
-      alert('PDF engine is still loading. Please wait a moment and try again.');
-      return;
-    }
     setIsDownloading(true);
-
-    // Temporarily reset scale for clean PDF capture
-    const sheetEl = invoiceSheetRef.current;
-    const outerEl = invoiceOuterRef.current;
-    const savedTransform = sheetEl.style.transform;
-    sheetEl.style.transform = '';
-    if (outerEl) { outerEl.style.width = '794px'; outerEl.style.height = `${sheetEl.offsetHeight}px`; }
-
     const filename = `invoice-${(num || 'NDL').replace(/[^a-zA-Z0-9-]/g, '-').toLowerCase()}.pdf`;
-
     try {
-      await w.html2pdf()
-        .set({
-          margin: [15, 12, 15, 12],
-          filename,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        })
-        .from(sheetEl)
-        .save();
+      await downloadInvoicePdf(sheetData, filename);
+    } catch {
+      alert('Could not generate the PDF. Please try again.');
     } finally {
-      sheetEl.style.transform = savedTransform;
-      if (outerEl) {
-        const natH = sheetEl.offsetHeight;
-        outerEl.style.width = `${Math.round(794 * scale)}px`;
-        outerEl.style.height = `${Math.round(natH * scale)}px`;
-      }
       setIsDownloading(false);
     }
-  }, [num, scale]);
+  }, [num, sheetData]);
 
   return (
     <>
-      <Script
-        src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
-        strategy="lazyOnload"
-      />
 
       <div
         className="flex antialiased"
@@ -623,16 +590,7 @@ export default function InvoiceGeneratorClient() {
             }}
           >
             <div style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
-              <InvoicePreview
-                num={num} currency={currency} date={date} due={due}
-                issName={issName} issEmail={issEmail} issAddr={issAddr} issWeb={issWeb}
-                cliName={cliName} cliContact={cliContact} cliEmail={cliEmail} cliAddr={cliAddr}
-                taxLabel={taxLabel} taxPct={taxRate} discPct={discount}
-                bankName={bankName} bankAcctName={bankAcctName} bankAcctNum={bankAcctNum}
-                bankSwift={bankSwift} bankIban={bankIban}
-                notes={notes} items={items} sym={sym} totals={totals}
-                innerRef={invoiceSheetRef}
-              />
+              <InvoiceSheet {...sheetData} sheetRef={invoiceSheetRef} />
             </div>
           </div>
         </div>

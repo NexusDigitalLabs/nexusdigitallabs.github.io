@@ -53,7 +53,8 @@ Already in repo: Next.js 16, TypeScript, Tailwind v4, Supabase Auth + SSR middle
 ## Phase 2 — Money
 
 - [x] ★ **Invoices:** `invoices`, `invoice_items`, `payments` tables + RLS — `014_freelanceos_invoices.sql`
-  - [ ] **Run `014_freelanceos_invoices.sql` in Supabase** (manual step)
+  - [x] **Run `014_freelanceos_invoices.sql` in Supabase** (manual step)
+  - [ ] **Run `015_freelanceos_invoice_number_width.sql` in Supabase** (fixes numbers past 9999)
 - [x] ★ Sequential numbering per organization (race-safe, DB-side; assigned on send, so deleted drafts leave no gaps)
 - [x] ★ Invoice builder: line items, tax %, discount, currency, due date, notes (live totals; DB recomputes on save)
 - [x] ★ Prefill line items from project rate/price (tracked time comes with Phase 3)

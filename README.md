@@ -170,7 +170,7 @@ The most complete free token counter available without an API key or account. Us
 ### Freelancer Invoice Generator
 > Professional PDF invoice generator — no account, no watermark, no cost.
 
-A single-page invoice builder with a live preview. Supports dynamic line items, optional tax and discount lines, custom payment terms, and bank transfer details. PDF generation runs entirely in the browser using `html2pdf.js` loaded from CDN.
+A single-page invoice builder with a live preview. Supports dynamic line items, optional tax and discount lines, custom payment terms, and bank transfer details. PDF generation runs entirely in the browser with `@react-pdf/renderer`, producing real-text (vector) PDFs.
 
 **Features:**
 - Dynamic line items (add/remove rows)
@@ -334,7 +334,7 @@ The `MetricCounter` component fires a `POST /api/counters` on mount to upsert th
 | Hosting | Vercel | — | Zero-config Next.js deployment, global edge CDN |
 | Database | Supabase (PostgreSQL) | — | Page-view counter; free tier |
 | Analytics | Umami Cloud | — | Cookie-free, GDPR/CCPA compliant |
-| PDF export | `html2pdf.js` | CDN | Client-side A4 PDF generation (Invoice + Debt tools) |
+| PDF export | `@react-pdf/renderer` / `html2pdf.js` | npm / CDN | Real-text invoice PDFs (Invoice Generator + FreelanceOS); `html2pdf.js` still powers the Debt tool export |
 | Game state | `localStorage` (+ optional cloud) | — | Local username/scores; signed-in bests may sync |
 
 ---

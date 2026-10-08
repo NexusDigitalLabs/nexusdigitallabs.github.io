@@ -16,7 +16,12 @@ export function buildInvoiceSheet(
     | 'subtotal_minor' | 'discount_minor' | 'tax_minor' | 'total_minor' | 'amount_paid_minor'
     | 'from_snapshot' | 'bill_to_snapshot' | 'payment_details' | 'items'
   >,
-  live: { business: PartySnapshot & { payment_details?: string | null }; client: PartySnapshot | null },
+  live: {
+    business: PartySnapshot & { payment_details?: string | null };
+    client: PartySnapshot | null;
+    /** Number a draft will get when issued — shown on the draft preview. */
+    upcomingNumber?: string;
+  },
   today: string = todayISO()
 ): Omit<InvoiceSheetProps, 'sheetRef'> {
   const isDraft = invoice.status === 'draft';
@@ -51,7 +56,7 @@ export function buildInvoiceSheet(
   const fromName = from.name ?? 'Your business';
 
   return {
-    number: invoice.number ?? 'Draft',
+    number: invoice.number ?? live.upcomingNumber ?? 'Draft',
     badge,
     issued: formatDate(invoice.issue_date),
     due: formatDate(invoice.due_date),

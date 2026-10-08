@@ -52,7 +52,7 @@ export type InvoiceDisplayStatus = 'draft' | 'sent' | 'partial' | 'overdue' | 'p
 
 export const INVOICE_STATUS_LABELS: Record<InvoiceDisplayStatus, string> = {
   draft: 'Draft',
-  sent: 'Sent',
+  sent: 'Unpaid',
   partial: 'Partially paid',
   overdue: 'Overdue',
   paid: 'Paid',
@@ -93,4 +93,9 @@ export function sumByCurrency<T>(rows: T[], currency: (r: T) => string, amount: 
     .filter(([, value]) => value !== 0)
     .map(([code, value]) => ({ currency: code, amount: value }))
     .sort((a, b) => b.amount - a.amount);
+}
+
+/** Mirrors the DB: prefix + number padded to at least 4 digits (never truncated). */
+export function formatInvoiceNumber(prefix: string, n: number): string {
+  return `${prefix}${String(n).padStart(4, '0')}`;
 }

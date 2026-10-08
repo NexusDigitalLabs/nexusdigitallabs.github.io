@@ -20,7 +20,7 @@ describe('describeActivity', () => {
       'Project marked On hold'
     );
     expect(describeActivity(entry({ action: 'updated' }))).toBe('Project updated');
-    expect(describeActivity(entry({ entity_type: 'invoice', action: 'sent' }))).toBe('Invoice sent');
+    expect(describeActivity(entry({ entity_type: 'invoice', action: 'sent' }))).toBe('Invoice issued');
     expect(describeActivity(entry({ entity_type: 'invoice', action: 'paid' }))).toBe('Invoice paid in full');
     expect(
       describeActivity(entry({ entity_type: 'invoice', action: 'payment_recorded', details: { amount_minor: 2000, currency: 'USD' } }))

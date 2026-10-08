@@ -175,12 +175,13 @@ export type BusinessProfileRow = PartySnapshot & {
   default_tax_rate: number;
   invoice_prefix: string;
   payment_details: string | null;
+  next_invoice_number: number;
 };
 
 export async function getBusinessProfile({ supabase, org }: Ctx): Promise<BusinessProfileRow> {
   const { data, error } = await supabase
     .from('organizations')
-    .select('name, email, phone, address, tax_id, base_currency, default_tax_rate, invoice_prefix, payment_details')
+    .select('name, email, phone, address, tax_id, base_currency, default_tax_rate, invoice_prefix, payment_details, next_invoice_number')
     .eq('id', org.id)
     .single();
   if (error || !data) throw new Error('Could not load your business profile.');

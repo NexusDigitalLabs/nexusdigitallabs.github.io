@@ -66,7 +66,7 @@ export async function invoiceStatusAction(invoiceId: string, _prev: FormState, f
   }
 
   const transition =
-    intent === 'send' ? { from: 'draft', to: 'sent', ok: 'Invoice marked as sent.' }
+    intent === 'send' ? { from: 'draft', to: 'sent', ok: 'Issued — download the PDF and send it to your client.' }
     : intent === 'void' ? { from: 'sent', to: 'void', ok: 'Invoice voided.' }
     : null;
   if (!transition) return errorState('Unknown action.');

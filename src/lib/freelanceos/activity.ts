@@ -30,7 +30,7 @@ export function describeActivity(entry: ActivityEntry): string {
     case 'status_changed':
       return `${entity} marked ${statusLabel(entry.details.to)}`;
     case 'sent':
-      return 'Invoice sent';
+      return 'Invoice issued';
     case 'voided':
       return 'Invoice voided';
     case 'paid':
