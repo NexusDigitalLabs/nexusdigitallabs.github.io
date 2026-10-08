@@ -52,18 +52,19 @@ Already in repo: Next.js 16, TypeScript, Tailwind v4, Supabase Auth + SSR middle
 
 ## Phase 2 — Money
 
-- [ ] ★ **Invoices:** `invoices`, `invoice_items`, `payments` tables + RLS
-- [ ] ★ Sequential numbering per organization (race-safe, DB-side)
-- [ ] ★ Invoice builder: line items, tax %, discount, currency, due date, notes
-- [ ] ★ Prefill line items from tracked time / project rate
-- [ ] ★ PDF generation — **reuse the existing `/tools/invoice-generator` renderer**
+- [x] ★ **Invoices:** `invoices`, `invoice_items`, `payments` tables + RLS — `014_freelanceos_invoices.sql`
+  - [ ] **Run `014_freelanceos_invoices.sql` in Supabase** (manual step)
+- [x] ★ Sequential numbering per organization (race-safe, DB-side; assigned on send, so deleted drafts leave no gaps)
+- [x] ★ Invoice builder: line items, tax %, discount, currency, due date, notes (live totals; DB recomputes on save)
+- [x] ★ Prefill line items from project rate/price (tracked time comes with Phase 3)
+- [x] ★ PDF generation — shared `InvoiceSheet` component now used by both the public tool and FreelanceOS
 - [ ] Business logo upload (Supabase Storage, org-scoped policies) — printed on invoice PDFs
-- [ ] ★ Statuses: draft → sent → paid / overdue (overdue derived from due date)
-- [ ] ★ Record payment manually (full/partial) — *no payment collection in v1*
+- [x] ★ Statuses: draft → sent → paid / overdue (overdue derived from due date); sent invoices locked + snapshotted; void
+- [x] ★ Record payment manually (full/partial, never above balance) — *no payment collection in v1*
 - [ ] Email invoice via Resend (PDF attached or secure link)
 - [ ] **Expenses:** table + RLS, categories, project link, monthly view
-- [ ] ★ **Dashboard v2:** revenue this month, outstanding, expenses, upcoming due (per currency)
-- [ ] Unit tests for totals, tax, discount, rounding, numbering
+- [x] ★ **Dashboard v2:** revenue this month, outstanding, due soon (per currency) — expenses card comes with Expenses
+- [x] Unit tests for totals, tax, discount, rounding; numbering + locking tested on local Postgres; TS/SQL math parity checked on 2,000 random invoices
 - [ ] Funnel: link from the public invoice generator → "save & track this in FreelanceOS"
 
 > **Milestone: usable product.** Put it in front of 3–5 freelancers before continuing.

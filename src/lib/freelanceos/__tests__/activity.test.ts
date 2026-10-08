@@ -20,6 +20,11 @@ describe('describeActivity', () => {
       'Project marked On hold'
     );
     expect(describeActivity(entry({ action: 'updated' }))).toBe('Project updated');
+    expect(describeActivity(entry({ entity_type: 'invoice', action: 'sent' }))).toBe('Invoice sent');
+    expect(describeActivity(entry({ entity_type: 'invoice', action: 'paid' }))).toBe('Invoice paid in full');
+    expect(
+      describeActivity(entry({ entity_type: 'invoice', action: 'payment_recorded', details: { amount_minor: 2000, currency: 'USD' } }))
+    ).toBe('Payment of $20.00 recorded');
   });
 });
 
@@ -27,6 +32,7 @@ describe('activityHref', () => {
   it('links to the entity', () => {
     expect(activityHref(entry({ entity_type: 'client', entity_id: 'c1' }))).toBe('/app/clients/c1/');
     expect(activityHref(entry({ entity_id: 'p1' }))).toBe('/app/projects/p1/');
+    expect(activityHref(entry({ entity_type: 'invoice', entity_id: 'i1' }))).toBe('/app/invoices/i1/');
   });
 });
 

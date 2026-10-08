@@ -58,3 +58,20 @@ export function formatDate(value: string | null | undefined): string {
   if (Number.isNaN(date.getTime())) return '—';
   return new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeZone: 'UTC' }).format(date);
 }
+
+/** Suggested invoice line for a project, based on how it's billed. */
+export function invoiceLineFromProject(
+  p: { name: string; billing_type: BillingType; currency: string; rate_minor: number | null; budget_minor: number | null },
+  toInput: (minor: number | null, currency: string) => string
+): { description: string; quantity: string; unit_price: string } {
+  switch (p.billing_type) {
+    case 'hourly':
+      return { description: `${p.name} — hours`, quantity: '', unit_price: toInput(p.rate_minor, p.currency) };
+    case 'retainer':
+      return { description: `${p.name} — monthly retainer`, quantity: '1', unit_price: toInput(p.rate_minor, p.currency) };
+    case 'fixed':
+      return { description: p.name, quantity: '1', unit_price: toInput(p.budget_minor, p.currency) };
+    case 'milestone':
+      return { description: `${p.name} — milestone`, quantity: '1', unit_price: '' };
+  }
+}

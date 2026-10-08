@@ -28,3 +28,16 @@ describe('formatDate', () => {
     expect(formatDate('nope')).toBe('—');
   });
 });
+
+describe('invoiceLineFromProject', () => {
+  const toInput = (m: number | null) => (m === null ? '' : (m / 100).toFixed(2));
+  const p = { name: 'App', currency: 'USD', rate_minor: 4000, budget_minor: 200000 };
+
+  it('suggests a line per billing type', async () => {
+    const { invoiceLineFromProject } = await import('../projects');
+    expect(invoiceLineFromProject({ ...p, billing_type: 'hourly' }, toInput)).toEqual({ description: 'App — hours', quantity: '', unit_price: '40.00' });
+    expect(invoiceLineFromProject({ ...p, billing_type: 'retainer' }, toInput)).toEqual({ description: 'App — monthly retainer', quantity: '1', unit_price: '40.00' });
+    expect(invoiceLineFromProject({ ...p, billing_type: 'fixed' }, toInput)).toEqual({ description: 'App', quantity: '1', unit_price: '2000.00' });
+    expect(invoiceLineFromProject({ ...p, billing_type: 'milestone' }, toInput)).toEqual({ description: 'App — milestone', quantity: '1', unit_price: '' });
+  });
+});

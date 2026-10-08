@@ -1,15 +1,17 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Archive, ArchiveRestore, Pencil, Plus } from 'lucide-react';
+import { Archive, ArchiveRestore, Pencil, Plus, Receipt } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Detail, EmptyState, PageHeader, ProjectStatusBadge } from '@/components/app/page-parts';
+import { Detail, EmptyState, InvoiceStatusBadge, MoneyList, PageHeader, ProjectStatusBadge } from '@/components/app/page-parts';
 import { setClientArchivedAction } from '@/app/app/clients/actions';
+import { balanceDue, invoiceDisplayStatus, sumByCurrency, todayISO } from '@/lib/freelanceos/invoice-math';
+import { formatMoney } from '@/lib/freelanceos/money';
 import { requireOrg } from '@/lib/freelanceos/org';
 import { formatBilling, formatDate, OPEN_PROJECT_STATUSES } from '@/lib/freelanceos/projects';
-import { getClientOr404, PROJECT_COLUMNS, type Project } from '@/lib/freelanceos/queries';
+import { getClientOr404, INVOICE_COLUMNS, PROJECT_COLUMNS, type InvoiceRow, type Project } from '@/lib/freelanceos/queries';
 
 export const metadata: Metadata = { title: 'Client' };
 
@@ -18,14 +20,30 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
   const ctx = await requireOrg();
   const client = await getClientOr404(ctx, id);
 
-  const { data, error } = await ctx.supabase
-    .from('projects')
-    .select(PROJECT_COLUMNS)
-    .eq('org_id', ctx.org.id)
-    .eq('client_id', client.id)
-    .order('created_at', { ascending: false });
-  if (error) throw new Error('Could not load projects.');
+  const [{ data, error }, { data: invoiceData, error: invoiceError }] = await Promise.all([
+    ctx.supabase
+      .from('projects')
+      .select(PROJECT_COLUMNS)
+      .eq('org_id', ctx.org.id)
+      .eq('client_id', client.id)
+      .order('created_at', { ascending: false }),
+    ctx.supabase
+      .from('invoices')
+      .select(INVOICE_COLUMNS)
+      .eq('org_id', ctx.org.id)
+      .eq('client_id', client.id)
+      .order('issue_date', { ascending: false }),
+  ]);
+  if (error || invoiceError) throw new Error('Could not load this client.');
   const projects = (data ?? []) as Project[];
+  const today = todayISO();
+  const invoices = ((invoiceData ?? []) as InvoiceRow[]).map((inv) => ({ ...inv, display: invoiceDisplayStatus(inv, today) }));
+  const revenue = sumByCurrency(invoices, (i) => i.currency, (i) => i.amount_paid_minor);
+  const outstanding = sumByCurrency(
+    invoices.filter((i) => i.status === 'sent'),
+    (i) => i.currency,
+    balanceDue
+  );
   const openCount = projects.filter((p) => OPEN_PROJECT_STATUSES.includes(p.status)).length;
   const archived = client.archived_at !== null;
   const newProjectHref = `/app/projects/new/?client=${client.id}`;
@@ -69,17 +87,20 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
         <Card>
           <CardHeader>
             <CardDescription>Revenue from client</CardDescription>
-            <CardTitle className="text-2xl text-muted-foreground">—</CardTitle>
+            <CardTitle className="text-2xl">
+              <MoneyList totals={revenue} />
+            </CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader>
             <CardDescription>Outstanding</CardDescription>
-            <CardTitle className="text-2xl text-muted-foreground">—</CardTitle>
+            <CardTitle className="text-2xl">
+              <MoneyList totals={outstanding} />
+            </CardTitle>
           </CardHeader>
         </Card>
       </div>
-      <p className="-mt-3 text-xs text-muted-foreground">Revenue and outstanding amounts appear once invoicing ships.</p>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-1">
@@ -159,6 +180,50 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
                       </TableCell>
                       <TableCell className="hidden text-muted-foreground sm:table-cell">{formatBilling(p)}</TableCell>
                       <TableCell className="hidden text-muted-foreground md:table-cell">{formatDate(p.due_date)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+
+          <div className="mt-3 flex items-center justify-between">
+            <h2 className="text-base font-semibold">Invoices</h2>
+            {!archived && (
+              <Button size="sm" variant="outline" asChild>
+                <Link href={`/app/invoices/new/?client=${client.id}`}>
+                  <Receipt aria-hidden="true" />
+                  New invoice
+                </Link>
+              </Button>
+            )}
+          </div>
+          {invoices.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No invoices yet.</p>
+          ) : (
+            <div className="rounded-xl border bg-card">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Invoice</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="hidden sm:table-cell">Due</TableHead>
+                    <TableHead className="text-right">Total</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {invoices.map((inv) => (
+                    <TableRow key={inv.id} className="relative">
+                      <TableCell>
+                        <Link href={`/app/invoices/${inv.id}/`} className="font-medium after:absolute after:inset-0 hover:underline">
+                          {inv.number ?? 'Draft'}
+                        </Link>
+                      </TableCell>
+                      <TableCell>
+                        <InvoiceStatusBadge status={inv.display} />
+                      </TableCell>
+                      <TableCell className="hidden text-muted-foreground sm:table-cell">{formatDate(inv.due_date)}</TableCell>
+                      <TableCell className="text-right tabular-nums">{formatMoney(inv.total_minor, inv.currency)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

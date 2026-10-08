@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { CheckCircle2, Pencil, RotateCcw } from 'lucide-react';
+import { CheckCircle2, Pencil, Receipt, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Detail, PageHeader, ProjectStatusBadge } from '@/components/app/page-parts';
+import { Detail, MoneyList, PageHeader, ProjectStatusBadge } from '@/components/app/page-parts';
 import { setProjectStatusAction } from '@/app/app/projects/actions';
+import { sumByCurrency } from '@/lib/freelanceos/invoice-math';
 import { formatMoney } from '@/lib/freelanceos/money';
 import { requireOrg } from '@/lib/freelanceos/org';
 import { BILLING_TYPE_LABELS, formatDate, OPEN_PROJECT_STATUSES, RATE_UNIT } from '@/lib/freelanceos/projects';
@@ -14,7 +15,16 @@ export const metadata: Metadata = { title: 'Project' };
 
 export default async function ProjectPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const project = await getProjectOr404(await requireOrg(), id);
+  const ctx = await requireOrg();
+  const project = await getProjectOr404(ctx, id);
+  const { data: invoiceData } = await ctx.supabase
+    .from('invoices')
+    .select('currency, total_minor, amount_paid_minor')
+    .eq('org_id', ctx.org.id)
+    .eq('project_id', project.id)
+    .eq('status', 'sent');
+  const invoiced = sumByCurrency(invoiceData ?? [], (i) => i.currency, (i) => i.total_minor);
+  const paid = sumByCurrency(invoiceData ?? [], (i) => i.currency, (i) => i.amount_paid_minor);
   const isOpen = OPEN_PROJECT_STATUSES.includes(project.status);
   const rateUnit = RATE_UNIT[project.billing_type];
 
@@ -39,6 +49,12 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
         actions={
           <>
             <Button variant="outline" asChild>
+              <Link href={`/app/invoices/new/?project=${project.id}`}>
+                <Receipt aria-hidden="true" />
+                Create invoice
+              </Link>
+            </Button>
+            <Button variant="outline" asChild>
               <Link href={`/app/projects/${project.id}/edit/`}>
                 <Pencil aria-hidden="true" />
                 Edit
@@ -55,16 +71,30 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
-        {['Hours tracked', 'Expenses', 'Invoiced'].map((label) => (
-          <Card key={label}>
-            <CardHeader>
-              <CardDescription>{label}</CardDescription>
-              <CardTitle className="text-2xl text-muted-foreground">—</CardTitle>
-            </CardHeader>
-          </Card>
-        ))}
+        <Card>
+          <CardHeader>
+            <CardDescription>Invoiced</CardDescription>
+            <CardTitle className="text-2xl">
+              <MoneyList totals={invoiced} />
+            </CardTitle>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardDescription>Paid</CardDescription>
+            <CardTitle className="text-2xl">
+              <MoneyList totals={paid} />
+            </CardTitle>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardDescription>Hours tracked</CardDescription>
+            <CardTitle className="text-2xl text-muted-foreground">—</CardTitle>
+          </CardHeader>
+        </Card>
       </div>
-      <p className="-mt-3 text-xs text-muted-foreground">Hours, expenses and invoices appear as those modules ship.</p>
+      <p className="-mt-3 text-xs text-muted-foreground">Hours appear once time tracking ships.</p>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card>

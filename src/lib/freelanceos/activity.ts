@@ -1,16 +1,19 @@
+import { formatMoney } from '@/lib/freelanceos/money';
 import { PROJECT_STATUS_LABELS, type ProjectStatus } from '@/lib/freelanceos/projects';
 
 export type ActivityEntry = {
   id: number;
-  entity_type: 'client' | 'project';
+  entity_type: 'client' | 'project' | 'invoice';
   entity_id: string;
   action: string;
   summary: string;
-  details: { from?: string; to?: string };
+  details: { from?: string; to?: string; amount_minor?: number; currency?: string };
   created_at: string;
 };
 
-const ENTITY_LABEL = { client: 'Client', project: 'Project' } as const;
+const ENTITY_LABEL = { client: 'Client', project: 'Project', invoice: 'Invoice' } as const;
+
+const ENTITY_PATH = { client: 'clients', project: 'projects', invoice: 'invoices' } as const;
 
 const statusLabel = (s: string | undefined) => (s && s in PROJECT_STATUS_LABELS ? PROJECT_STATUS_LABELS[s as ProjectStatus] : s ?? '?');
 
@@ -26,13 +29,25 @@ export function describeActivity(entry: ActivityEntry): string {
       return `${entity} restored`;
     case 'status_changed':
       return `${entity} marked ${statusLabel(entry.details.to)}`;
+    case 'sent':
+      return 'Invoice sent';
+    case 'voided':
+      return 'Invoice voided';
+    case 'paid':
+      return 'Invoice paid in full';
+    case 'payment_recorded': {
+      const { amount_minor, currency } = entry.details;
+      return amount_minor !== undefined && currency
+        ? `Payment of ${formatMoney(amount_minor, currency)} recorded`
+        : 'Payment recorded';
+    }
     default:
       return `${entity} updated`;
   }
 }
 
 export function activityHref(entry: ActivityEntry): string {
-  return `/app/${entry.entity_type === 'client' ? 'clients' : 'projects'}/${entry.entity_id}/`;
+  return `/app/${ENTITY_PATH[entry.entity_type]}/${entry.entity_id}/`;
 }
 
 /** "just now", "5 minutes ago", "3 days ago", then a date. */

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { formatHundredths, parseHundredths } from '@/lib/freelanceos/invoice-math';
 import { isCurrencyCode, parseMoneyToMinor } from '@/lib/freelanceos/money';
 import { BILLING_TYPES, PROJECT_STATUSES } from '@/lib/freelanceos/projects';
 
@@ -135,3 +136,127 @@ export const projectSchema = z
 export type BusinessProfileInput = z.output<typeof businessProfileSchema>;
 export type ClientInput = z.output<typeof clientSchema>;
 export type ProjectInput = z.output<typeof projectSchema>;
+
+// ── Invoices ─────────────────────────────────────────────────────────────────
+
+export const INVOICE_FIELDS = [
+  'client_id',
+  'project_id',
+  'currency',
+  'issue_date',
+  'due_date',
+  'tax_rate',
+  'discount_rate',
+  'notes',
+  'items_json',
+] as const;
+
+export const MAX_INVOICE_ITEMS = 100;
+
+const percent = z
+  .string()
+  .trim()
+  .transform((v, ctx) => {
+    if (v === '') return 0;
+    const h = parseHundredths(v);
+    if (h === null || h > 10000) {
+      ctx.addIssue({ code: 'custom', message: 'Enter a percentage from 0 to 100.' });
+      return z.NEVER;
+    }
+    return h; // hundredths of a percent
+  });
+
+const rawItem = z.object({
+  description: z.string().trim().min(1, 'Describe the item.').max(500, 'Keep descriptions under 500 characters.'),
+  quantity: z.string(),
+  unit_price: z.string(),
+});
+
+export const invoiceSchema = z
+  .object({
+    client_id: z.uuid('Choose a client.'),
+    project_id: z.union([z.literal(''), z.uuid()]),
+    currency,
+    issue_date: isoDate.refine((v) => v !== null, 'Issue date is required.'),
+    due_date: isoDate.refine((v) => v !== null, 'Due date is required.'),
+    tax_rate: percent,
+    discount_rate: percent,
+    notes: optionalText(5000),
+    items_json: z.string(),
+  })
+  .transform((v, ctx) => {
+    if (v.issue_date && v.due_date && v.due_date < v.issue_date) {
+      ctx.addIssue({ code: 'custom', path: ['due_date'], message: 'Due date must be on or after the issue date.' });
+    }
+
+    let raw: unknown;
+    try {
+      raw = JSON.parse(v.items_json);
+    } catch {
+      raw = null;
+    }
+    const parsedItems = z.array(rawItem).safeParse(raw);
+    if (!parsedItems.success || parsedItems.data.length === 0) {
+      ctx.addIssue({ code: 'custom', path: ['items'], message: 'Add at least one line item with a description.' });
+      return z.NEVER;
+    }
+    if (parsedItems.data.length > MAX_INVOICE_ITEMS) {
+      ctx.addIssue({ code: 'custom', path: ['items'], message: `Up to ${MAX_INVOICE_ITEMS} line items.` });
+      return z.NEVER;
+    }
+
+    const items: { description: string; quantity: string; unit_price_minor: number }[] = [];
+    parsedItems.data.forEach((item, i) => {
+      const qty = parseHundredths(item.quantity);
+      const price = parseMoneyToMinor(item.unit_price, v.currency);
+      if (qty === null || qty <= 0) {
+        ctx.addIssue({ code: 'custom', path: ['items'], message: `Line ${i + 1}: enter a quantity above 0 (up to 2 decimals).` });
+      } else if (!price.ok || price.value === null) {
+        ctx.addIssue({ code: 'custom', path: ['items'], message: `Line ${i + 1}: enter a valid price.` });
+      } else {
+        items.push({ description: item.description, quantity: formatHundredths(qty), unit_price_minor: price.value });
+      }
+    });
+    if (items.length !== parsedItems.data.length || !v.issue_date || !v.due_date) return z.NEVER;
+
+    return {
+      fields: {
+        client_id: v.client_id,
+        project_id: v.project_id,
+        currency: v.currency,
+        issue_date: v.issue_date,
+        due_date: v.due_date,
+        tax_rate: formatHundredths(v.tax_rate),
+        discount_rate: formatHundredths(v.discount_rate),
+        notes: v.notes ?? '',
+      },
+      items,
+    };
+  });
+
+export const PAYMENT_FIELDS = ['amount', 'paid_on', 'method', 'note'] as const;
+
+/** Currency-dependent, so built per invoice. */
+export function paymentSchema(currencyCode: string, balanceMinor: number) {
+  return z
+    .object({
+      amount: z.string(),
+      paid_on: isoDate.refine((v) => v !== null, 'Payment date is required.'),
+      method: optionalText(60),
+      note: optionalText(500),
+    })
+    .transform((v, ctx) => {
+      const amount = parseMoneyToMinor(v.amount, currencyCode);
+      if (!amount.ok || amount.value === null || amount.value <= 0) {
+        ctx.addIssue({ code: 'custom', path: ['amount'], message: 'Enter an amount above 0.' });
+        return z.NEVER;
+      }
+      if (amount.value > balanceMinor) {
+        ctx.addIssue({ code: 'custom', path: ['amount'], message: 'That is more than the balance due.' });
+        return z.NEVER;
+      }
+      return { amount_minor: amount.value, paid_on: v.paid_on as string, method: v.method, note: v.note };
+    });
+}
+
+export type InvoiceInput = z.output<typeof invoiceSchema>;
