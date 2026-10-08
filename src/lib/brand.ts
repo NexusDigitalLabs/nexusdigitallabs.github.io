@@ -31,14 +31,14 @@ export const BRAND_PALETTES: { light: BrandPalette; dark: BrandPalette } = {
 };
 
 /**
- * Regular: 7-unit strokes, 6.5-unit nodes. Compact (≤ ~24px): thicker
- * strokes and nodes so it stays legible as a favicon. Nodes sit flush on the
- * strokes — an outline ring was tried and split the letter apart ("i!").
+ * Matches the approved design: regular = 7-unit strokes, 6-unit nodes with a
+ * 2.5-unit ring in the background colour (the gap around each dot). Compact
+ * (≤ ~24px, favicons) = 8-unit strokes, 6.5-unit solid nodes, no ring.
  */
 export function brandMarkMetrics(compact: boolean) {
   return compact
-    ? { strokeWidth: 8, nodeRadius: 7, ringWidth: 0 }
-    : { strokeWidth: 7, nodeRadius: 6.5, ringWidth: 0 };
+    ? { strokeWidth: 8, nodeRadius: 6.5, ringWidth: 0 }
+    : { strokeWidth: 7, nodeRadius: 6, ringWidth: 2.5 };
 }
 
 /** Standalone SVG markup (for raster icons and data URIs). */

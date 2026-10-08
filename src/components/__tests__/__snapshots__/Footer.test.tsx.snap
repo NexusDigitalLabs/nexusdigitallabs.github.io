@@ -50,13 +50,17 @@ exports[`Footer — snapshot > matches snapshot 1`] = `
               cx="10"
               cy="9"
               fill="var(--ndl-logo-1)"
-              r="6.5"
+              r="6"
+              stroke="var(--ndl-bg)"
+              stroke-width="2.5"
             />
             <circle
               cx="38"
               cy="39"
               fill="var(--ndl-logo-3)"
-              r="6.5"
+              r="6"
+              stroke="var(--ndl-bg)"
+              stroke-width="2.5"
             />
           </svg>
           <span

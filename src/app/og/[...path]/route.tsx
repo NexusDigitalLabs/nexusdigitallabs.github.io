@@ -57,7 +57,15 @@ function Card({ card }: { card: OgCard }) {
               <path key={st.d} d={st.d} stroke={BRAND_PALETTES.dark[st.color]} strokeWidth={mark.strokeWidth} strokeLinecap="round" fill="none" />
             ))}
             {BRAND_NODES.map((n) => (
-              <circle key={`${n.cx}-${n.cy}`} cx={n.cx} cy={n.cy} r={mark.nodeRadius} fill={BRAND_PALETTES.dark[n.color]} />
+              <circle
+                key={`${n.cx}-${n.cy}`}
+                cx={n.cx}
+                cy={n.cy}
+                r={mark.nodeRadius}
+                fill={BRAND_PALETTES.dark[n.color]}
+                stroke="#0b0f19"
+                strokeWidth={mark.ringWidth}
+              />
             ))}
           </svg>
           <div style={{ fontSize: 28, fontWeight: 600, letterSpacing: -0.5 }}>NexusDigitalLabs</div>
