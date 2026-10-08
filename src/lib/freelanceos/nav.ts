@@ -23,7 +23,7 @@ export const APP_NAV: AppNavItem[] = [
   { label: 'Clients', href: '/app/clients/', icon: Users, available: true },
   { label: 'Projects', href: '/app/projects/', icon: FolderKanban, available: true },
   { label: 'Invoices', href: '/app/invoices/', icon: Receipt, available: true },
-  { label: 'Expenses', href: '/app/expenses/', icon: Wallet, available: false },
+  { label: 'Expenses', href: '/app/expenses/', icon: Wallet, available: true },
   { label: 'Time', href: '/app/time/', icon: Timer, available: false },
   { label: 'Assistant', href: '/app/assistant/', icon: Bot, available: false },
   { label: 'Settings', href: '/app/settings/', icon: Settings, available: true },

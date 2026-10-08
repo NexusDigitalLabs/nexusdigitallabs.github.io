@@ -13,6 +13,23 @@ export const KOFI_URL = 'https://ko-fi.com/nexusdigitallabs';
 export const DEFAULT_OG_IMAGE = '/og-image.png';
 /** Actual pixel size of public/og-image.png */
 export const DEFAULT_OG_IMAGE_SIZE = { width: 1024, height: 540 } as const;
+/** Size of the per-page cards rendered by src/app/og/[...path]/route.tsx. */
+export const OG_CARD_SIZE = { width: 1200, height: 630 } as const;
+
+/**
+ * URL of a page's generated social card: `/og/<page path>` (home → `/og/home/`).
+ * Pure string work on purpose — this file is imported by client components,
+ * so the card registry (src/lib/og-cards.ts) must stay out of it.
+ */
+export function ogCardPath(pagePath: string): string {
+  const path = normalizeSitePath(pagePath);
+  return path === '/' ? '/og/home/' : `/og${path}`;
+}
+
+/** Inverse of ogCardPath for the route's `[...path]` segments. */
+export function pagePathFromOgSegments(segments: string[]): string {
+  return segments.length === 1 && segments[0] === 'home' ? '/' : normalizeSitePath(segments.join('/'));
+}
 
 export type PageSeoInput = {
   /** Page title (without site suffix — root template adds `— NexusDigitalLabs` unless absolute). */
@@ -20,7 +37,7 @@ export type PageSeoInput = {
   description: string;
   /** Absolute path including trailing slash, e.g. `/tools/fuel-tracker/`. */
   path: string;
-  /** Absolute URL or site-relative path. Defaults to DEFAULT_OG_IMAGE. */
+  /** Absolute URL or site-relative path. Defaults to the page's generated card (ogCardPath). */
   image?: string;
   keywords?: string[];
   /** Use when the title should not use the root `%s — NexusDigitalLabs` template. */
@@ -58,7 +75,7 @@ export function pageMetadata({
   title,
   description,
   path,
-  image = DEFAULT_OG_IMAGE,
+  image,
   keywords,
   absoluteTitle = false,
   type = 'website',
@@ -66,7 +83,9 @@ export function pageMetadata({
   ogDescription,
 }: PageSeoInput): Metadata {
   const url = absoluteSiteUrl(normalizeSitePath(path));
-  const imageUrl = absoluteSiteUrl(image);
+  const imageUrl = absoluteSiteUrl(image ?? ogCardPath(path));
+  // Custom images keep the legacy default size; generated cards are 1200×630.
+  const imageSize = image ? DEFAULT_OG_IMAGE_SIZE : OG_CARD_SIZE;
   const socialTitle = ogTitle ?? title;
   const socialDescription = ogDescription ?? description;
 
@@ -84,8 +103,8 @@ export function pageMetadata({
       images: [
         {
           url: imageUrl,
-          width: DEFAULT_OG_IMAGE_SIZE.width,
-          height: DEFAULT_OG_IMAGE_SIZE.height,
+          width: imageSize.width,
+          height: imageSize.height,
           alt: socialTitle,
         },
       ],

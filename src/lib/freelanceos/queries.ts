@@ -198,3 +198,41 @@ export async function getProjectChoices({ supabase, org }: Ctx) {
   if (error) throw new Error('Could not load projects.');
   return (data ?? []) as Pick<Project, 'id' | 'client_id' | 'name' | 'billing_type' | 'currency' | 'rate_minor' | 'budget_minor' | 'status'>[];
 }
+
+// ── Expenses ─────────────────────────────────────────────────────────────────
+
+export type Expense = {
+  id: string;
+  project_id: string | null;
+  spent_on: string;
+  category: import('@/lib/freelanceos/expenses').ExpenseCategory;
+  vendor: string;
+  description: string | null;
+  amount_minor: number;
+  currency: string;
+};
+
+export const EXPENSE_COLUMNS = 'id, project_id, spent_on, category, vendor, description, amount_minor, currency';
+
+export async function getExpenseOr404({ supabase, org }: Ctx, id: string): Promise<Expense> {
+  if (!isUuid(id)) notFound();
+  const { data, error } = await supabase.from('expenses').select(EXPENSE_COLUMNS).eq('org_id', org.id).eq('id', id).maybeSingle();
+  if (error) throw new Error('Could not load the expense.');
+  if (!data) notFound();
+  return data as Expense;
+}
+
+/** Projects for the expense picker, labelled with their client. */
+export async function getExpenseProjectChoices({ supabase, org }: Ctx) {
+  const { data, error } = await supabase
+    .from('projects')
+    .select('id, name, status, client:clients(name)')
+    .eq('org_id', org.id)
+    .order('name');
+  if (error) throw new Error('Could not load projects.');
+  return ((data ?? []) as unknown as { id: string; name: string; status: string; client: { name: string } | null }[]).map((p) => ({
+    id: p.id,
+    status: p.status,
+    label: p.client ? `${p.name} (${p.client.name})` : p.name,
+  }));
+}

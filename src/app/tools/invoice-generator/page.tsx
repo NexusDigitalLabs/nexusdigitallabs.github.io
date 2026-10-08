@@ -63,6 +63,30 @@ export default function InvoiceGeneratorPage() {
             </p>
           </div>
 
+          {/* FreelanceOS funnel: the tool makes one invoice; FreelanceOS tracks all of them. */}
+          <a
+            href="/freelanceos/"
+            className="group block rounded-2xl p-6 no-underline transition-colors"
+            style={{
+              background: 'color-mix(in srgb, var(--ndl-accent) 8%, var(--ndl-surface))',
+              border: '1px solid color-mix(in srgb, var(--ndl-accent) 30%, var(--ndl-border))',
+            }}
+          >
+            <p className="text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: 'var(--ndl-accent)' }}>
+              Free beta · FreelanceOS
+            </p>
+            <h2 className="text-xl font-medium tracking-tight mb-2" style={{ color: 'var(--ndl-text)' }}>
+              Sending invoices every month? Track them in one place.
+            </h2>
+            <p className="text-sm leading-relaxed mb-4" style={{ color: 'var(--ndl-text-secondary)' }}>
+              FreelanceOS keeps your clients, projects and invoices together — numbered automatically, with the same
+              clean PDF, plus who has paid, what&apos;s overdue and what you earned this month.
+            </p>
+            <span className="text-sm font-semibold group-hover:underline" style={{ color: 'var(--ndl-accent)' }}>
+              Try FreelanceOS free →
+            </span>
+          </a>
+
           <div>
             <p className="text-xs font-semibold tracking-widest text-emerald-400 uppercase mb-4">How to use it</p>
             <h2 className="text-2xl font-light text-white tracking-tight mb-5">Creating your invoice</h2>
@@ -95,6 +119,7 @@ export default function InvoiceGeneratorPage() {
                 { q: 'Does my data get saved anywhere?', a: 'By default, invoice fields stay in your browser session and the PDF is generated locally. If you sign in and enable Cloud draft, a copy of the form JSON is stored under your account so you can resume later — you can disable that anytime. See the Privacy Policy for details.' },
                 { q: 'Can I customise the invoice branding?', a: 'You can enter your business name, contact details, and payment information. The tool uses a clean, professional layout that works for most freelance contexts. Custom logos and full brand theming are not currently supported.' },
                 { q: 'What payment terms should I set?', a: 'Net 14 (14 days from invoice date) is a practical default for independent contractors. Net 30 is standard for corporate clients. For new clients or projects over $500, consider requesting a 50% deposit upfront with the remainder due on delivery.' },
+                { q: 'Can I keep track of which invoices have been paid?', a: 'This tool creates one invoice at a time and does not store a history. If you invoice regularly, FreelanceOS (free during beta, at nexusdigitallabs.dev/freelanceos/) saves your clients and invoices, numbers them automatically, records payments, and shows what is outstanding or overdue.' },
                 { q: 'Can I use this tool for VAT invoices?', a: 'Yes. The tax field allows you to enter a percentage (e.g. 20% for UK standard VAT). The tool calculates and displays the tax amount and total including tax. You will need to manually add your VAT registration number to the notes or description fields.' },
               ].map(({ q, a }) => (
                 <div key={q} className="border-l-2 border-slate-700 pl-5">

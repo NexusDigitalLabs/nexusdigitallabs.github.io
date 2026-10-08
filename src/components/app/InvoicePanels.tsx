@@ -1,42 +1,13 @@
 'use client';
 
 import { useActionState } from 'react';
-import { useFormStatus } from 'react-dom';
 import { Ban, Send, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ConfirmSubmit } from '@/components/app/ConfirmSubmit';
 import { FormMessage, SubmitButton, TextField } from '@/components/app/form';
 import { initialFormState, type FormState } from '@/lib/freelanceos/forms';
 
 type Action = (prev: FormState, formData: FormData) => Promise<FormState>;
-
-function IntentButton({
-  intent,
-  confirmText,
-  variant = 'outline',
-  children,
-}: {
-  intent: string;
-  confirmText?: string;
-  variant?: 'default' | 'outline' | 'destructive';
-  children: React.ReactNode;
-}) {
-  const { pending } = useFormStatus();
-  return (
-    <Button
-      type="submit"
-      name="intent"
-      value={intent}
-      variant={variant}
-      disabled={pending}
-      onClick={(e) => {
-        if (confirmText && !window.confirm(confirmText)) e.preventDefault();
-      }}
-    >
-      {children}
-    </Button>
-  );
-}
 
 /** Send / void / delete, depending on the stored status. */
 export function InvoiceStatusPanel({
@@ -55,24 +26,40 @@ export function InvoiceStatusPanel({
     <form action={formAction} className="flex flex-wrap items-center gap-2">
       {status === 'draft' ? (
         <>
-          <IntentButton
-            intent="send"
+          <ConfirmSubmit
+            name="intent"
+            value="send"
             variant="default"
-            confirmText={`Issue this invoice as ${upcomingNumber ?? 'the next number'}? It will be locked from further edits, then you can download the PDF and send it.`}
+            destructive={false}
+            title={`Issue this invoice as ${upcomingNumber ?? 'the next number'}?`}
+            description="It gets its invoice number and is locked from further edits. Then download the PDF and send it to your client."
+            confirmLabel="Issue invoice"
           >
             <Send aria-hidden="true" />
             Ready to send
-          </IntentButton>
-          <IntentButton intent="delete" confirmText="Delete this draft invoice?">
+          </ConfirmSubmit>
+          <ConfirmSubmit
+            name="intent"
+            value="delete"
+            title="Delete this draft?"
+            description="The draft and its line items are permanently deleted. This can't be undone."
+            confirmLabel="Delete draft"
+          >
             <Trash2 aria-hidden="true" />
             Delete draft
-          </IntentButton>
+          </ConfirmSubmit>
         </>
       ) : (
-        <IntentButton intent="void" confirmText="Void this invoice? It stays in your records but no longer counts as owed.">
+        <ConfirmSubmit
+          name="intent"
+          value="void"
+          title="Void this invoice?"
+          description="It stays in your records for reference but no longer counts as owed. Voiding can't be undone — create a new invoice if you need to bill again."
+          confirmLabel="Void invoice"
+        >
           <Ban aria-hidden="true" />
           Void
-        </IntentButton>
+        </ConfirmSubmit>
       )}
       <FormMessage state={state} />
     </form>

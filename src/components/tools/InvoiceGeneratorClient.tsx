@@ -569,7 +569,13 @@ export default function InvoiceGeneratorClient() {
                 )}
                 {isDownloading ? 'Generating…' : 'Download PDF'}
               </button>
-              <span style={{ fontSize: '11px', color: 'var(--ndl-faint)' }}>A4 · Minimal layout</span>
+              <a
+                href="/freelanceos/"
+                className="hover:underline"
+                style={{ fontSize: '11px', color: 'var(--ndl-muted)' }}
+              >
+                Track if it&apos;s paid → <span style={{ color: 'var(--ndl-accent)' }}>FreelanceOS</span>
+              </a>
             </div>
             <span style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ndl-muted)' }}>
               Live preview

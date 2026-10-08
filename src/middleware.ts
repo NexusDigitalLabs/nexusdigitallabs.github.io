@@ -10,6 +10,6 @@ export const config = {
     /*
      * Skip static assets and images; refresh auth on app routes.
      */
-    '/((?!_next/static|_next/image|favicon.png|og-image.png|manifest.json|robots.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|og/|favicon.png|og-image.png|manifest.json|robots.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };

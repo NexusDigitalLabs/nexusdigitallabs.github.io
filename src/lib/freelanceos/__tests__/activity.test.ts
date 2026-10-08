@@ -25,6 +25,9 @@ describe('describeActivity', () => {
     expect(
       describeActivity(entry({ entity_type: 'invoice', action: 'payment_recorded', details: { amount_minor: 2000, currency: 'USD' } }))
     ).toBe('Payment of $20.00 recorded');
+    expect(
+      describeActivity(entry({ entity_type: 'expense', action: 'created', details: { amount_minor: 1500, currency: 'USD' } }))
+    ).toBe('Expense of $15.00 added');
   });
 });
 
@@ -33,6 +36,7 @@ describe('activityHref', () => {
     expect(activityHref(entry({ entity_type: 'client', entity_id: 'c1' }))).toBe('/app/clients/c1/');
     expect(activityHref(entry({ entity_id: 'p1' }))).toBe('/app/projects/p1/');
     expect(activityHref(entry({ entity_type: 'invoice', entity_id: 'i1' }))).toBe('/app/invoices/i1/');
+    expect(activityHref(entry({ entity_type: 'expense', entity_id: 'e1' }))).toBe('/app/expenses/e1/edit/');
   });
 });
 

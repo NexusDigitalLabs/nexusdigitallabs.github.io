@@ -128,3 +128,31 @@ describe('projectSchema', () => {
     expect(errors).toHaveProperty('client_id');
   });
 });
+
+describe('expenseSchema', () => {
+  const valid = { spent_on: '2026-10-08', category: 'software', vendor: ' Figma ', description: '', amount: '15', currency: 'USD', project_id: '' };
+
+  it('normalizes a valid expense', async () => {
+    const { expenseSchema } = await import('../schemas');
+    expect(expenseSchema.parse(valid)).toEqual({
+      spent_on: '2026-10-08',
+      category: 'software',
+      vendor: 'Figma',
+      description: null,
+      amount_minor: 1500,
+      currency: 'USD',
+      project_id: null,
+    });
+  });
+
+  it('rejects zero amounts, unknown categories and missing vendor', async () => {
+    const { expenseSchema } = await import('../schemas');
+    const errors = (input: object) => {
+      const r = expenseSchema.safeParse(input);
+      return r.success ? {} : z.flattenError(r.error).fieldErrors;
+    };
+    expect(errors({ ...valid, amount: '0' })).toHaveProperty('amount');
+    expect(errors({ ...valid, category: 'food' })).toHaveProperty('category');
+    expect(errors({ ...valid, vendor: '  ' })).toHaveProperty('vendor');
+  });
+});

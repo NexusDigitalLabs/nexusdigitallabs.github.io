@@ -70,6 +70,16 @@ exports[`Header — snapshot > matches snapshot on homepage 1`] = `
       </button>
       <a
         class="text-sm transition-colors duration-200 no-underline relative group cursor-pointer bg-transparent border-0 p-0"
+        href="/freelanceos"
+        style="color: var(--ndl-muted);"
+      >
+        FreelanceOS
+        <span
+          class="absolute -bottom-0.5 left-0 h-px bg-blue-500 transition-all duration-300 w-0 group-hover:w-full"
+        />
+      </a>
+      <a
+        class="text-sm transition-colors duration-200 no-underline relative group cursor-pointer bg-transparent border-0 p-0"
         href="/about"
         style="color: var(--ndl-muted);"
       >

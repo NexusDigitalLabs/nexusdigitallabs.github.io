@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import {
-  DEFAULT_OG_IMAGE,
   DEFAULT_OG_IMAGE_SIZE,
+  OG_CARD_SIZE,
   SITE_URL,
   absoluteSiteUrl,
   normalizeSitePath,
+  ogCardPath,
   pageMetadata,
+  pagePathFromOgSegments,
 } from '@/lib/seo';
 
 describe('SITE_URL canonical policy', () => {
@@ -52,11 +54,12 @@ describe('pageMetadata', () => {
       title: 'Fuel Tracker',
       description: 'Track fill-ups and efficiency.',
     });
+    // Each page gets its own generated card by default.
     expect(meta.openGraph?.images).toEqual([
       {
-        url: `${SITE_URL}${DEFAULT_OG_IMAGE}`,
-        width: DEFAULT_OG_IMAGE_SIZE.width,
-        height: DEFAULT_OG_IMAGE_SIZE.height,
+        url: `${SITE_URL}/og/tools/fuel-tracker/`,
+        width: OG_CARD_SIZE.width,
+        height: OG_CARD_SIZE.height,
         alt: 'Fuel Tracker',
       },
     ]);
@@ -64,7 +67,7 @@ describe('pageMetadata', () => {
       card: 'summary_large_image',
       title: 'Fuel Tracker',
       description: 'Track fill-ups and efficiency.',
-      images: [`${SITE_URL}${DEFAULT_OG_IMAGE}`],
+      images: [`${SITE_URL}/og/tools/fuel-tracker/`],
     });
   });
 
@@ -94,5 +97,14 @@ describe('pageMetadata', () => {
         alt: 'OG Title',
       },
     ]);
+  });
+});
+
+describe('ogCardPath', () => {
+  it('maps page paths to card URLs and back', () => {
+    expect(ogCardPath('/')).toBe('/og/home/');
+    expect(ogCardPath('/tools/invoice-generator')).toBe('/og/tools/invoice-generator/');
+    expect(pagePathFromOgSegments(['home'])).toBe('/');
+    expect(pagePathFromOgSegments(['tools', 'invoice-generator'])).toBe('/tools/invoice-generator/');
   });
 });

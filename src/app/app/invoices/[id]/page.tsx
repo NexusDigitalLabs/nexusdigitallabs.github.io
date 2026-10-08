@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Pencil, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ConfirmSubmit } from '@/components/app/ConfirmSubmit';
 import InvoicePreview from '@/components/app/InvoicePreview';
 import { InvoiceStatusPanel, RecordPaymentForm } from '@/components/app/InvoicePanels';
 import { Detail, InvoiceStatusBadge, PageHeader } from '@/components/app/page-parts';
@@ -148,9 +149,16 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
                         {p.note && <p className="text-xs break-words text-muted-foreground">{p.note}</p>}
                       </div>
                       <form action={deletePaymentAction.bind(null, invoice.id, p.id)}>
-                        <Button type="submit" variant="ghost" size="icon-sm" aria-label="Remove payment">
+                        <ConfirmSubmit
+                          variant="ghost"
+                          size="icon-sm"
+                          ariaLabel="Remove payment"
+                          title="Remove this payment?"
+                          description={`The ${formatMoney(p.amount_minor, p.currency)} payment from ${formatDate(p.paid_on)} will be removed and the balance due goes back up.`}
+                          confirmLabel="Remove payment"
+                        >
                           <X aria-hidden="true" />
-                        </Button>
+                        </ConfirmSubmit>
                       </form>
                     </li>
                   ))}

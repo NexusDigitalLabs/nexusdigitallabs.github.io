@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { EXPENSE_CATEGORIES } from '@/lib/freelanceos/expenses';
 import { formatHundredths, parseHundredths } from '@/lib/freelanceos/invoice-math';
 import { isCurrencyCode, parseMoneyToMinor } from '@/lib/freelanceos/money';
 import { BILLING_TYPES, PROJECT_STATUSES } from '@/lib/freelanceos/projects';
@@ -260,3 +261,36 @@ export function paymentSchema(currencyCode: string, balanceMinor: number) {
 }
 
 export type InvoiceInput = z.output<typeof invoiceSchema>;
+
+// ── Expenses ─────────────────────────────────────────────────────────────────
+
+export const EXPENSE_FIELDS = ['spent_on', 'category', 'vendor', 'description', 'amount', 'currency', 'project_id'] as const;
+
+export const expenseSchema = z
+  .object({
+    spent_on: isoDate.refine((v) => v !== null, 'Date is required.'),
+    category: z.enum(EXPENSE_CATEGORIES, 'Choose a category.'),
+    vendor: requiredText(120, 'Vendor'),
+    description: optionalText(500),
+    amount: z.string(),
+    currency,
+    project_id: z.union([z.literal(''), z.uuid()]),
+  })
+  .transform((v, ctx) => {
+    const amount = parseMoneyToMinor(v.amount, v.currency);
+    if (!amount.ok || amount.value === null || amount.value <= 0) {
+      ctx.addIssue({ code: 'custom', path: ['amount'], message: 'Enter an amount above 0.' });
+      return z.NEVER;
+    }
+    return {
+      spent_on: v.spent_on as string,
+      category: v.category,
+      vendor: v.vendor,
+      description: v.description,
+      amount_minor: amount.value,
+      currency: v.currency,
+      project_id: v.project_id === '' ? null : v.project_id,
+    };
+  });
+
+export type ExpenseInput = z.output<typeof expenseSchema>;

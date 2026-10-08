@@ -20,7 +20,7 @@ export default async function DashboardPage() {
   const today = todayISO();
   const monthStart = `${today.slice(0, 8)}01`;
 
-  const [profile, clients, openProjects, anyProject, activity, sentInvoices, monthPayments] = await Promise.all([
+  const [profile, clients, openProjects, anyProject, activity, sentInvoices, monthPayments, monthExpenses] = await Promise.all([
     supabase.from('organizations').select('email').eq('id', org.id).single(),
     supabase.from('clients').select('id', { count: 'exact', head: true }).eq('org_id', org.id).is('archived_at', null),
     supabase
@@ -41,6 +41,7 @@ export default async function DashboardPage() {
       .eq('org_id', org.id)
       .eq('status', 'sent'),
     supabase.from('payments').select('amount_minor, currency').eq('org_id', org.id).gte('paid_on', monthStart),
+    supabase.from('expenses').select('amount_minor, currency').eq('org_id', org.id).gte('spent_on', monthStart),
   ]);
 
   const clientCount = clients.count ?? 0;
@@ -55,6 +56,7 @@ export default async function DashboardPage() {
     .filter((inv) => inv.display !== 'paid');
   const outstanding = sumByCurrency(unpaid, (i) => i.currency, balanceDue);
   const revenue = sumByCurrency(monthPayments.data ?? [], (p) => p.currency, (p) => p.amount_minor);
+  const expenses = sumByCurrency(monthExpenses.data ?? [], (e) => e.currency, (e) => e.amount_minor);
   const horizon = addDaysISO(today, 14);
   const upcoming = unpaid
     .filter((inv) => inv.due_date <= horizon)
@@ -85,13 +87,18 @@ export default async function DashboardPage() {
               <CardDescription>Open projects</CardDescription>
               <CardTitle className="text-3xl tabular-nums">{openProjectCount}</CardTitle>
             </CardHeader>
+            <CardContent className="-mt-4 text-xs text-muted-foreground">
+              {clientCount} active {clientCount === 1 ? 'client' : 'clients'}
+            </CardContent>
           </Card>
         </Link>
-        <Link href="/app/clients/" className="rounded-xl transition-colors hover:bg-muted/40">
+        <Link href="/app/expenses/" className="rounded-xl transition-colors hover:bg-muted/40">
           <Card className="h-full bg-transparent">
             <CardHeader>
-              <CardDescription>Active clients</CardDescription>
-              <CardTitle className="text-3xl tabular-nums">{clientCount}</CardTitle>
+              <CardDescription>Expenses this month</CardDescription>
+              <CardTitle className="text-3xl">
+                <MoneyList totals={expenses} />
+              </CardTitle>
             </CardHeader>
           </Card>
         </Link>

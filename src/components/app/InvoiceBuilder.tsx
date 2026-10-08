@@ -14,6 +14,7 @@ import {
   TextField,
   currencySelectOptions,
 } from '@/components/app/form';
+import { ConfirmAction } from '@/components/app/ConfirmSubmit';
 import type { ClientChoice } from '@/components/app/ProjectForm';
 import { initialFormState, type FormState } from '@/lib/freelanceos/forms';
 import { computeTotals, lineAmountMinor, parseHundredths } from '@/lib/freelanceos/invoice-math';
@@ -210,16 +211,30 @@ export default function InvoiceBuilder({
               <p className="self-center text-right text-sm tabular-nums md:pr-1">
                 {preview.perLine[i] !== null ? money(preview.perLine[i] as number) : '—'}
               </p>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                aria-label={`Remove line ${i + 1}`}
-                disabled={lines.length === 1}
-                onClick={() => setLines((prev) => prev.filter((l) => l.key !== line.key))}
-              >
-                <Trash2 aria-hidden="true" />
-              </Button>
+              {line.description || line.unit_price ? (
+                <ConfirmAction
+                  ariaLabel={`Remove line ${i + 1}`}
+                  disabled={lines.length === 1}
+                  title="Remove this line?"
+                  description={line.description ? `“${line.description}” will be removed from the invoice.` : 'This line will be removed from the invoice.'}
+                  confirmLabel="Remove line"
+                  onConfirm={() => setLines((prev) => prev.filter((l) => l.key !== line.key))}
+                >
+                  <Trash2 aria-hidden="true" />
+                </ConfirmAction>
+              ) : (
+                // Blank lines go without asking — nothing to lose.
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  aria-label={`Remove line ${i + 1}`}
+                  disabled={lines.length === 1}
+                  onClick={() => setLines((prev) => prev.filter((l) => l.key !== line.key))}
+                >
+                  <Trash2 aria-hidden="true" />
+                </Button>
+              )}
             </div>
           ))}
           {itemsError && (

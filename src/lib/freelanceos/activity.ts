@@ -3,7 +3,7 @@ import { PROJECT_STATUS_LABELS, type ProjectStatus } from '@/lib/freelanceos/pro
 
 export type ActivityEntry = {
   id: number;
-  entity_type: 'client' | 'project' | 'invoice';
+  entity_type: 'client' | 'project' | 'invoice' | 'expense';
   entity_id: string;
   action: string;
   summary: string;
@@ -11,9 +11,9 @@ export type ActivityEntry = {
   created_at: string;
 };
 
-const ENTITY_LABEL = { client: 'Client', project: 'Project', invoice: 'Invoice' } as const;
+const ENTITY_LABEL = { client: 'Client', project: 'Project', invoice: 'Invoice', expense: 'Expense' } as const;
 
-const ENTITY_PATH = { client: 'clients', project: 'projects', invoice: 'invoices' } as const;
+const ENTITY_PATH = { client: 'clients', project: 'projects', invoice: 'invoices', expense: 'expenses' } as const;
 
 const statusLabel = (s: string | undefined) => (s && s in PROJECT_STATUS_LABELS ? PROJECT_STATUS_LABELS[s as ProjectStatus] : s ?? '?');
 
@@ -22,6 +22,9 @@ export function describeActivity(entry: ActivityEntry): string {
   const entity = ENTITY_LABEL[entry.entity_type];
   switch (entry.action) {
     case 'created':
+      if (entry.entity_type === 'expense' && entry.details.amount_minor !== undefined && entry.details.currency) {
+        return `Expense of ${formatMoney(entry.details.amount_minor, entry.details.currency)} added`;
+      }
       return `${entity} created`;
     case 'archived':
       return `${entity} archived`;
@@ -47,6 +50,8 @@ export function describeActivity(entry: ActivityEntry): string {
 }
 
 export function activityHref(entry: ActivityEntry): string {
+  // Expenses have no detail page — their edit form is the closest thing.
+  if (entry.entity_type === 'expense') return `/app/expenses/${entry.entity_id}/edit/`;
   return `/app/${ENTITY_PATH[entry.entity_type]}/${entry.entity_id}/`;
 }
 

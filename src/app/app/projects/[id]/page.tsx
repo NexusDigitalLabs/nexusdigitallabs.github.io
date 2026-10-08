@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { CheckCircle2, Pencil, Receipt, RotateCcw } from 'lucide-react';
+import { CheckCircle2, Pencil, Receipt, RotateCcw, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Detail, MoneyList, PageHeader, ProjectStatusBadge } from '@/components/app/page-parts';
@@ -17,12 +17,16 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
   const { id } = await params;
   const ctx = await requireOrg();
   const project = await getProjectOr404(ctx, id);
-  const { data: invoiceData } = await ctx.supabase
-    .from('invoices')
-    .select('currency, total_minor, amount_paid_minor')
-    .eq('org_id', ctx.org.id)
-    .eq('project_id', project.id)
-    .eq('status', 'sent');
+  const [{ data: invoiceData }, { data: expenseData }] = await Promise.all([
+    ctx.supabase
+      .from('invoices')
+      .select('currency, total_minor, amount_paid_minor')
+      .eq('org_id', ctx.org.id)
+      .eq('project_id', project.id)
+      .eq('status', 'sent'),
+    ctx.supabase.from('expenses').select('currency, amount_minor').eq('org_id', ctx.org.id).eq('project_id', project.id),
+  ]);
+  const spent = sumByCurrency(expenseData ?? [], (e) => e.currency, (e) => e.amount_minor);
   const invoiced = sumByCurrency(invoiceData ?? [], (i) => i.currency, (i) => i.total_minor);
   const paid = sumByCurrency(invoiceData ?? [], (i) => i.currency, (i) => i.amount_paid_minor);
   const isOpen = OPEN_PROJECT_STATUSES.includes(project.status);
@@ -89,12 +93,19 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
         </Card>
         <Card>
           <CardHeader>
-            <CardDescription>Hours tracked</CardDescription>
-            <CardTitle className="text-2xl text-muted-foreground">—</CardTitle>
+            <CardDescription>Expenses</CardDescription>
+            <CardTitle className="text-2xl">
+              <MoneyList totals={spent} />
+            </CardTitle>
           </CardHeader>
+          <CardContent className="-mt-4">
+            <Link href={`/app/expenses/new/?project=${project.id}`} className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+              <Wallet className="size-3" aria-hidden="true" />
+              Add expense
+            </Link>
+          </CardContent>
         </Card>
       </div>
-      <p className="-mt-3 text-xs text-muted-foreground">Hours appear once time tracking ships.</p>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card>

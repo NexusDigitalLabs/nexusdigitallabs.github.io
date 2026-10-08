@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import BusinessProfileForm, { type BusinessProfile } from '@/components/app/BusinessProfileForm';
+import DeleteAccountCard from '@/components/app/DeleteAccountCard';
+import { deleteAccountAction } from '@/app/app/settings/actions';
 import { PageHeader } from '@/components/app/page-parts';
 import { currencyOptions } from '@/lib/freelanceos/money';
 import { requireOrg } from '@/lib/freelanceos/org';
@@ -24,6 +26,7 @@ export default async function SettingsPage() {
         currencies={currencyOptions()}
         canEdit={role === 'owner' || role === 'admin'}
       />
+      <DeleteAccountCard action={deleteAccountAction} />
     </div>
   );
 }

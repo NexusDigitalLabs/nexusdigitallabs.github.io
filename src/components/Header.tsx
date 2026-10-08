@@ -25,6 +25,7 @@ const NAV_LINKS: NavLink[] = [
   { kind: 'section', sectionId: 'tools', label: 'Tools' },
   { kind: 'section', sectionId: 'articles', label: 'Articles' },
   { kind: 'section', sectionId: 'games', label: 'Games' },
+  { kind: 'page', href: '/freelanceos/', label: 'FreelanceOS' },
   { kind: 'page', href: '/about/', label: 'About' },
   { kind: 'page', href: '/contact/', label: 'Contact' },
 ];
@@ -50,6 +51,7 @@ const BADGES: Record<string, Badge> = {
   '/games/':                   { label: 'Games',             color: 'amber'   },
   '/academy/':                 { label: 'Academy',           color: 'violet'  },
   '/articles/':                { label: 'Article',           color: 'blue'    },
+  '/freelanceos/':             { label: 'FreelanceOS',       color: 'blue'    },
   '/about/':                   { label: 'About',             color: 'slate'   },
   '/contact/':                 { label: 'Contact',           color: 'slate'   },
 };

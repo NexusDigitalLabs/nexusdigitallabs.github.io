@@ -628,3 +628,10 @@ body {
     border-color: var(--fos-border);
   }
 }
+
+/* Dialog backdrop for FreelanceOS confirmations. Not bg-black/50: the site's
+   light-theme rules recolour Tailwind's dark backgrounds. */
+.fos-dialog-overlay {
+  background: rgba(2, 6, 23, 0.55);
+  backdrop-filter: blur(2px);
+}

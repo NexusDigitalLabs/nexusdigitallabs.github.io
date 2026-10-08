@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ConfirmSubmit } from '@/components/app/ConfirmSubmit';
 import { Detail, EmptyState, InvoiceStatusBadge, MoneyList, PageHeader, ProjectStatusBadge } from '@/components/app/page-parts';
 import { setClientArchivedAction } from '@/app/app/clients/actions';
 import { balanceDue, invoiceDisplayStatus, sumByCurrency, todayISO } from '@/lib/freelanceos/invoice-math';
@@ -68,10 +69,22 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
               </Link>
             </Button>
             <form action={setClientArchivedAction.bind(null, client.id, !archived)}>
-              <Button variant="outline" type="submit">
-                {archived ? <ArchiveRestore aria-hidden="true" /> : <Archive aria-hidden="true" />}
-                {archived ? 'Restore' : 'Archive'}
-              </Button>
+              {archived ? (
+                <Button variant="outline" type="submit">
+                  <ArchiveRestore aria-hidden="true" />
+                  Restore
+                </Button>
+              ) : (
+                <ConfirmSubmit
+                  destructive={false}
+                  title={`Archive ${client.name}?`}
+                  description="They'll move to the Archived tab and won't appear in client pickers. Their projects and invoices are kept, and you can restore them anytime."
+                  confirmLabel="Archive client"
+                >
+                  <Archive aria-hidden="true" />
+                  Archive
+                </ConfirmSubmit>
+              )}
             </form>
           </>
         }
