@@ -23,6 +23,7 @@ describe('buildSitemapEntries', () => {
     expect(urls).toContain(`${SITE_URL}/games/`);
     expect(urls).toContain(`${SITE_URL}/login/`);
     expect(urls).toContain(`${SITE_URL}/academy/`);
+    expect(urls).toContain(`${SITE_URL}/freelanceos/`);
 
     for (const url of urls) {
       expect(url.startsWith(SITE_URL)).toBe(true);
@@ -45,7 +46,7 @@ describe('buildSitemapEntries', () => {
     }
 
     const expected =
-      9 /* static */ + ARTICLES.length + TOOLS.length + GAMES.length + readyLessons.length;
+      10 /* static */ + ARTICLES.length + TOOLS.length + GAMES.length + readyLessons.length;
     expect(entries).toHaveLength(expected);
   });
 
@@ -57,6 +58,7 @@ describe('buildSitemapEntries', () => {
   it('excludes the unlisted private resume route under /p/', () => {
     const urls = buildSitemapEntries().map((e) => e.url);
     expect(urls).not.toContain(sitemapUrl('/p/portfolio/'));
+    expect(urls.some((u) => u.includes('/app/'))).toBe(false);
     expect(urls.some((url) => url.includes('/p/'))).toBe(false);
   });
 });

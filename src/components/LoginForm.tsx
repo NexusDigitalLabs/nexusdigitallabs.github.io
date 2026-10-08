@@ -4,10 +4,11 @@ import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { safeNextPath, stashAuthNext } from '@/lib/auth-redirect';
+import { isAppPath } from '@/lib/freelanceos/paths';
 
 type Status =
   | { kind: 'idle' }
-  | { kind: 'loading' }
+  | { kind: 'loading'; method: 'google' | 'magic-link' }
   | { kind: 'magic-sent'; email: string }
   | { kind: 'error'; message: string };
 
@@ -19,6 +20,7 @@ function friendlyReturnLabel(path: string): string | null {
   if (path.startsWith('/tools/prompt-architect')) return 'Prompt Architect';
   if (path.startsWith('/games/')) return 'Games';
   if (path.startsWith('/account')) return 'Account';
+  if (isAppPath(path)) return 'FreelanceOS';
   return path.replace(/\/$/, '');
 }
 
@@ -53,7 +55,7 @@ export default function LoginForm() {
       : undefined;
 
   async function signInWithGoogle() {
-    setStatus({ kind: 'loading' });
+    setStatus({ kind: 'loading', method: 'google' });
     stashAuthNext(next);
     try {
       const supabase = createBrowserSupabaseClient();
@@ -83,7 +85,7 @@ export default function LoginForm() {
       return;
     }
 
-    setStatus({ kind: 'loading' });
+    setStatus({ kind: 'loading', method: 'magic-link' });
     stashAuthNext(next);
     try {
       const supabase = createBrowserSupabaseClient();
@@ -108,6 +110,8 @@ export default function LoginForm() {
   }
 
   const busy = status.kind === 'loading';
+  const googleBusy = busy && status.method === 'google';
+  const magicLinkBusy = busy && status.method === 'magic-link';
 
   return (
     <div className="w-full max-w-md mx-auto space-y-6">
@@ -122,7 +126,8 @@ export default function LoginForm() {
         >
           After you sign in, you&apos;ll return to{' '}
           <strong style={{ color: 'var(--ndl-text)' }}>{returnLabel}</strong>
-          {' '}with your data restored.
+          {/* Draft restore applies to the tools, not FreelanceOS. */}
+          {isAppPath(next) ? '.' : ' with your data restored.'}
         </p>
       )}
 
@@ -143,7 +148,7 @@ export default function LoginForm() {
           <path fill="#4CAF50" d="M24 44c5.2 0 10-2 13.6-5.2l-6.3-5.3C29.2 35.1 26.7 36 24 36c-5.3 0-9.7-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z" />
           <path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-1.1 3.1-3.5 5.4-6.4 6.7l.1.1 6.3 5.3C39.6 37.3 44 31.5 44 24c0-1.3-.1-2.7-.4-3.9z" />
         </svg>
-        Continue with Google
+        {googleBusy ? 'Redirecting to Google…' : 'Continue with Google'}
       </button>
 
       <div className="flex items-center gap-3">
@@ -204,7 +209,7 @@ export default function LoginForm() {
             className="w-full inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 ndl-on-accent text-sm font-semibold px-7 py-3 rounded-xl transition-all duration-200 disabled:opacity-60"
             style={{ boxShadow: '0 4px 20px rgba(37,99,235,0.35)' }}
           >
-            {busy ? 'Sending…' : 'Email me a magic link'}
+            {magicLinkBusy ? 'Sending…' : 'Email me a magic link'}
           </button>
         </form>
       )}

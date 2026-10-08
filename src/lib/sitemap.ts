@@ -39,6 +39,7 @@ export function buildSitemapEntries(): MetadataRoute.Sitemap {
     entry('/articles/', 0.8, 'weekly'),
     entry('/games/', 0.8, 'monthly'),
     entry('/academy/', 0.8, 'weekly'),
+    entry('/freelanceos/', 0.9, 'weekly'),
   ];
 
   const articleRoutes = ARTICLES.map((a) =>

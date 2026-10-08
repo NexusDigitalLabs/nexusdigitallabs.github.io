@@ -43,7 +43,7 @@ src/components/tools/InvoiceGeneratorClient.tsx    ← Interactive client compon
 | Tax & discount | Configurable tax label + rate, and flat discount percentage |
 | Bank wire details | Bank name, account name/number, SWIFT/BIC, IBAN |
 | Payment notes | Free-text notes block (payment terms, thank-you message) |
-| PDF download | Client-side A4 portrait PDF via `html2pdf.js` at 2× canvas scale |
+| PDF download | Client-side A4 real-text (vector) PDF via `@react-pdf/renderer` — crisp, selectable, ~30 KB |
 | Auto invoice number | Pre-filled with `INV-YYYYMM-001` based on today's date |
 | Auto due date | Pre-filled to 30 days from today |
 
@@ -80,11 +80,11 @@ Global support CTA: the root layout includes the lightweight `KofiTipLink` float
 
 ## PDF Generation
 
-- The invoice preview is rendered as **React JSX** (not `innerHTML`) for type safety.
-- A `useRef` on the invoice sheet DOM element is passed to `html2pdf().from(el)`.
-- Before PDF capture, the `transform: scale()` is temporarily reset to native 794px width for clean vector capture.
-- After capture, scale is restored.
-- PDF options: A4 portrait, 2× `html2canvas` scale, JPEG quality 0.98, 12mm horizontal margins.
+- The tool builds one `InvoiceSheetData` object from its form state (`buildToolSheet`).
+- The on-screen preview renders it with the shared `src/components/invoice/InvoiceSheet.tsx` (also used by FreelanceOS).
+- **Download PDF** renders the same data with `src/components/invoice/InvoicePdfDocument.tsx` via `@react-pdf/renderer`, lazy-loaded on click (`src/components/invoice/pdf.tsx`).
+- Real text with embedded Inter (self-hosted in `public/fonts/inter`, Latin + Latin-extended for symbols like ₹), so PDFs are sharp at any zoom, searchable and small.
+- Replaces an earlier `html2pdf.js` screenshot export that clipped the amount column, added a blank second page and blurred small text.
 
 ---
 
@@ -117,7 +117,7 @@ Total Due = Subtotal − Discount + Tax
 | Language | TypeScript |
 | Styling | Tailwind CSS + inline `style` props for invoice sheet |
 | Rendering | Server Component wrapper + `'use client'` interactive component |
-| PDF export | `html2pdf.js` via CDN (`next/script`, `strategy="lazyOnload"`) |
+| PDF export | `@react-pdf/renderer` (lazy-loaded), shared with FreelanceOS |
 | Scaling | `ResizeObserver` on preview pane, `transform: scale()` on invoice sheet |
 | Analytics | Umami (cookie-free) + Supabase page-view counter |
 | Hosting | Vercel |

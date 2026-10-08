@@ -266,6 +266,35 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── FREELANCEOS SECTION ──────────────────────────────────────────── */}
+      <section id="freelanceos" className="scroll-mt-20 pb-20 sm:pb-28">
+        <div className="max-w-7xl mx-auto px-6 sm:px-10">
+          <ScrollReveal
+            className="rounded-3xl bg-slate-900/50 border border-blue-500/20 p-10 sm:p-14 flex flex-col lg:flex-row lg:items-center gap-8 lg:gap-16"
+          >
+            <div className="flex-1">
+              <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-3">Free beta</p>
+              <h2 className="text-2xl sm:text-3xl font-light text-white tracking-tight mb-4">
+                FreelanceOS — run your freelance business in one place.
+              </h2>
+              <p className="text-sm text-slate-400 font-light leading-relaxed max-w-xl">
+                Clients, projects, auto-numbered PDF invoices, payments and expenses together — with a dashboard that
+                shows what you&apos;ve earned and what&apos;s overdue. Free while in beta.
+              </p>
+            </div>
+            <div className="shrink-0">
+              <Link
+                href="/freelanceos/"
+                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 ndl-on-accent text-sm font-semibold px-7 py-3.5 rounded-xl transition-all duration-200 no-underline"
+                style={{ boxShadow: '0 4px 20px rgba(37,99,235,0.4)' }}
+              >
+                Explore FreelanceOS <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </ScrollReveal>
+        </div>
+      </section>
+
       {/* ── TOOLS SECTION ────────────────────────────────────────────────── */}
       <section id="tools" className="scroll-mt-20 py-20 sm:py-28 border-t border-slate-800/50">
         <div className="max-w-7xl mx-auto px-6 sm:px-10">

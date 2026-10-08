@@ -47,7 +47,7 @@ export default function TermsOfUsePage() {
       <div className="mb-10 space-y-2 border-b border-slate-800/60 pb-8">
         <p className="text-[11px] font-semibold tracking-widest text-slate-500 uppercase">Legal</p>
         <h1 className="text-2xl sm:text-3xl font-light tracking-tight text-white">Terms of Use</h1>
-        <p className="text-xs text-slate-500 font-light">Last updated: July 15, 2026</p>
+        <p className="text-xs text-slate-500 font-light">Last updated: October 8, 2026</p>
       </div>
 
       <div>
@@ -88,7 +88,26 @@ export default function TermsOfUsePage() {
           </P>
         </Section>
 
-        <Section title="No professional advice">
+        <Section title="FreelanceOS (beta)">
+          <P>
+            FreelanceOS is offered free of charge as a beta. Features may change, and the service may occasionally be
+            unavailable while it is developed. We will give reasonable notice before introducing paid plans; using the
+            beta never commits you to pay.
+          </P>
+          <P>
+            You own the business data you enter and are responsible for its accuracy — including invoice amounts, tax
+            rates and the lawful handling of your clients&apos; details. FreelanceOS records payments you report; it
+            does not collect or process payments. Keep your own copies (for example, downloaded invoice PDFs) of
+            anything you are required to retain.
+          </P>
+          <P>
+            You can delete your account and FreelanceOS data at any time from Settings. See the{' '}
+            <Link href="/privacy-policy/#freelanceos" className="text-blue-400 underline">Privacy Policy</Link> for how
+            this data is stored.
+          </P>
+        </Section>
+
+                <Section title="No professional advice">
           <P>
             Tools such as Invoice Generator and Debt Optimizer produce outputs for convenience only.
             They are not legal, tax, financial, or accounting advice. You are responsible for verifying

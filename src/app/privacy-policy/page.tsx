@@ -4,15 +4,15 @@ import { pageMetadata } from '@/lib/seo';
 export const metadata = pageMetadata({
   title: 'Privacy Policy',
   description:
-    'Privacy Policy for NexusDigitalLabs. Learn how we handle data, optional accounts, Fuel Tracker sync, advertising, and analytics.',
+    'Privacy Policy for NexusDigitalLabs. Learn how we handle data, optional accounts, FreelanceOS business data, Fuel Tracker sync, advertising, and analytics.',
   path: '/privacy-policy/',
   ogTitle: 'Privacy Policy — NexusDigitalLabs',
   ogDescription: 'Privacy Policy for NexusDigitalLabs developer tools and software studio.',
 });
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, id, children }: { title: string; id?: string; children: React.ReactNode }) {
   return (
-    <div className="mt-8">
+    <div className="mt-8 scroll-mt-24" id={id}>
       <h2 className="text-base font-medium text-slate-100 mb-2">{title}</h2>
       {children}
     </div>
@@ -47,7 +47,7 @@ export default function PrivacyPolicyPage() {
       <div className="mb-10 space-y-2 border-b border-slate-800/60 pb-8">
         <p className="text-[11px] font-semibold tracking-widest text-slate-500 uppercase">Legal</p>
         <h1 className="text-2xl sm:text-3xl font-light tracking-tight text-white">Privacy Policy</h1>
-        <p className="text-xs text-slate-500 font-light">Last updated: August 6, 2026</p>
+        <p className="text-xs text-slate-500 font-light">Last updated: October 8, 2026</p>
       </div>
 
       <div>
@@ -61,6 +61,9 @@ export default function PrivacyPolicyPage() {
           <P>
             Most of our calculators and generators run entirely in your browser: the text, numbers, and documents you enter are not uploaded to our servers for processing.
             Optional features that sync across devices (Fuel Tracker) or optional sign-in (Google or magic link) store limited data with our infrastructure providers as described below.
+          </P>
+          <P>
+            FreelanceOS, our business manager for freelancers, is different by design: it stores the business records you enter (clients, projects, invoices, payments and expenses) in our database so you can use them across devices. See the FreelanceOS section below.
           </P>
         </Section>
 
@@ -102,10 +105,41 @@ export default function PrivacyPolicyPage() {
           </P>
         </Section>
 
+        <Section title="FreelanceOS" id="freelanceos">
+          <P>
+            <strong className="text-slate-300 font-medium">What we store.</strong>{' '}
+            When you use FreelanceOS (at <code>/app</code>, sign-in required), we store the information you enter to run your workspace: your business profile (business name, email, phone, address, tax/registration ID, invoice settings and payment details), clients and their contact details, projects, invoices and line items, payments you record, expenses, and an activity log of changes. When an invoice is issued, we also keep a copy of the business and client details printed on it, so issued invoices stay accurate if you later edit your profile.
+          </P>
+          <P>
+            <strong className="text-slate-300 font-medium">Your clients&apos; details.</strong>{' '}
+            You are responsible for having a lawful basis to store the personal details of your own clients (for example, to invoice them). We process that information only on your behalf to provide FreelanceOS, and never contact your clients or use their details for any other purpose.
+          </P>
+          <P>
+            <strong className="text-slate-300 font-medium">Isolation and access.</strong>{' '}
+            Each workspace is isolated in the database with row-level security, so other accounts cannot read or change your records. We do not show ads inside FreelanceOS, do not sell your data, and do not use your business data for advertising or to train AI models.
+          </P>
+          <P>
+            <strong className="text-slate-300 font-medium">PDF invoices.</strong>{' '}
+            Invoice PDFs are generated in your browser and downloaded to your device; we do not store the PDF files themselves.
+          </P>
+          <P>
+            <strong className="text-slate-300 font-medium">Payments.</strong>{' '}
+            FreelanceOS does not process payments or collect card or bank details from you or your clients. Payment details you add to your business profile are only printed on your invoices.
+          </P>
+          <P>
+            <strong className="text-slate-300 font-medium">Deleting your data.</strong>{' '}
+            You can delete your account at any time from FreelanceOS Settings. This permanently deletes your workspace and everything in it. Download any invoice PDFs you need to keep first.
+          </P>
+          <P>
+            <strong className="text-slate-300 font-medium">Future features.</strong>{' '}
+            FreelanceOS is in beta. If we add features that process your data in new ways (such as an AI assistant), we will update this policy before they launch and explain what is sent to which provider.
+          </P>
+        </Section>
+
         <Section title="How We Use Information">
           <P>
-            We use information to operate the site and tools, authenticate optional accounts, sync Fuel Tracker data you choose to store, respond to messages, and measure aggregate traffic.
-            We do not sell your personal information. We do not use account or Fuel Tracker contents for advertising targeting.
+            We use information to operate the site and tools, authenticate optional accounts, run your FreelanceOS workspace, sync Fuel Tracker data you choose to store, respond to messages, and measure aggregate traffic.
+            We do not sell your personal information. We do not use account, FreelanceOS or Fuel Tracker contents for advertising targeting.
           </P>
         </Section>
 
@@ -143,8 +177,9 @@ export default function PrivacyPolicyPage() {
         <Section title="Data Retention &amp; Deletion">
           <P>
             Fuel Tracker data remains stored until you delete it in the tool (individual fills, vehicles, or all garage data) or request deletion.
-            Account profile data remains while your account exists. You can sign out at any time from the account menu.
-            To delete your account and associated profile/link data, contact us at the address below and we will process the request.
+            Account profile data and FreelanceOS records remain while your account exists. You can sign out at any time from the account menu.
+            You can delete your account yourself from FreelanceOS Settings, which permanently removes your profile, FreelanceOS workspace, saved tool drafts and game scores (linked Fuel Tracker garages are unlinked and keep working with their sync code).
+            You can also ask us to delete your account by contacting us at the address below.
           </P>
         </Section>
 
