@@ -13,7 +13,7 @@ Legend: `[AI: …]` marks items that map to the AI Engineer roadmap. **★** mar
 - [x] Product location: `/app` in this Next.js app, with its own layout (subdomain later if needed)
 - [x] Launch model: **free beta first**; billing only after traction (see Phase 12)
 - [x] Future billing provider: **Paddle** (merchant of record, supports Sri Lankan sellers, handles global VAT/GST, USD payouts by wire). Stripe is not available in Sri Lanka; RevenueCat is app-store only.
-- [ ] Money model: amounts stored as integer minor units + ISO currency code; dashboard totals per currency (no FX in v1).
+- [x] Money model: amounts stored as integer minor units + ISO currency code; dashboard totals per currency (no FX in v1).
 - [x] AI service location: **AWS Lambda** (Python, FastAPI + Lambda Web Adapter, function URL, response streaming), within the always-free tier
   - [ ] AWS Budget alert ($1 / $5) set before first deploy
 - [ ] Anthropic API account created, **monthly spend limit set**, separate dev/prod keys.
@@ -31,7 +31,7 @@ Already in repo: Next.js 16, TypeScript, Tailwind v4, Supabase Auth + SSR middle
   - [x] **Run it in Supabase → SQL Editor** (manual step)
 - [x] ★ Auto-create a personal organization on first visit to `/app` (`ensure_personal_org()` RPC)
 - [x] ★ RLS helper `is_org_member(org_id)` used by every business table (+ `has_org_role`)
-- [ ] ★ Zod schemas shared by forms and server actions
+- [x] ★ Zod schemas shared by forms and server actions
 - [x] ★ Server-side authorization helper (`requireOrg()`), never trust client-sent `org_id`
 - [x] Error boundary + loading skeleton for `/app`
 - [ ] Structured server logging
@@ -41,13 +41,14 @@ Already in repo: Next.js 16, TypeScript, Tailwind v4, Supabase Auth + SSR middle
 
 ## Phase 1 — Core business
 
-- [ ] ★ **Clients:** table + RLS, list/search, create/edit/archive, detail page (projects, invoices, revenue, outstanding)
-- [ ] ★ **Projects:** table + RLS, billing type (hourly / fixed / milestone / retainer), rate, budget, status, dates, notes
-- [ ] ★ Project detail page (hours, expenses, invoices, progress)
-- [ ] **Settings:** business profile (name, address, logo, default currency, default tax %, invoice prefix, payment details)
-- [ ] ★ **Dashboard v1:** active projects, recent activity
+- [x] ★ **Clients:** table + RLS, list/search, create/edit/archive, detail page (projects; revenue/outstanding placeholders until invoicing)
+- [x] **Run `013_freelanceos_clients_projects.sql` in Supabase** (manual step)
+- [x] ★ **Projects:** table + RLS, billing type (hourly / fixed / milestone / retainer), rate, budget, status, dates, notes
+- [x] ★ Project detail page (hours / expenses / invoices placeholders until those modules ship)
+- [x] **Settings:** business profile (name, email, address, tax ID, default currency, default tax %, invoice prefix, payment details)
+- [x] ★ **Dashboard v1:** open projects, active clients, recent activity (trigger-written `activity_log`), data-driven getting-started
 - [x] `plan` column on organizations (`beta` for everyone now) + one `getEntitlements(org)` helper; limits read from it, so paid plans are a config change later
-- [ ] Unit tests for limits and authorization
+- [x] Unit tests for limits, schemas, money, search sanitizing; RLS tested on local Postgres
 
 ## Phase 2 — Money
 
@@ -56,6 +57,7 @@ Already in repo: Next.js 16, TypeScript, Tailwind v4, Supabase Auth + SSR middle
 - [ ] ★ Invoice builder: line items, tax %, discount, currency, due date, notes
 - [ ] ★ Prefill line items from tracked time / project rate
 - [ ] ★ PDF generation — **reuse the existing `/tools/invoice-generator` renderer**
+- [ ] Business logo upload (Supabase Storage, org-scoped policies) — printed on invoice PDFs
 - [ ] ★ Statuses: draft → sent → paid / overdue (overdue derived from due date)
 - [ ] ★ Record payment manually (full/partial) — *no payment collection in v1*
 - [ ] Email invoice via Resend (PDF attached or secure link)
