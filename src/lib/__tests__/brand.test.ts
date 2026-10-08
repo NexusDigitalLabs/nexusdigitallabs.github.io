@@ -16,11 +16,14 @@ describe('brand mark', () => {
     expect(brandMarkMetrics(true).strokeWidth).toBeGreaterThan(brandMarkMetrics(false).strokeWidth);
   });
 
-  it('renders a standalone SVG with three strokes and two nodes', () => {
+  it('renders a standalone SVG with three strokes, two nodes and a transparent gap mask', () => {
     const svg = brandMarkSvg({ palette: BRAND_PALETTES.light, size: 64, background: '#000', padding: 0.2 });
     expect(svg.startsWith('<svg xmlns="http://www.w3.org/2000/svg"')).toBe(true);
     expect(svg.match(/<path /g)).toHaveLength(3);
-    expect(svg.match(/<circle /g)).toHaveLength(2);
+    // 2 visible nodes + 2 black cut-outs inside the mask
+    expect(svg.match(/<circle [^>]*fill="#/g)).toHaveLength(2);
+    expect(svg.match(/<circle [^>]*fill="black"/g)).toHaveLength(2);
+    expect(svg).toContain('<g mask="url(#ndl-gap)">');
     expect(svg).toContain('<rect width="48" height="48"');
   });
 
