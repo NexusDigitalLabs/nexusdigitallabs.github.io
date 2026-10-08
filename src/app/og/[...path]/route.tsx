@@ -2,7 +2,10 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { ImageResponse } from 'next/og';
 import { FALLBACK_CARD, ogCardFor, ogCardPaths, type OgCard } from '@/lib/og-cards';
+import { BRAND_NODES, BRAND_PALETTES, BRAND_STROKES, BRAND_VIEWBOX, brandMarkMetrics } from '@/lib/brand';
 import { OG_CARD_SIZE, pagePathFromOgSegments } from '@/lib/seo';
+
+const mark = brandMarkMetrics(false);
 
 /**
  * Per-page social preview cards: /og/<page path>/ → 1200×630 PNG.
@@ -49,21 +52,22 @@ function Card({ card }: { card: OgCard }) {
       <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '56px 72px 52px', justifyContent: 'space-between' }}>
         {/* Brand row */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
-          <div
-            style={{
-              width: 52,
-              height: 52,
-              borderRadius: 14,
-              background: '#2563eb',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 28,
-              fontWeight: 700,
-            }}
-          >
-            N
-          </div>
+          <svg width="52" height="52" viewBox={BRAND_VIEWBOX}>
+            {BRAND_STROKES.map((st) => (
+              <path key={st.d} d={st.d} stroke={BRAND_PALETTES.dark[st.color]} strokeWidth={mark.strokeWidth} strokeLinecap="round" fill="none" />
+            ))}
+            {BRAND_NODES.map((n) => (
+              <circle
+                key={`${n.cx}-${n.cy}`}
+                cx={n.cx}
+                cy={n.cy}
+                r={mark.nodeRadius}
+                fill={BRAND_PALETTES.dark[n.color]}
+                stroke="#0b0f19"
+                strokeWidth={mark.ringWidth}
+              />
+            ))}
+          </svg>
           <div style={{ fontSize: 28, fontWeight: 600, letterSpacing: -0.5 }}>NexusDigitalLabs</div>
           <div
             style={{

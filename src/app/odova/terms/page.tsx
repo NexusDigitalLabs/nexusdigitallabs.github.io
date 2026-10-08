@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { pageMetadata } from '@/lib/seo';
+import BrandMark from '@/components/BrandMark';
 
 export const metadata = pageMetadata({
   title: 'Odova Terms of Use',
@@ -32,12 +33,7 @@ export default function OdovaTermsOfUsePage() {
           href="/"
           className="flex items-center gap-2.5 no-underline group w-fit"
         >
-          <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center font-semibold ndl-on-accent text-sm"
-            style={{ background: 'linear-gradient(135deg,#2563eb,#6366f1)' }}
-          >
-            N
-          </div>
+          <BrandMark size={32} />
           <span className="text-base font-medium tracking-tight text-white group-hover:text-slate-300 transition-colors">
             NexusDigitalLabs
           </span>

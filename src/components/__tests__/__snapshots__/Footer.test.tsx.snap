@@ -17,12 +17,82 @@ exports[`Footer — snapshot > matches snapshot 1`] = `
         <div
           class="flex items-center gap-2.5"
         >
-          <div
-            class="w-7 h-7 rounded-lg flex items-center justify-center font-bold ndl-on-accent text-xs"
-            style="background: linear-gradient(135deg, rgb(37, 99, 235), rgb(99, 102, 241));"
+          <svg
+            aria-hidden="true"
+            focusable="false"
+            height="28"
+            style="flex-shrink: 0;"
+            viewBox="0 0 48 48"
+            width="28"
           >
-            N
-          </div>
+            <defs>
+              <mask
+                height="64"
+                id="ndl-gap-_r_8_"
+                maskUnits="userSpaceOnUse"
+                width="64"
+                x="-8"
+                y="-8"
+              >
+                <rect
+                  fill="white"
+                  height="64"
+                  width="64"
+                  x="-8"
+                  y="-8"
+                />
+                <circle
+                  cx="10"
+                  cy="9"
+                  fill="black"
+                  r="8.5"
+                />
+                <circle
+                  cx="38"
+                  cy="39"
+                  fill="black"
+                  r="8.5"
+                />
+              </mask>
+            </defs>
+            <g
+              mask="url(#ndl-gap-_r_8_)"
+            >
+              <path
+                d="M10 39V9"
+                fill="none"
+                stroke="var(--ndl-logo-1)"
+                stroke-linecap="round"
+                stroke-width="7"
+              />
+              <path
+                d="M10 9L38 39"
+                fill="none"
+                stroke="var(--ndl-logo-2)"
+                stroke-linecap="round"
+                stroke-width="7"
+              />
+              <path
+                d="M38 39V9"
+                fill="none"
+                stroke="var(--ndl-logo-3)"
+                stroke-linecap="round"
+                stroke-width="7"
+              />
+            </g>
+            <circle
+              cx="10"
+              cy="9"
+              fill="var(--ndl-logo-1)"
+              r="6"
+            />
+            <circle
+              cx="38"
+              cy="39"
+              fill="var(--ndl-logo-3)"
+              r="6"
+            />
+          </svg>
           <span
             class="text-sm font-semibold"
             style="color: var(--ndl-text);"

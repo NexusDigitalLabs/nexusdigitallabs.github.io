@@ -12,12 +12,82 @@ exports[`Header — snapshot > matches snapshot on homepage 1`] = `
       class="flex items-center gap-2 sm:gap-2.5 no-underline flex-shrink-0 min-w-0"
       href="/"
     >
-      <div
-        class="w-8 h-8 rounded-lg flex items-center justify-center font-bold ndl-on-accent text-sm shrink-0"
-        style="background: linear-gradient(135deg, rgb(37, 99, 235), rgb(99, 102, 241)); box-shadow: 0 4px 14px rgba(37,99,235,0.28);"
+      <svg
+        aria-hidden="true"
+        focusable="false"
+        height="32"
+        style="flex-shrink: 0;"
+        viewBox="0 0 48 48"
+        width="32"
       >
-        N
-      </div>
+        <defs>
+          <mask
+            height="64"
+            id="ndl-gap-_r_m_"
+            maskUnits="userSpaceOnUse"
+            width="64"
+            x="-8"
+            y="-8"
+          >
+            <rect
+              fill="white"
+              height="64"
+              width="64"
+              x="-8"
+              y="-8"
+            />
+            <circle
+              cx="10"
+              cy="9"
+              fill="black"
+              r="8.5"
+            />
+            <circle
+              cx="38"
+              cy="39"
+              fill="black"
+              r="8.5"
+            />
+          </mask>
+        </defs>
+        <g
+          mask="url(#ndl-gap-_r_m_)"
+        >
+          <path
+            d="M10 39V9"
+            fill="none"
+            stroke="var(--ndl-logo-1)"
+            stroke-linecap="round"
+            stroke-width="7"
+          />
+          <path
+            d="M10 9L38 39"
+            fill="none"
+            stroke="var(--ndl-logo-2)"
+            stroke-linecap="round"
+            stroke-width="7"
+          />
+          <path
+            d="M38 39V9"
+            fill="none"
+            stroke="var(--ndl-logo-3)"
+            stroke-linecap="round"
+            stroke-width="7"
+          />
+        </g>
+        <circle
+          cx="10"
+          cy="9"
+          fill="var(--ndl-logo-1)"
+          r="6"
+        />
+        <circle
+          cx="38"
+          cy="39"
+          fill="var(--ndl-logo-3)"
+          r="6"
+        />
+      </svg>
       <span
         class="text-sm font-semibold tracking-tight truncate"
         style="color: var(--ndl-text);"

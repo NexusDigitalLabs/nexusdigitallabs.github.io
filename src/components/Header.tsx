@@ -7,6 +7,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
 import AuthMenu, { AuthMenuMobile } from '@/components/AuthMenu';
 import { scrollToSectionId, setHomeHash, setHomeSectionIntent, setHomeTopIntent } from '@/lib/scroll';
+import BrandMark from '@/components/BrandMark';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type BadgeColor = 'violet' | 'emerald' | 'sky' | 'amber' | 'blue' | 'slate';
@@ -234,12 +235,7 @@ export default function Header() {
             goHome();
           }}
         >
-          <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center font-bold ndl-on-accent text-sm shrink-0"
-            style={{ background: 'linear-gradient(135deg,#2563eb,#6366f1)', boxShadow: '0 4px 14px rgba(37,99,235,0.28)' }}
-          >
-            N
-          </div>
+          <BrandMark size={32} />
           <span className="text-sm font-semibold tracking-tight truncate" style={{ color: 'var(--ndl-text)' }}>
             NexusDigitalLabs
           </span>

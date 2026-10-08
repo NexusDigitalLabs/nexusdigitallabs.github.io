@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "lint:app": "eslint src/app/app src/components/app src/components/ui src/lib/freelanceos src/lib/utils.ts",
+    "icons": "node --experimental-strip-types scripts/gen-favicons.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",

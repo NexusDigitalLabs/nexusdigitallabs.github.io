@@ -9,7 +9,7 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 import { AuthProvider } from '@/components/AuthProvider';
 import ScrollToTop from '@/components/ScrollToTop';
 import SiteChrome from '@/components/SiteChrome';
-import { DEFAULT_OG_IMAGE, KOFI_URL, SITE_NAME, SITE_URL } from '@/lib/seo';
+import { DEFAULT_OG_IMAGE, DEFAULT_OG_IMAGE_SIZE, KOFI_URL, SITE_NAME, SITE_URL } from '@/lib/seo';
 import { THEME_BOOT_SCRIPT } from '@/lib/theme';
 import './globals.css';
 
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
     title: 'NexusDigitalLabs — Software Studio',
     description:
       'Engineering minimalist web utilities, developer tools, and high-performance software built for speed, privacy, and utility.',
-    images: [{ url: DEFAULT_OG_IMAGE, width: 1024, height: 540 }],
+    images: [{ url: DEFAULT_OG_IMAGE, ...DEFAULT_OG_IMAGE_SIZE }],
   },
   twitter: {
     card: 'summary_large_image',

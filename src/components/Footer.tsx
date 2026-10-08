@@ -2,6 +2,7 @@ import Link from 'next/link';
 import MetricCounter from './MetricCounter';
 import CookieSettingsLink from './CookieSettingsLink';
 import { GAMES, TOOLS } from '@/data/catalog';
+import BrandMark from '@/components/BrandMark';
 
 const COMPANY_LINKS = [
   { href: '/about/',          label: 'About'          },
@@ -72,12 +73,7 @@ export default function Footer() {
 
           <div className="col-span-2 sm:col-span-1 space-y-4">
             <div className="flex items-center gap-2.5">
-              <div
-                className="w-7 h-7 rounded-lg flex items-center justify-center font-bold ndl-on-accent text-xs"
-                style={{ background: 'linear-gradient(135deg,#2563eb,#6366f1)' }}
-              >
-                N
-              </div>
+              <BrandMark size={28} />
               <span className="text-sm font-semibold" style={{ color: 'var(--ndl-text)' }}>
                 NexusDigitalLabs
               </span>

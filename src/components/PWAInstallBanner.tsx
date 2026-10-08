@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { isAppPath } from '@/lib/freelanceos/paths';
+import BrandMark from '@/components/BrandMark';
 
 declare global {
   interface Navigator {
@@ -124,15 +125,13 @@ export default function PWAInstallBanner() {
       }}
     >
       <div className="flex items-start gap-3">
+        {/* Mirrors the installed app icon: brand mark on the dark tile. */}
         <div
-          className="w-10 h-10 shrink-0 flex items-center justify-center text-sm font-bold ndl-on-accent"
-          style={{
-            background: 'linear-gradient(135deg,#2563eb,#6366f1)',
-            borderRadius: 10,
-          }}
+          className="w-10 h-10 shrink-0 flex items-center justify-center"
+          style={{ background: '#0b0f19', borderRadius: 10 }}
           aria-hidden="true"
         >
-          N
+          <BrandMark size={28} />
         </div>
 
         <div className="flex-1 min-w-0">
