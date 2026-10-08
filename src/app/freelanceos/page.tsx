@@ -131,16 +131,18 @@ function StartButton({ label = 'Start free' }: { label?: string }) {
 
 /** Static product snapshot (sample numbers) — a light stand-in for a screenshot. */
 function DashboardSnapshot() {
+  // Marketing snapshot: sample numbers that tell a good-month story (money
+  // coming in), with invented businesses — not real companies.
+  // Outstanding = the one unpaid row below.
   const stats = [
-    { label: 'Revenue this month', value: '$5,380.00' },
-    { label: 'Outstanding', value: '$2,525.00' },
-    { label: 'Expenses this month', value: '$214.60' },
+    { label: 'Revenue this month', value: '$5,380.00', note: '↑ 18% vs last month' },
+    { label: 'Outstanding', value: '$1,450.00', note: '1 invoice, not yet due' },
+    { label: 'Expenses this month', value: '$214.60', note: '4% of revenue' },
   ];
-  const due = [
-    // Invented businesses (not real companies); outstanding = sum of these rows.
-    { label: 'INV-0041 · Harbour & Pine Co.', amount: '$1,450.00', status: 'Overdue', tone: 'text-red-400 bg-red-500/10' },
-    { label: 'INV-0043 · Kestrel Analytics', amount: '$695.00', status: 'Unpaid', tone: 'text-blue-400 bg-blue-500/10' },
-    { label: 'INV-0044 · Lumen Yoga Studio', amount: '$380.00', status: 'Unpaid', tone: 'text-blue-400 bg-blue-500/10' },
+  const recent = [
+    { label: 'INV-0044 · Lumen Yoga Studio', amount: '$380.00', status: 'Paid', tone: 'text-emerald-400 bg-emerald-500/10' },
+    { label: 'INV-0043 · Kestrel Analytics', amount: '$695.00', status: 'Paid', tone: 'text-emerald-400 bg-emerald-500/10' },
+    { label: 'INV-0045 · Harbour & Pine Co.', amount: '$1,450.00', status: 'Due in 6 days', tone: 'text-blue-400 bg-blue-500/10' },
   ];
   return (
     <div className="rounded-2xl p-5 sm:p-6" style={card} aria-label="Example FreelanceOS dashboard with sample data" role="img">
@@ -149,12 +151,13 @@ function DashboardSnapshot() {
           <div key={s.label} className="rounded-xl p-4" style={{ background: 'var(--ndl-surface-2)' }}>
             <p className="text-xs text-slate-400 mb-1">{s.label}</p>
             <p className="text-xl font-semibold text-white tabular-nums">{s.value}</p>
+            <p className={`mt-1 text-[11px] ${s.note.startsWith('↑') ? 'text-emerald-400' : 'text-slate-500'}`}>{s.note}</p>
           </div>
         ))}
       </div>
-      <p className="text-xs font-semibold tracking-widest text-slate-500 uppercase mb-3">Due soon</p>
+      <p className="text-xs font-semibold tracking-widest text-slate-500 uppercase mb-3">Recent invoices</p>
       <ul className="space-y-2">
-        {due.map((d) => (
+        {recent.map((d) => (
           <li key={d.label} className="flex items-center justify-between gap-3 text-sm">
             <span className="text-slate-300 truncate">{d.label}</span>
             <span className="flex items-center gap-3 shrink-0">
