@@ -132,13 +132,15 @@ function StartButton({ label = 'Start free' }: { label?: string }) {
 /** Static product snapshot (sample numbers) — a light stand-in for a screenshot. */
 function DashboardSnapshot() {
   const stats = [
-    { label: 'Revenue this month', value: '$4,820.00' },
-    { label: 'Outstanding', value: '$1,320.00' },
-    { label: 'Expenses this month', value: '$110.42' },
+    { label: 'Revenue this month', value: '$5,380.00' },
+    { label: 'Outstanding', value: '$2,525.00' },
+    { label: 'Expenses this month', value: '$214.60' },
   ];
   const due = [
-    { label: 'INV-0012 · Merit Book', amount: '$1,200.00', status: 'Overdue', tone: 'text-red-400 bg-red-500/10' },
-    { label: 'INV-0013 · ABC Corp', amount: '$120.00', status: 'Unpaid', tone: 'text-blue-400 bg-blue-500/10' },
+    // Invented businesses (not real companies); outstanding = sum of these rows.
+    { label: 'INV-0041 · Harbour & Pine Co.', amount: '$1,450.00', status: 'Overdue', tone: 'text-red-400 bg-red-500/10' },
+    { label: 'INV-0043 · Kestrel Analytics', amount: '$695.00', status: 'Unpaid', tone: 'text-blue-400 bg-blue-500/10' },
+    { label: 'INV-0044 · Lumen Yoga Studio', amount: '$380.00', status: 'Unpaid', tone: 'text-blue-400 bg-blue-500/10' },
   ];
   return (
     <div className="rounded-2xl p-5 sm:p-6" style={card} aria-label="Example FreelanceOS dashboard with sample data" role="img">
