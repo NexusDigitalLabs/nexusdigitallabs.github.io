@@ -122,6 +122,31 @@ describe('Header — mobile menu', () => {
     expect(screen.getByText(/^theme$/i)).toBeInTheDocument();
   });
 
+  it('is a modal side panel that hides from assistive tech when closed', () => {
+    renderHeader();
+    expect(screen.queryByRole('dialog', { name: /menu/i })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /open menu/i }));
+    expect(screen.getByRole('dialog', { name: /menu/i })).toHaveAttribute('aria-modal', 'true');
+    expect(screen.getByRole('button', { name: /open menu/i })).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('closes on Escape and unlocks page scroll', () => {
+    renderHeader();
+    fireEvent.click(screen.getByRole('button', { name: /open menu/i }));
+    expect(document.body.style.overflow).toBe('hidden');
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.queryByRole('dialog', { name: /menu/i })).not.toBeInTheDocument();
+    expect(document.body.style.overflow).toBe('');
+  });
+
+  it('closes when the backdrop is tapped', () => {
+    renderHeader();
+    fireEvent.click(screen.getByRole('button', { name: /open menu/i }));
+    const backdrop = screen.getByRole('dialog', { name: /menu/i }).previousElementSibling as HTMLElement;
+    fireEvent.click(backdrop);
+    expect(screen.queryByRole('dialog', { name: /menu/i })).not.toBeInTheDocument();
+  });
+
   it('closes mobile drawer when hamburger is clicked again', () => {
     renderHeader();
     const menuBtn = screen.getByRole('button', { name: /open menu/i });
@@ -160,8 +185,8 @@ describe('Header — active nav item', () => {
     mockPathname.mockReturnValue('/freelanceos/');
     renderHeader();
     expect(current().map((el) => el.textContent)).toEqual(['FreelanceOS']);
-    // Only the nav item says "FreelanceOS" — no repeated context badge.
-    expect(screen.getAllByText('FreelanceOS')).toHaveLength(1);
+    // No context badge repeating it outside the navigation.
+    expect(screen.getAllByText('FreelanceOS').filter((el) => !el.closest('nav'))).toHaveLength(0);
   });
 
   it('marks the section active on sub-pages and keeps the tool badge', () => {

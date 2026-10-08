@@ -89,6 +89,8 @@ exports[`Header — snapshot > matches snapshot on homepage 1`] = `
         Sign in
       </a>
       <button
+        aria-controls="mobile-nav-drawer"
+        aria-expanded="false"
         aria-label="Open menu"
         class="md:hidden p-2 -mr-1 transition-colors shrink-0"
         style="color: var(--ndl-muted);"
