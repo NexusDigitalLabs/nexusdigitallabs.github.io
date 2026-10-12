@@ -141,6 +141,23 @@ against `genCode()`'s ~2.8×10¹² combination space (see Sync Code Design below
 
 ---
 
+## Free-tier parity with the Odova app
+
+The web tracker offers the same limits as the Odova app's free plan: **one vehicle**
+and **no CSV export**. "+ Add Vehicle" (once a vehicle exists) and "Export CSV" open
+an app prompt (`OdovaAppPrompt`) with a Play Store badge instead. Maintenance
+reminders and ad removal were never on the web.
+
+- Existing multi-vehicle garages are grandfathered: every vehicle stays visible and
+  editable; only creating additional ones is blocked.
+- This is enforced in the UI only. The `/api/fuel` vehicle cap applies when a
+  RevenueCat app user id is sent, which web requests don't have, so it is a
+  prompt to download the app, not a hard paywall.
+- Play links carry a `utm_campaign` (`fuel_tracker`, `fuel_tracker_vehicles`,
+  `fuel_tracker_export`) so installs can be attributed in Play Console.
+
+---
+
 ## Efficiency Calculations
 
 Efficiency is measured **full-to-full**. The baseline is the previous *full* fill

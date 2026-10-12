@@ -1,6 +1,6 @@
-const PLAY_URL =
-  'https://play.google.com/store/apps/details?id=dev.nexusdigitallabs.odova' +
-  '&referrer=utm_source%3Dnexusdigitallabs%26utm_medium%3Dweb%26utm_campaign%3Dfuel_tracker';
+import { odovaPlayUrl } from '@/lib/odova-app';
+
+const PLAY_URL = odovaPlayUrl('fuel_tracker');
 
 export default function AndroidAppBanner() {
   return (

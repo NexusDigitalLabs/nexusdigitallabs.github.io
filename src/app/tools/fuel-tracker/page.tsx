@@ -88,8 +88,8 @@ export default function FuelTrackerPage() {
               a: 'A partial fill means you didn\'t fill the tank to capacity (e.g. a quick top-up before a trip). Because the full tank volume is unknown, efficiency calculations (L/100km) cannot be accurate for a partial fill. Mark them with the "Partial fill" checkbox and they will be excluded from efficiency metrics but still included in spending totals.',
             },
             {
-              q: 'Can I track multiple vehicles?',
-              a: 'Yes. After your first vehicle is set up, click "Add Vehicle" from the main view at any time. All vehicles share the same sync code and switch with a single tap.',
+              q: 'Can I track more than one vehicle?',
+              a: 'The web tracker covers one vehicle, the same as the free plan in the Odova app. Odova Pro in the Android app adds unlimited vehicles, maintenance reminders and CSV export; your garage loads there with the same sync code.',
             },
             {
               q: 'Is there an Android app?',
@@ -97,7 +97,7 @@ export default function FuelTrackerPage() {
             },
             {
               q: 'Can I export my data?',
-              a: 'Yes. Click the "Export CSV" button in Settings or at the bottom of your fill history. The exported file includes all odometer readings, efficiency calculations, costs, and notes — fully compatible with Excel and Google Sheets.',
+              a: 'CSV export is part of Odova Pro in the Android app. It exports every vehicle\'s fill-ups and reminders and works with Excel and Google Sheets. Your garage loads in the app with the same sync code.',
             },
           ].map(({ q, a }) => (
             <div key={q} style={{ marginBottom: '1.5rem' }}>

@@ -16,6 +16,8 @@ import {
 } from '@/lib/currencies';
 import { updateOwnPreferredCurrency } from '@/lib/profile';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
+import OdovaAppPrompt, { type AppPromptFeature } from '@/components/tools/OdovaAppPrompt';
+import { WEB_FREE_VEHICLE_LIMIT } from '@/lib/odova-app';
 
 const FUEL_CODE_KEY = 'ndl_fuel_code';
 const FUEL_CURRENCY_KEY = 'ndl_fuel_currency';
@@ -496,6 +498,7 @@ export default function FuelTrackerClient() {
 
   // add vehicle form
   const [showAddVehicle, setShowAddVehicle] = useState(false);
+  const [appPrompt, setAppPrompt] = useState<AppPromptFeature | null>(null);
 
   // settings
   const [showSettings, setShowSettings] = useState(false);
@@ -1070,36 +1073,6 @@ export default function FuelTrackerClient() {
     if (updated) setAuthProfile(updated);
   }
 
-  // ── Export CSV ────────────────────────────────────────────────────────────
-  function exportCSV() {
-    const stats = computeStats(fills);
-    const vehicle = vehicles.find(v => v.id === activeVehicleId);
-    const rows = [
-      ['Date', 'Odometer (km)', 'Distance (km)', 'Litres', `Price/${currency.code}`, 'Total Cost', 'L/100km', 'km/L', 'Cost/km', 'Partial', 'Notes'],
-      ...stats.map(s => [
-        s.fill.fill_date,
-        s.fill.odometer,
-        s.distance ?? '',
-        s.fill.litres,
-        s.fill.price_per_litre,
-        fmt(s.totalCost),
-        s.l100km ? fmt(s.l100km) : '',
-        s.kmpl ? fmt(s.kmpl) : '',
-        s.costPerKm ? fmt(s.costPerKm, 3) : '',
-        s.fill.is_partial ? 'Yes' : 'No',
-        s.fill.notes ?? '',
-      ]),
-    ];
-    const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `fuel-log-${vehicle?.make ?? 'vehicle'}-${vehicle?.model ?? ''}-${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
   // ── Copy sync code ────────────────────────────────────────────────────────
   function copyCode() {
     if (!userCode) return;
@@ -1382,6 +1355,7 @@ export default function FuelTrackerClient() {
   // ─────────────────────────────────────────────────────────────────────────
   return (
     <div style={{ background: 'var(--ndl-bg)', minHeight: '100vh' }}>
+      <OdovaAppPrompt feature={appPrompt} onClose={() => setAppPrompt(null)} />
 
       {/* ── Top bar ──────────────────────────────────────────────────────── */}
       <div style={{ borderBottom: '1px solid var(--ndl-border)', background: 'var(--ndl-bg)' }}>
@@ -1510,9 +1484,9 @@ export default function FuelTrackerClient() {
             {/* Actions */}
             <div className="ft-settings-right" style={{ minWidth: 0 }}>
               <div className="ft-settings-actions">
-                <button type="button" onClick={exportCSV}
+                <button type="button" onClick={() => setAppPrompt('export')}
                   style={{ ...S.btn('#4ade80'), padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-                  ↓ Export CSV
+                  ↓ Export CSV · in the app
                 </button>
                 <a
                   href={`mailto:?subject=${encodeURIComponent('My Fuel Tracker Sync Code')}&body=${encodeURIComponent(
@@ -1577,7 +1551,10 @@ export default function FuelTrackerClient() {
             </button>
           ))}
           <button type="button"
-            onClick={() => { setShowAddVehicle(true); setStep('vehicle_setup'); }}
+            onClick={() => {
+              if (vehicles.length >= WEB_FREE_VEHICLE_LIMIT) { setAppPrompt('vehicles'); return; }
+              setShowAddVehicle(true); setStep('vehicle_setup');
+            }}
             style={{ ...S.btn('rgba(255,255,255,0.2)'), padding: '0.375rem 0.875rem', fontSize: '0.6875rem' }}>
             + Add Vehicle
           </button>
@@ -1767,8 +1744,8 @@ export default function FuelTrackerClient() {
               </tbody>
             </table>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
-              <button type="button" onClick={exportCSV} style={{ ...S.btn('#4ade80'), padding: '0.375rem 0.875rem', fontSize: '0.6875rem' }}>
-                ↓ Export CSV
+              <button type="button" onClick={() => setAppPrompt('export')} style={{ ...S.btn('#4ade80'), padding: '0.375rem 0.875rem', fontSize: '0.6875rem' }}>
+                ↓ Export CSV · in the app
               </button>
             </div>
           </div>
