@@ -117,10 +117,12 @@ const jsonLd = [
 
 const card = { background: 'var(--ndl-card-bg)', border: '1px solid var(--ndl-border)' } as const;
 
-function StartButton({ label = 'Start free' }: { label?: string }) {
+function StartButton({ label = 'Start free', location }: { label?: string; location: string }) {
   return (
     <Link
       href="/app/"
+      data-umami-event="freelanceos_start"
+      data-umami-event-location={location}
       className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold px-7 py-3.5 rounded-xl transition-all duration-200 no-underline"
       style={{ boxShadow: '0 4px 20px rgba(37,99,235,0.35)' }}
     >
@@ -135,34 +137,45 @@ function DashboardSnapshot() {
   // coming in), with invented businesses — not real companies.
   // Outstanding = the one unpaid row below.
   const stats = [
-    { label: 'Revenue this month', value: '$5,380.00', note: '↑ 18% vs last month' },
-    { label: 'Outstanding', value: '$1,450.00', note: '1 invoice, not yet due' },
-    { label: 'Expenses this month', value: '$214.60', note: '4% of revenue' },
+    { label: 'Revenue this month', short: 'Revenue', value: '$5,380.00', note: '↑ 18% vs last month' },
+    { label: 'Outstanding', short: 'Outstanding', value: '$1,450.00', note: '1 invoice, not yet due' },
+    { label: 'Expenses this month', short: 'Expenses', value: '$214.60', note: '4% of revenue' },
   ];
   const recent = [
-    { label: 'INV-0044 · Lumen Yoga Studio', amount: '$380.00', status: 'Paid', tone: 'text-emerald-400 bg-emerald-500/10' },
-    { label: 'INV-0043 · Kestrel Analytics', amount: '$695.00', status: 'Paid', tone: 'text-emerald-400 bg-emerald-500/10' },
-    { label: 'INV-0045 · Harbour & Pine Co.', amount: '$1,450.00', status: 'Due in 6 days', tone: 'text-blue-400 bg-blue-500/10' },
+    { client: 'Lumen Yoga Studio', number: 'INV-0044', amount: '$380.00', status: 'Paid', tone: 'text-emerald-400 bg-emerald-500/10' },
+    { client: 'Kestrel Analytics', number: 'INV-0043', amount: '$695.00', status: 'Paid', tone: 'text-emerald-400 bg-emerald-500/10' },
+    { client: 'Harbour & Pine Co.', number: 'INV-0045', amount: '$1,450.00', status: 'Due in 6 days', tone: 'text-blue-400 bg-blue-500/10' },
   ];
   return (
-    <div className="rounded-2xl p-5 sm:p-6" style={card} aria-label="Example FreelanceOS dashboard with sample data" role="img">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+    <div className="rounded-2xl p-4 sm:p-6" style={card} aria-label="Example FreelanceOS dashboard with sample data" role="img">
+      {/* Always one row of three; phones get short labels and no notes. */}
+      <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-5">
         {stats.map((s) => (
-          <div key={s.label} className="rounded-xl p-4" style={{ background: 'var(--ndl-surface-2)' }}>
-            <p className="text-xs text-slate-400 mb-1">{s.label}</p>
-            <p className="text-xl font-semibold text-white tabular-nums">{s.value}</p>
-            <p className={`mt-1 text-[11px] ${s.note.startsWith('↑') ? 'text-emerald-400' : 'text-slate-500'}`}>{s.note}</p>
+          <div key={s.label} className="min-w-0 rounded-xl p-2.5 sm:p-4" style={{ background: 'var(--ndl-surface-2)' }}>
+            <p className="text-[11px] sm:text-xs text-slate-400 mb-1 truncate">
+              <span className="sm:hidden">{s.short}</span>
+              <span className="hidden sm:inline">{s.label}</span>
+            </p>
+            <p className="text-sm sm:text-xl font-semibold text-white tabular-nums truncate">{s.value}</p>
+            <p className={`hidden sm:block mt-1 text-[11px] ${s.note.startsWith('↑') ? 'text-emerald-400' : 'text-slate-500'}`}>{s.note}</p>
           </div>
         ))}
       </div>
       <p className="text-xs font-semibold tracking-widest text-slate-500 uppercase mb-3">Recent invoices</p>
-      <ul className="space-y-2">
+      <ul className="space-y-3 sm:space-y-2">
         {recent.map((d) => (
-          <li key={d.label} className="flex items-center justify-between gap-3 text-sm">
-            <span className="text-slate-300 truncate">{d.label}</span>
-            <span className="flex items-center gap-3 shrink-0">
+          <li key={d.number} className="flex items-center justify-between gap-3 text-sm">
+            {/* Two lines on phones (client over number) so names never truncate. */}
+            <span className="min-w-0">
+              <span className="block sm:inline text-slate-300 truncate">
+                <span className="hidden sm:inline">{d.number} · </span>
+                {d.client}
+              </span>
+              <span className="block sm:hidden text-[11px] text-slate-500">{d.number}</span>
+            </span>
+            <span className="flex flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-3 shrink-0">
               <span className="text-white tabular-nums">{d.amount}</span>
-              <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${d.tone}`}>{d.status}</span>
+              <span className={`text-[11px] sm:text-xs font-medium px-2 py-0.5 rounded-full whitespace-nowrap ${d.tone}`}>{d.status}</span>
             </span>
           </li>
         ))}
@@ -194,7 +207,7 @@ export default function FreelanceOSPage() {
               separate invoicing tools.
             </p>
             <div className="flex flex-wrap items-center gap-4">
-              <StartButton />
+              <StartButton location="landing_hero" />
               <a href="#how-it-works" className="text-sm font-medium text-slate-300 hover:text-white no-underline">
                 See how it works
               </a>
@@ -266,7 +279,7 @@ export default function FreelanceOSPage() {
               come later for advanced features — beta users will get a founding-member offer, announced well in
               advance.
             </p>
-            <StartButton label="Create your free workspace" />
+            <StartButton label="Create your free workspace" location="landing_pricing" />
           </div>
           <div className="rounded-2xl p-8" style={card}>
             <Lock className="w-6 h-6 text-blue-400 mb-4" aria-hidden="true" />
@@ -336,7 +349,7 @@ export default function FreelanceOSPage() {
             </Link>
             ? FreelanceOS uses the same clean invoice design.
           </p>
-          <StartButton />
+          <StartButton location="landing_final" />
         </div>
       </section>
     </>

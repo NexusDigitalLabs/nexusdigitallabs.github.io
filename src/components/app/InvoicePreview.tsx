@@ -5,6 +5,7 @@ import { Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import InvoiceSheet, { type InvoiceSheetData } from '@/components/invoice/InvoiceSheet';
 import { downloadInvoicePdf } from '@/components/invoice/pdf';
+import { trackEvent } from '@/components/AnalyticsFlush';
 
 const SHEET_WIDTH = 794;
 
@@ -47,6 +48,7 @@ export default function InvoicePreview({
     setDownloading(true);
     try {
       await downloadInvoicePdf(sheet, filename);
+      trackEvent('pdf_downloaded', { source: 'freelanceos' });
     } catch (e) {
       console.error('[freelanceos] PDF generation failed', e);
       setError('Could not generate the PDF. Please try again.');

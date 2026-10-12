@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
+import { queueEvent } from '@/lib/analytics-server';
 import { requireOrg } from '@/lib/freelanceos/org';
 import { monthKey } from '@/lib/freelanceos/expenses';
 import { errorState, readForm, validationErrorState, type FormState } from '@/lib/freelanceos/forms';
@@ -29,6 +30,7 @@ export async function saveExpenseAction(expenseId: string | null, _prev: FormSta
     return errorState('Could not save the expense. Please try again.', values);
   }
 
+  if (expenseId === null) await queueEvent('expense_created');
   revalidatePath('/app', 'layout');
   redirect(`/app/expenses/?month=${monthKey(parsed.data.spent_on)}`);
 }

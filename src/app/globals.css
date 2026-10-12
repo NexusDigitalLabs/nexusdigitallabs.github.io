@@ -643,3 +643,12 @@ body {
   background: rgba(2, 6, 23, 0.55);
   backdrop-filter: blur(2px);
 }
+
+/* Horizontally scrollable rows (filter tabs, mobile nav) without a scrollbar.
+   Declared as a Tailwind v4 utility so it's generated wherever it's used. */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

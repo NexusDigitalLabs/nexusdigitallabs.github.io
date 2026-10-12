@@ -58,14 +58,14 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
         actions={!(projects.length === 0 && view === 'open') && newButton}
       />
 
-      <nav aria-label="Project filter" className="flex flex-wrap gap-1 text-sm">
+      <nav aria-label="Project filter" className="no-scrollbar -mx-4 flex gap-1 overflow-x-auto px-4 text-sm md:mx-0 md:flex-wrap md:px-0">
         {VIEWS.map((v) => (
           <Link
             key={v.key}
             href={v.key === 'open' ? '/app/projects/' : `/app/projects/?view=${v.key}`}
             aria-current={v.key === view ? 'page' : undefined}
             className={cn(
-              'rounded-md px-3 py-1.5',
+              'shrink-0 rounded-md px-3 py-1.5 whitespace-nowrap',
               v.key === view ? 'bg-muted font-medium text-foreground' : 'text-muted-foreground hover:text-foreground'
             )}
           >

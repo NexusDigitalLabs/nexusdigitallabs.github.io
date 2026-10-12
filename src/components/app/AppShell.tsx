@@ -1,6 +1,6 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ArrowLeft, MessageSquare } from 'lucide-react';
@@ -53,6 +53,25 @@ function NavEntry({ item, active, compact }: { item: AppNavItem; active: boolean
 /** Authenticated FreelanceOS chrome: sidebar on desktop, scrollable tab strip on mobile. */
 export default function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const mobileNavRef = useRef<HTMLElement>(null);
+  const [moreToRight, setMoreToRight] = useState(false);
+
+  // Phones: the section strip scrolls sideways — keep the current one visible,
+  // and fade the right edge only while more sections are off-screen.
+  useEffect(() => {
+    const nav = mobileNavRef.current;
+    if (!nav) return;
+    const update = () => setMoreToRight(nav.scrollLeft + nav.clientWidth < nav.scrollWidth - 4);
+    nav.querySelector('[aria-current="page"]')?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+    nav.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    const timer = window.setTimeout(update, 400); // after the smooth scroll settles
+    return () => {
+      nav.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+      window.clearTimeout(timer);
+    };
+  }, [pathname]);
 
   return (
     <div className="fos-app flex min-h-screen bg-background text-foreground">
@@ -107,7 +126,16 @@ export default function AppShell({ children }: { children: ReactNode }) {
               <AuthMenu />
             </div>
           </div>
-          <nav aria-label="FreelanceOS" className="flex gap-1 overflow-x-auto px-3 pb-2 md:hidden">
+          <nav
+            ref={mobileNavRef}
+            aria-label="FreelanceOS"
+            className="no-scrollbar flex gap-1 overflow-x-auto px-3 pb-2 md:hidden"
+            style={
+              moreToRight
+                ? { maskImage: 'linear-gradient(to right, black 82%, transparent)', WebkitMaskImage: 'linear-gradient(to right, black 82%, transparent)' }
+                : undefined
+            }
+          >
             {APP_NAV.filter((item) => item.available).map((item) => (
               <NavEntry key={item.href} item={item} active={isNavItemActive(item.href, pathname)} compact />
             ))}

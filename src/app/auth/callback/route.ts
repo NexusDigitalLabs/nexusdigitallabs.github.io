@@ -7,6 +7,7 @@ import {
   safeNextPath,
 } from '@/lib/auth-redirect';
 import { createServerSupabaseAuthClient } from '@/lib/supabase/server';
+import { EVENT_COOKIE, EVENT_COOKIE_MAX_AGE, encodeEvents, type AnalyticsEvent } from '@/lib/analytics-events';
 
 /**
  * Completes OAuth / magic-link auth after Supabase redirects here.
@@ -17,7 +18,7 @@ import { createServerSupabaseAuthClient } from '@/lib/supabase/server';
  * Return path: prefers `?next=`, falls back to `ndl_auth_next` cookie
  * (stashed by LoginForm before OAuth, in case the provider drops query params).
  */
-async function syncProfileAfterAuth(supabase: SupabaseClient) {
+async function syncProfileAfterAuth(supabase: SupabaseClient): Promise<AnalyticsEvent> {
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -25,6 +26,22 @@ async function syncProfileAfterAuth(supabase: SupabaseClient) {
     // Best-effort; login must succeed even if profiles table is not migrated yet.
     await ensureProfile(supabase, user);
   }
+  // An account created moments ago is a sign-up; anything older is a login.
+  const createdAt = user?.created_at ? new Date(user.created_at).getTime() : 0;
+  return Date.now() - createdAt < 10 * 60 * 1000 ? 'signup' : 'login';
+}
+
+/** Successful auth: redirect onward and queue the sign-up/login event for <AnalyticsFlush />. */
+function redirectAfterAuth(url: URL, event: AnalyticsEvent) {
+  const res = redirectWithClear(url);
+  res.cookies.set(EVENT_COOKIE, encodeEvents([event]), {
+    path: '/',
+    maxAge: EVENT_COOKIE_MAX_AGE,
+    sameSite: 'lax',
+    secure: url.protocol === 'https:',
+    httpOnly: false,
+  });
+  return res;
 }
 
 function resolveNext(request: Request, searchParams: URLSearchParams): string {
@@ -61,8 +78,8 @@ export async function GET(request: Request) {
   if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      await syncProfileAfterAuth(supabase);
-      return redirectWithClear(new URL(next, origin));
+      const event = await syncProfileAfterAuth(supabase);
+      return redirectAfterAuth(new URL(next, origin), event);
     }
     const login = new URL('/login/', origin);
     login.searchParams.set('error', 'auth');
@@ -74,8 +91,8 @@ export async function GET(request: Request) {
   if (tokenHash && type) {
     const { error } = await supabase.auth.verifyOtp({ type, token_hash: tokenHash });
     if (!error) {
-      await syncProfileAfterAuth(supabase);
-      return redirectWithClear(new URL(next, origin));
+      const event = await syncProfileAfterAuth(supabase);
+      return redirectAfterAuth(new URL(next, origin), event);
     }
     const login = new URL('/login/', origin);
     login.searchParams.set('error', 'auth');

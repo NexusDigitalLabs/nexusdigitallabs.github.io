@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
+import { queueEvent } from '@/lib/analytics-server';
 import { requireOrg } from '@/lib/freelanceos/org';
 import { isWithinLimit } from '@/lib/freelanceos/entitlements';
 import { errorState, readForm, validationErrorState, type FormState } from '@/lib/freelanceos/forms';
@@ -40,6 +41,7 @@ export async function createProjectAction(_prev: FormState, formData: FormData):
     return errorState('Could not create the project. Please try again.', values);
   }
 
+  await queueEvent('project_created');
   revalidatePath('/app', 'layout');
   redirect(`/app/projects/${data.id}/`);
 }

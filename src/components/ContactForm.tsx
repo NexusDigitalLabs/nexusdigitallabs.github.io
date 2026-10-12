@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
+import { trackEvent } from '@/components/AnalyticsFlush';
 
 type StatusType = 'success' | 'error' | null;
 
@@ -61,6 +62,7 @@ export default function ContactForm() {
       setSubject('');
       setMessage('');
       setWebsite('');
+      trackEvent('contact_submitted');
       setStatus({
         type: 'success',
         text: 'Message sent. We’ll get back to you soon.',

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { CheckCircle2, Circle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { InvoiceStatusBadge, MoneyList } from '@/components/app/page-parts';
+import { InvoiceStatusBadge, MoneyList, StatCard, StatGrid } from '@/components/app/page-parts';
 import { activityHref, describeActivity, timeAgo, type ActivityEntry } from '@/lib/freelanceos/activity';
 import { addDaysISO, balanceDue, invoiceDisplayStatus, sumByCurrency, todayISO } from '@/lib/freelanceos/invoice-math';
 import { formatMoney } from '@/lib/freelanceos/money';
@@ -80,49 +80,24 @@ export default async function DashboardPage() {
         <p className="mt-1 text-sm text-muted-foreground">Here&apos;s where your freelance business stands.</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Link href="/app/projects/" className="rounded-xl transition-colors hover:bg-muted/40">
-          <Card className="h-full bg-transparent">
-            <CardHeader>
-              <CardDescription>Open projects</CardDescription>
-              <CardTitle className="text-3xl tabular-nums">{openProjectCount}</CardTitle>
-            </CardHeader>
-            <CardContent className="-mt-4 text-xs text-muted-foreground">
-              {clientCount} active {clientCount === 1 ? 'client' : 'clients'}
-            </CardContent>
-          </Card>
-        </Link>
-        <Link href="/app/expenses/" className="rounded-xl transition-colors hover:bg-muted/40">
-          <Card className="h-full bg-transparent">
-            <CardHeader>
-              <CardDescription>Expenses this month</CardDescription>
-              <CardTitle className="text-3xl">
-                <MoneyList totals={expenses} />
-              </CardTitle>
-            </CardHeader>
-          </Card>
-        </Link>
-        <Link href="/app/invoices/" className="rounded-xl transition-colors hover:bg-muted/40">
-          <Card className="h-full bg-transparent">
-            <CardHeader>
-              <CardDescription>Revenue this month</CardDescription>
-              <CardTitle className="text-3xl">
-                <MoneyList totals={revenue} />
-              </CardTitle>
-            </CardHeader>
-          </Card>
-        </Link>
-        <Link href="/app/invoices/?view=outstanding" className="rounded-xl transition-colors hover:bg-muted/40">
-          <Card className="h-full bg-transparent">
-            <CardHeader>
-              <CardDescription>Outstanding</CardDescription>
-              <CardTitle className="text-3xl">
-                <MoneyList totals={outstanding} />
-              </CardTitle>
-            </CardHeader>
-          </Card>
-        </Link>
-      </div>
+      <StatGrid cols={4}>
+        <StatCard label="Revenue this month" href="/app/invoices/">
+          <MoneyList totals={revenue} />
+        </StatCard>
+        <StatCard label="Outstanding" href="/app/invoices/?view=outstanding">
+          <MoneyList totals={outstanding} />
+        </StatCard>
+        <StatCard label="Expenses this month" href="/app/expenses/">
+          <MoneyList totals={expenses} />
+        </StatCard>
+        <StatCard
+          label="Open projects"
+          href="/app/projects/"
+          footer={`${clientCount} active ${clientCount === 1 ? 'client' : 'clients'}`}
+        >
+          {openProjectCount}
+        </StatCard>
+      </StatGrid>
 
       <div className="grid gap-4 md:grid-cols-3">
         <div className="flex flex-col gap-4 md:col-span-2">
@@ -219,7 +194,7 @@ export default async function DashboardPage() {
                 <Badge variant="secondary">Beta</Badge>
               </div>
               <CardDescription>
-                Everything is free while FreelanceOS is in beta. Time tracking and expenses are next — your feedback shapes what comes after.
+                Everything is free while FreelanceOS is in beta. Time tracking is next — your feedback shapes what comes after.
               </CardDescription>
             </CardHeader>
           </Card>
