@@ -9,6 +9,7 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 import { AuthProvider } from '@/components/AuthProvider';
 import ScrollToTop from '@/components/ScrollToTop';
 import SiteChrome from '@/components/SiteChrome';
+import AnalyticsFlush from '@/components/AnalyticsFlush';
 import { DEFAULT_OG_IMAGE, DEFAULT_OG_IMAGE_SIZE, KOFI_URL, SITE_NAME, SITE_URL } from '@/lib/seo';
 import { THEME_BOOT_SCRIPT } from '@/lib/theme';
 import './globals.css';
@@ -147,11 +148,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </ThemeProvider>
 
         <AdSenseScript />
+        <AnalyticsFlush />
 
         {/* Umami Analytics — cookie-free, GDPR/CCPA compliant */}
         <Script
           src="https://cloud.umami.is/script.js"
           data-website-id="89ea0001-e2c2-4802-bcb2-bf2ae4809451"
+          // Only count the production site — keeps localhost/preview visits out of the stats.
+          data-domains="nexusdigitallabs.dev"
           strategy="afterInteractive"
           defer
         />

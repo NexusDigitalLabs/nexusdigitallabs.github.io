@@ -43,7 +43,7 @@ export default function PrivacyPolicyPage() {
       <div className="mb-10 space-y-2 border-b border-slate-800/60 pb-8">
         <p className="text-[11px] font-semibold tracking-widest text-slate-500 uppercase">Legal</p>
         <h1 className="text-2xl sm:text-3xl font-light tracking-tight text-white">Privacy Policy</h1>
-        <p className="text-xs text-slate-500 font-light">Last updated: October 8, 2026</p>
+        <p className="text-xs text-slate-500 font-light">Last updated: October 12, 2026</p>
       </div>
 
       <div>
@@ -67,6 +67,7 @@ export default function PrivacyPolicyPage() {
           <P>
             <strong className="text-slate-300 font-medium">Analytics (no account required).</strong>{' '}
             Our analytics platform (Umami) records anonymised page-view data — no cookies are set by Umami, no IP addresses are retained for profiling, and no advertising profiles are built by us.
+            We also record anonymous product events with Umami — for example &ldquo;signed up&rdquo;, &ldquo;invoice issued&rdquo; or &ldquo;PDF downloaded&rdquo; — to understand which features are used. These contain only the event name (and where a button was clicked), never your name, email, client details or amounts. When such an event happens on our servers, a first-party cookie holding just the event name is set for up to 60 seconds so your browser can report it, then deleted.
             We also keep aggregate page-view counts in Supabase (URL path + integer count only — no session IDs or personal identifiers).
           </P>
           <P>

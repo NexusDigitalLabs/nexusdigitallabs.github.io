@@ -6,6 +6,7 @@ import { useCloudToolDraft } from '@/hooks/useCloudToolDraft';
 import { loginUrl } from '@/lib/auth-redirect';
 import InvoiceSheet, { type InvoiceSheetData } from '@/components/invoice/InvoiceSheet';
 import { downloadInvoicePdf } from '@/components/invoice/pdf';
+import { trackEvent } from '@/components/AnalyticsFlush';
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 const SYM: Record<string, string> = {
@@ -321,6 +322,7 @@ export default function InvoiceGeneratorClient() {
     const filename = `invoice-${(num || 'NDL').replace(/[^a-zA-Z0-9-]/g, '-').toLowerCase()}.pdf`;
     try {
       await downloadInvoicePdf(sheetData, filename);
+      trackEvent('pdf_downloaded', { source: 'invoice_generator' });
     } catch {
       alert('Could not generate the PDF. Please try again.');
     } finally {
@@ -571,6 +573,8 @@ export default function InvoiceGeneratorClient() {
               </button>
               <a
                 href="/freelanceos/"
+                data-umami-event="freelanceos_cta"
+                data-umami-event-location="invoice_generator_toolbar"
                 className="hover:underline"
                 style={{ fontSize: '11px', color: 'var(--ndl-muted)' }}
               >

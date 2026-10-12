@@ -11,6 +11,7 @@ export type Organization = {
   name: string;
   plan: string;
   base_currency: string;
+  created_at: string;
 };
 
 /**
@@ -39,7 +40,7 @@ export const requireOrg = cache(async () => {
 
   const { data, error } = await supabase
     .from('organizations')
-    .select('id, name, plan, base_currency, org_members!inner(role)')
+    .select('id, name, plan, base_currency, created_at, org_members!inner(role)')
     .eq('id', orgId)
     .eq('org_members.user_id', user.id)
     .single();
@@ -52,5 +53,8 @@ export const requireOrg = cache(async () => {
   const role = members[0]?.role ?? 'member';
   const entitlements: Entitlements = getEntitlements(org.plan);
 
-  return { supabase, user, org, role, entitlements };
+  // Created in the last few minutes = a brand-new FreelanceOS user (analytics).
+  const isNewWorkspace = Date.now() - new Date(org.created_at).getTime() < 10 * 60 * 1000;
+
+  return { supabase, user, org, role, entitlements, isNewWorkspace };
 });

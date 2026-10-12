@@ -117,10 +117,12 @@ const jsonLd = [
 
 const card = { background: 'var(--ndl-card-bg)', border: '1px solid var(--ndl-border)' } as const;
 
-function StartButton({ label = 'Start free' }: { label?: string }) {
+function StartButton({ label = 'Start free', location }: { label?: string; location: string }) {
   return (
     <Link
       href="/app/"
+      data-umami-event="freelanceos_start"
+      data-umami-event-location={location}
       className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold px-7 py-3.5 rounded-xl transition-all duration-200 no-underline"
       style={{ boxShadow: '0 4px 20px rgba(37,99,235,0.35)' }}
     >
@@ -194,7 +196,7 @@ export default function FreelanceOSPage() {
               separate invoicing tools.
             </p>
             <div className="flex flex-wrap items-center gap-4">
-              <StartButton />
+              <StartButton location="landing_hero" />
               <a href="#how-it-works" className="text-sm font-medium text-slate-300 hover:text-white no-underline">
                 See how it works
               </a>
@@ -266,7 +268,7 @@ export default function FreelanceOSPage() {
               come later for advanced features — beta users will get a founding-member offer, announced well in
               advance.
             </p>
-            <StartButton label="Create your free workspace" />
+            <StartButton label="Create your free workspace" location="landing_pricing" />
           </div>
           <div className="rounded-2xl p-8" style={card}>
             <Lock className="w-6 h-6 text-blue-400 mb-4" aria-hidden="true" />
@@ -336,7 +338,7 @@ export default function FreelanceOSPage() {
             </Link>
             ? FreelanceOS uses the same clean invoice design.
           </p>
-          <StartButton />
+          <StartButton location="landing_final" />
         </div>
       </section>
     </>

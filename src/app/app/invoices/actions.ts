@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
+import { queueEvent } from '@/lib/analytics-server';
 import { requireOrg } from '@/lib/freelanceos/org';
 import { balanceDue } from '@/lib/freelanceos/invoice-math';
 import { errorState, readForm, validationErrorState, type FormState } from '@/lib/freelanceos/forms';
@@ -39,6 +40,7 @@ export async function saveInvoiceDraftAction(
     return errorState(dbMessage(error, 'Could not save the invoice. Please try again.'), values);
   }
 
+  if (invoiceId === null) await queueEvent('invoice_draft_created');
   revalidatePath('/app', 'layout');
   redirect(`/app/invoices/${data}/`);
 }
@@ -83,6 +85,7 @@ export async function invoiceStatusAction(invoiceId: string, _prev: FormState, f
     return errorState(dbMessage(error, 'Could not update the invoice. Refresh and try again.'));
   }
 
+  if (intent === 'send') await queueEvent('invoice_issued');
   revalidatePath('/app', 'layout');
   return { status: 'success', message: transition.ok };
 }
@@ -110,6 +113,7 @@ export async function recordPaymentAction(invoiceId: string, _prev: FormState, f
     return errorState(dbMessage(error, 'Could not record the payment. Please try again.'), values);
   }
 
+  await queueEvent('payment_recorded');
   revalidatePath('/app', 'layout');
   return { status: 'success', message: 'Payment recorded.' };
 }

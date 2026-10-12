@@ -66,6 +66,8 @@ export default function InvoiceGeneratorPage() {
           {/* FreelanceOS funnel: the tool makes one invoice; FreelanceOS tracks all of them. */}
           <a
             href="/freelanceos/"
+            data-umami-event="freelanceos_cta"
+            data-umami-event-location="invoice_generator_card"
             className="group block rounded-2xl p-6 no-underline transition-colors"
             style={{
               background: 'color-mix(in srgb, var(--ndl-accent) 8%, var(--ndl-surface))',

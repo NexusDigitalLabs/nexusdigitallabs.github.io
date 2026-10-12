@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
+import { queueEvent } from '@/lib/analytics-server';
 import { requireOrg } from '@/lib/freelanceos/org';
 import { errorState, readForm, validationErrorState, type FormState } from '@/lib/freelanceos/forms';
 import { BUSINESS_PROFILE_FIELDS, businessProfileSchema } from '@/lib/freelanceos/schemas';
@@ -24,6 +25,7 @@ export async function updateBusinessProfile(_prev: FormState, formData: FormData
     return errorState('Could not save your profile. Please try again.', values);
   }
 
+  await queueEvent('profile_saved');
   revalidatePath('/app', 'layout');
   return { status: 'success', message: 'Business profile saved.', values };
 }
@@ -50,5 +52,6 @@ export async function deleteAccountAction(_prev: FormState, formData: FormData):
 
   // The user no longer exists; clear the session cookies best-effort.
   await supabase.auth.signOut().catch(() => {});
+  await queueEvent('account_deleted');
   redirect('/?account=deleted');
 }

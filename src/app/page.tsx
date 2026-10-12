@@ -61,6 +61,7 @@ export default function HomePage() {
           <div className="relative z-10">
             <Link
               href="/contact/"
+              data-umami-event="studio_contact_click"
               className="ndl-anim-1 inline-flex items-center gap-2 text-xs font-medium text-blue-400 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-1.5 mb-5 sm:mb-7 no-underline hover:bg-blue-500/20 hover:border-blue-500/40 transition-all duration-200"
             >
               <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" />
@@ -286,6 +287,8 @@ export default function HomePage() {
             <div className="shrink-0">
               <Link
                 href="/freelanceos/"
+                data-umami-event="freelanceos_cta"
+                data-umami-event-location="home_section"
                 className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 ndl-on-accent text-sm font-semibold px-7 py-3.5 rounded-xl transition-all duration-200 no-underline"
                 style={{ boxShadow: '0 4px 20px rgba(37,99,235,0.4)' }}
               >
