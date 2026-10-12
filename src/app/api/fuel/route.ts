@@ -149,24 +149,24 @@ async function reminderBelongsToCode(
 }
 
 /**
- * Server-side check backing the free tier's vehicle-count cap. Deliberately
- * fails OPEN (does not block) whenever entitlement can't be positively
- * determined, on both paths below — this is a defense against the "anyone
- * with a sync code can curl unlimited vehicles for free" gap, not a system
- * that should ever lock out a real payer because of an infra/config gap it
- * can't see:
+ * Server-side check backing the free tier's vehicle-count cap (the web tracker
+ * and the app's free plan both allow a single vehicle). A second vehicle needs
+ * *proof* of Pro:
  *
- * - Claimed garage (ownerId set): looks up `pro_entitlements`, written by
- *   the RevenueCat webhook (see revenuecat-webhook/route.ts). No row at all
- *   is ambiguous (webhook may not be wired up in the RevenueCat dashboard
- *   yet, or this purchase predates it) — allow. A row with is_pro=false is
- *   a confident revoke signal — block.
- * - Unclaimed/anonymous garage: the client (Odova) sends its RevenueCat
- *   app_user_id (see api.ts createVehicle). Verified live against
- *   RevenueCat's REST API using REVENUECAT_SECRET_API_KEY (the dashboard's
- *   secret key, not the public SDK key already embedded in the app). If
- *   that env var isn't set yet, or no app_user_id was sent, this path
- *   can't verify anything — allow.
+ * - Claimed garage (ownerId set) with a `pro_entitlements` row, written by the
+ *   RevenueCat webhook (see revenuecat-webhook/route.ts): the row decides.
+ *   `is_pro=false` is a confident revoke signal and blocks.
+ * - Anonymous garage, or a claimed one with no webhook row (a purchase that
+ *   predates the webhook): the client must send its RevenueCat app_user_id
+ *   (see Odova's api.ts createVehicle), verified live against RevenueCat's REST
+ *   API using REVENUECAT_SECRET_API_KEY (the dashboard's secret key, not the
+ *   public SDK key embedded in the app).
+ * - No app_user_id at all means no proof was offered. That is the web tracker
+ *   and direct API calls, so it does NOT count as Pro.
+ *
+ * Infra gaps still fail OPEN so a real payer is never locked out by something
+ * they can't see: the secret key isn't configured, or RevenueCat is
+ * unreachable or erroring.
  */
 async function hasProEntitlement(
   supabase: SupabaseAdmin,
@@ -180,19 +180,21 @@ async function hasProEntitlement(
       .eq('user_id', ownerId)
       .maybeSingle();
     if (error) throw error;
-    if (data === null) return true; // No record yet — ambiguous, don't block.
-    return Boolean(data.is_pro);
+    if (data !== null) return Boolean(data.is_pro);
+    // No webhook record yet: fall through and verify with RevenueCat directly.
   }
 
   const rcId = typeof revenueCatAppUserId === 'string' ? revenueCatAppUserId.trim() : '';
+  if (!rcId) return false; // No proof offered (web client / direct API call).
+
   const secretKey = process.env.REVENUECAT_SECRET_API_KEY;
-  if (!rcId || !secretKey) return true; // Can't verify — don't block.
+  if (!secretKey) return true; // Can't verify — don't block on our own config gap.
 
   try {
     const res = await fetch(`https://api.revenuecat.com/v1/subscribers/${encodeURIComponent(rcId)}`, {
       headers: { Authorization: `Bearer ${secretKey}` },
     });
-    if (!res.ok) return true; // RevenueCat unreachable/erroring — don't block on our outage.
+    if (!res.ok) return true; // RevenueCat unreachable/erroring — don't block on their outage.
     const json = (await res.json()) as {
       subscriber?: { entitlements?: Record<string, { expires_date?: string | null }> };
     };

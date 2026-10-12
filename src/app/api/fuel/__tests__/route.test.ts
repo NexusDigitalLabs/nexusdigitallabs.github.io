@@ -250,22 +250,28 @@ describe('POST /api/fuel', () => {
       );
     }
 
-    it('allows a 2nd vehicle for an anonymous garage that sends no RevenueCat id (old app version, fail open)', async () => {
-      // No revenueCatAppUserId in the body at all — e.g. a pre-update app
-      // build. Genuinely can't verify anything here, so this must not block,
-      // by design (see hasProEntitlement's header comment): a version-skew
-      // window is the tradeoff for never locking out a real payer on an old
-      // build. What actually closes the anonymous-path gap is the app
-      // sending a real id (always true once RevenueCat is configured
-      // client-side, whether the caller is Pro or not) plus
-      // REVENUECAT_SECRET_API_KEY being set server-side — see the tests
-      // below for that path.
+    it('blocks a 2nd vehicle for an anonymous garage that sends no RevenueCat id (web client / direct API call)', async () => {
+      // No revenueCatAppUserId at all means no proof of Pro was offered, which
+      // is what the web tracker and a raw curl look like. Builds since the app's
+      // 17d1c4d always send an id, so real payers are unaffected.
       let call = 0;
       mockFrom.mockImplementation(() => {
         call += 1;
         if (call === 1) return chainResolve({ data: null, error: null }); // unclaimed
-        if (call === 2) return countChain(1); // already has 1 vehicle
-        return chainResolve({ data: { id: 'v2' }, error: null }); // insert
+        return countChain(1); // already has 1 vehicle
+      });
+
+      const res = await postVehicle({});
+      expect(res.status).toBe(403);
+    });
+
+    it('still allows the first vehicle without any RevenueCat id', async () => {
+      let call = 0;
+      mockFrom.mockImplementation(() => {
+        call += 1;
+        if (call === 1) return chainResolve({ data: null, error: null });
+        if (call === 2) return countChain(0); // first vehicle
+        return chainResolve({ data: { id: 'v1' }, error: null });
       });
 
       const res = await postVehicle({});
@@ -299,17 +305,38 @@ describe('POST /api/fuel', () => {
       expect(res.status).toBe(403);
     });
 
-    it('allows a 2nd vehicle for a claimed garage with no pro_entitlements row yet (ambiguous → fail open)', async () => {
+    it('blocks a 2nd vehicle for a claimed garage with no webhook row and no RevenueCat id', async () => {
       let call = 0;
       mockFrom.mockImplementation(() => {
         call += 1;
         if (call === 1) return chainResolve({ data: { user_id: 'user-1' }, error: null });
         if (call === 2) return countChain(1);
-        if (call === 3) return chainResolve({ data: null, error: null }); // no row
-        return chainResolve({ data: { id: 'v2' }, error: null });
+        return chainResolve({ data: null, error: null }); // no pro_entitlements row
       });
 
       const res = await postVehicle({});
+      expect(res.status).toBe(403);
+    });
+
+    it('verifies a claimed garage with no webhook row via RevenueCat when the app sends its id', async () => {
+      vi.stubEnv('REVENUECAT_SECRET_API_KEY', 'rc-secret-test');
+      let call = 0;
+      mockFrom.mockImplementation(() => {
+        call += 1;
+        if (call === 1) return chainResolve({ data: { user_id: 'user-1' }, error: null });
+        if (call === 2) return countChain(1);
+        if (call === 3) return chainResolve({ data: null, error: null }); // no pro_entitlements row
+        return chainResolve({ data: { id: 'v2' }, error: null });
+      });
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: true,
+          json: async () => ({ subscriber: { entitlements: { odova_pro: { expires_date: null } } } }),
+        })
+      );
+
+      const res = await postVehicle({ revenueCatAppUserId: 'user-1' });
       expect(res.status).toBe(200);
     });
 
