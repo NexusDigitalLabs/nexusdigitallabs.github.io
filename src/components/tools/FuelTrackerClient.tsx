@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   type FillUp, type FillStats,
-  genCode, normaliseCode, fmt, fmtCurrency, fmtDate, friendlyError, computeStats,
+  genCode, normaliseCode, fmt, fmtCurrency, fmtDate, friendlyError, computeStats, summariseEfficiency, odometerBounds, todayISODate,
 } from '@/lib/fuel-utils';
 import { useAuth } from '@/components/AuthProvider';
 import AuthGate from '@/components/AuthGate';
@@ -485,7 +485,7 @@ export default function FuelTrackerClient() {
 
   // add fill form
   const [showAddFill, setShowAddFill] = useState(false);
-  const [fillDate, setFillDate] = useState(new Date().toISOString().slice(0, 10));
+  const [fillDate, setFillDate] = useState(todayISODate());
   const [fillOdo, setFillOdo] = useState('');
   const [fillLitres, setFillLitres] = useState('');
   const [fillPrice, setFillPrice] = useState('');
@@ -986,10 +986,13 @@ export default function FuelTrackerClient() {
     if (!fillOdo || !fillLitres || !fillPrice) { setFillError('Odometer, litres, and price are required'); return; }
     if (!userCode || !activeVehicleId) return;
     const odo = parseFloat(fillOdo);
-    const stats = computeStats(fills);
-    const lastOdo = stats.length > 0 ? stats[stats.length - 1].fill.odometer : null;
-    if (lastOdo !== null && odo <= lastOdo) {
-      setFillError(`Odometer must be greater than last reading (${lastOdo.toLocaleString()} km)`);
+    const { before, after } = odometerBounds(fills, fillDate);
+    if (before && odo <= before.odometer) {
+      setFillError(`Odometer must be more than ${before.odometer.toLocaleString()} km (fill-up on ${before.date})`);
+      return;
+    }
+    if (after && odo >= after.odometer) {
+      setFillError(`Odometer must be less than ${after.odometer.toLocaleString()} km (fill-up on ${after.date})`);
       return;
     }
     setFillError('');
@@ -1012,7 +1015,7 @@ export default function FuelTrackerClient() {
         setShowAddFill(false);
         setFillOdo(''); setFillLitres(''); setFillPrice('');
         setFillPartial(false); setFillNotes('');
-        setFillDate(new Date().toISOString().slice(0, 10));
+        setFillDate(todayISODate());
       } else {
         setFillError(friendlyError(json.error ?? 'Failed to save fill-up'));
       }
@@ -1109,14 +1112,15 @@ export default function FuelTrackerClient() {
   // ── Computed stats ────────────────────────────────────────────────────────
   const fillStats = computeStats(fills);
   const validStats = fillStats.filter(s => s.l100km !== null && !s.isFirst);
-  const avgL100 = validStats.length ? validStats.reduce((a, s) => a + s.l100km!, 0) / validStats.length : null;
-  const avgKmpl = validStats.length ? validStats.reduce((a, s) => a + s.kmpl!, 0) / validStats.length : null;
+  const overall = summariseEfficiency(fillStats);
+  const avgL100 = overall ? overall.l100km : null;
+  const avgKmpl = overall ? overall.kmpl : null;
   const bestL100 = validStats.length ? Math.min(...validStats.map(s => s.l100km!)) : null;
   const worstL100 = validStats.length ? Math.max(...validStats.map(s => s.l100km!)) : null;
   const totalSpend = fillStats.reduce((a, s) => a + s.totalCost, 0);
   const totalLitres = fills.reduce((a, f) => a + f.litres, 0);
-  const totalKm = fillStats.filter(s => s.distance).reduce((a, s) => a + s.distance!, 0);
-  const avgCostKm = totalKm > 0 ? totalSpend / totalKm : null;
+  const totalKm = overall ? overall.distance : 0;
+  const avgCostKm = overall ? overall.costPerKm : null;
 
   const efficiencyPoints = fillStats
     .filter(s => s.l100km !== null)

@@ -7,6 +7,9 @@ import {
   fmtDate,
   friendlyError,
   computeStats,
+  summariseEfficiency,
+  odometerBounds,
+  todayISODate,
   sanitisePath,
   type FillUp,
 } from '../fuel-utils';
@@ -233,5 +236,103 @@ describe('sanitisePath', () => {
   it('caps at 200 characters', () => {
     const long = 'a'.repeat(300);
     expect(sanitisePath(long).length).toBeLessThanOrEqual(200);
+  });
+});
+
+// ── Full-to-full efficiency (partial fills) ───────────────────────────────────
+describe('computeStats — partial fills roll into the next full fill', () => {
+  it('measures a fill after a partial from the previous full fill, using all litres since', () => {
+    const stats = computeStats([
+      { ...BASE, id: 'a', fill_date: '2026-09-14', odometer: 10900, litres: 38.5 },
+      { ...BASE, id: 'b', fill_date: '2026-09-28', odometer: 11450, litres: 36.2 },
+      { ...BASE, id: 'c', fill_date: '2026-10-06', odometer: 11800, litres: 20, is_partial: true },
+      { ...BASE, id: 'd', fill_date: '2026-10-12', odometer: 12000, litres: 35 },
+    ]);
+    expect(stats[2].kmpl).toBeNull();
+    expect(stats[3].distance).toBe(550);
+    expect(stats[3].consumedLitres).toBe(55);
+    expect(stats[3].kmpl).toBeCloseTo(10, 5);
+  });
+
+  it('treats the first full fill as the baseline when the first fill is partial', () => {
+    const stats = computeStats([
+      fill('a', '2026-01-01', 1000, 10, true),
+      fill('b', '2026-01-10', 1400, 30),
+      fill('c', '2026-01-20', 1800, 32),
+    ]);
+    expect(stats[1].isFirst).toBe(true);
+    expect(stats[1].kmpl).toBeNull();
+    expect(stats[2].kmpl).toBeCloseTo(400 / 32, 5);
+  });
+
+  it('rolls several consecutive partial fills into the next full fill', () => {
+    const stats = computeStats([
+      fill('a', '2026-02-01', 5000, 40),
+      fill('b', '2026-02-05', 5100, 10, true),
+      fill('c', '2026-02-08', 5200, 12, true),
+      fill('d', '2026-02-12', 5400, 20),
+    ]);
+    expect(stats[3].consumedLitres).toBe(42);
+    expect(stats[3].kmpl).toBeCloseTo(400 / 42, 5);
+  });
+});
+
+describe('summariseEfficiency', () => {
+  it('uses total distance over total litres so km/L and L/100km agree', () => {
+    const stats = computeStats([
+      fill('a', '2026-09-14', 10900, 38.5),
+      fill('b', '2026-09-28', 11450, 36.2),
+      fill('c', '2026-10-06', 11800, 20, true),
+      fill('d', '2026-10-12', 12000, 35),
+    ]);
+    const s = summariseEfficiency(stats)!;
+    expect(s.distance).toBe(1100);
+    expect(s.litres).toBeCloseTo(91.2, 5);
+    expect(s.kmpl).toBeCloseTo(1100 / 91.2, 5);
+    expect(s.l100km).toBeCloseTo(100 / s.kmpl, 5);
+  });
+
+  it('costs only the fuel burned over the measured distance', () => {
+    const stats = computeStats([
+      fill('a', '2026-01-01', 10000, 40), // baseline: its fuel was burned before the log started
+      fill('b', '2026-01-15', 10500, 35), // $70 over 500 km
+    ]);
+    expect(summariseEfficiency(stats)!.costPerKm).toBeCloseTo(0.14, 5);
+  });
+
+  it('returns null when nothing can be measured', () => {
+    expect(summariseEfficiency([])).toBeNull();
+    expect(summariseEfficiency(computeStats([fill('a', '2026-01-01', 1000, 10)]))).toBeNull();
+  });
+});
+
+// ── odometerBounds (back-filling) ─────────────────────────────────────────────
+describe('odometerBounds', () => {
+  const fills = [
+    fill('a', '2026-06-01', 10000, 30),
+    fill('b', '2026-07-01', 10500, 30),
+    fill('c', '2026-08-01', 11000, 30),
+  ];
+
+  it('returns the neighbours on either side of a date', () => {
+    expect(odometerBounds(fills, '2026-06-15')).toEqual({
+      before: { odometer: 10000, date: '2026-06-01' },
+      after: { odometer: 10500, date: '2026-07-01' },
+    });
+  });
+
+  it('has no lower bound before the first fill and no upper bound after the last', () => {
+    expect(odometerBounds(fills, '2026-05-01').before).toBeNull();
+    expect(odometerBounds(fills, '2026-09-01').after).toBeNull();
+  });
+
+  it('returns no bounds for an empty log', () => {
+    expect(odometerBounds([], '2026-09-01')).toEqual({ before: null, after: null });
+  });
+});
+
+describe('todayISODate', () => {
+  it('formats the local date as YYYY-MM-DD', () => {
+    expect(todayISODate()).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 });

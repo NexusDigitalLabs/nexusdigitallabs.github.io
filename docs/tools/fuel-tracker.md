@@ -143,14 +143,25 @@ against `genCode()`'s ~2.8×10¹² combination space (see Sync Code Design below
 
 ## Efficiency Calculations
 
-| Metric       | Formula                                  | Excludes partials |
-|--------------|------------------------------------------|-------------------|
-| L/100km      | `(litres / distance) × 100`             | Yes               |
-| km/L         | `distance / litres`                      | Yes               |
-| Cost per km  | `(litres × price_per_litre) / distance`  | Yes               |
-| Total spend  | `Σ (litres × price_per_litre)`           | No                |
+Efficiency is measured **full-to-full**. The baseline is the previous *full* fill
+(the first full fill is the baseline and has no efficiency data). Partial fills
+get no efficiency of their own, but their litres roll into the next full fill.
 
-Distance = `current_odometer − previous_odometer`
+| Term         | Definition                                                                 |
+|--------------|----------------------------------------------------------------------------|
+| Distance     | `fill_odometer − previous_full_fill_odometer`                              |
+| Litres used  | this fill's litres + litres of every partial fill since the previous full fill |
+| L/100km      | `(litres used / distance) × 100`                                           |
+| km/L         | `distance / litres used`                                                   |
+| Cost per km  | `cost of litres used / distance`                                           |
+| Total spend  | `Σ (litres × price_per_litre)` over every fill, partial or not             |
+
+Headline averages (`summariseEfficiency()`) are `Σ distance / Σ litres used`, so
+km/L and L/100km always agree. They are not the mean of the per-fill ratios.
+
+Fill-ups can be logged out of order (back-filling): a reading must be greater than
+the nearest earlier-dated fill and less than the nearest later-dated fill
+(`odometerBounds()`).
 
 ---
 
