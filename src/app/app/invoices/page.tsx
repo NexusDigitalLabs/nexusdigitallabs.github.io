@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { EmptyState, InvoiceStatusBadge, MoneyList, PageHeader } from '@/components/app/page-parts';
+import { EmptyState, InvoiceStatusBadge, MoneyList, PageHeader, StatCard, StatGrid } from '@/components/app/page-parts';
 import { balanceDue, invoiceDisplayStatus, sumByCurrency, todayISO, type InvoiceDisplayStatus } from '@/lib/freelanceos/invoice-math';
 import { formatMoney } from '@/lib/freelanceos/money';
 import { requireOrg } from '@/lib/freelanceos/org';
@@ -69,34 +69,28 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
       />
 
       {all.length > 0 && (
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardDescription>Outstanding</CardDescription>
-              <CardTitle className="text-2xl">
-                <MoneyList totals={outstanding} />
-              </CardTitle>
-            </CardHeader>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardDescription>Overdue</CardDescription>
-              <CardTitle className={cn('text-2xl', overdue.length > 0 && 'text-red-600 dark:text-red-400')}>
-                <MoneyList totals={overdue} />
-              </CardTitle>
-            </CardHeader>
-          </Card>
-        </div>
+        <StatGrid cols={2}>
+          <StatCard label="Outstanding" href="/app/invoices/?view=outstanding">
+            <MoneyList totals={outstanding} />
+          </StatCard>
+          <StatCard
+            label="Overdue"
+            href="/app/invoices/?view=overdue"
+            valueClassName={cn(overdue.length > 0 && 'text-red-600 dark:text-red-400')}
+          >
+            <MoneyList totals={overdue} />
+          </StatCard>
+        </StatGrid>
       )}
 
-      <nav aria-label="Invoice filter" className="flex flex-wrap gap-1 text-sm">
+      <nav aria-label="Invoice filter" className="no-scrollbar -mx-4 flex gap-1 overflow-x-auto px-4 text-sm md:mx-0 md:flex-wrap md:px-0">
         {VIEWS.map((v) => (
           <Link
             key={v.key}
             href={v.key === 'all' ? '/app/invoices/' : `/app/invoices/?view=${v.key}`}
             aria-current={v.key === view.key ? 'page' : undefined}
             className={cn(
-              'rounded-md px-3 py-1.5',
+              'shrink-0 rounded-md px-3 py-1.5 whitespace-nowrap',
               v.key === view.key ? 'bg-muted font-medium text-foreground' : 'text-muted-foreground hover:text-foreground'
             )}
           >

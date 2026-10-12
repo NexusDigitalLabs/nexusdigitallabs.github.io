@@ -99,3 +99,49 @@ export function MoneyList({ totals }: { totals: { currency: string; amount: numb
     </span>
   );
 }
+
+/**
+ * Responsive stat grid: 2 columns on phones (a lone last card spans both),
+ * `cols` from `lg` up. Pair with <StatCard />.
+ */
+export function StatGrid({ cols = 3, children }: { cols?: 2 | 3 | 4; children: ReactNode }) {
+  const lg = { 2: 'sm:grid-cols-2', 3: 'sm:grid-cols-3', 4: 'sm:grid-cols-2 lg:grid-cols-4' }[cols];
+  return (
+    <div className={cn('grid grid-cols-2 gap-3 sm:gap-4 [&>*:last-child:nth-child(odd)]:col-span-2 sm:[&>*:last-child:nth-child(odd)]:col-span-1', lg)}>
+      {children}
+    </div>
+  );
+}
+
+/** Compact metric tile: tight on phones, roomier from `sm` up. Optional link. */
+export function StatCard({
+  label,
+  children,
+  footer,
+  href,
+  valueClassName,
+}: {
+  label: string;
+  children: ReactNode;
+  footer?: ReactNode;
+  href?: string;
+  valueClassName?: string;
+}) {
+  const body = (
+    <>
+      <p className="truncate text-xs text-muted-foreground sm:text-sm">{label}</p>
+      <div className={cn('mt-1 text-lg leading-tight font-semibold tabular-nums break-words sm:mt-1.5 sm:text-2xl', valueClassName)}>
+        {children}
+      </div>
+      {footer && <div className="mt-1.5 text-[11px] text-muted-foreground sm:text-xs">{footer}</div>}
+    </>
+  );
+  const shell = 'block h-full min-w-0 rounded-xl border bg-card p-3.5 sm:p-5';
+  return href ? (
+    <Link href={href} className={cn(shell, 'transition-colors hover:bg-muted/40')}>
+      {body}
+    </Link>
+  ) : (
+    <div className={shell}>{body}</div>
+  );
+}

@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { CheckCircle2, Pencil, Receipt, RotateCcw, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Detail, MoneyList, PageHeader, ProjectStatusBadge } from '@/components/app/page-parts';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Detail, MoneyList, PageHeader, ProjectStatusBadge, StatCard, StatGrid } from '@/components/app/page-parts';
 import { setProjectStatusAction } from '@/app/app/projects/actions';
 import { sumByCurrency } from '@/lib/freelanceos/invoice-math';
 import { formatMoney } from '@/lib/freelanceos/money';
@@ -74,38 +74,25 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
         }
       />
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardDescription>Invoiced</CardDescription>
-            <CardTitle className="text-2xl">
-              <MoneyList totals={invoiced} />
-            </CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardDescription>Paid</CardDescription>
-            <CardTitle className="text-2xl">
-              <MoneyList totals={paid} />
-            </CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardDescription>Expenses</CardDescription>
-            <CardTitle className="text-2xl">
-              <MoneyList totals={spent} />
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="-mt-4">
-            <Link href={`/app/expenses/new/?project=${project.id}`} className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+      <StatGrid cols={3}>
+        <StatCard label="Invoiced">
+          <MoneyList totals={invoiced} />
+        </StatCard>
+        <StatCard label="Paid">
+          <MoneyList totals={paid} />
+        </StatCard>
+        <StatCard
+          label="Expenses"
+          footer={
+            <Link href={`/app/expenses/new/?project=${project.id}`} className="inline-flex items-center gap-1 hover:text-foreground">
               <Wallet className="size-3" aria-hidden="true" />
               Add expense
             </Link>
-          </CardContent>
-        </Card>
-      </div>
+          }
+        >
+          <MoneyList totals={spent} />
+        </StatCard>
+      </StatGrid>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card>

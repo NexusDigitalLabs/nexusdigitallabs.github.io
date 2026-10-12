@@ -3,10 +3,10 @@ import Link from 'next/link';
 import { Archive, ArchiveRestore, Pencil, Plus, Receipt } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ConfirmSubmit } from '@/components/app/ConfirmSubmit';
-import { Detail, EmptyState, InvoiceStatusBadge, MoneyList, PageHeader, ProjectStatusBadge } from '@/components/app/page-parts';
+import { Detail, EmptyState, InvoiceStatusBadge, MoneyList, PageHeader, ProjectStatusBadge, StatCard, StatGrid } from '@/components/app/page-parts';
 import { setClientArchivedAction } from '@/app/app/clients/actions';
 import { balanceDue, invoiceDisplayStatus, sumByCurrency, todayISO } from '@/lib/freelanceos/invoice-math';
 import { formatMoney } from '@/lib/freelanceos/money';
@@ -90,30 +90,15 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
         }
       />
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardDescription>Open projects</CardDescription>
-            <CardTitle className="text-2xl tabular-nums">{openCount}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardDescription>Revenue from client</CardDescription>
-            <CardTitle className="text-2xl">
-              <MoneyList totals={revenue} />
-            </CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardDescription>Outstanding</CardDescription>
-            <CardTitle className="text-2xl">
-              <MoneyList totals={outstanding} />
-            </CardTitle>
-          </CardHeader>
-        </Card>
-      </div>
+      <StatGrid cols={3}>
+        <StatCard label="Revenue from client">
+          <MoneyList totals={revenue} />
+        </StatCard>
+        <StatCard label="Outstanding">
+          <MoneyList totals={outstanding} />
+        </StatCard>
+        <StatCard label="Open projects">{openCount}</StatCard>
+      </StatGrid>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-1">
