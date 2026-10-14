@@ -109,6 +109,12 @@ const STATIC_CARDS: Record<string, OgCard> = {
     description: 'How the Odova fuel tracking app handles your data.',
     accent: ACCENT_HEX.amber,
   },
+  '/huffle/': {
+    eyebrow: 'Huffle',
+    title: 'Huffle — move a little, grow a Huffling',
+    description: 'A gentle movement habit game for Android. Streaks that forgive, no account, no ads.',
+    accent: ACCENT_HEX.amber,
+  },
   '/huffle/privacy-policy/': {
     eyebrow: 'Huffle',
     title: 'Huffle Privacy Policy',
