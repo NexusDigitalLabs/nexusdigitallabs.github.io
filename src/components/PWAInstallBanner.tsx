@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { isAppPath } from '@/lib/freelanceos/paths';
+import { hidesSitePromos } from '@/lib/promo-paths';
 import BrandMark from '@/components/BrandMark';
 
 declare global {
@@ -35,8 +36,9 @@ export default function PWAInstallBanner() {
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
 
-  // Also suppressed inside FreelanceOS (/app), which isn't the NDL site PWA.
-  const isPrivatePortfolio = Boolean(pathname?.startsWith('/p/')) || isAppPath(pathname);
+  // Also suppressed inside FreelanceOS (/app), which isn't the NDL site PWA, and on app pages (/huffle).
+  const isPrivatePortfolio =
+    Boolean(pathname?.startsWith('/p/')) || isAppPath(pathname) || hidesSitePromos(pathname);
 
   useEffect(() => {
     if (isPrivatePortfolio) {

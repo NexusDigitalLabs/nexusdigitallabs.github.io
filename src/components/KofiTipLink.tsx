@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { KOFI_URL } from '@/lib/seo';
 import { getStoredConsent, CONSENT_CHANGED_EVENT } from '@/lib/consent';
 import { isAppPath } from '@/lib/freelanceos/paths';
+import { hidesSitePromos } from '@/lib/promo-paths';
 
 type Variant = 'button' | 'link' | 'card' | 'floating';
 
@@ -145,8 +146,8 @@ function FloatingTipJar({
     return () => window.removeEventListener(CONSENT_CHANGED_EVENT, handleChange);
   }, []);
 
-  // Hide on private portfolio / hire routes under /p/ and inside FreelanceOS
-  if (pathname?.startsWith('/p/') || isAppPath(pathname)) return null;
+  // Hide on private portfolio / hire routes under /p/, inside FreelanceOS, and on app pages (/huffle)
+  if (pathname?.startsWith('/p/') || isAppPath(pathname) || hidesSitePromos(pathname)) return null;
   if (consentPending) return null;
 
   return (

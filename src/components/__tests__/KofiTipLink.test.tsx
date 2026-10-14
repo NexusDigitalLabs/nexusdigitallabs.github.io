@@ -50,6 +50,16 @@ describe('KofiTipLink — floating', () => {
     expect(screen.queryByRole('link', { name: /buy me a coffee/i })).not.toBeInTheDocument();
   });
 
+  it('hides on the Huffle app pages (product page and privacy policy)', () => {
+    setConsent('granted');
+    for (const path of ['/huffle/', '/huffle/privacy-policy/']) {
+      usePathnameMock.mockReturnValue(path);
+      const { unmount } = render(<KofiTipLink variant="floating" href={HREF} />);
+      expect(screen.queryByRole('link', { name: /buy me a coffee/i })).not.toBeInTheDocument();
+      unmount();
+    }
+  });
+
   it('stays hidden while the consent banner has not been answered yet', () => {
     render(<KofiTipLink variant="floating" href={HREF} />);
     expect(screen.queryByRole('link', { name: /buy me a coffee/i })).not.toBeInTheDocument();
