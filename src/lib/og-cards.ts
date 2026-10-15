@@ -115,6 +115,12 @@ const STATIC_CARDS: Record<string, OgCard> = {
     description: 'A gentle movement habit game for Android. Streaks that forgive, no account, no ads.',
     accent: ACCENT_HEX.amber,
   },
+  '/mentto/': {
+    eyebrow: 'Mentto',
+    title: 'Mentto — your students, lessons and fees in one place',
+    description: 'The planner for independent tutors and coaches. Reminders before every class and fee.',
+    accent: ACCENT_HEX.violet,
+  },
   '/huffle/privacy-policy/': {
     eyebrow: 'Huffle',
     title: 'Huffle Privacy Policy',
