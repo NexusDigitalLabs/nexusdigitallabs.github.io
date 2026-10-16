@@ -13,10 +13,26 @@ describe('hidesSitePromos', () => {
     expect(hidesSitePromos('/mentto/')).toBe(true);
   });
 
+  it('hides on every privacy policy and terms page, whichever app they belong to', () => {
+    for (const path of [
+      '/privacy-policy',
+      '/privacy-policy/',
+      '/terms/',
+      '/odova/privacy-policy/',
+      '/odova/terms/',
+      '/mentto/privacy-policy/',
+      '/anything/else/terms-of-service',
+    ]) {
+      expect(hidesSitePromos(path), path).toBe(true);
+    }
+  });
+
   it('keeps promos everywhere else, including lookalike paths', () => {
     expect(hidesSitePromos('/')).toBe(false);
     expect(hidesSitePromos('/tools/')).toBe(false);
-    expect(hidesSitePromos('/odova/privacy-policy/')).toBe(false);
+    expect(hidesSitePromos('/odova/')).toBe(false);
+    expect(hidesSitePromos('/articles/why-we-build-privacy-first-tools/')).toBe(false);
+    expect(hidesSitePromos('/termsheet/')).toBe(false);
     expect(hidesSitePromos('/huffleboard/')).toBe(false);
     expect(hidesSitePromos('/mentoring/')).toBe(false);
     expect(hidesSitePromos(null)).toBe(false);
