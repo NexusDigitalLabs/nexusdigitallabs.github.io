@@ -73,6 +73,7 @@ const PRIVACY = [
   'No ads and no tracking',
   'Student records stay on your device',
   'Backups go only to your own Google Drive',
+  'Export your records to a spreadsheet any time',
 ];
 
 /** Sample lessons for the hero preview. Illustrative only. */
@@ -256,7 +257,7 @@ export default function MenttoPage() {
               <h2 id="privacy-heading" className="text-xl sm:text-2xl font-light text-white tracking-tight mb-4">
                 Your students&apos; details stay yours
               </h2>
-              <ul className="space-y-2">
+              <ul className="space-y-2 mb-6">
                 {PRIVACY.map((item) => (
                   <li key={item} className="text-sm text-slate-300 font-light flex gap-2">
                     <span className="mentto-accent" aria-hidden="true">
@@ -266,6 +267,9 @@ export default function MenttoPage() {
                   </li>
                 ))}
               </ul>
+              <Link href="/mentto/privacy-policy/" className="text-sm text-blue-400 underline">
+                Read the privacy policy
+              </Link>
             </div>
           </ScrollReveal>
         </div>

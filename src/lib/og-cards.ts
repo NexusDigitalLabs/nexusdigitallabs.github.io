@@ -121,6 +121,12 @@ const STATIC_CARDS: Record<string, OgCard> = {
     description: 'The planner for independent tutors and coaches. Reminders before every class and fee.',
     accent: ACCENT_HEX.violet,
   },
+  '/mentto/privacy-policy/': {
+    eyebrow: 'Mentto',
+    title: 'Mentto Privacy Policy',
+    description: 'How the Mentto tutor planner handles your data.',
+    accent: ACCENT_HEX.violet,
+  },
   '/huffle/privacy-policy/': {
     eyebrow: 'Huffle',
     title: 'Huffle Privacy Policy',
