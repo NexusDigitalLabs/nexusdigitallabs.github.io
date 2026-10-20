@@ -29,6 +29,17 @@ export const metadata = pageMetadata({
   ogDescription: 'The planner for independent tutors and coaches. Reminders before every class and fee. No account, no ads.',
 });
 
+const SCREENS = [
+  { src: '/mentto/01-today.jpg', alt: 'Today screen with the day’s lessons and fees to collect' },
+  { src: '/mentto/02-schedule.jpg', alt: 'Weekly schedule with every lesson in its slot' },
+  { src: '/mentto/03-attendance.jpg', alt: 'Marking attendance for a lesson in one tap' },
+  { src: '/mentto/04-student.jpg', alt: 'A student’s page with contact details, lessons and fees' },
+  { src: '/mentto/05-fees.jpg', alt: 'Fees screen showing who has paid and who still owes' },
+  { src: '/mentto/06-fee-plans.jpg', alt: 'Choosing a monthly, per-term or per-lesson fee plan' },
+  { src: '/mentto/07-students.jpg', alt: 'Students and group classes side by side' },
+  { src: '/mentto/08-reminders.jpg', alt: 'Reminder settings for lessons and fees' },
+];
+
 const FEATURES = [
   {
     icon: Users,
@@ -74,13 +85,6 @@ const PRIVACY = [
   'Student records stay on your device',
   'Backups go only to your own Google Drive',
   'Export your records to a spreadsheet any time',
-];
-
-/** Sample lessons for the hero preview. Illustrative only. */
-const PREVIEW = [
-  { time: '4:00 PM', name: 'Vocal lesson · Amaya', meta: '45 min' },
-  { time: '5:00 PM', name: 'Piano · Ravi', meta: '30 min' },
-  { time: '6:30 PM', name: 'Group theory class', meta: '4 students' },
 ];
 
 const jsonLd = [
@@ -136,27 +140,6 @@ function PlayButton() {
   );
 }
 
-function TodayPreview() {
-  return (
-    <div className="w-full max-w-[360px] rounded-3xl p-6" style={{ ...card, boxShadow: '0 30px 80px rgba(0,0,0,0.35)' }}>
-      <p className="text-xs font-semibold tracking-widest mentto-accent uppercase mb-1">Today</p>
-      <p className="text-lg font-semibold text-white mb-5">3 lessons · 1 fee due</p>
-      <ul className="space-y-3 mb-5">
-        {PREVIEW.map((lesson) => (
-          <li key={lesson.time} className="flex items-center gap-4 rounded-xl p-3" style={card}>
-            <span className="text-sm font-semibold mentto-accent w-16 shrink-0">{lesson.time}</span>
-            <span className="flex-1 min-w-0">
-              <span className="block text-sm text-white truncate">{lesson.name}</span>
-              <span className="block text-xs text-slate-500">{lesson.meta}</span>
-            </span>
-          </li>
-        ))}
-      </ul>
-      <div className="mentto-chip rounded-xl px-4 py-3 text-sm">October fee due from Ravi in 2 days</div>
-    </div>
-  );
-}
-
 export default function MenttoPage() {
   return (
     <>
@@ -172,7 +155,9 @@ export default function MenttoPage() {
               <span className="mentto-dot w-1.5 h-1.5 rounded-full" aria-hidden="true" />
               Android · Coming soon
             </p>
-            <div className="mb-6">
+            <div className="flex items-center gap-4 mb-6">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/mentto/mentto-icon.png" alt="" width={64} height={64} className="rounded-2xl" />
               <span className="text-2xl font-semibold text-white tracking-tight">Mentto</span>
             </div>
             <h1 className="text-4xl sm:text-5xl font-light text-white tracking-tight leading-[1.1] mb-6">
@@ -192,9 +177,40 @@ export default function MenttoPage() {
           </div>
           <ScrollReveal>
             <div className="flex justify-center">
-              <TodayPreview />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={SCREENS[0].src}
+                alt={SCREENS[0].alt}
+                width={540}
+                height={960}
+                className="w-full max-w-[320px] h-auto rounded-3xl"
+                style={{ boxShadow: '0 30px 80px rgba(0,0,0,0.45)' }}
+              />
             </div>
           </ScrollReveal>
+        </div>
+      </section>
+
+      {/* ── Screenshots ──────────────────────────────────────────────────── */}
+      <section className="py-16 border-t border-slate-800/50" aria-labelledby="screens-heading">
+        <div className="max-w-7xl mx-auto px-6 sm:px-10">
+          <h2 id="screens-heading" className="text-2xl sm:text-3xl font-light text-white tracking-tight mb-8">
+            A look inside
+          </h2>
+          <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-6 px-6 sm:mx-0 sm:px-0">
+            {SCREENS.map((s) => (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                key={s.src}
+                src={s.src}
+                alt={s.alt}
+                width={540}
+                height={960}
+                loading="lazy"
+                className="snap-start shrink-0 w-[220px] sm:w-[260px] h-auto rounded-2xl"
+              />
+            ))}
+          </div>
         </div>
       </section>
 
