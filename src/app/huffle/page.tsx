@@ -8,8 +8,9 @@ const TITLE = 'Huffle — A Gentle Movement Habit Game for Android';
 const DESCRIPTION =
   'Log a walk, a stretch or a workout in one tap and watch your Huffling grow. A kind habit game with streaks that forgive, a daily gift and zero guilt — no account, no ads.';
 
-/** Set to the live Play Store URL once the app is published; until then a "coming soon" pill shows. */
-const PLAY_URL: string | null = null;
+/** The live Play Store listing. Set to null to fall back to a "coming soon" pill. */
+const PLAY_URL: string | null =
+  'https://play.google.com/store/apps/details?id=app.nexusdigitallabs.huffle';
 
 export const metadata = pageMetadata({
   title: TITLE,
@@ -94,6 +95,7 @@ const jsonLd = [
     description: DESCRIPTION,
     applicationCategory: 'HealthApplication',
     operatingSystem: 'Android',
+    ...(PLAY_URL ? { downloadUrl: PLAY_URL, installUrl: PLAY_URL } : {}),
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
     featureList: FEATURES.map((f) => f.title),
     publisher: { '@type': 'Organization', name: 'NexusDigitalLabs', url: `${SITE_URL}/` },
