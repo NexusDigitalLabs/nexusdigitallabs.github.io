@@ -141,6 +141,19 @@ function PlayButton() {
   );
 }
 
+/** iPhone is not published yet; this sits beside the Play badge so visitors on iOS know it is on the way. */
+function IosSoon() {
+  return (
+    <span
+      className="inline-flex items-center gap-2 text-sm font-medium px-5 py-3.5 rounded-xl text-slate-300"
+      style={{ border: '1px dashed var(--ndl-border)' }}
+      role="status"
+    >
+      iPhone version coming soon
+    </span>
+  );
+}
+
 export default function HufflePage() {
   return (
     <>
@@ -170,6 +183,7 @@ export default function HufflePage() {
             </p>
             <div className="flex flex-wrap items-center gap-4">
               <PlayButton />
+              <IosSoon />
               <a href="#how-it-works" className="text-sm font-medium text-slate-300 hover:text-white no-underline">
                 See how it works
               </a>
