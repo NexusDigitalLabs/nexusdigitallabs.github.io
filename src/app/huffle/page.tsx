@@ -119,6 +119,8 @@ const ACCENT_CSS = `
 .huffle-chip{color:#FDBA74;background:rgba(249,115,22,.10);border:1px solid rgba(251,146,60,.32)}
 [data-theme="light"] .huffle-accent{color:#C2410C}
 [data-theme="light"] .huffle-dot{background:#C2410C}
+.huffle-soon{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;width:180px;height:53px;border-radius:10px;font-size:15px;font-weight:600;letter-spacing:-.005em;color:#C3C8F5;background:#181A33;border:1px solid #343862}
+[data-theme="light"] .huffle-soon{color:#3B3F8F;background:#EEF0FF;border-color:#C7CBF0}
 [data-theme="light"] .huffle-chip{color:#9A3412;background:#FFEDD5;border-color:#FDBA74}
 `;
 
@@ -141,15 +143,11 @@ function PlayButton() {
   );
 }
 
-/** iPhone is not published yet; this sits beside the Play badge so visitors on iOS know it is on the way. */
+/** iPhone is not published yet; this sits beside the Play badge (same 180x53 footprint) so iOS visitors know it is on the way. */
 function IosSoon() {
   return (
-    <span
-      className="inline-flex items-center gap-2 text-sm font-medium px-5 py-3.5 rounded-xl text-slate-300"
-      style={{ border: '1px dashed var(--ndl-border)' }}
-      role="status"
-    >
-      iPhone version coming soon
+    <span className="huffle-soon" role="status">
+      iPhone · coming soon
     </span>
   );
 }
