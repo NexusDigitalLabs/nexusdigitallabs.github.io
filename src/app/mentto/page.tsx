@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Bell, CalendarClock, ClipboardCheck, CloudUpload, ShieldCheck, Users, Wallet } from 'lucide-react';
+import { Bell, CalendarClock, Check, ClipboardCheck, CloudUpload, ShieldCheck, Sparkles, Users, Wallet } from 'lucide-react';
 import ScrollReveal from '@/components/ScrollReveal';
 import { pageMetadata, SITE_URL } from '@/lib/seo';
 
@@ -49,7 +49,7 @@ const FEATURES = [
   {
     icon: CalendarClock,
     title: 'Recurring lesson slots',
-    desc: 'Book a weekly slot once and it repeats. Cancel or move a single lesson without touching the rest.',
+    desc: 'Book a weekly slot once and it repeats, or add a one-off lesson. Cancel or move a single lesson without touching the rest.',
   },
   {
     icon: ClipboardCheck,
@@ -64,12 +64,12 @@ const FEATURES = [
   {
     icon: Bell,
     title: 'Reminders before it matters',
-    desc: 'A heads-up before each lesson and when a fee falls due, so nothing slips through the cracks.',
+    desc: 'A heads-up before each lesson, at the time you choose, and on the morning a fee falls due.',
   },
   {
     icon: CloudUpload,
-    title: 'Backed up automatically',
-    desc: 'Your records are saved to a hidden folder in your own Google Drive and restored on a new phone.',
+    title: 'Backed up automatically (Pro)',
+    desc: 'With Pro, your records are saved to a private folder in your own Google Drive. Restoring them on a new phone is always free.',
   },
 ];
 
@@ -77,6 +77,22 @@ const STEPS = [
   { title: 'Add your students', desc: 'Name, contact and a fee plan. It takes a minute each.' },
   { title: 'Book their slots', desc: 'Set the weekly time once. Mentto keeps the calendar.' },
   { title: 'Teach. Mentto remembers.', desc: 'Lessons, attendance, payments due — all tracked and reminded.' },
+];
+
+const FREE = [
+  'Up to 8 students and 1 group class',
+  'Weekly and one-off lessons, attendance and fees',
+  'Lesson and fee reminders',
+  'Reminders and receipts by WhatsApp, SMS or email',
+  'Spreadsheet export and restoring from Google Drive',
+];
+
+const PRO = [
+  'Unlimited students and group classes',
+  'Automatic backup to your own Google Drive',
+  'Income reports by month, student and payment method',
+  'PDF receipts and monthly statements',
+  'Your own wording for reminders and receipts',
 ];
 
 const PRIVACY = [
@@ -155,7 +171,7 @@ export default function MenttoPage() {
           <div>
             <p className="inline-flex items-center gap-2 text-xs font-semibold tracking-widest mentto-accent uppercase mb-5">
               <span className="mentto-dot w-1.5 h-1.5 rounded-full" aria-hidden="true" />
-              Android · Free
+              Android · Free, with optional Pro
             </p>
             <div className="flex items-center gap-4 mb-6">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -269,6 +285,46 @@ export default function MenttoPage() {
               </li>
             ))}
           </ol>
+        </div>
+      </section>
+
+      {/* ── Free and Pro ─────────────────────────────────────────────────── */}
+      <section className="py-20 sm:py-24 border-t border-slate-800/50" aria-labelledby="pricing-heading">
+        <div className="max-w-5xl mx-auto px-6 sm:px-10">
+          <ScrollReveal className="mb-12 text-center">
+            <p className="text-xs font-semibold tracking-widest mentto-accent uppercase mb-3">Free and Pro</p>
+            <h2 id="pricing-heading" className="text-2xl sm:text-3xl font-light text-white tracking-tight">
+              Free to start. Pro when you grow.
+            </h2>
+          </ScrollReveal>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {[
+              { name: 'Free', items: FREE, icon: Check },
+              { name: 'Mentto Pro', items: PRO, icon: Sparkles },
+            ].map((plan) => (
+              <div key={plan.name} className="rounded-2xl p-6" style={card}>
+                <h3 className="flex items-center gap-2 text-base font-semibold text-white mb-4">
+                  <plan.icon className="mentto-accent w-5 h-5" aria-hidden="true" />
+                  {plan.name}
+                </h3>
+                <ul className="space-y-2">
+                  {plan.items.map((item) => (
+                    <li key={item} className="text-sm text-slate-300 font-light flex gap-2">
+                      <span className="mentto-accent" aria-hidden="true">
+                        ✓
+                      </span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+          <p className="mt-6 text-center text-sm text-slate-400 font-light leading-relaxed max-w-2xl mx-auto">
+            Pro is monthly or yearly, each with a 7-day free trial for new subscribers, or a one-time lifetime
+            purchase, all through Google Play. Cancel any time. If Pro ends, nothing is locked or deleted; automatic
+            backups pause.
+          </p>
         </div>
       </section>
 

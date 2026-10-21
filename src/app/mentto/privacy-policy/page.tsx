@@ -41,7 +41,7 @@ export default function MenttoPrivacyPolicyPage() {
       <div className="mb-10 space-y-2 border-b border-slate-800/60 pb-8">
         <p className="text-[11px] font-semibold tracking-widest text-slate-500 uppercase">Legal · Mentto</p>
         <h1 className="text-2xl sm:text-3xl font-light tracking-tight text-white">Mentto Privacy Policy</h1>
-        <p className="text-xs text-slate-500 font-light">Last updated: October 19, 2026</p>
+        <p className="text-xs text-slate-500 font-light">Last updated: October 21, 2026</p>
       </div>
 
       <div>
@@ -100,9 +100,9 @@ export default function MenttoPrivacyPolicyPage() {
 
         <Section title="Optional Google Drive Backup">
           <P>
-            If you turn on backup in Settings (a Mentto Pro feature; restoring is always free), Mentto asks
-            you to sign in with your Google account and to allow access to the app&apos;s own hidden
-            application-data folder in your Drive. Mentto uses this to save copies of your records and to
+            If you turn on automatic backup in Settings (a Mentto Pro feature), or restore a backup (always
+            free), Mentto asks you to sign in with your Google account and to allow access to the app&apos;s
+            own hidden application-data folder in your Drive. Mentto uses this to save copies of your records and to
             restore them on a new phone. Mentto can only see that one folder: it cannot see, read, or change
             any of your other Drive files. Backups go directly between your device and Google; they are not
             sent to NexusDigitalLabs. Mentto shows the email address of the connected Google account in the
@@ -136,7 +136,8 @@ export default function MenttoPrivacyPolicyPage() {
               privacy policy
             </a>
             . You can manage or cancel a subscription in Google Play at any time; if Pro ends, nothing in the
-            app is locked or deleted.
+            app is locked or deleted. Automatic backups pause, and backups already in your Drive stay there
+            and can still be restored.
           </P>
         </Section>
 
