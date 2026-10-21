@@ -8,8 +8,8 @@ const TITLE = 'Mentto — The Planner for Independent Tutors and Coaches';
 const DESCRIPTION =
   'Enroll students, book recurring lessons, track attendance and fees, and get reminded before every class and due date. Built for private tutors, music teachers and coaches. No account, no ads.';
 
-/** Set to the live Play Store URL once the app is published; until then a "coming soon" pill shows. */
-const PLAY_URL: string | null = null;
+/** The live Play Store listing. Set to null to show a "coming soon" pill instead. */
+const PLAY_URL: string | null = 'https://play.google.com/store/apps/details?id=app.nexusdigitallabs.mentto';
 
 export const metadata = pageMetadata({
   title: TITLE,
@@ -96,6 +96,8 @@ const jsonLd = [
     description: DESCRIPTION,
     applicationCategory: 'BusinessApplication',
     operatingSystem: 'Android',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    ...(PLAY_URL ? { downloadUrl: PLAY_URL, installUrl: PLAY_URL } : {}),
     featureList: FEATURES.map((f) => f.title),
     publisher: { '@type': 'Organization', name: 'NexusDigitalLabs', url: `${SITE_URL}/` },
   },
@@ -153,7 +155,7 @@ export default function MenttoPage() {
           <div>
             <p className="inline-flex items-center gap-2 text-xs font-semibold tracking-widest mentto-accent uppercase mb-5">
               <span className="mentto-dot w-1.5 h-1.5 rounded-full" aria-hidden="true" />
-              Android · Coming soon
+              Android · Free
             </p>
             <div className="flex items-center gap-4 mb-6">
               {/* eslint-disable-next-line @next/next/no-img-element */}
