@@ -171,6 +171,12 @@ export default function MenttoPage() {
             </p>
             <div className="flex flex-wrap items-center gap-4">
               <PlayButton />
+              <span
+                className="mentto-chip inline-flex items-center text-sm font-semibold px-5 h-[53px] rounded-xl"
+                role="status"
+              >
+                iPhone · coming soon
+              </span>
               <a href="#how-it-works" className="text-sm font-medium text-slate-300 hover:text-white no-underline">
                 See how it works
               </a>
