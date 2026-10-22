@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ARTICLES } from '@/data/articles';
 import { GAMES, TOOLS } from '@/data/catalog';
-import { LESSONS } from '@/data/academy';
+import { LESSONS, isLessonIndexable } from '@/data/academy';
 import { SITE_URL } from '@/lib/seo';
 import { buildSitemapEntries, sitemapUrl } from '@/lib/sitemap';
 
@@ -21,7 +21,7 @@ describe('buildSitemapEntries', () => {
     expect(urls).toContain(`${SITE_URL}/`);
     expect(urls).toContain(`${SITE_URL}/articles/`);
     expect(urls).toContain(`${SITE_URL}/games/`);
-    expect(urls).toContain(`${SITE_URL}/login/`);
+    expect(urls).not.toContain(`${SITE_URL}/login/`);
     expect(urls).toContain(`${SITE_URL}/academy/`);
     expect(urls).toContain(`${SITE_URL}/freelanceos/`);
     expect(urls).toContain(`${SITE_URL}/huffle/`);
@@ -42,13 +42,17 @@ describe('buildSitemapEntries', () => {
     for (const article of ARTICLES) {
       expect(urls).toContain(sitemapUrl(`/articles/${article.slug}/`));
     }
-    const readyLessons = LESSONS.filter((l) => l.status === 'ready');
-    for (const lesson of readyLessons) {
+    const indexableLessons = LESSONS.filter(isLessonIndexable);
+    for (const lesson of indexableLessons) {
       expect(urls).toContain(sitemapUrl(`/academy/${lesson.slug}/`));
+    }
+    // Thin lessons stay out of the sitemap until they are expanded.
+    for (const lesson of LESSONS.filter((l) => !isLessonIndexable(l))) {
+      expect(urls).not.toContain(sitemapUrl(`/academy/${lesson.slug}/`));
     }
 
     const expected =
-      12 /* static */ + ARTICLES.length + TOOLS.length + GAMES.length + readyLessons.length;
+      11 /* static */ + ARTICLES.length + TOOLS.length + GAMES.length + indexableLessons.length;
     expect(entries).toHaveLength(expected);
   });
 

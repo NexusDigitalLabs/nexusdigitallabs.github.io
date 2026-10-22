@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { PHASES, TOTAL_XP, getPhaseLessons, type Lesson, type PhaseColor } from '@/data/academy';
 import { useAcademyProgress } from '@/hooks/useAcademyProgress';
-import AdSlot from '@/components/AdSlot';
 
 const COLOR_CLASSES: Record<PhaseColor, { text: string; bg: string; border: string; bar: string }> = {
   blue:    { text: 'text-blue-400',    bg: 'bg-blue-500/10',    border: 'border-blue-500/25',    bar: 'bg-blue-500' },
@@ -178,7 +177,6 @@ export default function AcademyLobbyClient() {
         )}
       </div>
 
-      <AdSlot slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_ACADEMY_LOBBY} />
 
       {/* Phases */}
       <div className="space-y-12">

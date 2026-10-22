@@ -1,6 +1,5 @@
 import GameLoader from '@/components/games/GameLoader';
-import GameSeoSection from '@/components/games/GameSeoSection';
-import AdSlot from '@/components/AdSlot';
+import GameGuide from '@/components/games/GameGuide';
 import { pageMetadata } from '@/lib/seo';
 
 export const metadata = pageMetadata({
@@ -29,39 +28,9 @@ export default function GameBlackjackPage() {
       </div>
 
       <GameLoader game="blackjack" />
-      <GameSeoSection
-        title="Blackjack — beat the dealer to 21"
-        intro="This is a free browser Blackjack table that follows classic casino rules for practice and entertainment. Chip stacks are simulated. Nothing here involves real currency, deposits, withdrawals, or prizes of monetary value."
-        mechanics={
-          <>
-            <p>
-              Place a simulated bet, then hit, stand, or double down. Number cards are face value; face cards count as 10;
-              aces count as 1 or 11. The dealer draws to 17. Going over 21 busts. Blackjack (ace + ten-value) pays according
-              to the table rules shown in the UI.
-            </p>
-            <p>
-              Reloading the page resets simulated chips. There is no cash-out, no peer-to-peer wagering, and no connection
-              to any gambling operator.
-            </p>
-          </>
-        }
-        scoring={
-          <p>
-            Outcomes are win, lose, push, or blackjack on the simulated stake. Session “balance” is a local scoreboard for
-            practice only — it has no monetary value and is not transferable.
-          </p>
-        }
-        strategy={
-          <p>
-            Basic strategy charts reduce the house edge in real casinos; here they are a learning aid only. Favor standing
-            on hard 17+, hitting soft hands that can improve, and doubling on strong totals versus weak dealer upcards.
-            Read our basic-strategy article for a full walkthrough.
-          </p>
-        }
-        related={[
-          { href: '/articles/blackjack-basic-strategy/', label: 'Blackjack basic strategy explained →' },
-          { href: '/games/', label: 'Browse all browser games →' },
-        ]}
+      <GameGuide
+        slug="blackjack"
+        related={[{ href: '/articles/blackjack-basic-strategy/', label: 'Blackjack basic strategy explained →' }, { href: '/games/', label: 'Browse all browser games →' }]}
         disclaimer={
           <p>
             <strong style={{ color: '#f59e0b' }}>Legal / entertainment disclaimer:</strong>{' '}
@@ -70,8 +39,6 @@ export default function GameBlackjackPage() {
           </p>
         }
       />
-
-      <AdSlot slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_GAMES} />
     </>
   );
 }

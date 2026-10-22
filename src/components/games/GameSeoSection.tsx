@@ -2,7 +2,13 @@ import type { ReactNode } from 'react';
 
 type RelatedLink = { href: string; label: string };
 
+export type GuideSection = { title: string; paragraphs?: string[]; items?: string[] };
+export type GuideFaq = { q: string; a: string };
+
 type GameSeoSectionProps = {
+  /** Extra long-form sections (history, deeper strategy, how the game is built). */
+  sections?: GuideSection[];
+  faq?: GuideFaq[];
   title: string;
   intro: string;
   mechanicsTitle?: string;
@@ -19,6 +25,8 @@ type GameSeoSectionProps = {
  * Server-rendered explainer below GameLoader so crawlers see real text on game routes.
  */
 export default function GameSeoSection({
+  sections,
+  faq,
   title,
   intro,
   mechanicsTitle = 'How to play',
@@ -74,6 +82,58 @@ export default function GameSeoSection({
             {strategy}
           </div>
         </div>
+
+        {sections?.map((s) => (
+          <div key={s.title}>
+            <h3 className="text-lg font-medium tracking-tight mb-3" style={{ color: 'var(--ndl-text)' }}>
+              {s.title}
+            </h3>
+            <div className="text-sm font-light leading-relaxed space-y-3" style={{ color: 'var(--ndl-muted)' }}>
+              {s.paragraphs?.map((p) => <p key={p}>{p}</p>)}
+              {s.items ? (
+                <ul className="list-disc pl-5 space-y-1.5">
+                  {s.items.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
+          </div>
+        ))}
+
+        {faq && faq.length > 0 ? (
+          <div>
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{
+                __html: JSON.stringify({
+                  '@context': 'https://schema.org',
+                  '@type': 'FAQPage',
+                  mainEntity: faq.map(({ q, a }) => ({
+                    '@type': 'Question',
+                    name: q,
+                    acceptedAnswer: { '@type': 'Answer', text: a },
+                  })),
+                }),
+              }}
+            />
+            <h3 className="text-lg font-medium tracking-tight mb-4" style={{ color: 'var(--ndl-text)' }}>
+              Frequently asked questions
+            </h3>
+            <div className="space-y-5">
+              {faq.map(({ q, a }) => (
+                <div key={q} className="border-l-2 pl-4" style={{ borderColor: 'var(--ndl-border-soft)' }}>
+                  <h4 className="text-sm font-semibold mb-1.5" style={{ color: 'var(--ndl-text-secondary)' }}>
+                    {q}
+                  </h4>
+                  <p className="text-sm font-light leading-relaxed" style={{ color: 'var(--ndl-muted)' }}>
+                    {a}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
 
         {related && related.length > 0 ? (
           <div className="pt-4 border-t" style={{ borderColor: 'var(--ndl-border)' }}>

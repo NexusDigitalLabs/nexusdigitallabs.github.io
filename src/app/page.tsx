@@ -2,7 +2,6 @@ import Link from 'next/link';
 import ScrollReveal from '@/components/ScrollReveal';
 import SiteStatsClient from '@/components/SiteStatsClient';
 import HomeSectionLink from '@/components/HomeSectionLink';
-import AdSlot from '@/components/AdSlot';
 import { ARTICLES, FEATURED_ARTICLES } from '@/data/articles';
 import { GAMES, TOOLS } from '@/data/catalog';
 import { pageMetadata } from '@/lib/seo';
@@ -421,10 +420,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      <div className="max-w-7xl mx-auto px-6 sm:px-10 pb-16">
-        <AdSlot slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME} />
-      </div>
     </>
   );
 }

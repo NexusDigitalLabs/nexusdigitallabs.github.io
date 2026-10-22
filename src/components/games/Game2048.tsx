@@ -174,7 +174,7 @@ export default function Game2048() {
       const spawned = spawnTile(next);
 
       if (won) {
-        setOverlay({ title: 'You reached 2048!', sub: `Score: ${newScore.toLocaleString('en-US')} — Keep going or start fresh.`, titleColor: '#16a34a' });
+        setOverlay({ title: 'You reached 2048!', sub: `Score: ${newScore.toLocaleString('en-US')} — Play again to beat your score.`, titleColor: '#16a34a' });
       } else if (isGameOver(spawned)) {
         setOverlay({ title: 'Game Over', sub: `Final score: ${newScore.toLocaleString('en-US')}`, titleColor: '#ef4444' });
       }
@@ -228,7 +228,7 @@ export default function Game2048() {
           Slide tiles on a <strong style={{ color: 'var(--ndl-text)' }}>4×4 grid</strong> using arrow keys or swipe gestures. When two tiles with the same number collide, they <strong style={{ color: 'var(--ndl-text)' }}>merge into one</strong>.
         </p>
         <p style={{ fontWeight: 700, color: 'var(--ndl-text)', marginBottom: '0.5rem' }}>Goal</p>
-        <p style={{ marginBottom: '1rem' }}>Create a tile with the value <strong style={{ color: '#4ade80' }}>2048</strong> to win. Keep playing after winning to beat your high score.</p>
+        <p style={{ marginBottom: '1rem' }}>Create a tile with the value <strong style={{ color: '#4ade80' }}>2048</strong> to win. Reaching it ends the run, so press Play Again to try for a higher score.</p>
         <p style={{ fontWeight: 700, color: 'var(--ndl-text)', marginBottom: '0.5rem' }}>Controls</p>
         <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
           <li><strong style={{ color: 'var(--ndl-text)' }}>Arrow keys</strong> or <strong style={{ color: 'var(--ndl-text)' }}>W / A / S / D</strong> — move all tiles</li>

@@ -2035,3 +2035,28 @@ export function lessonKeywords(lesson: Lesson): string[] {
     (k): k is string => Boolean(k)
   );
 }
+
+/**
+ * Lessons below this much original prose are treated as thin: they stay available
+ * to learners but are kept out of the sitemap, marked noindex, and carry no ads
+ * until they are expanded. Code samples and quiz text do not count.
+ */
+export const MIN_INDEXABLE_LESSON_WORDS = 700;
+
+function countWords(text: string): number {
+  return text.split(/\s+/).filter(Boolean).length;
+}
+
+export function lessonWordCount(lesson: Lesson): number {
+  if (!lesson.content) return 0;
+  const body = lesson.content.blocks.reduce((total, block) => {
+    if (block.type === 'p') return total + countWords(block.text);
+    if (block.type === 'list') return total + block.items.reduce((n, item) => n + countWords(item), 0);
+    return total;
+  }, 0);
+  return body + countWords(lesson.content.exercise);
+}
+
+export function isLessonIndexable(lesson: Lesson): boolean {
+  return lesson.status === 'ready' && lessonWordCount(lesson) >= MIN_INDEXABLE_LESSON_WORDS;
+}

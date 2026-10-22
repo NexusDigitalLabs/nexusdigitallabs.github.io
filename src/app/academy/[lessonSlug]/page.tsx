@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import LessonPageClient from '@/components/academy/LessonPageClient';
-import { LESSONS, PHASES, getLessonBySlug, lessonMetaDescription, lessonKeywords } from '@/data/academy';
+import { LESSONS, PHASES, getLessonBySlug, isLessonIndexable, lessonMetaDescription, lessonKeywords } from '@/data/academy';
 import { pageMetadata, absoluteSiteUrl, SITE_NAME } from '@/lib/seo';
 
 export function generateStaticParams() {
@@ -17,14 +17,18 @@ export async function generateMetadata({ params }: { params: Promise<{ lessonSlu
       path: `/academy/${lessonSlug}/`,
     });
   }
-  return pageMetadata({
-    title: `${lesson.title} — AI Engineer Academy`,
-    description: lessonMetaDescription(lesson),
-    keywords: lessonKeywords(lesson),
-    path: `/academy/${lesson.slug}/`,
-    absoluteTitle: true,
-    type: 'article',
-  });
+  return {
+    ...pageMetadata({
+      title: `${lesson.title} — AI Engineer Academy`,
+      description: lessonMetaDescription(lesson),
+      keywords: lessonKeywords(lesson),
+      path: `/academy/${lesson.slug}/`,
+      absoluteTitle: true,
+      type: 'article',
+    }),
+    // Thin lessons stay usable for learners but are kept out of search until expanded.
+    ...(isLessonIndexable(lesson) ? {} : { robots: { index: false, follow: true } }),
+  };
 }
 
 export default async function LessonPage({ params }: { params: Promise<{ lessonSlug: string }> }) {
@@ -81,7 +85,7 @@ export default async function LessonPage({ params }: { params: Promise<{ lessonS
           }),
         }}
       />
-      <LessonPageClient lesson={lesson} />
+      <LessonPageClient lesson={lesson} showAds={isLessonIndexable(lesson)} />
     </>
   );
 }

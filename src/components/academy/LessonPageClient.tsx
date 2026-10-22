@@ -7,7 +7,7 @@ import { useAcademyProgress } from '@/hooks/useAcademyProgress';
 import AdSlot from '@/components/AdSlot';
 import CheckYourselfQuiz from '@/components/academy/CheckYourselfQuiz';
 
-export default function LessonPageClient({ lesson }: { lesson: Lesson }) {
+export default function LessonPageClient({ lesson, showAds = false }: { lesson: Lesson; showAds?: boolean }) {
   const { loaded, isComplete, isUnlocked, markComplete, getQuizAnswers, setQuizAnswer, resetQuizAnswers } =
     useAcademyProgress();
   const [justCompleted, setJustCompleted] = useState(false);
@@ -98,7 +98,7 @@ export default function LessonPageClient({ lesson }: { lesson: Lesson }) {
         onReset={() => resetQuizAnswers(lesson.id)}
       />
 
-      <AdSlot slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_ACADEMY_LESSON} />
+      {showAds ? <AdSlot slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_ACADEMY_LESSON} /> : null}
 
       <div className="flex flex-wrap items-start justify-between gap-4">
         {prev && prev.status === 'ready' ? (

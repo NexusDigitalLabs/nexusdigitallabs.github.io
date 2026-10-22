@@ -2,13 +2,16 @@ import { Suspense } from 'react';
 import LoginForm from '@/components/LoginForm';
 import { pageMetadata } from '@/lib/seo';
 
-export const metadata = pageMetadata({
-  title: 'Sign in',
-  description: 'Sign in to NexusDigitalLabs with Google or a magic link. No password required.',
-  path: '/login/',
-  ogTitle: 'Sign in — NexusDigitalLabs',
-  ogDescription: 'Continue with Google or email a magic link. Fast, private account access.',
-});
+export const metadata = {
+  ...pageMetadata({
+    title: 'Sign in',
+    description: 'Sign in to NexusDigitalLabs with Google or a magic link. No password required.',
+    path: '/login/',
+    ogTitle: 'Sign in — NexusDigitalLabs',
+    ogDescription: 'Continue with Google or email a magic link. Fast, private account access.',
+  }),
+  robots: { index: false, follow: false },
+};
 
 export default function LoginPage() {
   return (

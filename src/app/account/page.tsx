@@ -1,13 +1,16 @@
 import AccountClient from '@/components/AccountClient';
 import { pageMetadata } from '@/lib/seo';
 
-export const metadata = pageMetadata({
-  title: 'Account',
-  description: 'Manage your NexusDigitalLabs account profile, display name, and sign-in.',
-  path: '/account/',
-  ogTitle: 'Account — NexusDigitalLabs',
-  ogDescription: 'View and edit your NexusDigitalLabs profile.',
-});
+export const metadata = {
+  ...pageMetadata({
+    title: 'Account',
+    description: 'Manage your NexusDigitalLabs account profile, display name, and sign-in.',
+    path: '/account/',
+    ogTitle: 'Account — NexusDigitalLabs',
+    ogDescription: 'View and edit your NexusDigitalLabs profile.',
+  }),
+  robots: { index: false, follow: false },
+};
 
 export default function AccountPage() {
   return (

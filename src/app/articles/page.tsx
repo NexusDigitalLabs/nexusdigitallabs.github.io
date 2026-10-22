@@ -1,7 +1,6 @@
 import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 import { ARTICLES } from '@/data/articles';
-import AdSlot from '@/components/AdSlot';
 
 export const metadata = pageMetadata({
   title: 'Articles — NexusDigitalLabs',
@@ -73,7 +72,6 @@ export default function ArticlesIndexPage() {
         </div>
       </section>
 
-      <AdSlot slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_ARTICLES_INDEX} />
     </>
   );
 }
