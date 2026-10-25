@@ -5,7 +5,10 @@ import {
   EDUCATION,
   FEATURED_WORK,
   HIGHLIGHT_SKILLS,
+  OWN_APPS,
+  PERSONAL_PROJECT,
   PROFILE,
+  PROOF_STATS,
   FEATURED_RECOMMENDATIONS,
   SERVICES,
 } from './content';
@@ -101,13 +104,92 @@ export default function PrivatePortfolioPage() {
             </a>
             <ContactIcons />
           </div>
+          <dl className="mt-10 grid grid-cols-3 gap-4 border-t border-[var(--ndl-border)] pt-6 max-w-xl">
+            {PROOF_STATS.map((stat) => (
+              <div key={stat.label}>
+                <dt className="sr-only">{stat.label}</dt>
+                <dd className="text-2xl sm:text-3xl font-light tracking-tight text-[var(--ndl-text)]">
+                  {stat.value}
+                </dd>
+                <dd className="text-xs tracking-wide text-slate-500 uppercase mt-1 leading-snug">
+                  {stat.label}
+                </dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </section>
 
       <div className="max-w-3xl mx-auto px-6 sm:px-10 py-14 sm:py-16 space-y-16">
+        {/* Personal project spotlight */}
+        <section>
+          <SectionLabel>Personal project</SectionLabel>
+          <article className="border border-amber-500/30 bg-amber-500/[0.04] p-5 sm:p-7">
+            <div className="flex flex-wrap items-center gap-3 mb-2">
+              <h2 className="text-2xl font-medium tracking-tight">{PERSONAL_PROJECT.name}</h2>
+              <span className="text-xs font-semibold tracking-wide uppercase text-emerald-400 border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5">
+                {PERSONAL_PROJECT.status}
+              </span>
+            </div>
+            <p className="text-sm tracking-wide text-amber-500 mb-4">{PERSONAL_PROJECT.tagline}</p>
+            <p className="text-base text-slate-400 font-light leading-relaxed mb-6">
+              {PERSONAL_PROJECT.pitch}
+            </p>
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 list-none p-0 m-0 mb-6">
+              {PERSONAL_PROJECT.highlights.map((h) => (
+                <li key={h.title}>
+                  <h3 className="text-base font-medium text-[var(--ndl-text)] mb-1">{h.title}</h3>
+                  <p className="text-sm text-slate-400 font-light leading-relaxed">{h.desc}</p>
+                </li>
+              ))}
+            </ul>
+            <p className="text-xs leading-relaxed text-slate-500 mb-5">
+              {PERSONAL_PROJECT.tech.join(' · ')}
+            </p>
+            <StoreLink href={PERSONAL_PROJECT.liveUrl} label="Try FreelanceOS" />
+          </article>
+        </section>
+
+        {/* Own apps */}
+        <section>
+          <SectionLabel>Apps I built &amp; ship</SectionLabel>
+          <p className="text-base text-slate-400 font-light leading-relaxed mb-8 max-w-2xl">
+            Designed, built and published end-to-end under Nexus Digital Labs — product, UX,
+            code, monetisation and Play Store releases.
+          </p>
+          <div className="space-y-4">
+            {OWN_APPS.map((app) => (
+              <article
+                key={app.name}
+                className="flex flex-col border border-[var(--ndl-border)] bg-[var(--ndl-surface)]/40 p-5"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 mb-2">
+                  <h3 className="text-xl font-medium tracking-tight">{app.name}</h3>
+                  <p className="text-xs tracking-wide text-slate-500 uppercase">{app.tagline}</p>
+                </div>
+                <p className="text-sm text-slate-400 font-light leading-relaxed mb-3">{app.blurb}</p>
+                <ul className="space-y-1.5 mb-4 list-disc pl-4 marker:text-slate-600">
+                  {app.highlights.map((item) => (
+                    <li key={item} className="text-sm text-slate-400 font-light leading-relaxed">
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+                <p className="text-xs leading-relaxed text-slate-500 mb-4">
+                  {app.tech.join(' · ')}
+                </p>
+                <div className="flex flex-wrap gap-4">
+                  <StoreLink href={app.playStore} label="Google Play" />
+                  <StoreLink href={app.productPage} label="Details" />
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
         {/* Selected work */}
         <section>
-          <SectionLabel>Selected work</SectionLabel>
+          <SectionLabel>Client &amp; employer work</SectionLabel>
           <div className="space-y-10">
             {FEATURED_WORK.map((project) => (
               <article

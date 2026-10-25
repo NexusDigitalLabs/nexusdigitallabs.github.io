@@ -12,7 +12,7 @@ export const PROFILE = {
   eyebrow: 'Portfolio',
   availability: 'Open to freelance & contract',
   valueLine:
-    'I help startups and product teams ship Android, iOS, and cross-platform apps — from MVP to store release — with clear architecture and fast iteration.',
+    'I help startups and product teams ship Android, iOS, and cross-platform apps — from MVP to store release — with clear architecture and fast iteration. I also build and run my own products, so I think like an owner, not just an engineer.',
   hireNote:
     'Available for freelance and contract engagements: new builds, rewrites, tech leadership, and production support.',
 } as const;
@@ -69,6 +69,101 @@ export const FEATURED_WORK: FeaturedProject[] = [
     },
   },
 ];
+
+/** Headline numbers shown under the hero. */
+export const PROOF_STATS = [
+  { value: '13+', label: 'Years shipping mobile' },
+  { value: '60+', label: 'Store releases led' },
+  { value: '3', label: 'Own apps live on Google Play' },
+] as const;
+
+export type OwnApp = {
+  name: string;
+  tagline: string;
+  blurb: string;
+  highlights: string[];
+  tech: string[];
+  playStore: string;
+  productPage: string;
+};
+
+/** Apps I designed, built, and published end-to-end under Nexus Digital Labs. */
+export const OWN_APPS: OwnApp[] = [
+  {
+    name: 'Odova',
+    tagline: 'Fuel & vehicle tracker',
+    blurb:
+      'Track fills, fuel efficiency and maintenance across vehicles — a native client of the same API that powers the web Fuel Tracker.',
+    highlights: [
+      'One backend, two clients: shares the web app’s API and Supabase schema',
+      'Magic-link sign-in with Bearer-token auth alongside web cookie sessions',
+      'Pro subscriptions (RevenueCat), reminders and ad-supported free tier',
+    ],
+    tech: ['React Native', 'Expo', 'TypeScript', 'Supabase', 'RevenueCat', 'AdMob'],
+    playStore: 'https://play.google.com/store/apps/details?id=dev.nexusdigitallabs.odova',
+    productPage: '/tools/fuel-tracker/',
+  },
+  {
+    name: 'Mentto',
+    tagline: 'Planner for independent tutors',
+    blurb:
+      'Students, recurring lessons, attendance and fees in one place — with reminders before every class and due date.',
+    highlights: [
+      'Offline-first: all data in on-device SQLite, no account needed',
+      'Recurring slots with one-off exceptions, fee plans and PDF receipts',
+      'Free + Pro model with Google Drive backup',
+    ],
+    tech: ['React Native', 'Expo Router', 'TypeScript', 'SQLite', 'RevenueCat', 'Reanimated'],
+    playStore: 'https://play.google.com/store/apps/details?id=app.nexusdigitallabs.mentto',
+    productPage: '/mentto/',
+  },
+  {
+    name: 'Huffle',
+    tagline: 'Gentle movement habit game',
+    blurb:
+      'Log a walk or workout in one tap and watch a creature grow — streaks that forgive, a daily gift, zero guilt.',
+    highlights: [
+      'Game loop design: evolution stages, XP, freeze tokens, unlockables',
+      'Private by design — no account, no ads, no tracking',
+      'Optional backup to the user’s own Google Drive',
+    ],
+    tech: ['React Native', 'Expo', 'TypeScript', 'SQLite', 'Zustand', 'SVG animation'],
+    playStore: 'https://play.google.com/store/apps/details?id=app.nexusdigitallabs.huffle',
+    productPage: '/huffle/',
+  },
+];
+
+/** Flagship personal project — a full-stack SaaS case study. */
+export const PERSONAL_PROJECT = {
+  name: 'FreelanceOS',
+  status: 'Live · free beta',
+  tagline: 'Run a freelance business in one place',
+  pitch:
+    'A multi-tenant SaaS I’m designing and building solo: clients, projects, invoices, payments and expenses, with an AI business assistant on the roadmap. It’s the tool I wanted as a freelancer — and a showcase of how I build production web products.',
+  highlights: [
+    {
+      title: 'Secure multi-tenant data',
+      desc: 'Organizations and roles enforced in Postgres Row-Level Security, with server-side authorization that never trusts a client-sent org id. Security-reviewed.',
+    },
+    {
+      title: 'Money done correctly',
+      desc: 'Integer minor units with ISO currencies, race-safe sequential invoice numbering in the database, locked snapshots once sent — and TS/SQL totals parity checked on 2,000 random invoices.',
+    },
+    {
+      title: 'Product thinking, not just code',
+      desc: 'Free-beta launch, entitlements built in so paid plans are a config change, and a funnel from a free public invoice tool into the product.',
+    },
+    {
+      title: 'AI layer on the way',
+      desc: 'An assistant that answers questions about your own business data — Python on AWS Lambda with streaming, RAG and evals.',
+    },
+  ],
+  tech: [
+    'Next.js 16', 'TypeScript', 'Supabase', 'PostgreSQL + RLS', 'Tailwind v4', 'shadcn/ui',
+    'Zod', 'Vitest', 'Playwright', 'GitHub Actions', 'Python', 'AWS Lambda',
+  ],
+  liveUrl: '/freelanceos/',
+} as const;
 
 export const SERVICES = [
   {
