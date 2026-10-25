@@ -97,11 +97,11 @@ export const OWN_APPS: OwnApp[] = [
     highlights: [
       'One backend, two clients: shares the web app’s API and Supabase schema',
       'Magic-link sign-in with Bearer-token auth alongside web cookie sessions',
-      'Pro subscriptions (RevenueCat), reminders and ad-supported free tier',
+      'One-time Pro unlock (RevenueCat), reminders and an ad-supported free tier',
     ],
     tech: ['React Native', 'Expo', 'TypeScript', 'Supabase', 'RevenueCat', 'AdMob'],
     playStore: 'https://play.google.com/store/apps/details?id=dev.nexusdigitallabs.odova',
-    productPage: '/tools/fuel-tracker/',
+    productPage: '/odova/',
   },
   {
     name: 'Mentto',

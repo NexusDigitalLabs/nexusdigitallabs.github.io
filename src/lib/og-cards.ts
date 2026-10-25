@@ -103,6 +103,12 @@ const STATIC_CARDS: Record<string, OgCard> = {
     description: 'Manage your profile and sign-in.',
     accent: ACCENT_HEX.slate,
   },
+  '/odova/': {
+    eyebrow: 'Odova',
+    title: 'Odova — know what your car really costs to run',
+    description: 'Fill-ups, real fuel economy and maintenance reminders for every vehicle. Free on Android.',
+    accent: ACCENT_HEX.blue,
+  },
   '/odova/privacy-policy/': {
     eyebrow: 'Odova',
     title: 'Odova Privacy Policy',

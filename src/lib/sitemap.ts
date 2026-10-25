@@ -41,6 +41,7 @@ export function buildSitemapEntries(): MetadataRoute.Sitemap {
     entry('/freelanceos/', 0.9, 'weekly'),
     entry('/huffle/', 0.7, 'monthly'),
     entry('/mentto/', 0.7, 'monthly'),
+    entry('/odova/', 0.7, 'monthly'),
   ];
 
   const articleRoutes = ARTICLES.map((a) =>

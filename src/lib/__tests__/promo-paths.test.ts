@@ -8,6 +8,11 @@ describe('hidesSitePromos', () => {
     expect(hidesSitePromos('/huffle/privacy-policy/')).toBe(true);
   });
 
+  it('hides on the Odova product page', () => {
+    expect(hidesSitePromos('/odova')).toBe(true);
+    expect(hidesSitePromos('/odova/')).toBe(true);
+  });
+
   it('hides on the Mentto product page', () => {
     expect(hidesSitePromos('/mentto')).toBe(true);
     expect(hidesSitePromos('/mentto/')).toBe(true);
@@ -30,7 +35,6 @@ describe('hidesSitePromos', () => {
   it('keeps promos everywhere else, including lookalike paths', () => {
     expect(hidesSitePromos('/')).toBe(false);
     expect(hidesSitePromos('/tools/')).toBe(false);
-    expect(hidesSitePromos('/odova/')).toBe(false);
     expect(hidesSitePromos('/articles/why-we-build-privacy-first-tools/')).toBe(false);
     expect(hidesSitePromos('/termsheet/')).toBe(false);
     expect(hidesSitePromos('/huffleboard/')).toBe(false);
