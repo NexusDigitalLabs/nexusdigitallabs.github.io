@@ -181,6 +181,7 @@ export default function PrivatePortfolioPage() {
                 <div className="flex flex-wrap gap-4">
                   <StoreLink href={app.playStore} label="Google Play" />
                   <StoreLink href={app.productPage} label="Details" />
+                  {app.webTool ? <StoreLink href={app.webTool} label="Web tool" /> : null}
                 </div>
               </article>
             ))}

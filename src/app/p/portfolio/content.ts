@@ -85,6 +85,8 @@ export type OwnApp = {
   tech: string[];
   playStore: string;
   productPage: string;
+  /** Companion web app, if any. */
+  webTool?: string;
 };
 
 /** Apps I designed, built, and published end-to-end under Nexus Digital Labs. */
@@ -102,6 +104,7 @@ export const OWN_APPS: OwnApp[] = [
     tech: ['React Native', 'Expo', 'TypeScript', 'Supabase', 'RevenueCat', 'AdMob'],
     playStore: 'https://play.google.com/store/apps/details?id=dev.nexusdigitallabs.odova',
     productPage: '/odova/',
+    webTool: '/tools/fuel-tracker/',
   },
   {
     name: 'Mentto',
