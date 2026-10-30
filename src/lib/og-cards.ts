@@ -69,7 +69,7 @@ const STATIC_CARDS: Record<string, OgCard> = {
   '/games/little-learners/': {
     eyebrow: 'Little Learners · Ages 2–5',
     title: 'A learning playground for toddlers.',
-    description: 'Numbers, letters, shapes, colours, counting and matching — read aloud, with gentle feedback.',
+    description: 'Numbers, letters, shapes, colours, dot-to-dot and tracing — read aloud, with gentle feedback.',
     accent: ACCENT_HEX.emerald,
   },
   '/academy/': {

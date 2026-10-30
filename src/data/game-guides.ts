@@ -550,12 +550,14 @@ export const GAME_GUIDES: Record<GameGuideSlug, GameGuide> = {
   'little-learners': {
     title: 'Little Learners — a playground for toddlers and playgroup kids',
     intro:
-      'Little Learners is a gentle learning playground for children aged about two to five. Six tap-to-play games cover numbers, letters, shapes, colours, counting and matching. Every question is read aloud, so children who cannot read yet can play on their own, and there are no timers, no lives and nothing to lose.',
+      'Little Learners is a gentle learning playground for children aged about two to five. Six tap-to-play games cover numbers, letters, shapes, colours, counting and matching, and four draw-with-your-finger games build the hand control children need before writing: dot-to-dot, tracing lines and patterns, tracing shapes and numbers, and colouring inside a shape. Every question is read aloud, so children who cannot read yet can play on their own, and there are no timers, no lives and nothing to lose.',
     mechanics: [
       'Pick a game from the menu. A question appears at the top, such as "Find the number 3" or "Find the circle", and it is spoken aloud. Tap the speaker button to hear it again.',
       'Tap the answer you think is right. Little mode shows 3 big choices and uses numbers 1 to 5, the letters A to H, five basic shapes and five colours. Big mode shows 4 choices with numbers up to 10, the whole alphabet, eight shapes and ten colours.',
       'In Counting, a group of pictures appears. Tapping each picture counts it out loud and puts a number on it, then the child picks how many there are. In Matching, the child finds the picture that is the same as the big one at the top.',
       'A wrong tap is shown in red with a little wiggle, and the game says what the child picked ("That\'s number 5. Let\'s try again!"), so even a mistake teaches a new word. That tile rests so the remaining choices get easier. After two tries, the right answer starts to glow.',
+      'The Draw & trace games are played by dragging a finger (or a mouse) across the board. In Dot to Dot, the child joins numbered dots in order and a picture appears at the end. Touching the wrong number turns that dot red and the game says which number to look for next.',
+      'In Lines & Patterns and Trace It, a green dot shows where to start and a dotted path shows where to go. Ink that wanders off the path turns red with a kind "let\'s stay on the dotted line", and a bar fills up as more of the path is covered. In Colour Inside, the child picks a crayon and fills a box or circle; crayon outside the edge fades and the edge flashes red as a reminder.',
     ],
     scoring: [
       'Every correct answer earns a star, a happy sound and a burst of confetti. Every fifth star gets an extra big celebration.',
@@ -566,6 +568,7 @@ export const GAME_GUIDES: Record<GameGuideSlug, GameGuide> = {
       'Keep sessions short: five to ten minutes is plenty for a toddler. Stop while it is still fun.',
       'Celebrate a wrong tap as much as a right one. The red tile is a nudge to look again, not a failure, and naming what they tapped builds vocabulary.',
       'Move to Big mode when your child answers most Little questions without help.',
+      'For the drawing games, let your child use their pointer finger on a tablet or phone. Slow, steady strokes matter more than finishing quickly, and "Start again" wipes the board whenever they want a fresh go.',
     ],
     sections: [
       {
@@ -577,6 +580,10 @@ export const GAME_GUIDES: Record<GameGuideSlug, GameGuide> = {
           'Colours — naming and finding common colours.',
           'Counting — one-to-one counting by tapping each object, then matching the total to a numeral.',
           'Matching — visual discrimination: spotting the same animal, fruit, vehicle or toy among similar ones.',
+          'Dot to Dot — number order and controlled straight lines. Little mode joins 2 to 5 dots to make a line, mountain, triangle, square or house; Big mode goes up to 10 dots for a star, heart, fish, sail boat or house with a chimney.',
+          'Lines & Patterns — the pre-writing strokes: straight, standing and slanting lines and a rainbow curve in Little mode, then waves, zigzags, bumpy hills, castle steps and cursive-style loops in Big mode.',
+          'Trace It — tracing the outlines of shapes and the numerals 0 to 9, each drawn as a single stroke from a green start dot.',
+          'Colour Inside — controlled scribbling: keeping the crayon inside a big box or circle, then smaller and taller shapes in Big mode.',
         ],
       },
       {

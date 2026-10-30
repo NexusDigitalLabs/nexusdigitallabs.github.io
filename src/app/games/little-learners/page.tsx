@@ -5,10 +5,10 @@ import { pageMetadata } from '@/lib/seo';
 export const metadata = pageMetadata({
   title: 'Little Learners — Toddler Learning Games | NexusDigitalLabs',
   description:
-    'Free learning playground for toddlers and playgroup kids: numbers, letters, shapes, colours, counting and matching. Read-aloud questions, gentle feedback, no login.',
+    'Free learning playground for toddlers and playgroup kids: numbers, letters, shapes, colours, counting, matching, dot-to-dot, tracing and colouring. Read-aloud questions, gentle feedback, no login.',
   path: '/games/little-learners/',
   absoluteTitle: true,
-  ogDescription: 'Numbers, letters, shapes, colours, counting and matching for ages 2–5.',
+  ogDescription: 'Numbers, letters, shapes, colours, dot-to-dot and tracing for ages 2–5.',
 });
 
 export default function Page() {

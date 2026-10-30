@@ -15,6 +15,14 @@ import {
   type Round,
   type Shape,
 } from '@/lib/games/little-learners';
+import {
+  DRAW_ACTIVITIES,
+  drawCheer,
+  generateDrawRound,
+  type DrawActivity,
+  type DrawRound,
+} from '@/lib/games/little-learners-draw';
+import LittleLearnersDraw from './LittleLearnersDraw';
 
 const STORAGE_KEY = 'ndl-little-learners';
 /** Muted / no-speech fallback for how long a cheer stays up before the next round. */
@@ -31,13 +39,20 @@ const HINT_AFTER = 2;
 /** The "try again" message clears itself so it never lingers over the choices. */
 const NUDGE_MS = 3000;
 
-const ACTIVITY_META: Record<Activity, { title: string; icon: string; bg: string; ink: string }> = {
+type AnyActivity = Activity | DrawActivity;
+const isDraw = (a: AnyActivity): a is DrawActivity => (DRAW_ACTIVITIES as readonly string[]).includes(a);
+
+const ACTIVITY_META: Record<AnyActivity, { title: string; icon: string; bg: string; ink: string }> = {
   numbers: { title: 'Numbers', icon: '123', bg: '#fde68a', ink: '#92400e' },
   letters: { title: 'Letters', icon: 'ABC', bg: '#bfdbfe', ink: '#1e3a8a' },
   shapes: { title: 'Shapes', icon: '🔺', bg: '#fbcfe8', ink: '#9d174d' },
   colors: { title: 'Colours', icon: '🎨', bg: '#bbf7d0', ink: '#166534' },
   counting: { title: 'Counting', icon: '🖐️', bg: '#fed7aa', ink: '#9a3412' },
   matching: { title: 'Matching', icon: '🧩', bg: '#ddd6fe', ink: '#5b21b6' },
+  dots: { title: 'Dot to Dot', icon: '1·2·3', bg: '#a5f3fc', ink: '#155e75' },
+  lines: { title: 'Lines & Patterns', icon: '〰️', bg: '#c7d2fe', ink: '#3730a3' },
+  trace: { title: 'Trace It', icon: '✍️', bg: '#d9f99d', ink: '#3f6212' },
+  scribble: { title: 'Colour Inside', icon: '🖍️', bg: '#f5d0fe', ink: '#86198f' },
 };
 
 /** Shapes get varied colours so the shape — not the colour — is what the child looks for. */
@@ -217,8 +232,9 @@ export default function GameLittleLearners() {
   const [level, setLevel] = useState<Level>(saved.level);
   const [muted, setMuted] = useState(saved.muted);
   const [stars, setStars] = useState(saved.stars);
-  const [activity, setActivity] = useState<Activity | null>(null);
+  const [activity, setActivity] = useState<AnyActivity | null>(null);
   const [round, setRound] = useState<Round | null>(null);
+  const [drawRound, setDrawRound] = useState<DrawRound | null>(null);
   const [wrongIds, setWrongIds] = useState<string[]>([]);
   const [solved, setSolved] = useState(false);
   const [feedback, setFeedback] = useState<Feedback>(null);
@@ -289,9 +305,27 @@ export default function GameLittleLearners() {
     [level, say],
   );
 
-  const openActivity = (a: Activity) => {
+  const startDraw = useCallback(
+    (a: DrawActivity, previousId?: string) => {
+      seq.current++;
+      const r = generateDrawRound(a, level, Math.random, previousId);
+      setDrawRound(r);
+      setSolved(false);
+      setFeedback(null);
+      say(r.say);
+    },
+    [level, say],
+  );
+
+  const openActivity = (a: AnyActivity) => {
     setActivity(a);
-    startRound(a);
+    if (isDraw(a)) {
+      setRound(null);
+      startDraw(a);
+    } else {
+      setDrawRound(null);
+      startRound(a);
+    }
   };
 
   const goHome = () => {
@@ -299,32 +333,42 @@ export default function GameLittleLearners() {
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     setActivity(null);
     setRound(null);
+    setDrawRound(null);
     setFeedback(null);
+  };
+
+  /** Star, chime and cheer; `next` runs once the cheer has been said. */
+  const celebrate = (text: string, next: () => void) => {
+    const nextStars = stars + 1;
+    const milestone = nextStars % MILESTONE_EVERY === 0;
+    const line = milestone ? `Wow! ${nextStars} stars! You're a super star!` : text;
+    setSolved(true);
+    setStars(nextStars);
+    sfx('right');
+    setFeedback({ kind: milestone ? 'milestone' : 'right', text: line });
+    say(line, { delay: SFX_GAP_MS, then: next });
+  };
+
+  /** Red but kind: a soft boop, a "let's try again" message that clears itself. */
+  const encourage = (text: string) => {
+    sfx('wrong');
+    setFeedback({ kind: 'wrong', text });
+    setShakeKey((k) => k + 1);
+    say(text, { delay: SFX_GAP_MS });
+    if (nudgeTimer.current) clearTimeout(nudgeTimer.current);
+    nudgeTimer.current = setTimeout(() => setFeedback((f) => (f?.kind === 'wrong' ? null : f)), NUDGE_MS);
   };
 
   const onPick = (choice: Choice) => {
     if (!round || !activity || solved || wrongIds.includes(choice.id)) return;
 
     if (choice.id === round.target.id) {
-      const nextStars = stars + 1;
-      const milestone = nextStars % MILESTONE_EVERY === 0;
-      setSolved(true);
-      setStars(nextStars);
-      sfx('right');
-      const text = milestone ? `Wow! ${nextStars} stars! You're a super star!` : cheer(activity, round.target);
-      setFeedback({ kind: milestone ? 'milestone' : 'right', text });
-      say(text, { delay: SFX_GAP_MS, then: () => startRound(activity, round.target.id) });
+      celebrate(cheer(round.activity, round.target), () => startRound(round.activity, round.target.id));
       return;
     }
 
-    sfx('wrong');
-    const text = nudge(activity, choice);
     setWrongIds((ids) => [...ids, choice.id]);
-    setFeedback({ kind: 'wrong', text });
-    setShakeKey((k) => k + 1);
-    say(text, { delay: SFX_GAP_MS });
-    if (nudgeTimer.current) clearTimeout(nudgeTimer.current);
-    nudgeTimer.current = setTimeout(() => setFeedback((f) => (f?.kind === 'wrong' ? null : f)), NUDGE_MS);
+    encourage(nudge(round.activity, choice));
   };
 
   const onCountTap = (i: number) => {
@@ -336,13 +380,14 @@ export default function GameLittleLearners() {
   };
 
   const meta = activity ? ACTIVITY_META[activity] : null;
+  const current = round ?? drawRound;
   const showHint = wrongIds.length >= HINT_AFTER && !solved;
 
   return (
     <div className="ll-root">
       <style>{CSS}</style>
 
-      {!activity || !round || !meta ? (
+      {!activity || !current || !meta ? (
         <div className="ll-wrap">
           <header className="ll-hero">
             <p className="ll-kicker">NexusDigitalLabs · Playground</p>
@@ -384,8 +429,28 @@ export default function GameLittleLearners() {
             ))}
           </div>
 
+          <h2 className="ll-section">👆 Tap &amp; learn</h2>
           <div className="ll-menu">
             {ACTIVITIES.map((a) => {
+              const m = ACTIVITY_META[a];
+              return (
+                <button
+                  key={a}
+                  type="button"
+                  className="ll-card"
+                  style={{ background: m.bg, color: m.ink }}
+                  onClick={() => openActivity(a)}
+                >
+                  <span className="ll-card-icon">{m.icon}</span>
+                  <span className="ll-card-title">{m.title}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <h2 className="ll-section">✏️ Draw &amp; trace</h2>
+          <div className="ll-menu is-draw">
+            {DRAW_ACTIVITIES.map((a) => {
               const m = ACTIVITY_META[a];
               return (
                 <button
@@ -415,7 +480,7 @@ export default function GameLittleLearners() {
           </div>
         </div>
       ) : (
-        <div className="ll-wrap">
+        <div className={`ll-wrap${drawRound ? ' is-draw' : ''}`}>
           <div className="ll-topbar">
             <button type="button" className="ll-round-btn" onClick={goHome} aria-label="Back to all games">
               🏠
@@ -438,11 +503,11 @@ export default function GameLittleLearners() {
           </div>
 
           <div className="ll-question" style={{ borderColor: meta.bg }}>
-            <button type="button" className="ll-say-btn" onClick={() => say(round.say)} aria-label="Say it again">
+            <button type="button" className="ll-say-btn" onClick={() => say(current.say)} aria-label="Say it again">
               🔈
             </button>
             <h2 className="ll-prompt">
-              {round.activity === 'colors' ? (
+              {round?.activity === 'colors' ? (
                 <>
                   Find{' '}
                   <span
@@ -456,11 +521,11 @@ export default function GameLittleLearners() {
                   </span>
                 </>
               ) : (
-                round.prompt
+                current.prompt
               )}
             </h2>
 
-            {round.activity === 'letters' && round.emoji && (
+            {round?.activity === 'letters' && round.emoji && (
               <p className="ll-letter-hint">
                 <span className="ll-letter-hint-emoji">{round.emoji}</span>
                 {round.target.id === 'X' ? (
@@ -475,9 +540,9 @@ export default function GameLittleLearners() {
               </p>
             )}
 
-            {round.activity === 'matching' && round.emoji && <div className="ll-match-target">{round.emoji}</div>}
+            {round?.activity === 'matching' && round.emoji && <div className="ll-match-target">{round.emoji}</div>}
 
-            {round.activity === 'counting' && round.emoji && round.count && (
+            {round?.activity === 'counting' && round.emoji && round.count && (
               <>
                 <div className="ll-count-grid" data-many={round.count > 5 ? 'true' : undefined}>
                   {Array.from({ length: round.count }, (_, i) => {
@@ -501,6 +566,25 @@ export default function GameLittleLearners() {
             )}
           </div>
 
+          {drawRound && (
+            <div className="ll-draw">
+              <LittleLearnersDraw
+                key={drawRound.key}
+                round={drawRound}
+                level={level}
+                onWin={() => celebrate(drawCheer(drawRound), () => startDraw(drawRound.activity, drawRound.figureId))}
+                onOops={encourage}
+                onPop={(word) => {
+                  sfx('pop');
+                  if (word) say(word);
+                }}
+                onNext={() => startDraw(drawRound.activity, drawRound.figureId)}
+              />
+              {solved && <Burst big={feedback?.kind === 'milestone'} />}
+            </div>
+          )}
+
+          {round && (
           <div className={`ll-choices n-${round.choices.length}`}>
             {round.choices.map((c, i) => {
               const isWrong = wrongIds.includes(c.id);
@@ -526,6 +610,7 @@ export default function GameLittleLearners() {
               );
             })}
           </div>
+          )}
 
           <div className="ll-feedback-slot" aria-live="polite">
             {feedback && (
@@ -563,6 +648,9 @@ const CSS = `
   font-family: ui-rounded, "SF Pro Rounded", "Nunito", "Comic Sans MS", system-ui, sans-serif;
   overflow-x: hidden;
   -webkit-tap-highlight-color: transparent;
+  /* Little fingers drag a lot; never let that turn into text selection. */
+  user-select: none;
+  -webkit-user-select: none;
 }
 .ll-wrap { max-width: 860px; margin: 0 auto; padding: 24px 16px 48px; }
 .ll-root button { font-family: inherit; cursor: pointer; touch-action: manipulation; }
@@ -579,8 +667,10 @@ const CSS = `
 .ll-level-icon { font-size: 1.8rem; }
 .ll-level.is-on { border-color: #f59e0b; background: #fffbeb; box-shadow: 0 4px 0 #f59e0b; }
 
+.ll-section { font-size: clamp(1.1rem, 4vw, 1.35rem); font-weight: 900; margin: 22px 4px 10px; color: var(--ll-ink); }
+.ll-section:first-of-type { margin-top: 4px; }
 .ll-menu { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-@media (min-width: 640px) { .ll-menu { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; } }
+@media (min-width: 640px) { .ll-menu { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; } .ll-menu.is-draw { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .ll-card { border: none; border-radius: 28px; padding: 22px 10px; display: flex; flex-direction: column; align-items: center; gap: 8px; box-shadow: 0 6px 0 rgba(0,0,0,.12); transition: transform .12s ease, box-shadow .12s ease; }
 .ll-card:hover { transform: translateY(-3px) rotate(-1deg); }
 .ll-card:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,.12); }
@@ -638,12 +728,16 @@ const CSS = `
   .ll-feedback-slot { min-height: 0; margin: 0; }
   .ll-feedback { position: fixed; left: 16px; right: 16px; bottom: 84px; z-index: 40; justify-content: center; }
 }
+/* Drawing boards fill the screen, so their messages float over the question instead of the crayons. */
+.ll-wrap.is-draw .ll-feedback-slot { min-height: 0; margin: 0; }
+.ll-wrap.is-draw .ll-feedback { position: fixed; left: 16px; right: 16px; top: 72px; bottom: auto; z-index: 40; width: fit-content; max-width: calc(100% - 32px); margin: 0 auto; }
 .ll-feedback { pointer-events: none; box-shadow: 0 6px 18px rgba(0,0,0,.08); display: inline-flex; align-items: center; gap: 10px; margin: 0; padding: 14px 22px; border-radius: 24px; font-weight: 800; font-size: clamp(1.05rem, 4vw, 1.35rem); text-align: left; animation: ll-pop .35s ease; }
 .ll-feedback-icon { font-size: 1.8rem; }
 .ll-feedback.is-wrong { background: var(--ll-red-bg); color: var(--ll-red); border: 3px solid #fca5a5; }
 .ll-feedback.is-right { background: var(--ll-green-bg); color: var(--ll-green); border: 3px solid #86efac; }
 .ll-feedback.is-milestone { background: #fef3c7; color: #b45309; border: 3px solid #fcd34d; font-size: clamp(1.2rem, 4.5vw, 1.6rem); }
 
+.ll-draw { position: relative; }
 .ll-burst { position: absolute; inset: 50% auto auto 50%; pointer-events: none; }
 .ll-burst span { position: absolute; left: 0; top: 0; font-size: 1.6rem; transform: translate(-50%, -50%); animation: ll-fly .9s ease-out forwards; }
 
