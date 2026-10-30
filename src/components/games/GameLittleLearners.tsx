@@ -17,7 +17,14 @@ import {
 } from '@/lib/games/little-learners';
 
 const STORAGE_KEY = 'ndl-little-learners';
+/** Muted / no-speech fallback for how long a cheer stays up before the next round. */
 const NEXT_ROUND_MS = 1900;
+/** Let the chime finish before the voice starts, so they don't talk over each other. */
+const SFX_GAP_MS = 420;
+/** Short breath after the cheer ends, before the next question. */
+const AFTER_CHEER_MS = 450;
+/** Some browsers never fire onend; never wait longer than this for a cheer. */
+const SPEECH_TIMEOUT_MS = 6000;
 const MILESTONE_EVERY = 5;
 /** After this many wrong taps in one round, the right answer gently glows. */
 const HINT_AFTER = 2;
@@ -54,14 +61,55 @@ function loadSaved(): Saved {
   }
 }
 
-function speak(text: string) {
+// macOS ships joke/character voices (Zarvox, Bubbles, Fred…) that some browsers list first.
+const NOVELTY_VOICES =
+  /albert|bad news|bahh|bells|boing|bubbles|cellos|wobble|zarvox|trinoids|whisper|good news|jester|organ|superstar|ralph|fred|junior|kathy|grandma|grandpa|rocko|eddy|reed|sandy|shelley|flo\b/i;
+
+/** Higher = more natural. Neural/online voices (Edge "Natural", Chrome "Google", Apple "Enhanced/Premium") win. */
+function scoreVoice(v: Pick<SpeechSynthesisVoice, 'name' | 'lang' | 'localService'>): number {
+  if (!/^en\b|^en[-_]/i.test(v.lang) || NOVELTY_VOICES.test(v.name)) return -1;
+  let score = 0;
+  if (/natural|neural|premium|enhanced/i.test(v.name)) score += 50;
+  if (/google/i.test(v.name)) score += 30;
+  if (/online/i.test(v.name) || v.localService === false) score += 10;
+  if (/samantha|ava|allison|susan|serena|karen|moira|tessa|aria|jenny|libby|sonia|zira|emma|ana\b/i.test(v.name)) score += 15;
+  if (/en[-_]us/i.test(v.lang)) score += 6;
+  else if (/en[-_]gb/i.test(v.lang)) score += 5;
+  else if (/en[-_]au/i.test(v.lang)) score += 3;
+  return score;
+}
+
+let chosenVoice: SpeechSynthesisVoice | null | undefined;
+function pickVoice(): SpeechSynthesisVoice | null {
+  if (chosenVoice !== undefined) return chosenVoice;
+  const voices = window.speechSynthesis.getVoices();
+  // Chrome fills the list asynchronously; don't cache an empty answer.
+  if (voices.length === 0) return null;
+  const best = voices.map((v) => ({ v, s: scoreVoice(v) })).filter((x) => x.s >= 0).sort((a, b) => b.s - a.s)[0];
+  chosenVoice = best?.v ?? null;
+  return chosenVoice;
+}
+if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+  window.speechSynthesis.addEventListener?.('voiceschanged', () => {
+    chosenVoice = undefined;
+  });
+}
+
+function speak(text: string, onEnd?: () => void) {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
   const synth = window.speechSynthesis;
   synth.cancel();
   const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'en-US';
-  u.rate = 0.9;
-  u.pitch = 1.15;
+  const voice = pickVoice();
+  if (voice) u.voice = voice;
+  u.lang = voice?.lang ?? 'en-US';
+  // Natural voices sound robotic when pitch-shifted; a slightly slower pace is enough for toddlers.
+  u.rate = 0.92;
+  u.pitch = 1;
+  if (onEnd) {
+    u.onend = onEnd;
+    u.onerror = onEnd;
+  }
   synth.speak(u);
 }
 
@@ -176,7 +224,8 @@ export default function GameLittleLearners() {
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [counted, setCounted] = useState<number[]>([]);
   const [shakeKey, setShakeKey] = useState(0);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** Bumped whenever the screen moves on, so late speech callbacks from an old round are ignored. */
+  const seq = useRef(0);
   const nudgeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -189,16 +238,33 @@ export default function GameLittleLearners() {
 
   useEffect(
     () => () => {
-      if (timer.current) clearTimeout(timer.current);
+      seq.current++;
       if (nudgeTimer.current) clearTimeout(nudgeTimer.current);
       if (typeof window !== 'undefined' && 'speechSynthesis' in window) window.speechSynthesis.cancel();
     },
     [],
   );
 
+  /** Speak `text` (optionally after `delay`), then call `then` once the voice is done — or after a fallback when muted. */
   const say = useCallback(
-    (text: string) => {
-      if (!muted) speak(text);
+    (text: string, opts: { delay?: number; then?: () => void } = {}) => {
+      const id = seq.current;
+      const { delay = 0, then } = opts;
+      let done = false;
+      const finish = () => {
+        if (done || seq.current !== id) return;
+        done = true;
+        if (then) setTimeout(() => seq.current === id && then(), AFTER_CHEER_MS);
+      };
+      if (muted || !('speechSynthesis' in window)) {
+        if (then) setTimeout(() => seq.current === id && then(), NEXT_ROUND_MS);
+        return;
+      }
+      setTimeout(() => {
+        if (seq.current !== id) return;
+        speak(text, finish);
+        if (then) setTimeout(finish, SPEECH_TIMEOUT_MS);
+      }, delay);
     },
     [muted],
   );
@@ -211,6 +277,7 @@ export default function GameLittleLearners() {
 
   const startRound = useCallback(
     (a: Activity, previousId?: string) => {
+      seq.current++;
       const r = generateRound(a, level, Math.random, previousId);
       setRound(r);
       setWrongIds([]);
@@ -223,13 +290,12 @@ export default function GameLittleLearners() {
   );
 
   const openActivity = (a: Activity) => {
-    if (timer.current) clearTimeout(timer.current);
     setActivity(a);
     startRound(a);
   };
 
   const goHome = () => {
-    if (timer.current) clearTimeout(timer.current);
+    seq.current++;
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     setActivity(null);
     setRound(null);
@@ -247,8 +313,7 @@ export default function GameLittleLearners() {
       sfx('right');
       const text = milestone ? `Wow! ${nextStars} stars! You're a super star!` : cheer(activity, round.target);
       setFeedback({ kind: milestone ? 'milestone' : 'right', text });
-      say(text);
-      timer.current = setTimeout(() => startRound(activity, round.target.id), milestone ? NEXT_ROUND_MS + 1200 : NEXT_ROUND_MS);
+      say(text, { delay: SFX_GAP_MS, then: () => startRound(activity, round.target.id) });
       return;
     }
 
@@ -257,7 +322,7 @@ export default function GameLittleLearners() {
     setWrongIds((ids) => [...ids, choice.id]);
     setFeedback({ kind: 'wrong', text });
     setShakeKey((k) => k + 1);
-    say(text);
+    say(text, { delay: SFX_GAP_MS });
     if (nudgeTimer.current) clearTimeout(nudgeTimer.current);
     nudgeTimer.current = setTimeout(() => setFeedback((f) => (f?.kind === 'wrong' ? null : f)), NUDGE_MS);
   };
