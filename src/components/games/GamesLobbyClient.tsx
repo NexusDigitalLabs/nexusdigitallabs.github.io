@@ -270,6 +270,27 @@ export default function GamesLobbyClient() {
       </div>
 
       <div className="max-w-5xl mx-auto px-6 py-10">
+        <Link
+          href="/games/little-learners/"
+          className="flex items-center gap-4 p-5 mb-10 no-underline flex-wrap"
+          style={{ background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.3)' }}
+        >
+          <span className="text-3xl" aria-hidden="true">🧸</span>
+          <span className="flex-1 min-w-[200px]">
+            <span className="block text-[0.6rem] font-bold tracking-[0.15em] uppercase mb-1" style={{ color: '#16a34a' }}>
+              For toddlers · Ages 2–5
+            </span>
+            <span className="block text-lg font-bold" style={{ color: 'var(--ndl-text)' }}>
+              Little Learners
+            </span>
+            <span className="block text-sm break-words" style={{ color: 'var(--ndl-faint)' }}>
+              Numbers, letters, shapes, colours, counting and matching — read aloud, with gentle feedback.
+            </span>
+          </span>
+          <span className="text-xs font-bold tracking-wide uppercase" style={{ color: 'var(--ndl-text)' }}>
+            Play →
+          </span>
+        </Link>
         <Section
           title="Fun games"
           subtitle="Arcade and classic pastimes — light cognitive load, quick sessions."

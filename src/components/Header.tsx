@@ -55,6 +55,7 @@ const BADGES: Record<string, Badge> = {
   '/games/sumoku/':            { label: 'Sumoku',            color: 'emerald' },
   '/games/cryptic-paths/':     { label: 'Cryptic Paths',     color: 'violet'  },
   '/games/semantic-shift/':    { label: 'Semantic Shift',    color: 'amber'   },
+  '/games/little-learners/':   { label: 'Little Learners',   color: 'emerald' },
   '/games/':                   { label: 'Games',             color: 'amber'   },
   '/academy/':                 { label: 'Academy',           color: 'violet'  },
   '/articles/':                { label: 'Article',           color: 'blue'    },
@@ -64,12 +65,13 @@ const BADGES: Record<string, Badge> = {
 };
 
 const BADGE_CLASSES: Record<BadgeColor, string> = {
-  violet:  'text-violet-400 bg-violet-500/10 border border-violet-500/25',
-  emerald: 'text-emerald-400 bg-emerald-900/30 border border-emerald-400/25',
-  sky:     'text-sky-400 bg-sky-500/10 border border-sky-400/25',
-  amber:   'text-amber-400 bg-amber-500/10 border border-amber-400/25',
-  blue:    'text-blue-400 bg-blue-600/10 border border-blue-400/25',
-  slate:   'text-slate-400 bg-slate-900/40 border border-slate-600/40',
+  // Light theme gets darker text on a pale tint; the -400 shades only read well on the dark header.
+  violet:  'text-violet-700 bg-violet-500/10 border border-violet-500/30 dark:text-violet-400 dark:border-violet-500/25',
+  emerald: 'text-emerald-700 bg-emerald-500/10 border border-emerald-500/30 dark:text-emerald-400 dark:bg-emerald-900/30 dark:border-emerald-400/25',
+  sky:     'text-sky-700 bg-sky-500/10 border border-sky-500/30 dark:text-sky-400 dark:border-sky-400/25',
+  amber:   'text-amber-700 bg-amber-500/10 border border-amber-500/30 dark:text-amber-400 dark:border-amber-400/25',
+  blue:    'text-blue-700 bg-blue-600/10 border border-blue-500/30 dark:text-blue-400 dark:border-blue-400/25',
+  slate:   'text-slate-700 bg-slate-500/10 border border-slate-400/40 dark:text-slate-400 dark:bg-slate-900/40 dark:border-slate-600/40',
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

@@ -24,7 +24,8 @@ export type GameGuideSlug =
   | 'gridlock'
   | 'sumoku'
   | 'cryptic-paths'
-  | 'semantic-shift';
+  | 'semantic-shift'
+  | 'little-learners';
 
 const SCORE_SAVING =
   'Your best score is saved in your browser under the username you pick. If you sign in, personal bests can also sync to your account.';
@@ -543,6 +544,65 @@ export const GAME_GUIDES: Record<GameGuideSlug, GameGuide> = {
       {
         q: 'Is this a test of my brain?',
         a: 'No. It is a reflex game inspired by a well-known psychology experiment, and it is not a medical or psychological assessment.',
+      },
+    ],
+  },
+  'little-learners': {
+    title: 'Little Learners — a playground for toddlers and playgroup kids',
+    intro:
+      'Little Learners is a gentle learning playground for children aged about two to five. Six tap-to-play games cover numbers, letters, shapes, colours, counting and matching. Every question is read aloud, so children who cannot read yet can play on their own, and there are no timers, no lives and nothing to lose.',
+    mechanics: [
+      'Pick a game from the menu. A question appears at the top, such as "Find the number 3" or "Find the circle", and it is spoken aloud. Tap the speaker button to hear it again.',
+      'Tap the answer you think is right. Little mode shows 3 big choices and uses numbers 1 to 5, the letters A to H, five basic shapes and five colours. Big mode shows 4 choices with numbers up to 10, the whole alphabet, eight shapes and ten colours.',
+      'In Counting, a group of pictures appears. Tapping each picture counts it out loud and puts a number on it, then the child picks how many there are. In Matching, the child finds the picture that is the same as the big one at the top.',
+      'A wrong tap is shown in red with a little wiggle, and the game says what the child picked ("That\'s number 5. Let\'s try again!"), so even a mistake teaches a new word. That tile rests so the remaining choices get easier. After two tries, the right answer starts to glow.',
+    ],
+    scoring: [
+      'Every correct answer earns a star, a happy sound and a burst of confetti. Every fifth star gets an extra big celebration.',
+      'Stars, the chosen age group and the sound setting are saved in this browser only. There is no account, no username and nothing is uploaded.',
+    ],
+    strategy: [
+      'Play together for the first few rounds. Say the question with your child, point at the choices and name them out loud.',
+      'Keep sessions short: five to ten minutes is plenty for a toddler. Stop while it is still fun.',
+      'Celebrate a wrong tap as much as a right one. The red tile is a nudge to look again, not a failure, and naming what they tapped builds vocabulary.',
+      'Move to Big mode when your child answers most Little questions without help.',
+    ],
+    sections: [
+      {
+        title: 'What each game practises',
+        items: [
+          'Numbers — recognising the written numerals 1 to 10.',
+          'Letters — recognising capital letters, each with a picture word ("B is for bear").',
+          'Shapes — circle, square, triangle, star and heart, plus rectangle, oval and diamond in Big mode. Shapes come in mixed colours so children learn the shape, not the colour.',
+          'Colours — naming and finding common colours.',
+          'Counting — one-to-one counting by tapping each object, then matching the total to a numeral.',
+          'Matching — visual discrimination: spotting the same animal, fruit, vehicle or toy among similar ones.',
+        ],
+      },
+      {
+        title: 'Designed for small hands',
+        paragraphs: [
+          'Buttons are large and spaced apart, the layout works on phones and tablets, and there is nothing to type. Sounds are soft and the wrong-answer tone is a gentle "boop", not a buzzer. Animations are reduced automatically if the device asks for reduced motion.',
+          'There are no adverts, links or pop-ups inside the play area, and the home button only returns to the game menu, so a child is unlikely to wander off by accident. The link back to the rest of the site sits at the bottom of the menu screen, where grown-ups can find it.',
+        ],
+      },
+    ],
+    faq: [
+      {
+        q: 'What age is Little Learners for?',
+        a: 'Roughly two to five years old. Little mode suits two- and three-year-olds, and Big mode suits four- and five-year-olds or children starting playgroup and preschool.',
+      },
+      {
+        q: 'Does it need an account or collect data?',
+        a: 'No. It runs entirely in the browser. Stars and settings are kept in local storage on your device only.',
+      },
+      {
+        q: 'Why is there no voice?',
+        a: 'The questions use your device\'s built-in speech. Check that the sound toggle shows "Sound on" and that the device is not muted. A few older browsers do not support speech.',
+      },
+      {
+        q: 'Is there a time limit?',
+        a: 'No. There are no timers and no game over, so children can take as long as they need.',
       },
     ],
   },

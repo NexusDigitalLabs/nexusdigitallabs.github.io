@@ -66,6 +66,12 @@ const STATIC_CARDS: Record<string, OgCard> = {
     description: '2048, Snake, Sudoku, Blackjack and original brain games that run instantly in your browser.',
     accent: ACCENT_HEX.amber,
   },
+  '/games/little-learners/': {
+    eyebrow: 'Little Learners · Ages 2–5',
+    title: 'A learning playground for toddlers.',
+    description: 'Numbers, letters, shapes, colours, counting and matching — read aloud, with gentle feedback.',
+    accent: ACCENT_HEX.emerald,
+  },
   '/academy/': {
     eyebrow: 'Free course',
     title: 'Become an AI engineer, one free lesson at a time.',

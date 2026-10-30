@@ -19,6 +19,7 @@ const GameGridlock = dynamic(() => import('./GameGridlock'), { ssr: false, loadi
 const GameSumoku = dynamic(() => import('./GameSumoku'), { ssr: false, loading: () => null });
 const GameCrypticPaths = dynamic(() => import('./GameCrypticPaths'), { ssr: false, loading: () => null });
 const GameSemanticShift = dynamic(() => import('./GameSemanticShift'), { ssr: false, loading: () => null });
+const GameLittleLearners = dynamic(() => import('./GameLittleLearners'), { ssr: false, loading: () => null });
 
 const COMPONENTS = {
   lobby: GamesLobbyClient,
@@ -30,6 +31,7 @@ const COMPONENTS = {
   sumoku: GameSumoku,
   'cryptic-paths': GameCrypticPaths,
   'semantic-shift': GameSemanticShift,
+  'little-learners': GameLittleLearners,
 } as const;
 
 type GameKey = keyof typeof COMPONENTS;

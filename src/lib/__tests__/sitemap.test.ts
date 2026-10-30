@@ -21,6 +21,7 @@ describe('buildSitemapEntries', () => {
     expect(urls).toContain(`${SITE_URL}/`);
     expect(urls).toContain(`${SITE_URL}/articles/`);
     expect(urls).toContain(`${SITE_URL}/games/`);
+    expect(urls).toContain(`${SITE_URL}/games/little-learners/`);
     expect(urls).not.toContain(`${SITE_URL}/login/`);
     expect(urls).toContain(`${SITE_URL}/academy/`);
     expect(urls).toContain(`${SITE_URL}/freelanceos/`);
@@ -53,7 +54,7 @@ describe('buildSitemapEntries', () => {
     }
 
     const expected =
-      12 /* static */ + ARTICLES.length + TOOLS.length + GAMES.length + indexableLessons.length;
+      13 /* static */ + ARTICLES.length + TOOLS.length + GAMES.length + indexableLessons.length;
     expect(entries).toHaveLength(expected);
   });
 
