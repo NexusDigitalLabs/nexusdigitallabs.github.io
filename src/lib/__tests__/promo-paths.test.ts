@@ -13,6 +13,12 @@ describe('hidesSitePromos', () => {
     expect(hidesSitePromos('/odova/')).toBe(true);
   });
 
+  it('hides on the toddler playground, but not on other games', () => {
+    expect(hidesSitePromos('/games/little-learners/')).toBe(true);
+    expect(hidesSitePromos('/games/2048/')).toBe(false);
+    expect(hidesSitePromos('/games/')).toBe(false);
+  });
+
   it('hides on the Mentto product page', () => {
     expect(hidesSitePromos('/mentto')).toBe(true);
     expect(hidesSitePromos('/mentto/')).toBe(true);

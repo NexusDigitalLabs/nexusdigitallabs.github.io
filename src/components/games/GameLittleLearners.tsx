@@ -280,6 +280,21 @@ export default function GameLittleLearners() {
   const seq = useRef(0);
   const nudgeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const moodTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [dockFloating, setDockFloating] = useState(false);
+  const dockObserver = useRef<IntersectionObserver | null>(null);
+  /**
+   * The buddy's home is right under the tiles or board. When that spot is off screen (a tall
+   * board on a short phone) the buddy floats at the bottom edge instead, so it is always seen.
+   */
+  const dockSlotRef = useCallback((node: HTMLDivElement | null) => {
+    dockObserver.current?.disconnect();
+    dockObserver.current = null;
+    if (!node || typeof IntersectionObserver === 'undefined') return;
+    dockObserver.current = new IntersectionObserver(([entry]) => setDockFloating(entry.intersectionRatio < 0.95), {
+      threshold: [0, 0.5, 0.95, 1],
+    });
+    dockObserver.current.observe(node);
+  }, []);
   const buddy = getBuddy(buddyId);
 
   useEffect(() => {
@@ -609,7 +624,9 @@ export default function GameLittleLearners() {
               🏠
             </button>
             <span className="ll-activity-pill" style={{ background: meta.bg, color: meta.ink }}>
-              {meta.icon} {meta.title}
+              <span className="ll-pill-text">
+                {meta.icon} {meta.title}
+              </span>
               {round && stage && (
                 <span className="ll-lv" aria-label={`Level ${stage.stage} of ${stage.stages}`}>
                   Lv {stage.stage}
@@ -742,7 +759,8 @@ export default function GameLittleLearners() {
           )}
 
           {/* The buddy lives in the corner and "says" every message in a speech bubble. */}
-          <div className="ll-dock">
+          <div className="ll-dock-slot" ref={dockSlotRef}>
+          <div className={`ll-dock${dockFloating ? ' is-floating' : ''}`}>
             <button type="button" className="ll-dock-buddy" onClick={pokeBuddy} aria-label={`${buddy.name} says hi`}>
               <BuddyFace key={mood.key} buddy={buddy} mood={mood.mood} />
             </button>
@@ -755,6 +773,7 @@ export default function GameLittleLearners() {
                 </p>
               )}
             </div>
+          </div>
           </div>
         </div>
       )}
@@ -819,7 +838,8 @@ const CSS = `
 .ll-decor-2 { top: 520px; left: 6%; animation-delay: -3s !important; }
 .ll-decor-3 { top: 760px; right: 8%; animation-delay: -4.5s !important; }
 .ll-decor-4 { top: 1000px; left: 10%; animation-delay: -2s !important; }
-.ll-lv { margin-left: 8px; padding: 2px 9px; border-radius: 999px; background: rgba(255,255,255,.75); font-size: .8em; vertical-align: middle; }
+.ll-pill-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.ll-lv { flex: none; margin-left: 8px; padding: 2px 9px; border-radius: 999px; background: rgba(255,255,255,.75); font-size: .8em; vertical-align: middle; }
 .ll-root button { font-family: inherit; cursor: pointer; touch-action: manipulation; }
 
 .ll-hero { text-align: center; margin: 8px 0 20px; }
@@ -849,7 +869,7 @@ const CSS = `
 .ll-star-pill { background: #fef3c7; color: #92400e; border-radius: 999px; padding: 8px 16px; font-weight: 900; font-size: 1.1rem; white-space: nowrap; }
 
 .ll-topbar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
-.ll-activity-pill { flex: 1; text-align: center; border-radius: 999px; padding: 10px 14px; font-weight: 900; font-size: clamp(1rem, 4vw, 1.25rem); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ll-activity-pill { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; text-align: center; border-radius: 999px; padding: 10px 14px; font-weight: 900; font-size: clamp(1rem, 4vw, 1.25rem); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ll-round-btn { width: 52px; height: 52px; flex: none; border-radius: 50%; border: 3px solid #e5e7eb; background: var(--ll-card); font-size: 1.5rem; display: grid; place-items: center; }
 
 .ll-question { position: relative; background: var(--ll-card); border: 4px solid; border-radius: 28px; padding: 20px 16px 18px; text-align: center; box-shadow: 0 6px 0 rgba(0,0,0,.06); margin-bottom: 18px; }
@@ -889,14 +909,15 @@ const CSS = `
 .ll-mark-wrong { background: var(--ll-red); }
 .ll-mark-right { background: var(--ll-green); }
 
-/* Room at the bottom so the last row can always scroll clear of the buddy. */
-.ll-wrap.is-play { padding-bottom: 170px; }
-.ll-dock { position: fixed; z-index: 40; left: max(10px, calc(50% - 440px)); right: 10px; bottom: 10px; display: flex; align-items: flex-end; gap: 4px; pointer-events: none; }
-.ll-dock-buddy { pointer-events: auto; flex: none; width: clamp(80px, 21vw, 108px); aspect-ratio: 120 / 132; border: none; background: none; padding: 0; filter: drop-shadow(0 4px 6px rgba(0,0,0,.08)); }
-/* The bubble sits beside the buddy's head, above the site's floating coffee button. */
-.ll-feedback-slot { min-width: 0; max-width: 560px; margin-bottom: clamp(58px, 15vw, 70px); }
+/* The buddy's home: right under the tiles or board. The slot keeps its height when the buddy floats. */
+.ll-dock-slot { margin-top: 18px; min-height: clamp(110px, 30vw, 140px); }
+.ll-dock { z-index: 40; display: flex; align-items: center; gap: 6px; min-height: inherit; pointer-events: none; }
+.ll-dock.is-floating { position: fixed; left: max(10px, calc(50% - 440px)); right: 10px; bottom: 8px; min-height: 0; }
+.ll-dock.is-floating .ll-dock-buddy { width: clamp(76px, 20vw, 100px); }
+.ll-dock-buddy { pointer-events: auto; flex: none; width: clamp(100px, 27vw, 128px); aspect-ratio: 120 / 132; border: none; background: none; padding: 0; filter: drop-shadow(0 4px 6px rgba(0,0,0,.08)); }
+.ll-feedback-slot { min-width: 0; max-width: 560px; }
 .ll-feedback { position: relative; --bb: #e5e7eb; --bg: #fff; background: var(--bg); border: 3px solid var(--bb); }
-.ll-feedback::before { content: ""; position: absolute; left: -10px; bottom: 14px; width: 16px; height: 16px; background: var(--bg); border-left: 3px solid var(--bb); border-bottom: 3px solid var(--bb); transform: rotate(45deg); }
+.ll-feedback::before { content: ""; position: absolute; left: -10px; top: 50%; margin-top: -8px; width: 16px; height: 16px; background: var(--bg); border-left: 3px solid var(--bb); border-bottom: 3px solid var(--bb); transform: rotate(45deg); }
 .ll-feedback { pointer-events: none; box-shadow: 0 6px 18px rgba(0,0,0,.1); display: flex; align-items: center; gap: 10px; margin: 0; padding: 12px 18px; border-radius: 24px; font-weight: 800; font-size: clamp(1rem, 4vw, 1.3rem); line-height: 1.25; text-align: left; animation: ll-pop .35s ease; transform-origin: 0 100%; }
 .ll-feedback-icon { font-size: 1.8rem; }
 .ll-feedback.is-wrong { --bg: var(--ll-red-bg); --bb: #fca5a5; color: var(--ll-red); }

@@ -6,11 +6,14 @@
  */
 const APP_PAGES = ['/huffle', '/mentto', '/odova'];
 
+/** Toddler pages: a small child taps everything, so nothing there may lead off the page. */
+const KIDS_PAGES = ['/games/little-learners'];
+
 /** Legal documents (any app's, or the site's own) are clean pages with no promos at any depth. */
 const LEGAL_SEGMENTS = new Set(['privacy-policy', 'privacy', 'terms', 'terms-of-service', 'cookies', 'legal']);
 
 export function hidesSitePromos(pathname: string | null | undefined): boolean {
   if (!pathname) return false;
   if (pathname.split('/').some((segment) => LEGAL_SEGMENTS.has(segment))) return true;
-  return APP_PAGES.some((base) => pathname === base || pathname.startsWith(`${base}/`));
+  return [...APP_PAGES, ...KIDS_PAGES].some((base) => pathname === base || pathname.startsWith(`${base}/`));
 }
