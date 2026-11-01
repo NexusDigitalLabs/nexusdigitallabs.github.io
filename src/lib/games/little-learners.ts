@@ -112,30 +112,104 @@ function pick<T>(items: readonly T[], rng: Rng): T {
   return items[Math.floor(rng() * items.length)];
 }
 
-/** Target plus distinct distractors, shuffled. Avoids repeating `previousId` as the target when possible. */
-function pickChoices(pool: readonly Choice[], n: number, rng: Rng, previousId?: string): { target: Choice; choices: Choice[] } {
+/**
+ * Target plus distinct distractors, shuffled. Avoids repeating `previousId` as the target when possible.
+ * `focusNewest` makes the last item of the pool the target, so a freshly unlocked item gets played at once.
+ */
+function pickChoices(
+  pool: readonly Choice[],
+  n: number,
+  rng: Rng,
+  previousId?: string,
+  focusNewest = false,
+): { target: Choice; choices: Choice[] } {
   const candidates = pool.length > 1 ? pool.filter((c) => c.id !== previousId) : pool;
-  const target = pick(candidates, rng);
+  const newest = pool[pool.length - 1];
+  const target = focusNewest && newest.id !== previousId ? newest : pick(candidates, rng);
   const others = shuffle(pool.filter((c) => c.id !== target.id), rng).slice(0, n - 1);
   return { target, choices: shuffle([target, ...others], rng) };
 }
 
 const numberChoice = (n: number): Choice => ({ id: String(n), name: NUMBER_WORDS[n] });
 
-export function generateRound(activity: Activity, level: Level, rng: Rng = Math.random, previousId?: string): Round {
+// ---------- growing difficulty ----------
+// Each game starts with a small set of items (Little: 1–3, A–C, three shapes…) and adds one more
+// every SKILL_STEP first-try right answers, so "1, 3, 2" becomes "1, 4, 3" and so on.
+
+/** First-try right answers needed to unlock the next item. */
+export const SKILL_STEP = 3;
+const START_SIZE: Record<Level, number> = { little: 3, big: 5 };
+
+/** Every item a game can use at this level, in teaching order (easiest first). */
+export function poolItems(activity: Activity, level: Level): Choice[] {
+  switch (activity) {
+    case 'numbers':
+    case 'counting':
+      return Array.from({ length: level === 'little' ? 5 : 10 }, (_, i) => numberChoice(i + 1));
+    case 'letters':
+      return (level === 'little' ? LITTLE_LETTERS : Object.keys(LETTERS)).map((k) => ({ id: k, name: k }));
+    case 'shapes':
+      return (level === 'little' ? LITTLE_SHAPES : SHAPES).map((x) => ({ id: x, name: x }));
+    case 'colors':
+      return (level === 'little' ? LITTLE_COLORS : Object.keys(COLORS)).map((c) => ({ id: c, name: c }));
+    case 'matching':
+      // Matching draws from one picture family per round; the size limits how many of that family are in play.
+      return MATCH_SETS[0].map((e) => ({ id: e, name: MATCH_NAMES[e] }));
+  }
+}
+
+/** How many items are in play for a skill score. Never fewer than the number of choices shown. */
+export function poolSize(activity: Activity, level: Level, skill: number): number {
+  const max = poolItems(activity, level).length;
+  const start = Math.max(choiceCount(level), Math.min(START_SIZE[level], max));
+  return Math.min(max, start + Math.floor(Math.max(0, skill) / SKILL_STEP));
+}
+
+/** Stage 1 is the starting set; the last stage has every item unlocked. */
+export function stageInfo(activity: Activity, level: Level, skill: number): { stage: number; stages: number } {
+  const first = poolSize(activity, level, 0);
+  const max = poolItems(activity, level).length;
+  return { stage: poolSize(activity, level, skill) - first + 1, stages: max - first + 1 };
+}
+
+/** Skill after a solved round: up for a first-try answer, down a little when the child needed the hint. */
+export function nextSkill(skill: number, wrongTaps: number, hintAfter: number): number {
+  if (wrongTaps === 0) return skill + 1;
+  if (wrongTaps >= hintAfter) return Math.max(0, skill - 1);
+  return skill;
+}
+
+export function skillKey(level: Level, activity: string): string {
+  return `${level}:${activity}`;
+}
+
+export type RoundOptions = {
+  /** How many items are in play (from poolSize); defaults to all of them. */
+  size?: number;
+  /** Make the newest item the target — used right after a level-up. */
+  focusNewest?: boolean;
+};
+
+export function generateRound(
+  activity: Activity,
+  level: Level,
+  rng: Rng = Math.random,
+  previousId?: string,
+  opts: RoundOptions = {},
+): Round {
   const n = choiceCount(level);
-  const maxNumber = level === 'little' ? 5 : 10;
-  const numbers = Array.from({ length: maxNumber }, (_, i) => numberChoice(i + 1));
+  const all = poolItems(activity, level);
+  const size = Math.max(n, Math.min(all.length, opts.size ?? all.length));
+  const focus = opts.focusNewest ?? false;
+  const pool = all.slice(0, size);
 
   switch (activity) {
     case 'numbers': {
-      const { target, choices } = pickChoices(numbers, n, rng, previousId);
+      const { target, choices } = pickChoices(pool, n, rng, previousId, focus);
       return { activity, prompt: `Find the number ${target.id}`, say: `Can you find the number ${target.name}?`, target, choices };
     }
     case 'letters': {
-      const keys = level === 'little' ? LITTLE_LETTERS : Object.keys(LETTERS);
-      const pool = keys.map((k) => ({ id: k, name: k }));
-      const { target, choices } = pickChoices(pool, n, rng, previousId);
+      const { target, choices } = pickChoices(pool, n, rng, previousId, focus);
       const { word } = LETTERS[target.id];
       const hint = target.id === 'X' ? `X is at the end of ${word}` : `${target.id} is for ${word}`;
       return {
@@ -148,17 +222,15 @@ export function generateRound(activity: Activity, level: Level, rng: Rng = Math.
       };
     }
     case 'shapes': {
-      const pool = (level === 'little' ? LITTLE_SHAPES : SHAPES).map((s) => ({ id: s, name: s }));
-      const { target, choices } = pickChoices(pool, n, rng, previousId);
+      const { target, choices } = pickChoices(pool, n, rng, previousId, focus);
       return { activity, prompt: `Find the ${target.name}`, say: `Can you find the ${target.name}?`, target, choices };
     }
     case 'colors': {
-      const pool = (level === 'little' ? LITTLE_COLORS : Object.keys(COLORS)).map((c) => ({ id: c, name: c }));
-      const { target, choices } = pickChoices(pool, n, rng, previousId);
+      const { target, choices } = pickChoices(pool, n, rng, previousId, focus);
       return { activity, prompt: `Find ${target.name}`, say: `Can you find the colour ${target.name}?`, target, choices };
     }
     case 'counting': {
-      const { target, choices } = pickChoices(numbers, n, rng, previousId);
+      const { target, choices } = pickChoices(pool, n, rng, previousId, focus);
       const emoji = pick(COUNT_EMOJI, rng);
       return {
         activity,
@@ -171,9 +243,9 @@ export function generateRound(activity: Activity, level: Level, rng: Rng = Math.
       };
     }
     case 'matching': {
-      const set = pick(MATCH_SETS, rng);
-      const pool = set.map((e) => ({ id: e, name: MATCH_NAMES[e] }));
-      const { target, choices } = pickChoices(pool, n, rng, previousId);
+      const set = pick(MATCH_SETS, rng).slice(0, size);
+      const family = set.map((e) => ({ id: e, name: MATCH_NAMES[e] }));
+      const { target, choices } = pickChoices(family, n, rng, previousId, focus);
       return {
         activity,
         prompt: 'Find the one that matches',
@@ -208,6 +280,19 @@ const NUDGES = ['Oops, good try!', 'Almost!', 'Nice try!', 'So close!'];
 
 export function cheer(activity: Activity, target: Choice, rng: Rng = Math.random): string {
   return `${pick(CHEERS, rng)} That's ${describeChoice(activity, target)}!`;
+}
+
+/** Said when a new item unlocks — names it so the child hears the new word straight away. */
+export function levelUpText(activity: Activity, level: Level, skill: number): string {
+  const newest = poolItems(activity, level)[poolSize(activity, level, skill) - 1];
+  switch (activity) {
+    case 'matching':
+      return 'Level up! More pictures to match!';
+    case 'counting':
+      return `Level up! Now we can count to ${newest.name}!`;
+    default:
+      return `Level up! Here comes ${describeChoice(activity, newest)}!`;
+  }
 }
 
 export function nudge(activity: Activity, tapped: Choice, rng: Rng = Math.random): string {

@@ -8,7 +8,12 @@ import {
   LETTERS,
   cheer,
   generateRound,
+  levelUpText,
+  nextSkill,
   nudge,
+  poolSize,
+  skillKey,
+  stageInfo,
   type Activity,
   type Choice,
   type Level,
@@ -63,10 +68,18 @@ const ACTIVITY_META: Record<AnyActivity, { title: string; icon: string; bg: stri
 const SHAPE_FILLS = ['#f97316', '#3b82f6', '#22c55e', '#a855f7', '#ec4899', '#eab308'];
 
 /** `name` is null until the welcome screen has been answered (an empty string means skipped). */
-type Saved = { level: Level; muted: boolean; stars: number; name: string | null; buddy: BuddyKind };
+/** `skills` holds a score per level + game; it decides how many items are in play (see poolSize). */
+type Saved = {
+  level: Level;
+  muted: boolean;
+  stars: number;
+  name: string | null;
+  buddy: BuddyKind;
+  skills: Record<string, number>;
+};
 
 function loadSaved(): Saved {
-  const fallback: Saved = { level: 'little', muted: false, stars: 0, name: null, buddy: getBuddy(undefined).id };
+  const fallback: Saved = { level: 'little', muted: false, stars: 0, name: null, buddy: getBuddy(undefined).id, skills: {} };
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return fallback;
@@ -75,6 +88,11 @@ function loadSaved(): Saved {
       level: p.level === 'big' ? 'big' : 'little',
       muted: p.muted === true,
       stars: Number.isFinite(p.stars) ? Math.max(0, Number(p.stars)) : 0,
+      skills: Object.fromEntries(
+        Object.entries(p.skills && typeof p.skills === 'object' ? p.skills : {}).filter(
+          ([, v]) => Number.isFinite(v) && Number(v) >= 0,
+        ),
+      ) as Record<string, number>,
       name: typeof p.name === 'string' ? p.name : null,
       buddy: getBuddy(p.buddy).id,
     };
@@ -231,7 +249,13 @@ function Burst({ big }: { big: boolean }) {
   );
 }
 
-type Feedback = { kind: 'right' | 'wrong' | 'milestone'; text: string } | null;
+type Feedback = { kind: 'right' | 'wrong' | 'milestone' | 'levelup'; text: string } | null;
+
+/** Each age group has its own look, so it's obvious at a glance which one is on. */
+const THEME_DECOR: Record<Level, { label: string; decor: string[] }> = {
+  little: { label: '🌼 Little Garden', decor: ['☁️', '🌼', '🦋', '🌷', '🐝'] },
+  big: { label: '🦁 Big Jungle', decor: ['🌴', '🦜', '🌿', '🐾', '🍃'] },
+};
 
 export default function GameLittleLearners() {
   // Loaded via GameLoader with ssr:false, so localStorage is available on first render.
@@ -239,6 +263,7 @@ export default function GameLittleLearners() {
   const [level, setLevel] = useState<Level>(saved.level);
   const [muted, setMuted] = useState(saved.muted);
   const [stars, setStars] = useState(saved.stars);
+  const [skills, setSkills] = useState(saved.skills);
   const [name, setName] = useState(saved.name ?? '');
   const [buddyId, setBuddyId] = useState<BuddyKind>(saved.buddy);
   const [askName, setAskName] = useState(saved.name === null);
@@ -261,11 +286,13 @@ export default function GameLittleLearners() {
     try {
       // Until the welcome screen is answered, keep `name` null so it shows again next visit.
       const savedName = askName && !name ? null : name;
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ level, muted, stars, name: savedName, buddy: buddyId }));
+      window.localStorage.setItem(
+        STORAGE_KEY, JSON.stringify({ level, muted, stars, name: savedName, buddy: buddyId, skills }),
+      );
     } catch {
       // Private mode or blocked storage — progress just won't persist.
     }
-  }, [level, muted, stars, name, buddyId, askName]);
+  }, [level, muted, stars, name, buddyId, askName, skills]);
 
   useEffect(
     () => () => {
@@ -307,10 +334,11 @@ export default function GameLittleLearners() {
     [muted],
   );
 
+  /** `skill` decides how many items are in play; `focusNewest` features an item that just unlocked. */
   const startRound = useCallback(
-    (a: Activity, previousId?: string) => {
+    (a: Activity, skill: number, previousId?: string, focusNewest = false) => {
       seq.current++;
-      const r = generateRound(a, level, Math.random, previousId);
+      const r = generateRound(a, level, Math.random, previousId, { size: poolSize(a, level, skill), focusNewest });
       setRound(r);
       setWrongIds([]);
       setSolved(false);
@@ -347,7 +375,7 @@ export default function GameLittleLearners() {
       startDraw(a);
     } else {
       setDrawRound(null);
-      startRound(a);
+      startRound(a, skills[skillKey(level, a)] ?? 0);
     }
   };
 
@@ -370,17 +398,20 @@ export default function GameLittleLearners() {
   const personal = (text: string) => sometimesWithName(text, name);
 
   /** Star, chime and cheer; `next` runs once the cheer has been said. */
-  const celebrate = (text: string, next: () => void) => {
+  const celebrate = (text: string, next: () => void, levelUp?: string) => {
     const nextStars = stars + 1;
     const milestone = nextStars % MILESTONE_EVERY === 0;
-    const line = milestone
-      ? withName(`Wow! ${nextStars} stars! You're a super star!`, name)
-      : personal(text);
-    react(milestone ? 'cheer' : 'happy');
+    // A level-up names the new item, so it wins over the every-fifth-star cheer.
+    const line = levelUp
+      ? withName(levelUp, name)
+      : milestone
+        ? withName(`Wow! ${nextStars} stars! You're a super star!`, name)
+        : personal(text);
+    react(levelUp || milestone ? 'cheer' : 'happy');
     setSolved(true);
     setStars(nextStars);
     sfx('right');
-    setFeedback({ kind: milestone ? 'milestone' : 'right', text: line });
+    setFeedback({ kind: levelUp ? 'levelup' : milestone ? 'milestone' : 'right', text: line });
     say(line, { delay: SFX_GAP_MS, then: next });
   };
 
@@ -400,7 +431,17 @@ export default function GameLittleLearners() {
     if (!round || !activity || solved || wrongIds.includes(choice.id)) return;
 
     if (choice.id === round.target.id) {
-      celebrate(cheer(round.activity, round.target), () => startRound(round.activity, round.target.id));
+      const a = round.activity;
+      const key = skillKey(level, a);
+      const before = skills[key] ?? 0;
+      const after = nextSkill(before, wrongIds.length, HINT_AFTER);
+      const grew = poolSize(a, level, after) > poolSize(a, level, before);
+      setSkills((sk) => ({ ...sk, [key]: after }));
+      celebrate(
+        cheer(a, round.target),
+        () => startRound(a, after, round.target.id, grew),
+        grew ? levelUpText(a, level, after) : undefined,
+      );
       return;
     }
 
@@ -434,10 +475,19 @@ export default function GameLittleLearners() {
 
   const meta = activity ? ACTIVITY_META[activity] : null;
   const current = round ?? drawRound;
+  const stage = round ? stageInfo(round.activity, level, skills[skillKey(level, round.activity)] ?? 0) : null;
+  const theme = THEME_DECOR[level];
   const showHint = wrongIds.length >= HINT_AFTER && !solved;
 
   return (
-    <div className="ll-root">
+    <div className="ll-root" data-theme={level}>
+      <div className="ll-decor" aria-hidden="true">
+        {theme.decor.map((e, i) => (
+          <span key={`${level}-${i}`} className={`ll-decor-${i}`}>
+            {e}
+          </span>
+        ))}
+      </div>
       <style>{CSS + BUDDY_CSS}</style>
 
       {askName ? (
@@ -447,7 +497,7 @@ export default function GameLittleLearners() {
       ) : !activity || !current || !meta ? (
         <div className="ll-wrap">
           <header className="ll-hero">
-            <p className="ll-kicker">NexusDigitalLabs · Playground</p>
+            <p className="ll-kicker">NexusDigitalLabs · {theme.label}</p>
             <h1 className="ll-title">
               <span style={{ color: '#ef4444' }}>L</span>
               <span style={{ color: '#f97316' }}>i</span>
@@ -560,6 +610,11 @@ export default function GameLittleLearners() {
             </button>
             <span className="ll-activity-pill" style={{ background: meta.bg, color: meta.ink }}>
               {meta.icon} {meta.title}
+              {round && stage && (
+                <span className="ll-lv" aria-label={`Level ${stage.stage} of ${stage.stages}`}>
+                  Lv {stage.stage}
+                </span>
+              )}
             </span>
             <span className="ll-star-pill" aria-label={`${stars} stars collected`}>
               ⭐ {stars}
@@ -654,7 +709,7 @@ export default function GameLittleLearners() {
                 }}
                 onNext={() => startDraw(drawRound.activity, drawRound.figureId)}
               />
-              {solved && <Burst big={feedback?.kind === 'milestone'} />}
+              {solved && <Burst big={feedback?.kind === 'milestone' || feedback?.kind === 'levelup'} />}
             </div>
           )}
 
@@ -679,7 +734,7 @@ export default function GameLittleLearners() {
                   <ChoiceFace round={round} choice={c} index={i} />
                   {isWrong && <span className="ll-mark ll-mark-wrong">↺</span>}
                   {isRight && <span className="ll-mark ll-mark-right">✓</span>}
-                  {isRight && <Burst big={feedback?.kind === 'milestone'} />}
+                  {isRight && <Burst big={feedback?.kind === 'milestone' || feedback?.kind === 'levelup'} />}
                 </button>
               );
             })}
@@ -695,6 +750,7 @@ export default function GameLittleLearners() {
               {feedback && (
                 <p key={feedback.text + shakeKey} className={`ll-feedback is-${feedback.kind}`}>
                   {feedback.kind === 'milestone' && <span className="ll-feedback-icon">🏆</span>}
+                  {feedback.kind === 'levelup' && <span className="ll-feedback-icon">🆙</span>}
                   {feedback.text}
                 </p>
               )}
@@ -716,11 +772,23 @@ const CSS = `
   --ll-red-bg: #fee2e2;
   --ll-green: #16a34a;
   --ll-green-bg: #dcfce7;
+  /* Little Garden: warm cream, pastel sun, sky and blossom. */
+  --ll-blob1: rgba(253,230,138,.55);
+  --ll-blob2: rgba(191,219,254,.6);
+  --ll-blob3: rgba(251,207,232,.55);
+  --ll-pattern: transparent;
+  --ll-accent: #f59e0b;
+  --ll-accent-bg: #fffbeb;
+  --ll-tile-bd: #e5e7eb;
+  --ll-radius: 28px;
+  position: relative;
   background:
-    radial-gradient(circle at 10% 10%, rgba(253,230,138,.55) 0 120px, transparent 121px),
-    radial-gradient(circle at 92% 18%, rgba(191,219,254,.6) 0 90px, transparent 91px),
-    radial-gradient(circle at 85% 92%, rgba(251,207,232,.55) 0 140px, transparent 141px),
+    radial-gradient(circle at 10% 10%, var(--ll-blob1) 0 120px, transparent 121px),
+    radial-gradient(circle at 92% 18%, var(--ll-blob2) 0 90px, transparent 91px),
+    radial-gradient(circle at 85% 92%, var(--ll-blob3) 0 140px, transparent 141px),
+    radial-gradient(var(--ll-pattern) 1.6px, transparent 1.8px) 0 0 / 26px 26px,
     var(--ll-bg);
+  transition: background-color .3s;
   color: var(--ll-ink);
   min-height: 100vh;
   font-family: ui-rounded, "SF Pro Rounded", "Nunito", "Comic Sans MS", system-ui, sans-serif;
@@ -730,7 +798,28 @@ const CSS = `
   user-select: none;
   -webkit-user-select: none;
 }
-.ll-wrap { max-width: 860px; margin: 0 auto; padding: 24px 16px 48px; }
+.ll-wrap { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 24px 16px 48px; }
+
+/* Big Jungle: leafy mint with a dotted canopy, teal accents and crisper tiles. */
+.ll-root[data-theme="big"] {
+  --ll-bg: #ecfdf5;
+  --ll-blob1: rgba(110,231,183,.45);
+  --ll-blob2: rgba(125,211,252,.45);
+  --ll-blob3: rgba(253,186,116,.45);
+  --ll-pattern: rgba(13,148,136,.12);
+  --ll-accent: #0d9488;
+  --ll-accent-bg: #f0fdfa;
+  --ll-tile-bd: #cbd5e1;
+  --ll-radius: 20px;
+}
+.ll-decor { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+.ll-decor span { position: absolute; font-size: clamp(1.8rem, 6vw, 3rem); opacity: .4; animation: ll-float 6s ease-in-out infinite; }
+.ll-decor-0 { top: 90px; left: 4%; }
+.ll-decor-1 { top: 260px; right: 5%; animation-delay: -1.5s !important; }
+.ll-decor-2 { top: 520px; left: 6%; animation-delay: -3s !important; }
+.ll-decor-3 { top: 760px; right: 8%; animation-delay: -4.5s !important; }
+.ll-decor-4 { top: 1000px; left: 10%; animation-delay: -2s !important; }
+.ll-lv { margin-left: 8px; padding: 2px 9px; border-radius: 999px; background: rgba(255,255,255,.75); font-size: .8em; vertical-align: middle; }
 .ll-root button { font-family: inherit; cursor: pointer; touch-action: manipulation; }
 
 .ll-hero { text-align: center; margin: 8px 0 20px; }
@@ -743,7 +832,7 @@ const CSS = `
 .ll-level strong { display: block; font-size: 1.05rem; }
 .ll-level small { display: block; color: var(--ll-soft); font-size: .8rem; font-weight: 600; }
 .ll-level-icon { font-size: 1.8rem; }
-.ll-level.is-on { border-color: #f59e0b; background: #fffbeb; box-shadow: 0 4px 0 #f59e0b; }
+.ll-level.is-on { border-color: var(--ll-accent); background: var(--ll-accent-bg); box-shadow: 0 4px 0 var(--ll-accent); }
 
 .ll-section { font-size: clamp(1.1rem, 4vw, 1.35rem); font-weight: 900; margin: 22px 4px 10px; color: var(--ll-ink); }
 .ll-section:first-of-type { margin-top: 4px; }
@@ -782,7 +871,7 @@ const CSS = `
 .ll-choices.n-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .ll-choices.n-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 @media (min-width: 640px) { .ll-choices.n-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); } .ll-choices { gap: 18px; } }
-.ll-choice { position: relative; aspect-ratio: 1; border-radius: 28px; border: 5px solid #e5e7eb; background: var(--ll-card); display: grid; place-items: center; padding: 10%; box-shadow: 0 6px 0 #e5e7eb; transition: transform .12s ease, opacity .25s, box-shadow .12s; color: var(--ll-ink); }
+.ll-choice { position: relative; aspect-ratio: 1; border-radius: var(--ll-radius); border: 5px solid var(--ll-tile-bd); background: var(--ll-card); display: grid; place-items: center; padding: 10%; box-shadow: 0 6px 0 var(--ll-tile-bd); transition: transform .12s ease, opacity .25s, box-shadow .12s; color: var(--ll-ink); }
 .ll-choice:hover { transform: translateY(-3px); }
 .ll-choice:active { transform: translateY(4px); box-shadow: 0 2px 0 #e5e7eb; }
 .ll-glyph { font-size: clamp(3.2rem, 15vw, 5.5rem); font-weight: 900; line-height: 1; }
@@ -812,6 +901,7 @@ const CSS = `
 .ll-feedback-icon { font-size: 1.8rem; }
 .ll-feedback.is-wrong { --bg: var(--ll-red-bg); --bb: #fca5a5; color: var(--ll-red); }
 .ll-feedback.is-right { --bg: var(--ll-green-bg); --bb: #86efac; color: var(--ll-green); }
+.ll-feedback.is-levelup { --bg: #ede9fe; --bb: #c4b5fd; color: #6d28d9; font-size: clamp(1.1rem, 4.5vw, 1.5rem); }
 .ll-feedback.is-milestone { --bg: #fef3c7; --bb: #fcd34d; color: #b45309; font-size: clamp(1.1rem, 4.5vw, 1.5rem); }
 
 .ll-greet { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 6px; }
