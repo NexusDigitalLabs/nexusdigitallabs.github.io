@@ -552,6 +552,7 @@ export const GAME_GUIDES: Record<GameGuideSlug, GameGuide> = {
     intro:
       'Little Learners is a gentle learning playground for children aged about two to five. Six tap-to-play games cover numbers, letters, shapes, colours, counting and matching, and four draw-with-your-finger games build the hand control children need before writing: dot-to-dot, tracing lines and patterns, tracing shapes and numbers, and colouring inside a shape. Every question is read aloud, so children who cannot read yet can play on their own, and there are no timers, no lives and nothing to lose.',
     mechanics: [
+      'On the first visit, a grown-up can type the child\'s name or a pet name and the child picks a buddy: Mimi the kitty, Bun the bunny, Honey the bear or Sprout. The buddy sits in the corner of every game and says each message in a speech bubble. It jumps for joy at a right answer, looks surprised and sends a little heart after a wrong one, and nods along while counting or joining dots. Tap the buddy and it giggles and says hello.',
       'Pick a game from the menu. A question appears at the top, such as "Find the number 3" or "Find the circle", and it is spoken aloud. Tap the speaker button to hear it again.',
       'Tap the answer you think is right. Little mode shows 3 big choices and uses numbers 1 to 5, the letters A to H, five basic shapes and five colours. Big mode shows 4 choices with numbers up to 10, the whole alphabet, eight shapes and ten colours.',
       'In Counting, a group of pictures appears. Tapping each picture counts it out loud and puts a number on it, then the child picks how many there are. In Matching, the child finds the picture that is the same as the big one at the top.',
@@ -561,7 +562,7 @@ export const GAME_GUIDES: Record<GameGuideSlug, GameGuide> = {
     ],
     scoring: [
       'Every correct answer earns a star, a happy sound and a burst of confetti. Every fifth star gets an extra big celebration.',
-      'Stars, the chosen age group and the sound setting are saved in this browser only. There is no account, no username and nothing is uploaded.',
+      'Stars, the chosen age group, the sound setting, the child\'s name and their buddy are saved in this browser only. There is no account and nothing is uploaded. The name is optional, and "Name & friend" on the menu changes it at any time.',
     ],
     strategy: [
       'Play together for the first few rounds. Say the question with your child, point at the choices and name them out loud.',

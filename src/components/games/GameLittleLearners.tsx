@@ -22,7 +22,9 @@ import {
   type DrawActivity,
   type DrawRound,
 } from '@/lib/games/little-learners-draw';
+import { getBuddy, sometimesWithName, withName, type BuddyKind, type BuddyMood } from '@/lib/games/little-learners-buddy';
 import LittleLearnersDraw from './LittleLearnersDraw';
+import { BUDDY_CSS, BuddyFace, BuddyWelcome } from './LittleBuddy';
 
 const STORAGE_KEY = 'ndl-little-learners';
 /** Muted / no-speech fallback for how long a cheer stays up before the next round. */
@@ -38,6 +40,8 @@ const MILESTONE_EVERY = 5;
 const HINT_AFTER = 2;
 /** The "try again" message clears itself so it never lingers over the choices. */
 const NUDGE_MS = 3000;
+/** How long the buddy holds a reaction before going back to bobbing about. */
+const MOOD_MS = 1900;
 
 type AnyActivity = Activity | DrawActivity;
 const isDraw = (a: AnyActivity): a is DrawActivity => (DRAW_ACTIVITIES as readonly string[]).includes(a);
@@ -58,10 +62,11 @@ const ACTIVITY_META: Record<AnyActivity, { title: string; icon: string; bg: stri
 /** Shapes get varied colours so the shape — not the colour — is what the child looks for. */
 const SHAPE_FILLS = ['#f97316', '#3b82f6', '#22c55e', '#a855f7', '#ec4899', '#eab308'];
 
-type Saved = { level: Level; muted: boolean; stars: number };
+/** `name` is null until the welcome screen has been answered (an empty string means skipped). */
+type Saved = { level: Level; muted: boolean; stars: number; name: string | null; buddy: BuddyKind };
 
 function loadSaved(): Saved {
-  const fallback: Saved = { level: 'little', muted: false, stars: 0 };
+  const fallback: Saved = { level: 'little', muted: false, stars: 0, name: null, buddy: getBuddy(undefined).id };
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return fallback;
@@ -70,6 +75,8 @@ function loadSaved(): Saved {
       level: p.level === 'big' ? 'big' : 'little',
       muted: p.muted === true,
       stars: Number.isFinite(p.stars) ? Math.max(0, Number(p.stars)) : 0,
+      name: typeof p.name === 'string' ? p.name : null,
+      buddy: getBuddy(p.buddy).id,
     };
   } catch {
     return fallback;
@@ -232,6 +239,10 @@ export default function GameLittleLearners() {
   const [level, setLevel] = useState<Level>(saved.level);
   const [muted, setMuted] = useState(saved.muted);
   const [stars, setStars] = useState(saved.stars);
+  const [name, setName] = useState(saved.name ?? '');
+  const [buddyId, setBuddyId] = useState<BuddyKind>(saved.buddy);
+  const [askName, setAskName] = useState(saved.name === null);
+  const [mood, setMood] = useState<{ mood: BuddyMood; key: number }>({ mood: 'idle', key: 0 });
   const [activity, setActivity] = useState<AnyActivity | null>(null);
   const [round, setRound] = useState<Round | null>(null);
   const [drawRound, setDrawRound] = useState<DrawRound | null>(null);
@@ -243,19 +254,24 @@ export default function GameLittleLearners() {
   /** Bumped whenever the screen moves on, so late speech callbacks from an old round are ignored. */
   const seq = useRef(0);
   const nudgeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const moodTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const buddy = getBuddy(buddyId);
 
   useEffect(() => {
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ level, muted, stars }));
+      // Until the welcome screen is answered, keep `name` null so it shows again next visit.
+      const savedName = askName && !name ? null : name;
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ level, muted, stars, name: savedName, buddy: buddyId }));
     } catch {
       // Private mode or blocked storage — progress just won't persist.
     }
-  }, [level, muted, stars]);
+  }, [level, muted, stars, name, buddyId, askName]);
 
   useEffect(
     () => () => {
       seq.current++;
       if (nudgeTimer.current) clearTimeout(nudgeTimer.current);
+      if (moodTimer.current) clearTimeout(moodTimer.current);
       if (typeof window !== 'undefined' && 'speechSynthesis' in window) window.speechSynthesis.cancel();
     },
     [],
@@ -317,7 +333,14 @@ export default function GameLittleLearners() {
     [level, say],
   );
 
+  /** New screen, fresh buddy: drop any reaction still playing from the last one. */
+  const calmBuddy = () => {
+    if (moodTimer.current) clearTimeout(moodTimer.current);
+    setMood((prev) => ({ mood: 'idle', key: prev.key + 1 }));
+  };
+
   const openActivity = (a: AnyActivity) => {
+    calmBuddy();
     setActivity(a);
     if (isDraw(a)) {
       setRound(null);
@@ -335,13 +358,25 @@ export default function GameLittleLearners() {
     setRound(null);
     setDrawRound(null);
     setFeedback(null);
+    calmBuddy();
   };
+
+  /** The buddy reacts, then settles back to idle. */
+  const react = (m: BuddyMood) => {
+    setMood((prev) => ({ mood: m, key: prev.key + 1 }));
+    if (moodTimer.current) clearTimeout(moodTimer.current);
+    moodTimer.current = setTimeout(() => setMood((prev) => ({ mood: 'idle', key: prev.key + 1 })), MOOD_MS);
+  };
+  const personal = (text: string) => sometimesWithName(text, name);
 
   /** Star, chime and cheer; `next` runs once the cheer has been said. */
   const celebrate = (text: string, next: () => void) => {
     const nextStars = stars + 1;
     const milestone = nextStars % MILESTONE_EVERY === 0;
-    const line = milestone ? `Wow! ${nextStars} stars! You're a super star!` : text;
+    const line = milestone
+      ? withName(`Wow! ${nextStars} stars! You're a super star!`, name)
+      : personal(text);
+    react(milestone ? 'cheer' : 'happy');
     setSolved(true);
     setStars(nextStars);
     sfx('right');
@@ -350,8 +385,10 @@ export default function GameLittleLearners() {
   };
 
   /** Red but kind: a soft boop, a "let's try again" message that clears itself. */
-  const encourage = (text: string) => {
+  const encourage = (raw: string) => {
+    const text = personal(raw);
     sfx('wrong');
+    react('oops');
     setFeedback({ kind: 'wrong', text });
     setShakeKey((k) => k + 1);
     say(text, { delay: SFX_GAP_MS });
@@ -376,7 +413,23 @@ export default function GameLittleLearners() {
     const next = [...counted, i];
     setCounted(next);
     sfx('pop');
+    react('nod');
     say(String(next.length));
+  };
+
+  const finishWelcome = (newName: string, kind: BuddyKind) => {
+    setName(newName);
+    setBuddyId(kind);
+    setAskName(false);
+    react('happy');
+    const b = getBuddy(kind);
+    say(newName ? `Hi ${newName}! I'm ${b.name}. Let's play!` : `Hi! I'm ${b.name}. Let's play!`);
+  };
+
+  const pokeBuddy = () => {
+    react('happy');
+    sfx('pop');
+    say(name ? `Hee hee! Hi ${name}!` : 'Hee hee! That tickles!');
   };
 
   const meta = activity ? ACTIVITY_META[activity] : null;
@@ -385,9 +438,13 @@ export default function GameLittleLearners() {
 
   return (
     <div className="ll-root">
-      <style>{CSS}</style>
+      <style>{CSS + BUDDY_CSS}</style>
 
-      {!activity || !current || !meta ? (
+      {askName ? (
+        <div className="ll-wrap">
+          <BuddyWelcome initialName={name} initialBuddy={buddyId} onDone={finishWelcome} onSay={(t) => say(t)} />
+        </div>
+      ) : !activity || !current || !meta ? (
         <div className="ll-wrap">
           <header className="ll-hero">
             <p className="ll-kicker">NexusDigitalLabs · Playground</p>
@@ -399,7 +456,20 @@ export default function GameLittleLearners() {
               <span style={{ color: '#3b82f6' }}>l</span>
               <span style={{ color: '#a855f7' }}>e</span> Learners
             </h1>
-            <p className="ll-sub">Tap a game to play! 🌈</p>
+            <div className="ll-greet">
+              <button type="button" className="ll-greet-buddy" onClick={pokeBuddy} aria-label={`${buddy.name} says hi`}>
+                <BuddyFace key={mood.key} buddy={buddy} mood={mood.mood} wave={mood.mood === 'idle'} />
+              </button>
+              <p className="ll-sub">
+                {name ? (
+                  <>
+                    Hi <strong style={{ color: buddy.ink }}>{name}</strong>! Tap a game to play! 🌈
+                  </>
+                ) : (
+                  'Tap a game to play! 🌈'
+                )}
+              </p>
+            </div>
           </header>
 
           <div className="ll-levels" role="radiogroup" aria-label="Choose an age group">
@@ -474,13 +544,16 @@ export default function GameLittleLearners() {
             <button type="button" className="ll-icon-btn" onClick={() => setMuted((m) => !m)} aria-pressed={muted}>
               {muted ? '🔇 Sound off' : '🔊 Sound on'}
             </button>
+            <button type="button" className="ll-icon-btn" onClick={() => setAskName(true)}>
+              ✏️ {name ? 'Name & friend' : 'Add a name'}
+            </button>
             <Link href="/games/" className="ll-icon-btn">
               ← All games
             </Link>
           </div>
         </div>
       ) : (
-        <div className={`ll-wrap${drawRound ? ' is-draw' : ''}`}>
+        <div className="ll-wrap is-play">
           <div className="ll-topbar">
             <button type="button" className="ll-round-btn" onClick={goHome} aria-label="Back to all games">
               🏠
@@ -576,6 +649,7 @@ export default function GameLittleLearners() {
                 onOops={encourage}
                 onPop={(word) => {
                   sfx('pop');
+                  react('nod');
                   if (word) say(word);
                 }}
                 onNext={() => startDraw(drawRound.activity, drawRound.figureId)}
@@ -612,15 +686,19 @@ export default function GameLittleLearners() {
           </div>
           )}
 
-          <div className="ll-feedback-slot" aria-live="polite">
-            {feedback && (
-              <p key={feedback.text + shakeKey} className={`ll-feedback is-${feedback.kind}`}>
-                <span className="ll-feedback-icon">
-                  {feedback.kind === 'wrong' ? '🤗' : feedback.kind === 'milestone' ? '🏆' : '🌟'}
-                </span>
-                {feedback.text}
-              </p>
-            )}
+          {/* The buddy lives in the corner and "says" every message in a speech bubble. */}
+          <div className="ll-dock">
+            <button type="button" className="ll-dock-buddy" onClick={pokeBuddy} aria-label={`${buddy.name} says hi`}>
+              <BuddyFace key={mood.key} buddy={buddy} mood={mood.mood} />
+            </button>
+            <div className="ll-feedback-slot" aria-live="polite">
+              {feedback && (
+                <p key={feedback.text + shakeKey} className={`ll-feedback is-${feedback.kind}`}>
+                  {feedback.kind === 'milestone' && <span className="ll-feedback-icon">🏆</span>}
+                  {feedback.text}
+                </p>
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -722,20 +800,23 @@ const CSS = `
 .ll-mark-wrong { background: var(--ll-red); }
 .ll-mark-right { background: var(--ll-green); }
 
-.ll-feedback-slot { min-height: 84px; margin-top: 18px; display: flex; justify-content: center; }
-/* On phones a tall Counting round can push the message below the fold, so it floats above the tip button instead. */
-@media (max-width: 639px) {
-  .ll-feedback-slot { min-height: 0; margin: 0; }
-  .ll-feedback { position: fixed; left: 16px; right: 16px; bottom: 84px; z-index: 40; justify-content: center; }
-}
-/* Drawing boards fill the screen, so their messages float over the question instead of the crayons. */
-.ll-wrap.is-draw .ll-feedback-slot { min-height: 0; margin: 0; }
-.ll-wrap.is-draw .ll-feedback { position: fixed; left: 16px; right: 16px; top: 72px; bottom: auto; z-index: 40; width: fit-content; max-width: calc(100% - 32px); margin: 0 auto; }
-.ll-feedback { pointer-events: none; box-shadow: 0 6px 18px rgba(0,0,0,.08); display: inline-flex; align-items: center; gap: 10px; margin: 0; padding: 14px 22px; border-radius: 24px; font-weight: 800; font-size: clamp(1.05rem, 4vw, 1.35rem); text-align: left; animation: ll-pop .35s ease; }
+/* Room at the bottom so the last row can always scroll clear of the buddy. */
+.ll-wrap.is-play { padding-bottom: 170px; }
+.ll-dock { position: fixed; z-index: 40; left: max(10px, calc(50% - 440px)); right: 10px; bottom: 10px; display: flex; align-items: flex-end; gap: 4px; pointer-events: none; }
+.ll-dock-buddy { pointer-events: auto; flex: none; width: clamp(80px, 21vw, 108px); aspect-ratio: 120 / 132; border: none; background: none; padding: 0; filter: drop-shadow(0 4px 6px rgba(0,0,0,.08)); }
+/* The bubble sits beside the buddy's head, above the site's floating coffee button. */
+.ll-feedback-slot { min-width: 0; max-width: 560px; margin-bottom: clamp(58px, 15vw, 70px); }
+.ll-feedback { position: relative; --bb: #e5e7eb; --bg: #fff; background: var(--bg); border: 3px solid var(--bb); }
+.ll-feedback::before { content: ""; position: absolute; left: -10px; bottom: 14px; width: 16px; height: 16px; background: var(--bg); border-left: 3px solid var(--bb); border-bottom: 3px solid var(--bb); transform: rotate(45deg); }
+.ll-feedback { pointer-events: none; box-shadow: 0 6px 18px rgba(0,0,0,.1); display: flex; align-items: center; gap: 10px; margin: 0; padding: 12px 18px; border-radius: 24px; font-weight: 800; font-size: clamp(1rem, 4vw, 1.3rem); line-height: 1.25; text-align: left; animation: ll-pop .35s ease; transform-origin: 0 100%; }
 .ll-feedback-icon { font-size: 1.8rem; }
-.ll-feedback.is-wrong { background: var(--ll-red-bg); color: var(--ll-red); border: 3px solid #fca5a5; }
-.ll-feedback.is-right { background: var(--ll-green-bg); color: var(--ll-green); border: 3px solid #86efac; }
-.ll-feedback.is-milestone { background: #fef3c7; color: #b45309; border: 3px solid #fcd34d; font-size: clamp(1.2rem, 4.5vw, 1.6rem); }
+.ll-feedback.is-wrong { --bg: var(--ll-red-bg); --bb: #fca5a5; color: var(--ll-red); }
+.ll-feedback.is-right { --bg: var(--ll-green-bg); --bb: #86efac; color: var(--ll-green); }
+.ll-feedback.is-milestone { --bg: #fef3c7; --bb: #fcd34d; color: #b45309; font-size: clamp(1.1rem, 4.5vw, 1.5rem); }
+
+.ll-greet { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 6px; }
+.ll-greet .ll-sub { margin: 0; }
+.ll-greet-buddy { width: clamp(70px, 18vw, 92px); aspect-ratio: 120 / 132; flex: none; border: none; background: none; padding: 0; }
 
 .ll-draw { position: relative; }
 .ll-burst { position: absolute; inset: 50% auto auto 50%; pointer-events: none; }
