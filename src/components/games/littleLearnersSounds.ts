@@ -5,7 +5,6 @@
 
 export type SoundName =
   | 'chime'
-  | 'clap'
   | 'crowd'
   | 'horn'
   | 'tada'
@@ -15,7 +14,7 @@ export type SoundName =
   | 'pop';
 
 /** Success sounds picked at random, so a right answer never sounds the same twice in a row. */
-export const SUCCESS_SOUNDS = ['chime', 'clap', 'crowd', 'horn', 'tada', 'xylo'] as const satisfies readonly SoundName[];
+export const SUCCESS_SOUNDS = ['chime', 'crowd', 'horn', 'tada', 'xylo'] as const satisfies readonly SoundName[];
 
 type Ctx = BaseAudioContext;
 
@@ -52,27 +51,6 @@ function tones(c: Ctx, out: AudioNode, t0: number, freqs: number[], type: Oscill
   });
 }
 
-/** One hand clap: a few very short bursts of band-passed noise. */
-function clapAt(c: Ctx, out: AudioNode, t: number, volume: number) {
-  const freq = 900 + Math.random() * 1300;
-  [0, 0.009, 0.019].forEach((offset, i) => {
-    const src = c.createBufferSource();
-    src.buffer = noise(c);
-    const bp = c.createBiquadFilter();
-    bp.type = 'bandpass';
-    bp.frequency.value = freq;
-    bp.Q.value = 0.8;
-    src.connect(bp).connect(envelope(c, out, t + offset, volume * (1 - i * 0.25), 0.002, i === 2 ? 0.11 : 0.02));
-    src.start(t + offset, Math.random() * 0.8, 0.15);
-  });
-}
-
-/** Clap-clap-clap, then a little ripple of applause. */
-function clapping(c: Ctx, out: AudioNode, t0: number) {
-  for (let i = 0; i < 3; i++) clapAt(c, out, t0 + i * 0.2, 0.5);
-  for (let i = 0; i < 14; i++) clapAt(c, out, t0 + 0.6 + Math.random() * 0.55, 0.18 + Math.random() * 0.15);
-}
-
 /** A "yaaay" crowd swell: rising band-passed noise with a couple of happy whistles. */
 function crowd(c: Ctx, out: AudioNode, t0: number) {
   const src = c.createBufferSource();
@@ -102,7 +80,6 @@ function crowd(c: Ctx, out: AudioNode, t0: number) {
     osc.start(t);
     osc.stop(t + 0.35);
   });
-  clapping(c, out, t0 + 0.2);
 }
 
 /** A party horn: toot, toooot, with a wobble. */
@@ -154,8 +131,6 @@ export function scheduleSound(c: Ctx, out: AudioNode, name: SoundName, t0: numbe
   switch (name) {
     case 'chime':
       return tones(c, out, t0, [523, 659, 784, 1047], 'sine', 0.1, 0.18);
-    case 'clap':
-      return clapping(c, out, t0);
     case 'crowd':
       return crowd(c, out, t0);
     case 'horn':
@@ -165,7 +140,7 @@ export function scheduleSound(c: Ctx, out: AudioNode, name: SoundName, t0: numbe
     case 'xylo':
       return tones(c, out, t0, [784, 880, 1047, 1175, 1319, 1568], 'triangle', 0.07, 0.22);
     case 'fanfare':
-      // Level-ups and big milestones: ta-da with a cheering, clapping crowd.
+      // Level-ups and big milestones: ta-da with a cheering crowd.
       tada(c, out, t0);
       return crowd(c, out, t0 + 0.1);
     case 'wrong':
@@ -200,6 +175,6 @@ export function randomCheer(rng: () => number = Math.random): Cheer {
   const options = CHEERS.filter((s) => s !== lastCheer);
   const pick = options[Math.floor(rng() * options.length)];
   lastCheer = pick;
-  if (pick === 'hooray') return { sound: 'clap', shout: SHOUTS[Math.floor(rng() * SHOUTS.length)] };
+  if (pick === 'hooray') return { sound: 'chime', shout: SHOUTS[Math.floor(rng() * SHOUTS.length)] };
   return { sound: pick };
 }

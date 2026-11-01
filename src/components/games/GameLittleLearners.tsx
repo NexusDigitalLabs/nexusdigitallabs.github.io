@@ -298,14 +298,14 @@ export default function GameLittleLearners() {
     },
     [muted],
   );
-  /** A different happy sound each time: chime, clapping, a cheering crowd, a party horn, ta-da… */
+  /** A different happy sound each time: chime, a cheering crowd, a party horn, ta-da… */
   const cheerSound = useCallback(
     (big: boolean) => {
       if (muted) return;
       if (big) return playSound('fanfare');
       const c = randomCheer();
       playSound(c.sound);
-      // A quick, bright "Hooray!" over the clapping.
+      // A quick, bright "Hooray!" over the chime.
       if (c.shout && 'speechSynthesis' in window) speak(c.shout, { rate: 1.05, pitch: 1.15 });
     },
     [muted],
