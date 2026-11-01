@@ -34,10 +34,10 @@ import {
 export type DrawHandlers = {
   /** The figure is finished — the parent awards a star and moves on. */
   onWin: () => void;
-  /** A gentle "try again" message (shown in red, spoken kindly). */
+  /** A gentle "try again" message (shown in red, with a soft sound). */
   onOops: (text: string) => void;
-  /** A soft pop, optionally saying a short word (e.g. the dot number). */
-  onPop: (word?: string) => void;
+  /** A soft pop (a dot joined, a crayon picked). */
+  onPop: () => void;
 };
 
 type Props = DrawHandlers & { round: DrawRound; level: Level; onNext: () => void };
@@ -238,7 +238,7 @@ function DotBoard({ figure, level, onWin, onOops, onPop }: { figure: DotFigure; 
         setPointer(null);
         onWin();
       } else {
-        onPop(String(reached));
+        onPop();
       }
       return;
     }
@@ -447,7 +447,7 @@ function ScribbleBoard({ figure, level, onWin, onOops, onPop }: { figure: Scribb
             style={{ background: c.color }}
             onClick={() => {
               setCrayon(c.color);
-              onPop(c.name);
+              onPop();
             }}
           />
         ))}
@@ -509,10 +509,11 @@ export default function LittleLearnersDraw({ round, level, onNext, ...handlers }
 const CSS = `
 .lld-root { display: flex; flex-direction: column; align-items: center; gap: 12px; }
 .lld-frame { width: 100%; background: #fff; border-radius: 28px; border: 4px solid #e5e7eb; box-shadow: 0 6px 0 rgba(0,0,0,.06); padding: 10px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-/* Keep the whole board (plus crayons) on screen: each board's width is capped by the viewport height. */
-.lld-frame.is-dots .lld-board, .lld-frame.is-trace .lld-board { width: min(100%, 52vh); }
-.lld-frame.is-lines .lld-board { width: min(100%, 104vh); }
-.lld-frame.is-scribble .lld-board { width: min(100%, 66vh); }
+/* Keep the whole board (plus crayons, buttons and the buddy) on screen: each board's width is capped by the space left under the question. */
+.lld-frame.is-dots .lld-board { width: min(100%, 52vh, max(240px, calc(100vh - 430px))); width: min(100%, 52vh, max(240px, calc(100svh - 430px))); }
+.lld-frame.is-trace .lld-board { width: min(100%, 52vh, max(230px, calc(100vh - 460px))); width: min(100%, 52vh, max(230px, calc(100svh - 460px))); }
+.lld-frame.is-lines .lld-board { width: min(100%, 104vh, max(280px, calc((100vh - 460px) * 2))); width: min(100%, 104vh, max(280px, calc((100svh - 460px) * 2))); }
+.lld-frame.is-scribble .lld-board { width: min(100%, 66vh, max(260px, calc((100vh - 510px) * 4 / 3))); width: min(100%, 66vh, max(260px, calc((100svh - 510px) * 4 / 3))); }
 .lld-board { display: block; touch-action: none; user-select: none; -webkit-user-select: none; cursor: crosshair; border-radius: 18px; background: #fffdf7; }
 .lld-board.is-done { animation: lld-pop .5s ease; }
 .lld-board text { font-family: inherit; }
@@ -537,6 +538,23 @@ const CSS = `
 .lld-btn { border: 3px solid #e5e7eb; background: #fff; color: #1f2937; border-radius: 999px; padding: 10px 20px; font-weight: 800; font-size: 1.05rem; box-shadow: 0 4px 0 #e5e7eb; }
 .lld-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #e5e7eb; }
 .lld-btn.is-next { border-color: #fcd34d; background: #fef3c7; color: #92400e; box-shadow: 0 4px 0 #fcd34d; }
+
+@media (max-width: 639px), (orientation: landscape) and (max-height: 520px) {
+  .lld-root { gap: 10px; }
+  .lld-frame { padding: 8px; gap: 8px; border-radius: 22px; border-width: 3px; }
+  .lld-crayons { gap: 8px; }
+  .lld-crayon { width: 40px; height: 40px; }
+  .lld-progress { height: 14px; }
+  .lld-actions { gap: 10px; }
+  .lld-btn { padding: 8px 16px; font-size: 1rem; }
+}
+
+/* Phones on their side: the board sits beside the question, so it can use nearly the full height. */
+@media (orientation: landscape) and (max-height: 520px) {
+  .lld-frame.is-dots .lld-board, .lld-frame.is-trace .lld-board { width: min(100%, max(180px, calc(100vh - 230px))); }
+  .lld-frame.is-scribble .lld-board { width: min(100%, max(220px, calc((100vh - 280px) * 4 / 3))); }
+  .lld-frame.is-lines .lld-board { width: 100%; }
+}
 
 @keyframes lld-pulse { 0%,100% { transform: scale(.85); opacity: .9; } 50% { transform: scale(1.25); opacity: .5; } }
 @keyframes lld-wiggle { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-2px); } 50% { transform: translateX(2px); } 75% { transform: translateX(-1px); } }

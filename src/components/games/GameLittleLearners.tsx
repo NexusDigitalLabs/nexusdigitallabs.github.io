@@ -30,16 +30,13 @@ import {
 import { getBuddy, sometimesWithName, withName, type BuddyKind, type BuddyMood } from '@/lib/games/little-learners-buddy';
 import LittleLearnersDraw from './LittleLearnersDraw';
 import { BUDDY_CSS, BuddyFace, BuddyWelcome } from './LittleBuddy';
+import { playSound, randomCheer, type SoundName } from './littleLearnersSounds';
 
 const STORAGE_KEY = 'ndl-little-learners';
-/** Muted / no-speech fallback for how long a cheer stays up before the next round. */
-const NEXT_ROUND_MS = 1900;
-/** Let the chime finish before the voice starts, so they don't talk over each other. */
-const SFX_GAP_MS = 420;
-/** Short breath after the cheer ends, before the next question. */
-const AFTER_CHEER_MS = 450;
-/** Some browsers never fire onend; never wait longer than this for a cheer. */
-const SPEECH_TIMEOUT_MS = 6000;
+/** Only questions are spoken; right and wrong answers get a sound. How long a right answer shows before the next question. */
+const NEXT_ROUND_MS = 1200;
+/** Level-ups and every-fifth-star get a longer moment to enjoy the fanfare and confetti. */
+const BIG_NEXT_ROUND_MS = 1900;
 const MILESTONE_EVERY = 5;
 /** After this many wrong taps in one round, the right answer gently glows. */
 const HINT_AFTER = 2;
@@ -135,7 +132,7 @@ if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
   });
 }
 
-function speak(text: string, onEnd?: () => void) {
+function speak(text: string, tone: { rate: number; pitch: number } = { rate: 0.92, pitch: 1 }) {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
   const synth = window.speechSynthesis;
   synth.cancel();
@@ -143,45 +140,12 @@ function speak(text: string, onEnd?: () => void) {
   const voice = pickVoice();
   if (voice) u.voice = voice;
   u.lang = voice?.lang ?? 'en-US';
-  // Natural voices sound robotic when pitch-shifted; a slightly slower pace is enough for toddlers.
-  u.rate = 0.92;
-  u.pitch = 1;
-  if (onEnd) {
-    u.onend = onEnd;
-    u.onerror = onEnd;
-  }
+  // Natural voices sound robotic when pitch-shifted much; a slightly slower pace is enough for toddlers.
+  u.rate = tone.rate;
+  u.pitch = tone.pitch;
   synth.speak(u);
 }
 
-let audioCtx: AudioContext | null = null;
-function playTones(freqs: number[], type: OscillatorType, step: number, volume: number) {
-  try {
-    audioCtx ??= new AudioContext();
-    const ctx = audioCtx;
-    freqs.forEach((f, i) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      const start = ctx.currentTime + i * step;
-      osc.type = type;
-      osc.frequency.value = f;
-      gain.gain.setValueAtTime(0.0001, start);
-      gain.gain.exponentialRampToValueAtTime(volume, start + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, start + step * 1.8);
-      osc.connect(gain).connect(ctx.destination);
-      osc.start(start);
-      osc.stop(start + step * 2);
-    });
-  } catch {
-    // Audio is a nice-to-have; ignore browsers that block it.
-  }
-}
-
-const sounds = {
-  right: () => playTones([523, 659, 784, 1047], 'sine', 0.1, 0.18),
-  // A soft "boop-boop" rather than a buzzer — wrong should never feel scary.
-  wrong: () => playTones([392, 330], 'triangle', 0.16, 0.12),
-  pop: () => playTones([880], 'sine', 0.06, 0.08),
-};
 
 function starPoints(cx: number, cy: number, outer: number, inner: number) {
   return Array.from({ length: 10 }, (_, i) => {
@@ -280,6 +244,8 @@ export default function GameLittleLearners() {
   const seq = useRef(0);
   const nudgeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const moodTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** The "next round" step waiting on a cheer, so a tap can run it straight away. */
+  const pendingNext = useRef<(() => void) | null>(null);
   const [dockFloating, setDockFloating] = useState(false);
   const dockObserver = useRef<IntersectionObserver | null>(null);
   /**
@@ -319,32 +285,28 @@ export default function GameLittleLearners() {
     [],
   );
 
-  /** Speak `text` (optionally after `delay`), then call `then` once the voice is done — or after a fallback when muted. */
+  /** Read the question aloud (unless sound is off). */
   const say = useCallback(
-    (text: string, opts: { delay?: number; then?: () => void } = {}) => {
-      const id = seq.current;
-      const { delay = 0, then } = opts;
-      let done = false;
-      const finish = () => {
-        if (done || seq.current !== id) return;
-        done = true;
-        if (then) setTimeout(() => seq.current === id && then(), AFTER_CHEER_MS);
-      };
-      if (muted || !('speechSynthesis' in window)) {
-        if (then) setTimeout(() => seq.current === id && then(), NEXT_ROUND_MS);
-        return;
-      }
-      setTimeout(() => {
-        if (seq.current !== id) return;
-        speak(text, finish);
-        if (then) setTimeout(finish, SPEECH_TIMEOUT_MS);
-      }, delay);
+    (text: string) => {
+      if (!muted && 'speechSynthesis' in window) speak(text);
     },
     [muted],
   );
   const sfx = useCallback(
-    (name: keyof typeof sounds) => {
-      if (!muted) sounds[name]();
+    (name: SoundName) => {
+      if (!muted) playSound(name);
+    },
+    [muted],
+  );
+  /** A different happy sound each time: chime, clapping, a cheering crowd, a party horn, ta-da… */
+  const cheerSound = useCallback(
+    (big: boolean) => {
+      if (muted) return;
+      if (big) return playSound('fanfare');
+      const c = randomCheer();
+      playSound(c.sound);
+      // A quick, bright "Hooray!" over the clapping.
+      if (c.shout && 'speechSynthesis' in window) speak(c.shout, { rate: 1.05, pitch: 1.15 });
     },
     [muted],
   );
@@ -353,6 +315,7 @@ export default function GameLittleLearners() {
   const startRound = useCallback(
     (a: Activity, skill: number, previousId?: string, focusNewest = false) => {
       seq.current++;
+      pendingNext.current = null;
       const r = generateRound(a, level, Math.random, previousId, { size: poolSize(a, level, skill), focusNewest });
       setRound(r);
       setWrongIds([]);
@@ -367,6 +330,7 @@ export default function GameLittleLearners() {
   const startDraw = useCallback(
     (a: DrawActivity, previousId?: string) => {
       seq.current++;
+      pendingNext.current = null;
       const r = generateDrawRound(a, level, Math.random, previousId);
       setDrawRound(r);
       setSolved(false);
@@ -382,7 +346,11 @@ export default function GameLittleLearners() {
     setMood((prev) => ({ mood: 'idle', key: prev.key + 1 }));
   };
 
+  /** A new screen always starts at the top, or a game opened from low in the menu starts scrolled past its question. */
+  const toTop = () => window.scrollTo({ top: 0 });
+
   const openActivity = (a: AnyActivity) => {
+    toTop();
     calmBuddy();
     setActivity(a);
     if (isDraw(a)) {
@@ -395,7 +363,9 @@ export default function GameLittleLearners() {
   };
 
   const goHome = () => {
+    toTop();
     seq.current++;
+    pendingNext.current = null;
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     setActivity(null);
     setRound(null);
@@ -412,7 +382,7 @@ export default function GameLittleLearners() {
   };
   const personal = (text: string) => sometimesWithName(text, name);
 
-  /** Star, chime and cheer; `next` runs once the cheer has been said. */
+  /** Star, chime and a cheer in the bubble; `next` runs after a short pause (or at once on a tap). */
   const celebrate = (text: string, next: () => void, levelUp?: string) => {
     const nextStars = stars + 1;
     const milestone = nextStars % MILESTONE_EVERY === 0;
@@ -425,9 +395,28 @@ export default function GameLittleLearners() {
     react(levelUp || milestone ? 'cheer' : 'happy');
     setSolved(true);
     setStars(nextStars);
-    sfx('right');
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    cheerSound(Boolean(levelUp || milestone));
     setFeedback({ kind: levelUp ? 'levelup' : milestone ? 'milestone' : 'right', text: line });
-    say(line, { delay: SFX_GAP_MS, then: next });
+    pendingNext.current = next;
+    const id = seq.current;
+    setTimeout(
+      () => {
+        if (seq.current !== id || pendingNext.current !== next) return;
+        pendingNext.current = null;
+        next();
+      },
+      levelUp || milestone ? BIG_NEXT_ROUND_MS : NEXT_ROUND_MS,
+    );
+  };
+
+  /** A tap after a right answer skips the pause and goes straight to the next question. */
+  const skipAhead = () => {
+    const go = pendingNext.current;
+    if (!go) return;
+    pendingNext.current = null;
+    seq.current++;
+    go();
   };
 
   /** Red but kind: a soft boop, a "let's try again" message that clears itself. */
@@ -437,13 +426,16 @@ export default function GameLittleLearners() {
     react('oops');
     setFeedback({ kind: 'wrong', text });
     setShakeKey((k) => k + 1);
-    say(text, { delay: SFX_GAP_MS });
     if (nudgeTimer.current) clearTimeout(nudgeTimer.current);
     nudgeTimer.current = setTimeout(() => setFeedback((f) => (f?.kind === 'wrong' ? null : f)), NUDGE_MS);
   };
 
   const onPick = (choice: Choice) => {
-    if (!round || !activity || solved || wrongIds.includes(choice.id)) return;
+    if (solved) {
+      skipAhead();
+      return;
+    }
+    if (!round || !activity || wrongIds.includes(choice.id)) return;
 
     if (choice.id === round.target.id) {
       const a = round.activity;
@@ -470,7 +462,6 @@ export default function GameLittleLearners() {
     setCounted(next);
     sfx('pop');
     react('nod');
-    say(String(next.length));
   };
 
   const finishWelcome = (newName: string, kind: BuddyKind) => {
@@ -478,14 +469,12 @@ export default function GameLittleLearners() {
     setBuddyId(kind);
     setAskName(false);
     react('happy');
-    const b = getBuddy(kind);
-    say(newName ? `Hi ${newName}! I'm ${b.name}. Let's play!` : `Hi! I'm ${b.name}. Let's play!`);
+    sfx('chime');
   };
 
   const pokeBuddy = () => {
     react('happy');
     sfx('pop');
-    say(name ? `Hee hee! Hi ${name}!` : 'Hee hee! That tickles!');
   };
 
   const meta = activity ? ACTIVITY_META[activity] : null;
@@ -507,7 +496,7 @@ export default function GameLittleLearners() {
 
       {askName ? (
         <div className="ll-wrap">
-          <BuddyWelcome initialName={name} initialBuddy={buddyId} onDone={finishWelcome} onSay={(t) => say(t)} />
+          <BuddyWelcome initialName={name} initialBuddy={buddyId} onDone={finishWelcome} onPick={() => sfx('pop')} />
         </div>
       ) : !activity || !current || !meta ? (
         <div className="ll-wrap">
@@ -712,17 +701,20 @@ export default function GameLittleLearners() {
           </div>
 
           {drawRound && (
-            <div className="ll-draw">
+            <div
+              className="ll-draw"
+              // Only a tap on the finished board skips; "Next" already moves on by itself.
+              onPointerDown={(e) => solved && (e.target as Element).closest('.lld-board') && skipAhead()}
+            >
               <LittleLearnersDraw
                 key={drawRound.key}
                 round={drawRound}
                 level={level}
                 onWin={() => celebrate(drawCheer(drawRound), () => startDraw(drawRound.activity, drawRound.figureId))}
                 onOops={encourage}
-                onPop={(word) => {
+                onPop={() => {
                   sfx('pop');
                   react('nod');
-                  if (word) say(word);
                 }}
                 onNext={() => startDraw(drawRound.activity, drawRound.figureId)}
               />
@@ -881,7 +873,8 @@ const CSS = `
 .ll-letter-hint strong { color: var(--ll-ink); }
 .ll-match-target { font-size: clamp(4.5rem, 20vw, 7rem); line-height: 1.1; margin-top: 8px; animation: ll-float 2.4s ease-in-out infinite; }
 
-.ll-count-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 64px)); justify-content: center; gap: 8px; margin-top: 14px; }
+.ll-count-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: calc(5 * 64px + 4 * 8px); margin: 14px auto 0; }
+.ll-count-grid > * { flex: 0 0 auto; width: min(64px, calc((100% - 32px) / 5)); }
 .ll-count-item { position: relative; border: none; background: transparent; font-size: clamp(2.2rem, 10vw, 3rem); line-height: 1; padding: 4px; border-radius: 16px; transition: transform .15s; }
 .ll-count-item.is-counted { background: #fef3c7; transform: scale(.92); }
 .ll-count-badge { position: absolute; top: -6px; right: -6px; background: #f59e0b; color: white; font-size: .85rem; font-weight: 900; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; }
@@ -913,7 +906,8 @@ const CSS = `
 .ll-dock-slot { margin-top: 18px; min-height: clamp(110px, 30vw, 140px); }
 .ll-dock { z-index: 40; display: flex; align-items: center; gap: 6px; min-height: inherit; pointer-events: none; }
 .ll-dock.is-floating { position: fixed; left: max(10px, calc(50% - 440px)); right: 10px; bottom: 8px; min-height: 0; }
-.ll-dock.is-floating .ll-dock-buddy { width: clamp(76px, 20vw, 100px); }
+/* While floating it may overlap a tile, so taps go through it to the game. */
+.ll-dock.is-floating .ll-dock-buddy { width: clamp(76px, 20vw, 100px); pointer-events: none; }
 .ll-dock-buddy { pointer-events: auto; flex: none; width: clamp(100px, 27vw, 128px); aspect-ratio: 120 / 132; border: none; background: none; padding: 0; filter: drop-shadow(0 4px 6px rgba(0,0,0,.08)); }
 .ll-feedback-slot { min-width: 0; max-width: 560px; }
 .ll-feedback { position: relative; --bb: #e5e7eb; --bg: #fff; background: var(--bg); border: 3px solid var(--bb); }
@@ -939,6 +933,74 @@ const CSS = `
 @keyframes ll-pop { from { transform: scale(.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @keyframes ll-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 @keyframes ll-fly { 0% { opacity: 1; transform: translate(-50%, -50%) rotate(var(--a)) translateY(0) scale(.6); } 100% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--a)) translateY(calc(-1 * var(--d))) scale(1.2); } }
+
+/* ---------- Phones: everything for one question (prompt, tiles or board, buddy) fits on one screen. ---------- */
+@media (max-width: 639px), (orientation: landscape) and (max-height: 520px) {
+  .ll-wrap { padding: 12px 12px 28px; }
+  .ll-hero { margin: 0 0 12px; }
+  .ll-kicker { font-size: .62rem; margin-bottom: 4px; }
+  .ll-title { font-size: clamp(2rem, 10.5vw, 2.6rem); }
+  .ll-greet { margin-top: 2px; }
+  .ll-greet-buddy { width: 62px; }
+  .ll-sub { font-size: 1.05rem; }
+  .ll-levels { gap: 8px; margin-bottom: 12px; }
+  .ll-level { padding: 6px 14px; gap: 8px; }
+  .ll-level-icon { font-size: 1.5rem; }
+  .ll-section { margin: 16px 2px 8px; }
+  .ll-menu { gap: 10px; }
+  .ll-card { padding: 14px 6px 12px; border-radius: 22px; gap: 4px; }
+  .ll-card-icon { font-size: 2.1rem; }
+  .ll-card-title { font-size: 1.05rem; line-height: 1.15; text-align: center; }
+  .ll-footer-row { margin-top: 18px; gap: 8px; }
+
+  .ll-topbar { gap: 8px; margin-bottom: 10px; }
+  .ll-round-btn { width: 44px; height: 44px; font-size: 1.25rem; }
+  .ll-activity-pill { padding: 8px 10px; font-size: 1rem; }
+  .ll-star-pill { padding: 6px 12px; font-size: 1rem; }
+  .ll-question { padding: 12px; border-radius: 22px; border-width: 3px; margin-bottom: 12px; }
+  .ll-say-btn { top: 6px; right: 6px; width: 40px; height: 40px; font-size: 1.1rem; }
+  .ll-prompt { font-size: clamp(1.3rem, 6.4vw, 1.7rem); margin: 0 36px; }
+  .ll-letter-hint { margin-top: 6px; font-size: 1.05rem; }
+  .ll-letter-hint-emoji { font-size: 1.7rem; }
+  .ll-match-target { font-size: min(18vw, 11vh); margin-top: 4px; }
+  .ll-count-grid { margin-top: 8px; gap: 4px; }
+  .ll-count-item { font-size: min(9vw, 2.4rem); min-height: 44px; min-width: 44px; }
+  .ll-tip { margin-top: 6px; font-size: .85rem; }
+
+  .ll-choices { gap: 10px; }
+  .ll-choice { border-width: 4px; border-radius: calc(var(--ll-radius) - 6px); }
+  /* Tiles stop being square before they push the buddy off a short screen. */
+  .ll-choices.n-3 .ll-choice { max-height: max(88px, calc(100vh - 470px)); max-height: max(88px, calc(100svh - 470px)); }
+  .ll-choices.n-4 .ll-choice { aspect-ratio: auto; height: clamp(88px, calc((100vh - 480px) / 2), 170px); height: clamp(88px, calc((100svh - 480px) / 2), 170px); }
+  .ll-glyph { font-size: clamp(2.8rem, 14vw, 4.2rem); }
+  .ll-emoji { font-size: clamp(2.6rem, 13vw, 4rem); }
+  .ll-shape { width: auto; height: 100%; aspect-ratio: 1; }
+  .ll-blob { width: auto; height: 82%; aspect-ratio: 1; }
+
+  .ll-dock-slot { margin-top: 10px; min-height: 104px; }
+  .ll-dock-buddy { width: 92px; }
+  .ll-feedback { padding: 10px 14px; font-size: 1rem; }
+}
+
+/* Short phones: the counting tip is for grown-ups, and the numbers on each picture say the same thing. */
+@media (max-width: 639px) and (max-height: 700px) {
+  .ll-tip { display: none; }
+}
+
+/* Phones on their side: question and buddy on the left, tiles or board on the right. */
+@media (orientation: landscape) and (max-height: 520px) {
+  .ll-wrap.is-play { max-width: none; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); grid-template-areas: "top top" "q play" "dock play"; grid-template-rows: auto auto 1fr; column-gap: 14px; align-items: start; }
+  .ll-wrap.is-play > .ll-topbar { grid-area: top; }
+  .ll-wrap.is-play > .ll-question { grid-area: q; margin-bottom: 0; }
+  .ll-wrap.is-play > .ll-choices, .ll-wrap.is-play > .ll-draw { grid-area: play; }
+  .ll-wrap.is-play > .ll-dock-slot { grid-area: dock; }
+  .ll-choices.n-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ll-choices.n-3 .ll-choice { aspect-ratio: 1; height: auto; max-height: calc(100vh - 150px); }
+  /* A floating buddy stays in the left column so its bubble never covers the tiles. */
+  .ll-dock.is-floating { right: auto; max-width: 44vw; }
+  .ll-choices.n-4 .ll-choice { height: clamp(70px, calc((100vh - 160px) / 2), 140px); }
+  .ll-match-target { font-size: min(10vw, 18vh); }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .ll-root *, .ll-root *::before, .ll-root *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition: none !important; }

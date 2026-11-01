@@ -129,12 +129,12 @@ type WelcomeProps = {
   initialName: string;
   initialBuddy: BuddyKind;
   onDone: (name: string, buddy: BuddyKind) => void;
-  /** Speak a short line (the buddy introducing itself). */
-  onSay: (text: string) => void;
+  /** A friend was picked (the parent plays a sound). */
+  onPick: () => void;
 };
 
 /** First screen: a grown-up types the child's name or nickname and the child picks a buddy. */
-export function BuddyWelcome({ initialName, initialBuddy, onDone, onSay }: WelcomeProps) {
+export function BuddyWelcome({ initialName, initialBuddy, onDone, onPick }: WelcomeProps) {
   const [name, setName] = useState(initialName);
   const [kind, setKind] = useState<BuddyKind>(initialBuddy);
   const [hop, setHop] = useState(0);
@@ -185,7 +185,7 @@ export function BuddyWelcome({ initialName, initialBuddy, onDone, onSay }: Welco
             onClick={() => {
               setKind(b.id);
               setHop((h) => h + 1);
-              onSay(`I'm ${b.name}!`);
+              onPick();
             }}
           >
             <BuddyFace buddy={b} />
