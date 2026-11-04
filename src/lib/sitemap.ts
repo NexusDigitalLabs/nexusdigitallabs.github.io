@@ -43,6 +43,7 @@ export function buildSitemapEntries(): MetadataRoute.Sitemap {
     entry('/huffle/', 0.7, 'monthly'),
     entry('/mentto/', 0.7, 'monthly'),
     entry('/odova/', 0.7, 'monthly'),
+    entry('/pdfly/', 0.7, 'monthly'),
   ];
 
   const articleRoutes = ARTICLES.map((a) =>
