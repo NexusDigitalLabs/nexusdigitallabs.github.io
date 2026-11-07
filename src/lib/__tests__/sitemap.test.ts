@@ -28,6 +28,7 @@ describe('buildSitemapEntries', () => {
     expect(urls).toContain(`${SITE_URL}/huffle/`);
     expect(urls).toContain(`${SITE_URL}/mentto/`);
     expect(urls).toContain(`${SITE_URL}/odova/`);
+    expect(urls).toContain(`${SITE_URL}/pdfly/`);
 
     for (const url of urls) {
       expect(url.startsWith(SITE_URL)).toBe(true);
@@ -54,7 +55,7 @@ describe('buildSitemapEntries', () => {
     }
 
     const expected =
-      13 /* static */ + ARTICLES.length + TOOLS.length + GAMES.length + indexableLessons.length;
+      14 /* static */ + ARTICLES.length + TOOLS.length + GAMES.length + indexableLessons.length;
     expect(entries).toHaveLength(expected);
   });
 

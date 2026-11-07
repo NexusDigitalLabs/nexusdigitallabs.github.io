@@ -24,6 +24,11 @@ describe('hidesSitePromos', () => {
     expect(hidesSitePromos('/mentto/')).toBe(true);
   });
 
+  it('hides on the PDFly product page', () => {
+    expect(hidesSitePromos('/pdfly')).toBe(true);
+    expect(hidesSitePromos('/pdfly/')).toBe(true);
+  });
+
   it('hides on every privacy policy and terms page, whichever app they belong to', () => {
     for (const path of [
       '/privacy-policy',
@@ -32,6 +37,7 @@ describe('hidesSitePromos', () => {
       '/odova/privacy-policy/',
       '/odova/terms/',
       '/mentto/privacy-policy/',
+      '/pdfly/privacy-policy/',
       '/anything/else/terms-of-service',
     ]) {
       expect(hidesSitePromos(path), path).toBe(true);

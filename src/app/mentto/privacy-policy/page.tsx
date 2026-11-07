@@ -41,7 +41,7 @@ export default function MenttoPrivacyPolicyPage() {
       <div className="mb-10 space-y-2 border-b border-slate-800/60 pb-8">
         <p className="text-[11px] font-semibold tracking-widest text-slate-500 uppercase">Legal · Mentto</p>
         <h1 className="text-2xl sm:text-3xl font-light tracking-tight text-white">Mentto Privacy Policy</h1>
-        <p className="text-xs text-slate-500 font-light">Last updated: October 21, 2026</p>
+        <p className="text-xs text-slate-500 font-light">Last updated: November 4, 2026</p>
       </div>
 
       <div>
@@ -57,8 +57,8 @@ export default function MenttoPrivacyPolicyPage() {
             Mentto works on your device. There is no Mentto account, no sign-up, no advertising, and no
             analytics or crash-reporting SDK. The records you keep are never sent to NexusDigitalLabs. If you
             turn on the optional Google Drive backup, a copy is saved to a hidden folder in your own Google
-            Drive. If you buy Mentto Pro, Google Play handles the payment and our billing provider,
-            RevenueCat, confirms the purchase; neither receives your students&apos; details.
+            Drive. If you buy Mentto Pro, Google Play or the App Store handles the payment and our
+            billing provider, RevenueCat, confirms the purchase; none of them receives your students&apos; details.
           </P>
         </Section>
 
@@ -92,9 +92,9 @@ export default function MenttoPrivacyPolicyPage() {
           <P>
             Mentto can remind you before each lesson and on the day a fee falls due. These reminders are
             scheduled locally on your device. Mentto does not use remote push notifications and does not
-            collect a push or device token. On Android 13 and later you are asked for permission first, and
-            you can turn notifications off at any time. Mentto may also ask you to allow &ldquo;Alarms &amp;
-            reminders&rdquo; so Android delivers reminders on time; this only affects timing.
+            collect a push or device token. On iPhone and on Android 13 and later you are asked for permission
+            first, and you can turn notifications off at any time. On Android, Mentto may also ask you to allow
+            &ldquo;Alarms &amp; reminders&rdquo; so reminders arrive on time; this only affects timing.
           </P>
         </Section>
 
@@ -126,8 +126,8 @@ export default function MenttoPrivacyPolicyPage() {
 
         <Section title="Mentto Pro Purchases">
           <P>
-            Mentto Pro is sold through Google Play. Google processes the payment; we never see your card or
-            payment details. To confirm and restore purchases, Mentto uses RevenueCat, a billing service
+            Mentto Pro is sold through Google Play on Android and the App Store on iPhone. Google or Apple
+            processes the payment; we never see your card or payment details. To confirm and restore purchases, Mentto uses RevenueCat, a billing service
             provider. RevenueCat receives a random identifier for your installation, your purchase and
             subscription status, and basic technical details such as the app version, operating system and
             store country. It does not receive your name, your students&apos; details or any of your records.
@@ -135,7 +135,7 @@ export default function MenttoPrivacyPolicyPage() {
             <a href="https://www.revenuecat.com/privacy/" className={link} target="_blank" rel="noopener noreferrer">
               privacy policy
             </a>
-            . You can manage or cancel a subscription in Google Play at any time; if Pro ends, nothing in the
+            . You can manage or cancel a subscription in Google Play or your Apple Account settings at any time; if Pro ends, nothing in the
             app is locked or deleted. Automatic backups pause, and backups already in your Drive stay there
             and can still be restored.
           </P>
@@ -151,9 +151,9 @@ export default function MenttoPrivacyPolicyPage() {
 
         <Section title="Device Backups">
           <P>
-            Android may include Mentto&apos;s data in your device backup to your Google account, depending on
-            your device settings. That backup is handled by Android and Google under their own terms, not by
-            Mentto.
+            Android may include Mentto&apos;s data in your device backup to your Google account, and iPhone
+            may include it in your iCloud Backup, depending on your device settings. These backups are handled
+            by Google and Apple under their own terms, not by Mentto.
           </P>
         </Section>
 
@@ -161,21 +161,23 @@ export default function MenttoPrivacyPolicyPage() {
           <P>Mentto contains no advertising, no third-party analytics, and no tracking.</P>
         </Section>
 
-        <Section title="Google Play Diagnostics">
+        <Section title="Store Diagnostics">
           <P>
             If you have opted in on your device, Google Play may collect crash and performance diagnostics
             (Android vitals) about apps you use, including Mentto. This is collected by Google under its own
-            policies and is available to us only in aggregate through the Play Console.
+            policies and is available to us only in aggregate through the Play Console. On iPhone, if you have
+            chosen to share analytics with app developers, Apple may provide us with similar crash and usage
+            data under its own policies, in App Store Connect.
           </P>
         </Section>
 
         <Section title="Data Retention &amp; Deletion">
           <P>
             Because your records live on your device, you control them. You can delete any student, payment
-            or lesson in the app. Uninstalling Mentto, or clearing its storage in your device settings,
+            or lesson in the app. Uninstalling Mentto, or on Android clearing its storage in your device settings,
             removes everything from the device. If you used Google Drive backup, you can also remove the
             backups from your Google account as described above. We hold no copy of your records, so there is
-            nothing for us to delete on our side. Purchase records are kept by Google Play and RevenueCat as
+            nothing for us to delete on our side. Purchase records are kept by Google Play, Apple and RevenueCat as
             required for billing and tax.
           </P>
         </Section>

@@ -139,6 +139,18 @@ const STATIC_CARDS: Record<string, OgCard> = {
     description: 'How the Mentto tutor planner handles your data.',
     accent: ACCENT_HEX.violet,
   },
+  '/pdfly/': {
+    eyebrow: 'PDFly',
+    title: 'PDFly — your private PDF toolbox',
+    description: 'Compress, merge, split and convert PDFs on your phone. Nothing is uploaded. Free on Android.',
+    accent: ACCENT_HEX.violet,
+  },
+  '/pdfly/privacy-policy/': {
+    eyebrow: 'PDFly',
+    title: 'PDFly Privacy Policy',
+    description: 'How the PDFly PDF toolbox handles your data.',
+    accent: ACCENT_HEX.violet,
+  },
   '/huffle/privacy-policy/': {
     eyebrow: 'Huffle',
     title: 'Huffle Privacy Policy',

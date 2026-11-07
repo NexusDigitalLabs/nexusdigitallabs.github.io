@@ -4,7 +4,7 @@
  * the website" prompt or a tip jar next to a store listing / privacy policy is
  * off-topic, and a privacy policy should be a clean document.
  */
-const APP_PAGES = ['/huffle', '/mentto', '/odova'];
+const APP_PAGES = ['/huffle', '/mentto', '/odova', '/pdfly'];
 
 /** Toddler pages: a small child taps everything, so nothing there may lead off the page. */
 const KIDS_PAGES = ['/games/little-learners'];
