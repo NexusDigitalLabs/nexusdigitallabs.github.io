@@ -30,7 +30,7 @@ import {
 import { getBuddy, sometimesWithName, withName, type BuddyKind, type BuddyMood } from '@/lib/games/little-learners-buddy';
 import LittleLearnersDraw from './LittleLearnersDraw';
 import { BUDDY_CSS, BuddyFace, BuddyWelcome } from './LittleBuddy';
-import { playSound, randomCheer, type SoundName } from './littleLearnersSounds';
+import { playSound, randomCheer, randomShout, type SoundName } from './littleLearnersSounds';
 
 const STORAGE_KEY = 'ndl-little-learners';
 /** Only questions are spoken; right and wrong answers get a sound. How long a right answer shows before the next question. */
@@ -298,15 +298,13 @@ export default function GameLittleLearners() {
     },
     [muted],
   );
-  /** A different happy sound each time: chime, a cheering crowd, a party horn, ta-da… */
+  /** Every right answer: a quick, bright "Yay!" or "Hooray!" over a different happy sound each time. */
   const cheerSound = useCallback(
     (big: boolean) => {
       if (muted) return;
-      if (big) return playSound('fanfare');
-      const c = randomCheer();
+      const c = big ? { sound: 'fanfare' as const, shout: randomShout() } : randomCheer();
       playSound(c.sound);
-      // A quick, bright "Hooray!" over the chime.
-      if (c.shout && 'speechSynthesis' in window) speak(c.shout, { rate: 1.05, pitch: 1.15 });
+      if ('speechSynthesis' in window) speak(c.shout, { rate: 1.05, pitch: 1.15 });
     },
     [muted],
   );

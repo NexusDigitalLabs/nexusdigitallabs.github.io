@@ -164,17 +164,26 @@ export function playSound(name: SoundName) {
 
 const SHOUTS = ['Hooray!', 'Yay!', 'Woohoo!', 'Yippee!'];
 
-/** A success sound, plus sometimes a short voiced shout ("Hooray!") to say over it. */
-export type Cheer = { sound: SoundName; shout?: string };
+/** A success sound plus a short voiced shout ("Yay!") to say over it. */
+export type Cheer = { sound: SoundName; shout: string };
 
-const CHEERS = [...SUCCESS_SOUNDS, 'hooray'] as const;
-let lastCheer: string | null = null;
+/** Picks from `items` at random, avoiding `last` so nothing repeats twice in a row. */
+function pickFresh<T>(items: readonly T[], last: T | null, rng: () => number): T {
+  const options = items.filter((x) => x !== last);
+  return options[Math.floor(rng() * options.length)];
+}
 
-/** A random cheer, never the same kind as the one before. */
+let lastSound: SoundName | null = null;
+let lastShout: string | null = null;
+
+/** A shout on its own (used with the level-up fanfare). */
+export function randomShout(rng: () => number = Math.random): string {
+  lastShout = pickFresh(SHOUTS, lastShout, rng);
+  return lastShout;
+}
+
+/** A random success sound and shout, neither the same as the time before. */
 export function randomCheer(rng: () => number = Math.random): Cheer {
-  const options = CHEERS.filter((s) => s !== lastCheer);
-  const pick = options[Math.floor(rng() * options.length)];
-  lastCheer = pick;
-  if (pick === 'hooray') return { sound: 'chime', shout: SHOUTS[Math.floor(rng() * SHOUTS.length)] };
-  return { sound: pick };
+  lastSound = pickFresh<SoundName>(SUCCESS_SOUNDS, lastSound, rng);
+  return { sound: lastSound, shout: randomShout(rng) };
 }
